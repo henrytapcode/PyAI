@@ -11,3 +11,5 @@ __pycache__/
 apps/web/src/generated/
 apps/web/next-env.d.ts
 *.tsbuildinfo
+apps/web/public/pyrunner/
+apps/web/out/
