@@ -1,0 +1,136 @@
+# Portfolio projects shown on /portfolio, listed by increasing difficulty (the validator checks the order).
+# Each one is something you can put on a CV and talk about in an interview.
+# `lesson` links to the project lesson; capstones without a lesson show as "coming soon".
+projects:
+  - id: grade-report
+    lesson: p1-06-mini-project
+    phase: p1
+    difficulty: 1
+    tags: [functions, lists, dicts]
+    title: { en: "Grade report generator", vi: "Trình tạo bảng điểm" }
+    pitch:
+      en: "Turn raw student scores into a clean report: averages, letter grades, best and worst performers. The same shape as any small reporting script you will write at work."
+      vi: "Biến điểm thô của học sinh thành một bảng báo cáo gọn gàng: điểm trung bình, xếp loại, người cao nhất và thấp nhất. Đây cũng là khung của mọi script báo cáo nhỏ bạn sẽ viết khi đi làm."
+    cv_bullet:
+      en: "Built a Python reporting tool that turns raw score data into a ranked, formatted summary (averages, letter grades, top/bottom performers), verified by automated tests."
+      vi: "Xây dựng công cụ báo cáo bằng Python, chuyển dữ liệu điểm thô thành bảng tổng hợp có xếp hạng và định dạng (điểm trung bình, xếp loại, nhóm cao/thấp nhất), được kiểm chứng bằng test tự động."
+    skills: ["Python functions", "lists & dicts", "string formatting", "sorting with key="]
+    stretch:
+      en: ["Read the scores from a CSV file", "Export the report as Markdown", "Add a histogram of grades with text bars"]
+      vi: ["Đọc điểm từ file CSV", "Xuất báo cáo ra Markdown", "Thêm biểu đồ phân bố điểm bằng thanh ký tự"]
+
+  - id: expense-tracker
+    lesson: p2-09-mini-project
+    phase: p2
+    difficulty: 2
+    tags: [dataclasses, json, context-managers]
+    title: { en: "Expense tracker", vi: "Ứng dụng quản lý chi tiêu" }
+    pitch:
+      en: "Record expenses, save them to JSON and get monthly and per-category summaries. You model real data with dataclasses and handle bad input safely, which is daily work for any backend or data engineer."
+      vi: "Ghi lại các khoản chi, lưu ra JSON và xem tổng hợp theo tháng và theo danh mục. Bạn mô hình hóa dữ liệu thật bằng dataclass và xử lý dữ liệu lỗi an toàn, việc hằng ngày của kỹ sư backend hay data."
+    cv_bullet:
+      en: "Developed an expense tracker that models transactions with dataclasses, persists them to JSON with input validation, and produces monthly and per-category spending summaries."
+      vi: "Phát triển ứng dụng quản lý chi tiêu: mô hình hóa giao dịch bằng dataclass, lưu trữ JSON có kiểm tra dữ liệu đầu vào, và tổng hợp chi tiêu theo tháng và theo danh mục."
+    skills: ["dataclasses", "type hints", "JSON persistence", "context managers", "error handling"]
+    stretch:
+      en: ["Add a budget per category with warnings", "Import a bank-statement CSV", "Wrap it in a small command-line interface with argparse"]
+      vi: ["Thêm ngân sách cho từng danh mục kèm cảnh báo", "Nhập file CSV sao kê ngân hàng", "Bọc thành giao diện dòng lệnh nhỏ bằng argparse"]
+
+  - id: text-toolkit
+    lesson: p3-05-mini-project
+    phase: p3
+    difficulty: 3
+    tags: [testing, logging, data-prep]
+    title: { en: "Text-cleaning toolkit for AI datasets", vi: "Bộ công cụ làm sạch văn bản cho dữ liệu AI" }
+    pitch:
+      en: "Every LLM and NLP project starts with messy text. Build a small, well-tested module that normalises whitespace and Unicode, removes duplicates and masks emails and phone numbers, with logging so you can see what it changed."
+      vi: "Mọi dự án LLM và NLP đều bắt đầu từ văn bản lộn xộn. Hãy xây một module nhỏ, có test kỹ, để chuẩn hóa khoảng trắng và Unicode, bỏ trùng lặp, che email và số điện thoại, kèm logging để biết nó đã sửa gì."
+    cv_bullet:
+      en: "Built a text-normalisation toolkit for NLP datasets (whitespace/Unicode cleanup, de-duplication, PII masking) with parametrized pytest suites, fixtures and structured logging."
+      vi: "Xây dựng bộ công cụ chuẩn hóa văn bản cho dữ liệu NLP (làm sạch khoảng trắng/Unicode, khử trùng lặp, che thông tin cá nhân) với bộ test pytest parametrize, fixture và logging có cấu trúc."
+    skills: ["pytest", "fixtures & parametrize", "logging", "regular expressions", "clean code with ruff"]
+    stretch:
+      en: ["Publish it as an installable package with uv", "Add a CLI that cleans a whole folder", "Measure how many rows each rule changed"]
+      vi: ["Đóng gói để cài được bằng uv", "Thêm CLI làm sạch cả một thư mục", "Đo mỗi quy tắc đã sửa bao nhiêu dòng"]
+
+  - id: data-analysis
+    lesson: p4-06-mini-project
+    phase: p4
+    difficulty: 3
+    tags: [data]
+    title: { en: "Exploratory data analysis report", vi: "Báo cáo phân tích dữ liệu khám phá" }
+    pitch:
+      en: "Take a real public dataset, clean it with Pandas, answer three business questions with numbers and charts, and write up what you found."
+      vi: "Lấy một bộ dữ liệu công khai thật, làm sạch bằng Pandas, trả lời ba câu hỏi kinh doanh bằng số liệu và biểu đồ, rồi viết lại những gì bạn phát hiện."
+    cv_bullet:
+      en: "Performed exploratory analysis of a public dataset with Pandas and Matplotlib: cleaned missing and inconsistent values, aggregated key metrics and presented findings with charts."
+      vi: "Phân tích khám phá một bộ dữ liệu công khai bằng Pandas và Matplotlib: xử lý giá trị thiếu và không nhất quán, tổng hợp chỉ số chính và trình bày kết quả bằng biểu đồ."
+    skills: ["NumPy", "Pandas", "Matplotlib", "SQL basics", "data cleaning"]
+
+  - id: ml-classifier
+    lesson: p5-05-mini-project
+    phase: p5
+    difficulty: 4
+    tags: [ml, evaluation]
+    title: { en: "Support-ticket classifier", vi: "Bộ phân loại ticket hỗ trợ" }
+    pitch:
+      en: "Route customer messages to the right team with scikit-learn. You learn the workflow that matters more than the model: a clean train/test split, a baseline, and honest evaluation."
+      vi: "Phân loại tin nhắn khách hàng về đúng bộ phận bằng scikit-learn. Bạn học quy trình quan trọng hơn cả mô hình: chia train/test đúng cách, có baseline và đánh giá trung thực."
+    cv_bullet:
+      en: "Trained and evaluated a scikit-learn text classifier for routing support tickets, comparing against a baseline with cross-validation, precision/recall and confusion-matrix analysis."
+      vi: "Huấn luyện và đánh giá bộ phân loại văn bản bằng scikit-learn để định tuyến ticket hỗ trợ, so sánh với baseline qua cross-validation, precision/recall và ma trận nhầm lẫn."
+    skills: ["scikit-learn", "train/test split", "cross-validation", "precision & recall"]
+
+  - id: rag-qa
+    lesson: p7-09-mini-project-rag
+    phase: p7
+    difficulty: 4
+    tags: [rag, llm]
+    title: { en: "Documentation Q&A with RAG", vi: "Hỏi đáp tài liệu bằng RAG" }
+    pitch:
+      en: "Answer questions about a set of documents with an LLM that cites its sources. Chunking, embeddings, vector search and grounded prompts: the most requested skill in AI engineering job posts."
+      vi: "Trả lời câu hỏi về một bộ tài liệu bằng LLM có trích dẫn nguồn. Chia đoạn, embedding, tìm kiếm vector và prompt có căn cứ: kỹ năng được tuyển nhiều nhất trong các tin tuyển AI Engineer."
+    cv_bullet:
+      en: "Built a retrieval-augmented Q&A system over technical documentation: chunking, embeddings, vector search and grounded answers with source citations, measured on a small eval set."
+      vi: "Xây dựng hệ thống hỏi đáp tăng cường truy xuất (RAG) trên tài liệu kỹ thuật: chia đoạn, embedding, tìm kiếm vector và câu trả lời có trích dẫn nguồn, đo chất lượng trên bộ eval nhỏ."
+    skills: ["embeddings", "vector database", "prompting", "RAG", "evals"]
+
+  - id: tool-agent
+    lesson: p7-10-mini-project-agent
+    phase: p7
+    difficulty: 5
+    tags: [agents, llm]
+    title: { en: "Tool-using assistant agent", vi: "Agent trợ lý dùng tool" }
+    pitch:
+      en: "An LLM that decides when to call a calculator, a search function or a file reader, with step limits and logged traces so you can debug it."
+      vi: "Một LLM tự quyết khi nào gọi máy tính, hàm tìm kiếm hay đọc file, có giới hạn số bước và log lại từng bước để debug."
+    cv_bullet:
+      en: "Implemented a tool-using LLM agent with structured tool calls, input validation, step limits and traced execution logs for debugging and evaluation."
+      vi: "Triển khai agent LLM dùng tool với lời gọi tool có cấu trúc, kiểm tra đầu vào, giới hạn số bước và log thực thi để debug và đánh giá."
+    skills: ["tool use", "structured output", "agent loops", "logging & tracing"]
+
+  - id: cap-rag-chatbot
+    phase: p8
+    difficulty: 5
+    tags: [rag, production, evaluation]
+    title: { en: "Capstone: RAG chatbot with evals", vi: "Capstone: RAG chatbot có eval" }
+    pitch:
+      en: "Your RAG system as a real service: a FastAPI endpoint, caching, cost and latency tracking, and an evaluation suite that runs on every change."
+      vi: "Đưa hệ thống RAG thành dịch vụ thật: endpoint FastAPI, cache, theo dõi chi phí và độ trễ, và bộ eval chạy mỗi lần thay đổi."
+    cv_bullet:
+      en: "Shipped a RAG chatbot as a FastAPI service with caching, cost/latency monitoring and an automated evaluation suite guarding answer quality."
+      vi: "Triển khai RAG chatbot thành dịch vụ FastAPI có cache, theo dõi chi phí/độ trễ và bộ eval tự động bảo vệ chất lượng câu trả lời."
+    skills: ["FastAPI", "Docker", "caching", "monitoring", "evals"]
+
+  - id: cap-tool-agent
+    phase: p8
+    difficulty: 5
+    tags: [agents, production]
+    title: { en: "Capstone: production tool agent", vi: "Capstone: agent dùng tool cho production" }
+    pitch:
+      en: "Take the agent to production: safe tool permissions, retries, budgets per request and dashboards for what it did."
+      vi: "Đưa agent lên production: phân quyền tool an toàn, retry, giới hạn ngân sách mỗi request và dashboard theo dõi hành vi."
+    cv_bullet:
+      en: "Deployed a tool-using agent behind an API with permission-scoped tools, retries, per-request cost budgets and execution dashboards."
+      vi: "Triển khai agent dùng tool sau một API với tool được phân quyền, retry, ngân sách chi phí theo request và dashboard theo dõi thực thi."
+    skills: ["agents", "API design", "observability", "cost control"]

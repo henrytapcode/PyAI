@@ -1,20 +1,51 @@
 {
   "$id": "interview.schema.json",
   "type": "object",
-  "required": ["questions"],
+  "required": [
+    "questions"
+  ],
   "properties": {
     "questions": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "topic", "level", "en"],
+        "required": [
+          "id",
+          "topic",
+          "level",
+          "en"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-          "topic": { "type": "string" },
-          "level": { "enum": ["junior", "mid"] },
-          "code": { "type": "string" },
-          "en": { "$ref": "#/$defs/qa" },
-          "vi": { "$ref": "#/$defs/qa" }
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              "junior",
+              "mid"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "en": {
+            "$ref": "#/$defs/qa"
+          },
+          "vi": {
+            "$ref": "#/$defs/qa"
+          },
+          "kind": {
+            "enum": [
+              "concept",
+              "coding",
+              "scenario",
+              "system"
+            ]
+          }
         },
         "additionalProperties": false
       }
@@ -23,8 +54,22 @@
   "$defs": {
     "qa": {
       "type": "object",
-      "required": ["question", "answer"],
-      "properties": { "question": { "type": "string" }, "answer": { "type": "string" } },
+      "required": [
+        "question",
+        "answer"
+      ],
+      "properties": {
+        "question": {
+          "type": "string"
+        },
+        "answer": {
+          "type": "string"
+        },
+        "tip": {
+          "type": "string",
+          "description": "What the interviewer is really checking / how to structure the answer"
+        }
+      },
       "additionalProperties": false
     }
   },

@@ -1,0 +1,30 @@
+{
+  "$id": "portfolio.schema.json",
+  "title": "Portfolio projects, listed by increasing difficulty",
+  "type": "object",
+  "required": ["projects"],
+  "properties": {
+    "projects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "difficulty", "title", "pitch", "cv_bullet", "skills"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "lesson": { "type": "string", "description": "Project lesson id; omit for capstones not built yet" },
+          "phase": { "type": "string", "pattern": "^p[0-9]$" },
+          "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "title": { "$ref": "common.schema.json#/$defs/i18nText" },
+          "pitch": { "$ref": "common.schema.json#/$defs/i18nText" },
+          "cv_bullet": { "$ref": "common.schema.json#/$defs/i18nText" },
+          "skills": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "stretch": { "$ref": "common.schema.json#/$defs/i18nList" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

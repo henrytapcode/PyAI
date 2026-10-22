@@ -5,8 +5,9 @@ Output (gitignored):
   apps/web/src/generated/lessons/<id>.json   full lesson: markdown, examples, exercises, quiz
   apps/web/src/generated/exams/<id>.json     phase tests, placement, mock exams
   apps/web/src/generated/review.json         every flashcard + question (for spaced repetition)
-  apps/web/src/generated/glossary.json, interview.json
+  apps/web/src/generated/glossary.json, interview.json, portfolio.json
   apps/web/public/pyrunner/runner.py         browser test runner (same file the validator uses)
+  apps/web/public/pyrunner/tracer.py         step-through tracer for the "Visualize" view
 """
 
 from __future__ import annotations
@@ -42,17 +43,42 @@ def i18n_files(folder: Path, stem: str) -> dict:
     return {lang: text for lang in ("en", "vi") if (text := read(folder / f"{stem}.{lang}.md")) is not None}
 
 
+def explained(py: Path) -> tuple[dict, dict]:
+    """Read ``<stem>.<lang>.md`` next to a code file: '# Title' line, then the explanation."""
+    titles, bodies = {}, {}
+    for lang in ("en", "vi"):
+        text = read(py.with_suffix(f".{lang}.md"))
+        if text is None:
+            continue
+        lines = text.lstrip().splitlines()
+        if lines and lines[0].startswith("# "):
+            titles[lang] = lines[0][2:].strip()
+            lines = lines[1:]
+        bodies[lang] = "\n".join(lines).strip()
+    return titles, bodies
+
+
 def build_example(py: Path) -> dict:
     code = py.read_text(encoding="utf-8")
-    first = code.splitlines()[0] if code else ""
-    title = first.lstrip("# ").strip() if first.startswith("#") else py.stem.replace("_", " ")
-    return {"name": py.stem, "title": title, "code": code, "output": read(py.with_suffix(".out")) or ""}
+    titles, bodies = explained(py)
+    if "en" not in titles:
+        first = code.splitlines()[0] if code else ""
+        titles["en"] = first.lstrip("# ").strip() if first.startswith("#") else py.stem.replace("_", " ")
+    return {"name": py.stem, "title": titles, "explain": bodies, "code": code, "output": read(py.with_suffix(".out")) or ""}
+
+
+def build_alternative(py: Path) -> dict:
+    titles, bodies = explained(py)
+    titles.setdefault("en", py.stem.replace("_", " "))
+    return {"name": py.stem, "title": titles, "explain": bodies, "code": py.read_text(encoding="utf-8")}
 
 
 def build_exercise(ex_dir: Path) -> dict:
     meta = load_yaml(ex_dir / "exercise.yaml")
+    alt_dir = ex_dir / "alternatives"
     return {
         **meta,
+        "alternatives": [build_alternative(a) for a in sorted(alt_dir.glob("*.py"))] if alt_dir.exists() else [],
         "prompt": i18n_files(ex_dir, "prompt"),
         "starter": read(ex_dir / "starter.py") or "",
         "solution": read(ex_dir / "solution.py") or "",
@@ -153,13 +179,16 @@ def main() -> int:
     write_json(OUT / "glossary.json", glossary)
     interview_path = CURRICULUM / "interview" / "questions.yaml"
     write_json(OUT / "interview.json", load_yaml(interview_path) if interview_path.exists() else {"questions": []})
+    portfolio_path = CURRICULUM / "portfolio.yaml"
+    write_json(OUT / "portfolio.json", load_yaml(portfolio_path) if portfolio_path.exists() else {"projects": []})
     # Keep lessons/ and exams/ importable even when empty.
     (OUT / "lessons").mkdir(parents=True, exist_ok=True)
     (OUT / "exams").mkdir(parents=True, exist_ok=True)
 
-    runner_dst = WEB / "public" / "pyrunner" / "runner.py"
-    runner_dst.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(ROOT / "tools" / "pyrunner" / "runner.py", runner_dst)
+    runner_dir = WEB / "public" / "pyrunner"
+    runner_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("runner.py", "tracer.py"):
+        shutil.copyfile(ROOT / "tools" / "pyrunner" / name, runner_dir / name)
 
     print(f"Built {lesson_count} lessons, {len(exams)} exams, "
           f"{len(review['flashcards'])} flashcards, {len(review['questions'])} questions -> {OUT.relative_to(ROOT)}")

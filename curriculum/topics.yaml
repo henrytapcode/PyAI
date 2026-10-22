@@ -12,14 +12,36 @@ topics:
   range:        { en: "range()", vi: "range()" }
   lists:        { en: "Lists", vi: "List" }
   dicts:        { en: "Dictionaries", vi: "Dictionary" }
+  tuples:       { en: "Tuples", vi: "Tuple" }
+  sets:         { en: "Sets", vi: "Set" }
   functions:    { en: "Functions", vi: "Hàm" }
   scope:        { en: "Scope", vi: "Phạm vi biến" }
   modules:      { en: "Modules", vi: "Module" }
   files:        { en: "File I/O", vi: "Đọc ghi file" }
   exceptions:   { en: "Exceptions", vi: "Ngoại lệ" }
   debugging:    { en: "Debugging", vi: "Debug" }
+  stdlib:       { en: "Standard library", vi: "Thư viện chuẩn" }
+  json:         { en: "JSON & CSV", vi: "JSON & CSV" }
+  comprehensions: { en: "Comprehensions", vi: "Comprehension" }
   oop:          { en: "OOP", vi: "OOP" }
+  classes:      { en: "Classes & objects", vi: "Class & object" }
+  inheritance:  { en: "Inheritance & composition", vi: "Kế thừa & composition" }
+  dataclasses:  { en: "Dataclasses", vi: "Dataclass" }
+  typing:       { en: "Type hints", vi: "Type hint" }
+  iterators:    { en: "Iterators & generators", vi: "Iterator & generator" }
+  decorators:   { en: "Decorators", vi: "Decorator" }
+  context-managers: { en: "Context managers", vi: "Context manager" }
   testing:      { en: "Testing", vi: "Kiểm thử" }
+  fixtures:     { en: "pytest fixtures", vi: "Fixture của pytest" }
+  linting:      { en: "Linting & formatting", vi: "Lint & format" }
+  logging:      { en: "Logging", vi: "Logging" }
+  packaging:    { en: "Project structure", vi: "Cấu trúc project" }
+  git:          { en: "Git", vi: "Git" }
+  apis:         { en: "APIs & HTTP", vi: "API & HTTP" }
+  data-prep:    { en: "Data preparation", vi: "Chuẩn bị dữ liệu" }
+  performance:  { en: "Performance", vi: "Hiệu năng" }
+  evaluation:   { en: "Evaluation", vi: "Đánh giá" }
+  system-design: { en: "System design", vi: "Thiết kế hệ thống" }
   data:         { en: "Data (NumPy/Pandas)", vi: "Dữ liệu (NumPy/Pandas)" }
   ml:           { en: "Machine learning", vi: "Machine learning" }
   dl:           { en: "Deep learning", vi: "Deep learning" }

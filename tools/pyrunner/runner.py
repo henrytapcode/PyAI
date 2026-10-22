@@ -5,19 +5,27 @@ Runs in two places with identical behaviour:
   * in CPython, from tools/validate.py, to prove every exercise works in the browser.
 
 Supported pytest subset: plain ``assert`` (with operand introspection), ``pytest.raises``,
-``pytest.approx``, ``pytest.mark.parametrize`` and the ``capsys`` fixture.
+``pytest.approx``, ``pytest.mark.parametrize``, ``pytest.fail``, the built-in fixtures ``capsys``,
+``tmp_path``, ``caplog`` and ``monkeypatch``, and ``@pytest.fixture`` functions defined in the test
+file (including ``yield`` fixtures with teardown).
 Student code is loaded as the module ``exercise``; tests do ``from exercise import ...``.
 """
 
 from __future__ import annotations
 
 import ast
+import importlib
 import inspect
 import io
 import json
 import linecache
+import logging
+import os
+import pathlib
 import re
+import shutil
 import sys
+import tempfile
 import traceback
 import types
 from contextlib import redirect_stderr, redirect_stdout
@@ -79,12 +87,28 @@ class _Mark:
         return lambda *a, **k: (a[0] if a and callable(a[0]) else (lambda f: f))
 
 
+def _fixture(*args, **_kwargs):
+    def mark(fn):
+        fn._pyai_fixture = True
+        return fn
+
+    return mark(args[0]) if args and callable(args[0]) else mark
+
+
+def _fail(reason: str = "", pytrace: bool = True):  # noqa: ARG001 - pytest signature
+    raise AssertionError(reason or "failed")
+
+
 def _make_pytest_shim():
     mod = types.ModuleType("pytest")
     mod.raises = lambda expected, match=None: _RaisesContext(expected, match)
     mod.approx = _Approx
     mod.mark = _Mark()
-    mod.fixture = lambda *a, **k: (a[0] if a and callable(a[0]) else (lambda f: f))
+    mod.fixture = _fixture
+    mod.fail = _fail
+    mod.MonkeyPatch = _MonkeyPatch
+    mod.LogCaptureFixture = _Caplog
+    mod.CaptureFixture = _Capsys
     mod.__file__ = "<pytest-shim>"
     return mod
 
@@ -110,6 +134,207 @@ class _Capsys:
         res = _CaptureResult((out[self._o:], err[self._e:]))
         self._o, self._e = len(out), len(err)
         return res
+
+
+class _ListHandler(logging.Handler):
+    def __init__(self):
+        super().__init__(level=0)
+        self.records: list[logging.LogRecord] = []
+        self.setFormatter(logging.Formatter("%(levelname)-8s %(name)s:%(filename)s:%(lineno)d %(message)s"))
+
+    def emit(self, record):
+        self.records.append(record)
+
+
+class _Caplog:
+    """Subset of pytest's ``caplog``: records, messages, text, record_tuples, clear, set_level, at_level."""
+
+    def __init__(self):
+        self.handler = _ListHandler()
+        self._restore: list[tuple[logging.Logger, int]] = []
+        logging.getLogger().addHandler(self.handler)
+
+    @property
+    def records(self):
+        return self.handler.records
+
+    @property
+    def messages(self):
+        return [r.getMessage() for r in self.records]
+
+    @property
+    def record_tuples(self):
+        return [(r.name, r.levelno, r.getMessage()) for r in self.records]
+
+    @property
+    def text(self):
+        return "\n".join(self.handler.format(r) for r in self.records) + ("\n" if self.records else "")
+
+    def clear(self):
+        self.handler.records.clear()
+
+    def set_level(self, level, logger=None):
+        lg = logging.getLogger(logger)
+        self._restore.append((lg, lg.level))
+        lg.setLevel(level)
+
+    def at_level(self, level, logger=None):
+        caplog = self
+
+        class _Ctx:
+            def __enter__(self):
+                lg = logging.getLogger(logger)
+                self.lg, self.old = lg, lg.level
+                lg.setLevel(level)
+                return caplog
+
+            def __exit__(self, *exc):
+                self.lg.setLevel(self.old)
+                return False
+
+        return _Ctx()
+
+    def _finish(self):
+        logging.getLogger().removeHandler(self.handler)
+        for lg, level in reversed(self._restore):
+            lg.setLevel(level)
+
+
+_NOTSET = object()
+
+
+class _MonkeyPatch:
+    """Subset of pytest's ``monkeypatch``; everything is undone after the test."""
+
+    def __init__(self):
+        self._undo: list = []
+
+    @staticmethod
+    def _resolve(dotted: str):
+        module_name, _, attr = dotted.rpartition(".")
+        parts = module_name.split(".")
+        for i in range(len(parts), 0, -1):
+            try:
+                obj = importlib.import_module(".".join(parts[:i]))
+            except ImportError:
+                continue
+            for part in parts[i:]:
+                obj = getattr(obj, part)
+            return obj, attr
+        raise AttributeError(f"cannot resolve {dotted!r}")
+
+    def setattr(self, target, name, value=_NOTSET, raising=True):
+        if value is _NOTSET:
+            if not isinstance(target, str):
+                raise TypeError("use monkeypatch.setattr(obj, 'name', value)")
+            value = name
+            target, name = self._resolve(target)
+        old = getattr(target, name, _NOTSET)
+        if raising and old is _NOTSET:
+            raise AttributeError(f"{target!r} has no attribute {name!r}")
+        self._undo.append(lambda: delattr(target, name) if old is _NOTSET else setattr(target, name, old))
+        setattr(target, name, value)
+
+    def delattr(self, target, name=_NOTSET, raising=True):
+        if name is _NOTSET:
+            target, name = self._resolve(target)
+        if not hasattr(target, name):
+            if raising:
+                raise AttributeError(name)
+            return
+        old = getattr(target, name)
+        self._undo.append(lambda: setattr(target, name, old))
+        delattr(target, name)
+
+    def setitem(self, mapping, key, value):
+        old = mapping.get(key, _NOTSET)
+        self._undo.append(lambda: mapping.pop(key, None) if old is _NOTSET else mapping.__setitem__(key, old))
+        mapping[key] = value
+
+    def delitem(self, mapping, key, raising=True):
+        if key not in mapping:
+            if raising:
+                raise KeyError(key)
+            return
+        old = mapping[key]
+        self._undo.append(lambda: mapping.__setitem__(key, old))
+        del mapping[key]
+
+    def setenv(self, name, value, prepend=None):
+        value = str(value)
+        if prepend and name in os.environ:
+            value = value + prepend + os.environ[name]
+        self.setitem(os.environ, name, value)
+
+    def delenv(self, name, raising=True):
+        self.delitem(os.environ, name, raising)
+
+    def chdir(self, path):
+        old = os.getcwd()
+        self._undo.append(lambda: os.chdir(old))
+        os.chdir(path)
+
+    def undo(self):
+        while self._undo:
+            self._undo.pop()()
+
+
+class _FixtureError(Exception):
+    pass
+
+
+def _resolve_fixture(name, test_mod, cache, cleanups, out, err, chain=()):
+    if name in cache:
+        return cache[name]
+    if name in chain:
+        raise _FixtureError(f"recursive fixture {name!r}")
+    if name == "capsys":
+        value = _Capsys(out, err)
+    elif name == "tmp_path":
+        value = pathlib.Path(tempfile.mkdtemp(prefix="pyai-"))
+        cleanups.append(lambda p=value: shutil.rmtree(p, ignore_errors=True))
+    elif name == "caplog":
+        value = _Caplog()
+        cleanups.append(value._finish)
+    elif name == "monkeypatch":
+        value = _MonkeyPatch()
+        cleanups.append(value.undo)
+    else:
+        fn = getattr(test_mod, name, None)
+        if not getattr(fn, "_pyai_fixture", False):
+            raise _FixtureError(f"fixture {name!r} not found")
+        kwargs = {
+            p: _resolve_fixture(p, test_mod, cache, cleanups, out, err, (*chain, name))
+            for p in inspect.signature(fn).parameters
+        }
+        if inspect.isgeneratorfunction(fn):
+            gen = fn(**kwargs)
+            value = next(gen)
+            cleanups.append(lambda g=gen: next(g, None))
+        else:
+            value = fn(**kwargs)
+    cache[name] = value
+    return value
+
+
+def _logging_snapshot():
+    root = logging.getLogger()
+    return root, list(root.handlers), root.level, logging.root.manager.disable
+
+
+def _logging_restore(snapshot):
+    root, handlers, level, disable = snapshot
+    root.handlers[:] = handlers
+    root.setLevel(level)
+    logging.disable(disable)
+
+
+def reset_state():
+    """Called by the browser before each run so logging setup from a previous run does not leak."""
+    root = logging.getLogger()
+    root.handlers[:] = []
+    root.setLevel(logging.WARNING)
+    logging.disable(logging.NOTSET)
 
 
 # ---------------------------------------------------------------- helpers
@@ -179,7 +404,7 @@ def _student_line(tb) -> int | None:
 def _collect(test_mod):
     cases = []
     for name, fn in list(vars(test_mod).items()):
-        if not (name.startswith("test") and inspect.isfunction(fn)):
+        if not (name.startswith("test") and inspect.isfunction(fn)) or getattr(fn, "_pyai_fixture", False):
             continue
         if fn.__code__.co_filename != TEST_FILE:
             continue
@@ -210,6 +435,8 @@ def run_tests(user_code: str, test_code: str) -> dict:
     result: dict = {"ok": False, "passed": 0, "total": 0, "tests": [], "error": None, "stdout": ""}
     saved = {k: sys.modules.get(k) for k in ("pytest", "exercise", "test_exercise")}
     sys.modules["pytest"] = _make_pytest_shim()
+    log_state = _logging_snapshot()
+    cwd = os.getcwd()
     try:
         with redirect_stdout(out), redirect_stderr(err):
             try:
@@ -228,11 +455,16 @@ def run_tests(user_code: str, test_code: str) -> dict:
             cases = _collect(test_mod)
             for name, fn, kwargs in cases:
                 call_kwargs = dict(kwargs)
-                if "capsys" in inspect.signature(fn).parameters:
-                    call_kwargs["capsys"] = _Capsys(out, err)
                 entry = {"name": name, "label": _humanize(name), "status": "passed", "message": None, "line": None}
+                cleanups: list = []
                 try:
+                    cache: dict = {}
+                    for param in inspect.signature(fn).parameters:
+                        if param not in call_kwargs:
+                            call_kwargs[param] = _resolve_fixture(param, test_mod, cache, cleanups, out, err)
                     fn(**call_kwargs)
+                except _FixtureError as exc:
+                    entry.update(status="error", message=f"fixture error: {exc}")
                 except AssertionError as exc:
                     detail, line = _explain_assert(exc.__traceback__, test_code)
                     entry.update(status="failed", line=line)
@@ -244,12 +476,21 @@ def run_tests(user_code: str, test_code: str) -> dict:
                         message=f"{type(exc).__name__}: {exc}",
                         line=_student_line(exc.__traceback__),
                     )
+                finally:
+                    for undo in reversed(cleanups):
+                        try:
+                            undo()
+                        except Exception:  # noqa: BLE001 - teardown must not hide the test result
+                            pass
                 result["tests"].append(entry)
         result["total"] = len(result["tests"])
         result["passed"] = sum(t["status"] == "passed" for t in result["tests"])
         result["ok"] = result["total"] > 0 and result["passed"] == result["total"]
         return result
     finally:
+        _logging_restore(log_state)
+        if os.getcwd() != cwd:
+            os.chdir(cwd)
         result["stdout"] = out.getvalue()[-20000:]
         for key, value in saved.items():
             if value is None:

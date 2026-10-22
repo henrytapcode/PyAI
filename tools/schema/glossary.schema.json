@@ -1,20 +1,50 @@
 {
   "$id": "glossary.schema.json",
   "type": "object",
-  "required": ["terms"],
+  "required": [
+    "terms"
+  ],
   "properties": {
     "terms": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["term", "en"],
+        "required": [
+          "term",
+          "en"
+        ],
         "properties": {
-          "term": { "type": "string" },
-          "vi_term": { "type": "string" },
-          "tags": { "type": "array", "items": { "type": "string" } },
-          "en": { "type": "string" },
-          "vi": { "type": "string" },
-          "example": { "type": "string" }
+          "term": {
+            "type": "string"
+          },
+          "vi_term": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "en": {
+            "type": "string"
+          },
+          "vi": {
+            "type": "string"
+          },
+          "example": {
+            "type": "string"
+          },
+          "in_practice": {
+            "$ref": "common.schema.json#/$defs/i18nText",
+            "description": "Where an AI engineer meets this term in real work"
+          },
+          "related": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         },
         "additionalProperties": false
       }

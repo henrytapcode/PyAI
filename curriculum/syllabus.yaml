@@ -1,7 +1,7 @@
 # Syllabus: single source of truth for the learning path.
 # A lesson listed here becomes "ready" once a matching folder exists under its phase
 # (curriculum/<phase.dir>/<lesson.id>/). Otherwise the app shows it as "coming soon".
-# Phases 0-3: detailed. Phases 4-8: outline (filled in at M3/M4).
+# Phases 0-3: detailed (phases 1-3 written in M2). Phases 4-8: outline (filled in at M3/M4).
 
 phases:
   - id: p0
@@ -168,11 +168,11 @@ phases:
           vi: ["Câu lệnh with", "contextlib.contextmanager"]
       - id: p2-09-mini-project
         kind: project
-        title: { en: "Mini-project: inventory CLI", vi: "Mini-project: CLI quản lý kho" }
+        title: { en: "Mini-project: expense tracker", vi: "Mini-project: quản lý chi tiêu" }
         prerequisites: [p2-08-context-managers]
         outcomes:
-          en: ["Model a domain with dataclasses and persist to JSON"]
-          vi: ["Mô hình hóa nghiệp vụ bằng dataclass và lưu ra JSON"]
+          en: ["Model expenses with dataclasses", "Save and load JSON safely", "Summarise spending by category and month"]
+          vi: ["Mô hình hóa khoản chi bằng dataclass", "Lưu và đọc JSON an toàn", "Tổng hợp chi tiêu theo danh mục và tháng"]
 
   - id: p3
     dir: phase-03-code-quality
@@ -209,11 +209,11 @@ phases:
           vi: ["Đọc traceback", "Dùng breakpoint() và debugger của VS Code"]
       - id: p3-05-mini-project
         kind: project
-        title: { en: "Mini-project: tested utility package", vi: "Mini-project: package tiện ích có test" }
+        title: { en: "Mini-project: text-cleaning toolkit", vi: "Mini-project: bộ công cụ làm sạch văn bản" }
         prerequisites: [p3-04-debugging]
         outcomes:
-          en: ["Ship a small package with tests, lint and logging"]
-          vi: ["Hoàn thiện package nhỏ có test, lint và logging"]
+          en: ["Build a tested, logged text-cleaning module for AI datasets", "Write fixtures and parametrized tests"]
+          vi: ["Xây module làm sạch văn bản cho dữ liệu AI, có test và logging", "Viết fixture và test parametrize"]
 
   - id: p4
     dir: phase-04-data

@@ -4,9 +4,12 @@ Checks (see docs/DESIGN.md section 9, step 4):
   * JSON Schema for meta.yaml, exercise.yaml, quiz.yaml, exams, glossary, interview bank
   * IDs are unique, lessons are listed in syllabus.yaml, prerequisites and tags exist
   * VI/EN parity: both files/fields exist, same structure, same code (comments may differ)
-  * examples run and print exactly their .out file
+  * examples run and print exactly their .out file, have an EN+VI explanation, and the
+    step-through tracer (tools/pyrunner/tracer.py) handles them
   * every exercise: starter FAILS and solution PASSES, both with pytest and with the
-    browser test runner (tools/pyrunner/runner.py) so the web app grades identically
+    browser test runner (tools/pyrunner/runner.py) so the web app grades identically;
+    every alternative solution (exercises/*/alternatives/*.py) passes too
+  * lesson quizzes: question bank size and type mix (the app draws a shuffled subset per attempt)
   * quiz code: "output" answers are correct, "fill" answers and "parsons" orders run
   * ruff on curriculum code
 
@@ -39,8 +42,13 @@ CURRICULUM = ROOT / "curriculum"
 SCHEMA_DIR = ROOT / "tools" / "schema"
 sys.path.insert(0, str(ROOT / "tools" / "pyrunner"))
 from runner import run_tests  # noqa: E402
+from tracer import trace  # noqa: E402
 
 LANGS = ("en", "vi")
+QUIZ_MIN_QUESTIONS = 15
+QUIZ_TYPES = ("mcq", "output", "fill", "parsons")
+# Options that stop making sense once the app shuffles them.
+POSITIONAL_OPTION = re.compile(r"(all|none|both) of the (above|these)|^both [a-d] and|cả hai|tất cả các (đáp án|phương án) trên", re.I)
 
 
 @dataclass
@@ -80,7 +88,7 @@ def _validators() -> dict[str, Draft202012Validator]:
     registry = Registry().with_resources(resources.items())
     return {
         name: Draft202012Validator(resources[f"{name}.schema.json"].contents, registry=registry)
-        for name in ("meta", "exercise", "quiz", "exam", "glossary", "interview")
+        for name in ("meta", "exercise", "quiz", "exam", "glossary", "interview", "portfolio")
     }
 
 
@@ -131,9 +139,12 @@ def check_md_parity(rep: Report, en_path: Path, vi_path: Path, allow_missing_vi:
     if len(en["code"]) != len(vi["code"]):
         rep.error(vi_path, f"parity: {len(vi['code'])} code blocks vs {len(en['code'])} in EN")
         return
-    for i, ((lang_en, c_en), (_, c_vi)) in enumerate(zip(en["code"], vi["code"]), 1):
+    for i, ((lang_en, c_en), (lang_vi, c_vi)) in enumerate(zip(en["code"], vi["code"]), 1):
         if lang_en in ("python", "py"):
             same = code_tokens(c_en) == code_tokens(c_vi)
+        elif lang_en == "mermaid":
+            # Diagram labels are translated; the diagram shape must match.
+            same = lang_vi == "mermaid" and len(c_en.strip().splitlines()) == len(c_vi.strip().splitlines())
         else:
             same = c_en.strip() == c_vi.strip()
         if not same:
@@ -179,7 +190,24 @@ def norm_out(s: str) -> str:
     return "\n".join(line.rstrip() for line in s.strip().splitlines())
 
 
-def check_examples(rep: Report, lesson_dir: Path) -> None:
+def md_title(path: Path) -> str | None:
+    first = path.read_text("utf-8").lstrip().splitlines()[0] if path.exists() else ""
+    return first[2:].strip() if first.startswith("# ") else None
+
+
+def check_explained_code(rep: Report, py: Path, args, what: str) -> None:
+    """A code file with ``<stem>.en.md`` / ``<stem>.vi.md`` next to it: '# Title' then the explanation."""
+    en, vi = py.with_suffix(".en.md"), py.with_suffix(".vi.md")
+    if not en.exists():
+        rep.error(py, f"{what} needs an explanation file {en.name} ('# Title' + explanation)")
+        return
+    for f in (en, vi):
+        if f.exists() and not md_title(f):
+            rep.error(f, "must start with a '# Title' line")
+    check_md_parity(rep, en, vi, args.allow_missing_vi)
+
+
+def check_examples(rep: Report, lesson_dir: Path, args) -> None:
     ex_dir = lesson_dir / "examples"
     if not ex_dir.exists():
         rep.error(lesson_dir, "missing examples/ folder")
@@ -196,6 +224,11 @@ def check_examples(rep: Report, lesson_dir: Path) -> None:
             rep.error(out_file, "missing expected output (.out)")
         elif norm_out(out) != norm_out(out_file.read_text("utf-8")):
             rep.error(py, f"output differs from {out_file.name}:\n--- got ---\n{out}--- expected ---\n{out_file.read_text('utf-8')}")
+        check_explained_code(rep, py, args, "example")
+        if code == 0:
+            traced = trace(py.read_text("utf-8"))
+            if traced["error"]:
+                rep.error(py, f"step-through tracer fails: {traced['error']}")
         rep.count("examples")
 
 
@@ -226,6 +259,19 @@ def check_exercise(rep: Report, ex_dir: Path, validators, ids: set, topics: set,
         rep.error(files["solution"], f"browser runner: solution does not pass: {detail}")
     if meta.get("kind") == "fill" and "___" not in files["starter"].read_text("utf-8"):
         rep.error(files["starter"], "kind 'fill' but starter has no ___ blanks")
+    alt_dir = ex_dir / "alternatives"
+    alts = sorted(alt_dir.glob("*.py")) if alt_dir.exists() else []
+    if not alts and meta.get("kind") in ("code", "project"):
+        rep.error(ex_dir, "kind 'code'/'project' needs at least one alternatives/NN_name.py (+ .en.md/.vi.md)")
+    for alt in alts:
+        res = run_tests(alt.read_text("utf-8"), test_src)
+        if not res["ok"]:
+            failing = [t for t in res["tests"] if t["status"] != "passed"]
+            rep.error(alt, f"alternative solution does not pass: {res['error'] or (failing[0] if failing else 'no tests')}")
+        if alt.read_text("utf-8").strip() == files["solution"].read_text("utf-8").strip():
+            rep.error(alt, "alternative is identical to solution.py")
+        check_explained_code(rep, alt, args, "alternative solution")
+        rep.count("alternatives")
     if not args.fast:
         for target, should_pass in (("starter", False), ("solution", True)):
             env = dict(os.environ, EXERCISE_TARGET=target, PYTHONUTF8="1")
@@ -266,6 +312,10 @@ def check_questions(rep: Report, path: Path, questions: list, ids: set, topics: 
                     rep.error(path, f"{qid}: mcq needs options in '{lang}'")
                 elif not 0 <= q.get("answer", -1) < len(opts):
                     rep.error(path, f"{qid}: answer index out of range in '{lang}'")
+                if q.get("shuffle_options", True) and any(POSITIONAL_OPTION.search(o) for o in opts):
+                    rep.error(path, f"{qid}: option refers to other options; set shuffle_options: false or reword")
+                if len(set(opts)) != len(opts):
+                    rep.error(path, f"{qid}: duplicate options in '{lang}'")
         code = q.get("code", "")
         if q["type"] == "output":
             rc, out, err = run_python(code)
@@ -341,7 +391,7 @@ def main() -> int:
             rep.count("lessons")
             check_i18n_obj(rep, meta_path, meta, "", args.allow_missing_vi)
             check_md_parity(rep, lesson_dir / "lesson.en.md", lesson_dir / "lesson.vi.md", args.allow_missing_vi)
-            check_examples(rep, lesson_dir)
+            check_examples(rep, lesson_dir, args)
             ex_root = lesson_dir / "exercises"
             ex_dirs = sorted(p for p in ex_root.iterdir() if p.is_dir()) if ex_root.exists() else []
             if not ex_dirs:
@@ -355,6 +405,12 @@ def main() -> int:
                 quiz = load_yaml(quiz_path)
                 if check_schema(rep, validators["quiz"], quiz, quiz_path):
                     check_questions(rep, quiz_path, quiz["questions"], ids, topics)
+                    qs = quiz["questions"]
+                    if len(qs) < QUIZ_MIN_QUESTIONS:
+                        rep.error(quiz_path, f"question bank has {len(qs)} questions, needs >= {QUIZ_MIN_QUESTIONS}")
+                    missing = [t for t in QUIZ_TYPES if sum(q["type"] == t for q in qs) < 2]
+                    if missing:
+                        rep.error(quiz_path, f"needs at least 2 questions of each type, short on: {missing}")
                     for card in quiz["flashcards"]:
                         _unique(rep, ids, card["id"], quiz_path)
                         _check_tags(rep, quiz_path, card.get("tags"), topics)
@@ -373,6 +429,19 @@ def main() -> int:
             rep.count("exams")
 
     if scope == CURRICULUM:
+        portfolio_path = CURRICULUM / "portfolio.yaml"
+        if portfolio_path.exists():
+            portfolio = load_yaml(portfolio_path)
+            if check_schema(rep, validators["portfolio"], portfolio, portfolio_path):
+                check_i18n_obj(rep, portfolio_path, portfolio["projects"], "", args.allow_missing_vi)
+                diffs = [pr["difficulty"] for pr in portfolio["projects"]]
+                if diffs != sorted(diffs):
+                    rep.error(portfolio_path, "projects must be listed by increasing difficulty")
+                for pr in portfolio["projects"]:
+                    if pr.get("lesson") and pr["lesson"] not in lesson_index:
+                        rep.error(portfolio_path, f"{pr['id']}: unknown lesson '{pr['lesson']}'")
+                    _check_tags(rep, portfolio_path, pr.get("tags"), topics)
+                rep.count("portfolio")
         for name, key in (("glossary.yaml", "glossary"), ("interview/questions.yaml", "interview")):
             p = CURRICULUM / name
             if p.exists():
@@ -380,9 +449,14 @@ def main() -> int:
                 check_schema(rep, validators[key], data, p)
                 check_i18n_obj(rep, p, data.get("terms") or data.get("questions"), "", args.allow_missing_vi)
                 if key == "glossary":
+                    seen: set[str] = set()
                     for t in data.get("terms", []):
                         if "vi" not in t:
                             (rep.warn if args.allow_missing_vi else rep.error)(p, f"term '{t['term']}' missing 'vi'")
+                        if t["term"].lower() in seen:
+                            rep.error(p, f"duplicate glossary term '{t['term']}'")
+                        seen.add(t["term"].lower())
+                        _check_tags(rep, p, t.get("tags"), topics)
                 else:
                     for q in data.get("questions", []):
                         _unique(rep, ids, q["id"], p)
