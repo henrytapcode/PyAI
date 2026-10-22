@@ -18,10 +18,19 @@ def letter_grade(avg):
     return "F"
 
 
+def sort_key(row):
+    """Highest average first; equal averages are ordered by name (A to Z)."""
+    return (-row["avg"], row["name"])
+
+
 def build_report(students):
     """Return a list of lines like "An: 8.17 (B)", best average first, ties by name."""
     rows = []
     for student in students:
-        rows.append((student["name"], average(student["scores"])))
-    rows.sort(key=lambda row: (-row[1], row[0]))
-    return [f"{name}: {avg:.2f} ({letter_grade(avg)})" for name, avg in rows]
+        rows.append({"name": student["name"], "avg": average(student["scores"])})
+
+    lines = []
+    for row in sorted(rows, key=sort_key):
+        avg = row["avg"]
+        lines.append(f"{row['name']}: {avg:.2f} ({letter_grade(avg)})")
+    return lines

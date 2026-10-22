@@ -96,16 +96,17 @@ questions:
     tags: [lists, functions]
     difficulty: 2
     code: |
-      rows = [("Zoe", 7.0), ("An", 9.0), ("Bao", 7.0)]
-      rows.sort(key=lambda row: (-row[1], row[0]))
-      print([name for name, avg in rows])
-    answer: "['An', 'Bao', 'Zoe']"
+      def by_length(word):
+          return len(word)
+
+      print(sorted(["pear", "fig", "banana"], key=by_length))
+    answer: "['fig', 'pear', 'banana']"
     en:
       prompt: "What does this code print?"
-      explanation: "The key `(-avg, name)` sorts by highest average first. Bao and Zoe tie at 7.0, so the name breaks the tie."
+      explanation: "`sorted` calls `by_length` on each word and sorts by the result: 3, 4, 6. The original strings are what end up in the list."
     vi:
       prompt: "Đoạn code này in ra gì?"
-      explanation: "Key `(-avg, name)` sắp xếp điểm cao nhất trước. Bao và Zoe cùng 7.0 nên tên quyết định thứ tự."
+      explanation: "`sorted` gọi `by_length` trên từng từ và sắp xếp theo kết quả: 3, 4, 6. Trong list vẫn là các chuỗi gốc."
 
   - id: p1-06-q07
     type: mcq
@@ -159,9 +160,11 @@ flashcards:
     vi: { front: "Sắp xếp các `if` cho ngưỡng xếp loại thế nào?", back: "Từ ngưỡng cao nhất xuống thấp. Điều kiện đúng đầu tiên thắng, nên mỗi lần chỉ cần một phép so sánh." }
   - id: p1-06-f04
     tags: [lists]
-    code: 'rows.sort(key=lambda row: (-row[1], row[0]))'
-    en: { front: "What does this sort do?", back: "Highest `row[1]` first; rows with equal `row[1]` are ordered by `row[0]` (A to Z)." }
-    vi: { front: "Câu sort này làm gì?", back: "`row[1]` cao nhất đứng trước; các dòng bằng `row[1]` được xếp theo `row[0]` (A đến Z)." }
+    code: |
+      def sort_key(row):
+          return (-row["avg"], row["name"])
+    en: { front: "What order does `sorted(rows, key=sort_key)` give?", back: "Highest `avg` first; rows with an equal `avg` are ordered by `name` (A to Z). Tuples are compared one value at a time." }
+    vi: { front: "`sorted(rows, key=sort_key)` cho thứ tự nào?", back: "`avg` cao nhất đứng trước; các dòng bằng `avg` được xếp theo `name` (A đến Z). Tuple được so sánh từng giá trị một." }
   - id: p1-06-f05
     tags: [functions, conditions]
     en: { front: "Why guard `sum(xs) / len(xs)` for an empty list?", back: "`len([])` is 0, so the division raises `ZeroDivisionError`. Check `if not xs:` first and return a safe value." }

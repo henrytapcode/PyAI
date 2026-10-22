@@ -7,10 +7,10 @@ difficulty: 3
 tags: [functions, dicts, loops, lists]
 hints:
   en:
-    - "`average` and `letter_grade` are already written for you. Compute one average per student first and keep them in a list."
-    - "Start `grade_counts` as `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` and add 1 to the right key for each student. Handle the empty class first with an early `return`."
-    - "Keep `(name, avg)` pairs in `rows`. Shape: `best = min(rows, key=lambda r: (-r[1], r[0]))[0]` and `worst = min(rows, key=lambda r: (r[1], r[0]))[0]`. The key makes ties go to the first name."
+    - "`average` and `letter_grade` are already written for you. Compute one average per student inside a loop, and use it for the sum, the best/worst check and the grade count."
+    - "Start `grade_counts` as `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` and add 1 to the right key for each student. Handle the empty class first with an early `return`. For best and worst, remember the best name and best average so far, and replace them when a student has a higher average, or the same average and an earlier name."
+    - "Shape: `best_name = students[0][\"name\"]`; `best_avg = average(students[0][\"scores\"])` (same for worst); `for student in students:` compute `avg`; `total += ___`; `grade_counts[letter_grade(___)] += 1`; `if avg > best_avg or (avg == best_avg and student[\"name\"] < ___):` update `best_name` and `best_avg`; the same idea with `<` for worst."
   vi:
-    - "`average` và `letter_grade` đã được viết sẵn. Hãy tính trước điểm trung bình của từng học sinh và lưu vào một list."
-    - "Bắt đầu `grade_counts` là `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` rồi cộng 1 vào đúng khóa cho mỗi học sinh. Xử lý lớp rỗng trước bằng một `return` sớm."
-    - "Giữ các cặp `(name, avg)` trong `rows`. Khung: `best = min(rows, key=lambda r: (-r[1], r[0]))[0]` và `worst = min(rows, key=lambda r: (r[1], r[0]))[0]`. Key này làm cho khi bằng điểm sẽ chọn tên đứng trước."
+    - "`average` và `letter_grade` đã được viết sẵn. Hãy tính điểm trung bình của từng học sinh trong một vòng lặp, rồi dùng nó để cộng tổng, kiểm tra tốt nhất/kém nhất và đếm xếp loại."
+    - "Bắt đầu `grade_counts` là `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` rồi cộng 1 vào đúng khóa cho mỗi học sinh. Xử lý lớp rỗng trước bằng một `return` sớm. Với tốt nhất và kém nhất, hãy nhớ tên và điểm tốt nhất cho đến lúc này, và thay thế khi một học sinh có điểm cao hơn, hoặc cùng điểm nhưng tên đứng trước."
+    - "Khung: `best_name = students[0][\"name\"]`; `best_avg = average(students[0][\"scores\"])` (worst làm tương tự); `for student in students:` tính `avg`; `total += ___`; `grade_counts[letter_grade(___)] += 1`; `if avg > best_avg or (avg == best_avg and student[\"name\"] < ___):` cập nhật `best_name` và `best_avg`; worst cùng ý tưởng nhưng dùng `<`."

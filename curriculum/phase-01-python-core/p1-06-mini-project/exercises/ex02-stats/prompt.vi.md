@@ -12,7 +12,7 @@ Hàm trả về một dict với các khóa sau:
 
 Các trường hợp biên:
 
-- Nếu nhiều học sinh cùng đứng đầu (hoặc cùng cuối), chọn người có tên đứng trước theo bảng chữ cái.
+- Tìm tốt nhất và kém nhất bằng vòng lặp. Nếu nhiều học sinh cùng đứng đầu (hoặc cùng cuối), chọn người có tên đứng trước theo bảng chữ cái.
 - Học sinh có `scores` rỗng có điểm trung bình `0.0` (loại `"F"`).
 - Lớp rỗng: `{"count": 0, "mean": 0.0, "best": None, "worst": None, "grade_counts": {"A": 0, "B": 0, "C": 0, "D": 0, "F": 0}}`.
 
@@ -27,4 +27,4 @@ class_stats([
 #  "grade_counts": {"A": 1, "B": 1, "C": 0, "D": 0, "F": 0}}
 ```
 
-Bấm **Check** để chạy test.
+Bấm **Kiểm tra** để chạy test.

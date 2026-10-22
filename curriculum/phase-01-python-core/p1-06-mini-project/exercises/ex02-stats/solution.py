@@ -30,18 +30,30 @@ def class_stats(students):
             "grade_counts": grade_counts,
         }
 
-    rows = []
+    best_name = students[0]["name"]
+    best_avg = average(students[0]["scores"])
+    worst_name = best_name
+    worst_avg = best_avg
+    total = 0
+
     for student in students:
+        name = student["name"]
         avg = average(student["scores"])
-        rows.append((student["name"], avg))
+        total += avg
         grade_counts[letter_grade(avg)] += 1
 
-    best = min(rows, key=lambda row: (-row[1], row[0]))[0]
-    worst = min(rows, key=lambda row: (row[1], row[0]))[0]
+        # ties go to the name that comes first alphabetically
+        if avg > best_avg or (avg == best_avg and name < best_name):
+            best_name = name
+            best_avg = avg
+        if avg < worst_avg or (avg == worst_avg and name < worst_name):
+            worst_name = name
+            worst_avg = avg
+
     return {
-        "count": len(rows),
-        "mean": sum(avg for _, avg in rows) / len(rows),
-        "best": best,
-        "worst": worst,
+        "count": len(students),
+        "mean": total / len(students),
+        "best": best_name,
+        "worst": worst_name,
         "grade_counts": grade_counts,
     }

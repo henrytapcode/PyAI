@@ -12,7 +12,7 @@ It returns a dict with these keys:
 
 Edge cases:
 
-- If several students tie for best (or worst), pick the one whose name comes first alphabetically.
+- Find best and worst with a loop. If several students tie for best (or worst), pick the one whose name comes first alphabetically.
 - A student with an empty `scores` list has average `0.0` (grade `"F"`).
 - For an empty class: `{"count": 0, "mean": 0.0, "best": None, "worst": None, "grade_counts": {"A": 0, "B": 0, "C": 0, "D": 0, "F": 0}}`.
 

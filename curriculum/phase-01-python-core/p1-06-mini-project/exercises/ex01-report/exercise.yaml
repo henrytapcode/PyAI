@@ -3,14 +3,14 @@ kind: project
 title:
   en: "Grade report: average, grade, report"
   vi: "Bảng điểm: trung bình, xếp loại, báo cáo"
-difficulty: 2
+difficulty: 3
 tags: [functions, lists, dicts, loops, conditions]
 hints:
   en:
-    - "Build it bottom-up: get `average` passing first, then `letter_grade`, then `build_report`, which calls both."
-    - "In `build_report`, make a list of `(name, avg)` pairs, sort it with `key=lambda row: (-row[1], row[0])`, then build one f-string per row."
-    - "Shape: `rows = []`; `for s in students: rows.append((s['name'], average(s['scores'])))`; `rows.sort(key=...)`; `return [f\"{name}: {avg:.2f} ({letter_grade(avg)})\" for name, avg in rows]`."
+    - "Build it bottom-up: get `average` passing first, then `letter_grade`, then `build_report`, which calls both. Re-read lesson section 3 for the sorting and 2-decimal tricks."
+    - "`sort_key(row)` returns a tuple `(-row[\"avg\"], row[\"name\"])`. In `build_report`, make a list of small dicts with `name` and `avg`, sort it with `sorted(rows, key=sort_key)`, and build one f-string per row in a loop."
+    - "Shape: `rows = []`; `for student in students:` then `rows.append({\"name\": ___, \"avg\": average(___)})`; `lines = []`; `for row in sorted(rows, key=___):` then `lines.append(f\"{row['name']}: {row['avg']:___} ({letter_grade(___)})\")`; then `return lines`."
   vi:
-    - "Làm từ dưới lên: cho `average` qua test trước, rồi `letter_grade`, rồi `build_report` gọi cả hai."
-    - "Trong `build_report`, tạo list các cặp `(name, avg)`, sắp xếp bằng `key=lambda row: (-row[1], row[0])`, rồi tạo một f-string cho mỗi dòng."
-    - "Khung: `rows = []`; `for s in students: rows.append((s['name'], average(s['scores'])))`; `rows.sort(key=...)`; `return [f\"{name}: {avg:.2f} ({letter_grade(avg)})\" for name, avg in rows]`."
+    - "Làm từ dưới lên: cho `average` qua test trước, rồi `letter_grade`, rồi `build_report` gọi cả hai. Đọc lại phần 3 của bài học về mẹo sắp xếp và 2 chữ số thập phân."
+    - "`sort_key(row)` trả về một tuple `(-row[\"avg\"], row[\"name\"])`. Trong `build_report`, tạo list các dict nhỏ gồm `name` và `avg`, sắp xếp bằng `sorted(rows, key=sort_key)`, rồi dùng vòng lặp tạo một f-string cho mỗi dòng."
+    - "Khung: `rows = []`; `for student in students:` rồi `rows.append({\"name\": ___, \"avg\": average(___)})`; `lines = []`; `for row in sorted(rows, key=___):` rồi `lines.append(f\"{row['name']}: {row['avg']:___} ({letter_grade(___)})\")`; cuối cùng `return lines`."
