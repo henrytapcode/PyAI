@@ -3,7 +3,7 @@ def area(width, height):
 
 
 def price_with_tax(price, rate=0.1):
-    return price * (1 + rate)
+    return price + price * rate
 
 
 def greet(name, greeting="Hello"):

@@ -81,15 +81,15 @@ questions:
     difficulty: 2
     lines:
       - "price = 4.5"
-      - "quantity = 2"
-      - "total = price * quantity"
-      - "print(f\"Total: {total}\")"
+      - "total = price * 2"
+      - "label = f\"Total: {total}\""
+      - "print(label)"
     en:
       prompt: "Put the lines in order so the program prints `Total: 9.0`."
-      explanation: "A variable must be created before it is used, so both inputs come first, then the calculation, then the print."
+      explanation: "A variable must be created before it is used: `price` → `total` → `label` → `print`. Each line needs the one before it."
     vi:
       prompt: "Sắp xếp các dòng để chương trình in ra `Total: 9.0`."
-      explanation: "Biến phải được tạo trước khi dùng, nên hai đầu vào đứng trước, rồi phép tính, cuối cùng là print."
+      explanation: "Biến phải được tạo trước khi dùng: `price` → `total` → `label` → `print`. Mỗi dòng cần dòng đứng trước nó."
 
   - id: p1-01-q07
     type: output

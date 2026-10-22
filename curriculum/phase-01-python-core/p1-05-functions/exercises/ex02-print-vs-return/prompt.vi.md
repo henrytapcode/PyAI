@@ -1,4 +1,4 @@
-File này có ba hàm nhỏ, mỗi hàm có một lỗi. Hãy sửa để:
+File này có ba hàm nhỏ với tổng cộng **bốn lỗi** (một hàm có hai lỗi). Hãy sửa để:
 
 - `area(width, height)` **trả về** diện tích (để `area(3, 4) + 1` chạy được và cho `13`)
 - `price_with_tax(price, rate=0.1)` **trả về** giá cộng thuế, và `price_with_tax(100)` cho `110.0`

@@ -114,11 +114,13 @@ questions:
       answer: |
         The Global Interpreter Lock (GIL) in CPython lets only one thread execute Python bytecode at a time. So threads do not speed up CPU-bound pure-Python code.
         Threads still help for I/O-bound work (HTTP calls, disk), because the lock is released while waiting. For CPU-bound work use `multiprocessing` or native libraries such as NumPy, which release the GIL in their C code. `asyncio` is the usual choice for many concurrent LLM API calls.
+        Note: since Python 3.13 there is an optional free-threaded (no-GIL) CPython build (PEP 703), officially supported from 3.14, but most deployments still run with the GIL.
     vi:
       question: "GIL là gì và nó ảnh hưởng thế nào đến concurrency trong Python?"
       answer: |
         Global Interpreter Lock (GIL) trong CPython chỉ cho phép một thread thực thi Python bytecode tại một thời điểm. Vì vậy thread không làm code Python thuần nặng về CPU chạy nhanh hơn.
         Thread vẫn hữu ích cho tác vụ I/O (gọi HTTP, đọc đĩa) vì khóa được nhả khi chờ. Với tác vụ nặng CPU hãy dùng `multiprocessing` hoặc thư viện native như NumPy, vốn nhả GIL trong code C. `asyncio` là lựa chọn thường dùng khi gọi nhiều API LLM đồng thời.
+        Lưu ý: từ Python 3.13 có bản CPython free-threaded (không GIL) tùy chọn (PEP 703), được hỗ trợ chính thức từ 3.14, nhưng phần lớn hệ thống vẫn chạy với GIL.
 
   - id: iv-08
     topic: functions

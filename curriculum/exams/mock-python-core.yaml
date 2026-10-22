@@ -172,7 +172,7 @@ questions:
       scores = {"ann": 3, "bob": 9, "cy": 5}
       best = max(scores, key=___)
       print(best)  # bob
-    answer: [["scores.get", "scores.__getitem__"]]
+    answer: [["scores.get", "scores.__getitem__", "lambda k: scores[k]", "lambda x: scores[x]", "lambda key: scores[key]", "lambda k: scores.get(k)"]]
     en:
       prompt: "Fill in the blank so `best` is the key with the highest value."
       explanation: "`max` over a dict iterates over keys. The `key` function tells it what to compare, here the value for each key: `scores.get`."
@@ -353,15 +353,14 @@ questions:
     tags: [dicts, loops]
     difficulty: 2
     lines:
-      - "grades = {\"ann\": 90, \"bob\": 72}"
       - "passed = []"
-      - "for name, score in grades.items():"
+      - "for name, score in {\"ann\": 90, \"bob\": 72}.items():"
       - "    if score >= 80:"
       - "        passed.append(name)"
       - "print(passed)"
     en:
       prompt: "Put the lines in order so the program prints `['ann']`."
-      explanation: "Create the data and the empty result list, loop over the items, filter with `if`, and print after the loop."
+      explanation: "Create the empty result list, loop over the items, filter with `if`, and print after the loop."
     vi:
       prompt: "Sắp xếp các dòng để chương trình in ra `['ann']`."
-      explanation: "Tạo dữ liệu và list kết quả rỗng, lặp qua các phần tử, lọc bằng `if`, rồi in sau vòng lặp."
+      explanation: "Tạo list kết quả rỗng, lặp qua các phần tử, lọc bằng `if`, rồi in sau vòng lặp."

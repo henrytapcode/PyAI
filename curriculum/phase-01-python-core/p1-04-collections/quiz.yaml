@@ -88,17 +88,16 @@ questions:
     tags: [dicts, loops]
     difficulty: 2
     lines:
-      - "words = [\"hi\", \"ai\", \"hi\"]"
       - "counts = {}"
-      - "for word in words:"
+      - "for word in [\"hi\", \"ai\", \"hi\"]:"
       - "    counts[word] = counts.get(word, 0) + 1"
       - "print(counts)"
     en:
       prompt: "Put the lines in order so the program prints `{'hi': 2, 'ai': 1}`."
-      explanation: "Create the list and the empty dict first, then loop and update the counts, and print once the loop is done."
+      explanation: "Create the empty dict first, then loop over the words and update the counts, and print once the loop is done."
     vi:
       prompt: "Sắp xếp các dòng để chương trình in ra `{'hi': 2, 'ai': 1}`."
-      explanation: "Tạo list và dict rỗng trước, rồi lặp và cập nhật số đếm, cuối cùng in sau khi vòng lặp kết thúc."
+      explanation: "Tạo dict rỗng trước, rồi lặp qua các từ và cập nhật số đếm, cuối cùng in sau khi vòng lặp kết thúc."
 
   - id: p1-04-q07
     type: mcq

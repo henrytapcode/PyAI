@@ -1,4 +1,4 @@
-This file has three small functions, and each has a bug. Fix them so that:
+This file has three small functions with **four bugs** in total (one function has two). Fix them so that:
 
 - `area(width, height)` **returns** the area (so `area(3, 4) + 1` works and gives `13`)
 - `price_with_tax(price, rate=0.1)` **returns** the price plus tax, and calling `price_with_tax(100)` gives `110.0`
