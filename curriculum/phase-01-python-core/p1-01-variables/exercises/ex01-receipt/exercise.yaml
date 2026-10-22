@@ -1,0 +1,16 @@
+id: p1-01-ex01
+kind: fill
+title:
+  en: "Fill in the receipt"
+  vi: "Điền vào hóa đơn"
+difficulty: 1
+tags: [variables, operators, strings]
+hints:
+  en:
+    - "Each `___` is one blank. Replace it with a value or a variable name."
+    - "`total` is the price multiplied by the quantity. Which variable holds the quantity?"
+    - "Inside the f-string, put the name of the variable that holds the total between `{}`."
+  vi:
+    - "Mỗi `___` là một chỗ trống. Thay nó bằng một giá trị hoặc tên biến."
+    - "`total` là giá nhân với số lượng. Biến nào đang giữ số lượng?"
+    - "Trong f-string, đặt tên biến chứa tổng tiền vào giữa `{}`."

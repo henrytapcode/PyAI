@@ -1,0 +1,38 @@
+{
+  "$id": "quiz.schema.json",
+  "title": "Lesson quiz.yaml",
+  "type": "object",
+  "required": ["questions", "flashcards"],
+  "properties": {
+    "questions": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/question" },
+      "minItems": 4
+    },
+    "flashcards": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "en"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "code": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "en": { "$ref": "#/$defs/card" },
+          "vi": { "$ref": "#/$defs/card" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "card": {
+      "type": "object",
+      "required": ["front", "back"],
+      "properties": { "front": { "type": "string" }, "back": { "type": "string" } },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

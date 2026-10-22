@@ -1,0 +1,28 @@
+[project]
+name = "python-ai-platform-content"
+version = "0.1.0"
+description = "Curriculum tooling: validate, test and build bilingual Python for AI Engineer content"
+requires-python = ">=3.11"
+dependencies = [
+  "pyyaml>=6.0",
+  "jsonschema>=4.22",
+  "pytest>=8.2",
+  "ruff>=0.6",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib -q"
+testpaths = ["curriculum"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["apps"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP"]
+# Starters intentionally contain blanks (___) and unused args.
+per-file-ignores = { "**/starter.py" = ["F821", "F841", "ARG001", "B018"], "**/examples/*.py" = ["E501"] }

@@ -1,0 +1,12 @@
+{
+  "name": "python-ai-platform",
+  "private": true,
+  "packageManager": "pnpm@10.34.7",
+  "scripts": {
+    "content": "uv run python tools/build_content.py",
+    "validate": "uv run python tools/validate.py",
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "typecheck": "pnpm --filter web typecheck"
+  }
+}

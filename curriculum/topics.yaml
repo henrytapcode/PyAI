@@ -1,0 +1,29 @@
+# Topic tags used by quizzes, exercises and exams. Reports and "weak topics" group by these.
+topics:
+  setup:        { en: "Environment setup", vi: "Môi trường" }
+  variables:    { en: "Variables", vi: "Biến" }
+  types:        { en: "Data types", vi: "Kiểu dữ liệu" }
+  conversion:   { en: "Type conversion", vi: "Chuyển kiểu" }
+  operators:    { en: "Operators", vi: "Toán tử" }
+  strings:      { en: "Strings", vi: "Chuỗi" }
+  conditions:   { en: "Conditions", vi: "Điều kiện" }
+  booleans:     { en: "Boolean logic", vi: "Logic boolean" }
+  loops:        { en: "Loops", vi: "Vòng lặp" }
+  range:        { en: "range()", vi: "range()" }
+  lists:        { en: "Lists", vi: "List" }
+  dicts:        { en: "Dictionaries", vi: "Dictionary" }
+  functions:    { en: "Functions", vi: "Hàm" }
+  scope:        { en: "Scope", vi: "Phạm vi biến" }
+  modules:      { en: "Modules", vi: "Module" }
+  files:        { en: "File I/O", vi: "Đọc ghi file" }
+  exceptions:   { en: "Exceptions", vi: "Ngoại lệ" }
+  debugging:    { en: "Debugging", vi: "Debug" }
+  oop:          { en: "OOP", vi: "OOP" }
+  testing:      { en: "Testing", vi: "Kiểm thử" }
+  data:         { en: "Data (NumPy/Pandas)", vi: "Dữ liệu (NumPy/Pandas)" }
+  ml:           { en: "Machine learning", vi: "Machine learning" }
+  dl:           { en: "Deep learning", vi: "Deep learning" }
+  llm:          { en: "LLM & GenAI", vi: "LLM & GenAI" }
+  rag:          { en: "RAG", vi: "RAG" }
+  agents:       { en: "Agents", vi: "Agent" }
+  production:   { en: "Production", vi: "Production" }

@@ -1,0 +1,16 @@
+id: p1-01-ex02
+kind: debug
+title:
+  en: "Debug: messy form data"
+  vi: "Debug: dữ liệu form lộn xộn"
+difficulty: 2
+tags: [conversion, types, strings]
+hints:
+  en:
+    - "Run the code first and read the error. Which line crashes, and why?"
+    - "`age_text` and `height_text` are strings. One holds a whole number, the other a decimal. Which conversion function fits each?"
+    - "You cannot join a str with an int using `+`. An f-string like `f\"Age {age}, ...\"` converts values for you."
+  vi:
+    - "Chạy code trước rồi đọc lỗi. Dòng nào bị lỗi, vì sao?"
+    - "`age_text` và `height_text` là chuỗi. Một cái là số nguyên, cái kia là số thập phân. Hàm chuyển kiểu nào hợp với từng cái?"
+    - "Không thể nối str với int bằng `+`. f-string như `f\"Age {age}, ...\"` sẽ tự chuyển giá trị cho bạn."

@@ -1,0 +1,24 @@
+{
+  "$id": "glossary.schema.json",
+  "type": "object",
+  "required": ["terms"],
+  "properties": {
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["term", "en"],
+        "properties": {
+          "term": { "type": "string" },
+          "vi_term": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "en": { "type": "string" },
+          "vi": { "type": "string" },
+          "example": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

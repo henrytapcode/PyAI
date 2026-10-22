@@ -1,0 +1,308 @@
+# Syllabus: single source of truth for the learning path.
+# A lesson listed here becomes "ready" once a matching folder exists under its phase
+# (curriculum/<phase.dir>/<lesson.id>/). Otherwise the app shows it as "coming soon".
+# Phases 0-3: detailed. Phases 4-8: outline (filled in at M3/M4).
+
+phases:
+  - id: p0
+    dir: phase-00-environment
+    order: 0
+    icon: terminal
+    title: { en: "Environment setup", vi: "Môi trường làm việc" }
+    summary:
+      en: "Install Python with uv, use the terminal, Git and VS Code."
+      vi: "Cài Python bằng uv, dùng terminal, Git và VS Code."
+    skippable_by_placement: true
+    lessons:
+      - id: p0-01-terminal
+        title: { en: "Terminal basics", vi: "Terminal cơ bản" }
+        outcomes:
+          en: ["Navigate folders", "Run a Python file from the terminal"]
+          vi: ["Di chuyển giữa các thư mục", "Chạy file Python từ terminal"]
+      - id: p0-02-uv-venv
+        title: { en: "uv & virtual environments", vi: "uv & môi trường ảo" }
+        prerequisites: [p0-01-terminal]
+        outcomes:
+          en: ["Create a project with uv", "Add and lock dependencies"]
+          vi: ["Tạo project bằng uv", "Thêm và khóa dependency"]
+      - id: p0-03-git
+        title: { en: "Git essentials", vi: "Git căn bản" }
+        prerequisites: [p0-01-terminal]
+        outcomes:
+          en: ["commit, branch, merge", "Push to GitHub"]
+          vi: ["commit, branch, merge", "Đẩy code lên GitHub"]
+      - id: p0-04-vscode
+        title: { en: "VS Code for Python", vi: "VS Code cho Python" }
+        prerequisites: [p0-02-uv-venv]
+        outcomes:
+          en: ["Select interpreter", "Use the debugger and formatter"]
+          vi: ["Chọn interpreter", "Dùng debugger và formatter"]
+
+  - id: p1
+    dir: phase-01-python-core
+    order: 1
+    icon: code
+    title: { en: "Python core", vi: "Python cốt lõi" }
+    summary:
+      en: "Data types, control flow, functions, modules, files and exceptions."
+      vi: "Kiểu dữ liệu, điều khiển luồng, hàm, module, file và exception."
+    skippable_by_placement: true
+    lessons:
+      - id: p1-01-variables
+        title: { en: "Variables & data types", vi: "Biến & kiểu dữ liệu" }
+        outcomes:
+          en: ["Create variables", "Use int, float, str, bool", "Convert between types"]
+          vi: ["Tạo biến", "Dùng int, float, str, bool", "Chuyển đổi giữa các kiểu"]
+      - id: p1-02-conditions
+        title: { en: "Conditions", vi: "Câu lệnh điều kiện" }
+        prerequisites: [p1-01-variables]
+        outcomes:
+          en: ["Write if / elif / else", "Combine conditions with and / or / not"]
+          vi: ["Viết if / elif / else", "Kết hợp điều kiện bằng and / or / not"]
+      - id: p1-03-loops
+        title: { en: "Loops", vi: "Vòng lặp" }
+        prerequisites: [p1-02-conditions]
+        outcomes:
+          en: ["Loop with for and range()", "Use while, break, continue", "Accumulate results"]
+          vi: ["Lặp với for và range()", "Dùng while, break, continue", "Tích lũy kết quả"]
+      - id: p1-04-collections
+        title: { en: "Lists & dictionaries", vi: "List & dictionary" }
+        prerequisites: [p1-03-loops]
+        outcomes:
+          en: ["Index, slice and modify lists", "Store data in dicts", "Loop over collections"]
+          vi: ["Truy cập, cắt và sửa list", "Lưu dữ liệu bằng dict", "Lặp qua collection"]
+      - id: p1-05-functions
+        title: { en: "Functions", vi: "Hàm" }
+        prerequisites: [p1-04-collections]
+        outcomes:
+          en: ["Define functions with parameters", "Return values", "Use default arguments"]
+          vi: ["Định nghĩa hàm có tham số", "Trả về giá trị", "Dùng tham số mặc định"]
+      - id: p1-06-mini-project
+        kind: project
+        title: { en: "Mini-project: grade report", vi: "Mini-project: bảng điểm" }
+        prerequisites: [p1-05-functions]
+        outcomes:
+          en: ["Combine everything from phase 1 into a small program"]
+          vi: ["Kết hợp toàn bộ kiến thức phase 1 vào một chương trình nhỏ"]
+      - id: p1-07-strings
+        title: { en: "Working with strings", vi: "Làm việc với chuỗi" }
+        prerequisites: [p1-05-functions]
+        outcomes:
+          en: ["String methods", "f-string formatting", "split and join"]
+          vi: ["Phương thức chuỗi", "Định dạng f-string", "split và join"]
+      - id: p1-08-modules
+        title: { en: "Modules & imports", vi: "Module & import" }
+        prerequisites: [p1-05-functions]
+        outcomes:
+          en: ["Import from the standard library", "Split code into modules"]
+          vi: ["Import từ thư viện chuẩn", "Tách code thành module"]
+      - id: p1-09-files
+        title: { en: "File I/O", vi: "Đọc ghi file" }
+        prerequisites: [p1-07-strings]
+        outcomes:
+          en: ["Read and write text files with with-open", "Work with CSV and JSON"]
+          vi: ["Đọc ghi file text bằng with-open", "Làm việc với CSV và JSON"]
+      - id: p1-10-exceptions
+        title: { en: "Exceptions", vi: "Xử lý ngoại lệ" }
+        prerequisites: [p1-09-files]
+        outcomes:
+          en: ["try / except / finally", "Raise your own errors"]
+          vi: ["try / except / finally", "Tự raise lỗi"]
+
+  - id: p2
+    dir: phase-02-intermediate
+    order: 2
+    icon: layers
+    title: { en: "Intermediate Python", vi: "Python trung cấp" }
+    summary:
+      en: "OOP, dataclasses, type hints, generators, decorators, context managers."
+      vi: "OOP, dataclass, type hint, generator, decorator, context manager."
+    lessons:
+      - id: p2-01-comprehensions
+        title: { en: "Comprehensions", vi: "Comprehension" }
+        prerequisites: [p1-05-functions]
+        outcomes:
+          en: ["List, dict and set comprehensions"]
+          vi: ["List, dict và set comprehension"]
+      - id: p2-02-classes
+        title: { en: "Classes & objects", vi: "Class & object" }
+        prerequisites: [p1-05-functions]
+        outcomes:
+          en: ["Define classes", "Attributes and methods", "__init__ and __repr__"]
+          vi: ["Định nghĩa class", "Thuộc tính và phương thức", "__init__ và __repr__"]
+      - id: p2-03-inheritance
+        title: { en: "Inheritance & composition", vi: "Kế thừa & composition" }
+        prerequisites: [p2-02-classes]
+        outcomes:
+          en: ["Subclass and override", "Prefer composition when it fits"]
+          vi: ["Tạo lớp con và override", "Ưu tiên composition khi phù hợp"]
+      - id: p2-04-dataclasses
+        title: { en: "Dataclasses", vi: "Dataclass" }
+        prerequisites: [p2-02-classes]
+        outcomes:
+          en: ["@dataclass, field defaults, frozen"]
+          vi: ["@dataclass, giá trị mặc định, frozen"]
+      - id: p2-05-typing
+        title: { en: "Type hints", vi: "Type hint" }
+        prerequisites: [p2-04-dataclasses]
+        outcomes:
+          en: ["Annotate functions", "Optional, Union, generics basics"]
+          vi: ["Chú thích kiểu cho hàm", "Optional, Union, generic cơ bản"]
+      - id: p2-06-generators
+        title: { en: "Iterators & generators", vi: "Iterator & generator" }
+        prerequisites: [p2-01-comprehensions]
+        outcomes:
+          en: ["yield", "Lazy pipelines over big data"]
+          vi: ["yield", "Pipeline lười cho dữ liệu lớn"]
+      - id: p2-07-decorators
+        title: { en: "Decorators", vi: "Decorator" }
+        prerequisites: [p2-06-generators]
+        outcomes:
+          en: ["Functions as values", "Write a timing / retry decorator"]
+          vi: ["Hàm là giá trị", "Viết decorator đo thời gian / retry"]
+      - id: p2-08-context-managers
+        title: { en: "Context managers", vi: "Context manager" }
+        prerequisites: [p2-07-decorators]
+        outcomes:
+          en: ["with statement", "contextlib.contextmanager"]
+          vi: ["Câu lệnh with", "contextlib.contextmanager"]
+      - id: p2-09-mini-project
+        kind: project
+        title: { en: "Mini-project: inventory CLI", vi: "Mini-project: CLI quản lý kho" }
+        prerequisites: [p2-08-context-managers]
+        outcomes:
+          en: ["Model a domain with dataclasses and persist to JSON"]
+          vi: ["Mô hình hóa nghiệp vụ bằng dataclass và lưu ra JSON"]
+
+  - id: p3
+    dir: phase-03-code-quality
+    order: 3
+    icon: shield-check
+    title: { en: "Code quality", vi: "Chất lượng code" }
+    summary:
+      en: "pytest, ruff, logging and debugging."
+      vi: "pytest, ruff, logging và debug."
+    lessons:
+      - id: p3-01-pytest
+        title: { en: "Testing with pytest", vi: "Kiểm thử với pytest" }
+        prerequisites: [p2-05-typing]
+        outcomes:
+          en: ["Write tests, fixtures, parametrize"]
+          vi: ["Viết test, fixture, parametrize"]
+      - id: p3-02-ruff
+        title: { en: "Linting & formatting with ruff", vi: "Lint & format với ruff" }
+        prerequisites: [p3-01-pytest]
+        outcomes:
+          en: ["Configure ruff", "Fix common lint errors"]
+          vi: ["Cấu hình ruff", "Sửa lỗi lint thường gặp"]
+      - id: p3-03-logging
+        title: { en: "Logging", vi: "Logging" }
+        prerequisites: [p3-01-pytest]
+        outcomes:
+          en: ["Log levels", "Structured logs instead of print"]
+          vi: ["Các mức log", "Log có cấu trúc thay cho print"]
+      - id: p3-04-debugging
+        title: { en: "Debugging", vi: "Debug" }
+        prerequisites: [p3-03-logging]
+        outcomes:
+          en: ["Read tracebacks", "Use breakpoint() and the VS Code debugger"]
+          vi: ["Đọc traceback", "Dùng breakpoint() và debugger của VS Code"]
+      - id: p3-05-mini-project
+        kind: project
+        title: { en: "Mini-project: tested utility package", vi: "Mini-project: package tiện ích có test" }
+        prerequisites: [p3-04-debugging]
+        outcomes:
+          en: ["Ship a small package with tests, lint and logging"]
+          vi: ["Hoàn thiện package nhỏ có test, lint và logging"]
+
+  - id: p4
+    dir: phase-04-data
+    order: 4
+    icon: table
+    title: { en: "Data", vi: "Dữ liệu" }
+    summary:
+      en: "NumPy, Pandas, Matplotlib and basic SQL."
+      vi: "NumPy, Pandas, Matplotlib và SQL cơ bản."
+    lessons:
+      - { id: p4-01-numpy, title: { en: "NumPy arrays", vi: "Mảng NumPy" }, prerequisites: [p2-01-comprehensions] }
+      - { id: p4-02-pandas, title: { en: "Pandas DataFrames", vi: "DataFrame với Pandas" }, prerequisites: [p4-01-numpy] }
+      - { id: p4-03-cleaning, title: { en: "Cleaning data", vi: "Làm sạch dữ liệu" }, prerequisites: [p4-02-pandas] }
+      - { id: p4-04-matplotlib, title: { en: "Plotting", vi: "Vẽ biểu đồ" }, prerequisites: [p4-02-pandas] }
+      - { id: p4-05-sql, title: { en: "SQL basics with SQLite", vi: "SQL cơ bản với SQLite" }, prerequisites: [p4-02-pandas] }
+      - { id: p4-06-mini-project, kind: project, title: { en: "Mini-project: data analysis", vi: "Mini-project: phân tích dữ liệu" }, prerequisites: [p4-05-sql] }
+
+  - id: p5
+    dir: phase-05-ml
+    order: 5
+    icon: brain
+    title: { en: "Machine learning", vi: "Machine learning" }
+    summary:
+      en: "Just-enough math with visual bridges, scikit-learn, model evaluation."
+      vi: "Toán vừa đủ qua hình ảnh, scikit-learn, đánh giá mô hình."
+    lessons:
+      - { id: p5-01-math-bridge, title: { en: "Math bridge: vectors & gradients", vi: "Cầu nối toán: vector & gradient" }, prerequisites: [p4-01-numpy] }
+      - { id: p5-02-supervised, title: { en: "Supervised learning", vi: "Học có giám sát" }, prerequisites: [p5-01-math-bridge] }
+      - { id: p5-03-sklearn, title: { en: "scikit-learn workflow", vi: "Quy trình scikit-learn" }, prerequisites: [p5-02-supervised] }
+      - { id: p5-04-evaluation, title: { en: "Evaluating models", vi: "Đánh giá mô hình" }, prerequisites: [p5-03-sklearn] }
+      - { id: p5-05-mini-project, kind: project, title: { en: "Mini-project: ML classifier", vi: "Mini-project: bộ phân loại ML" }, prerequisites: [p5-04-evaluation] }
+
+  - id: p6
+    dir: phase-06-deep-learning
+    order: 6
+    icon: network
+    runner: local
+    title: { en: "Deep learning", vi: "Deep learning" }
+    summary:
+      en: "PyTorch basics, the training loop, Hugging Face, small fine-tunes."
+      vi: "PyTorch cơ bản, training loop, Hugging Face, fine-tune nhỏ."
+    lessons:
+      - { id: p6-01-tensors, title: { en: "Tensors & autograd", vi: "Tensor & autograd" }, prerequisites: [p5-01-math-bridge] }
+      - { id: p6-02-training-loop, title: { en: "The training loop", vi: "Training loop" }, prerequisites: [p6-01-tensors] }
+      - { id: p6-03-huggingface, title: { en: "Hugging Face pipelines", vi: "Pipeline Hugging Face" }, prerequisites: [p6-02-training-loop] }
+      - { id: p6-04-fine-tune, title: { en: "A small fine-tune", vi: "Fine-tune nhỏ" }, prerequisites: [p6-03-huggingface] }
+
+  - id: p7
+    dir: phase-07-llm
+    order: 7
+    icon: sparkles
+    runner: local
+    title: { en: "LLM & GenAI", vi: "LLM & GenAI" }
+    summary:
+      en: "LLM APIs, structured output, embeddings, vector DB, RAG, tool use, agents, evals."
+      vi: "API LLM, structured output, embedding, vector DB, RAG, tool use, agent, eval."
+    lessons:
+      - { id: p7-01-llm-api, title: { en: "Calling an LLM API", vi: "Gọi API LLM" }, prerequisites: [p2-05-typing] }
+      - { id: p7-02-structured-output, title: { en: "Structured output", vi: "Structured output" }, prerequisites: [p7-01-llm-api] }
+      - { id: p7-03-embeddings, title: { en: "Embeddings", vi: "Embedding" }, prerequisites: [p7-01-llm-api] }
+      - { id: p7-04-vector-db, title: { en: "Vector databases", vi: "Vector database" }, prerequisites: [p7-03-embeddings] }
+      - { id: p7-05-rag, title: { en: "RAG", vi: "RAG" }, prerequisites: [p7-04-vector-db] }
+      - { id: p7-06-tool-use, title: { en: "Tool use", vi: "Tool use" }, prerequisites: [p7-02-structured-output] }
+      - { id: p7-07-agents, title: { en: "Simple agents", vi: "Agent đơn giản" }, prerequisites: [p7-06-tool-use] }
+      - { id: p7-08-evals, title: { en: "Evals", vi: "Eval" }, prerequisites: [p7-05-rag] }
+      - { id: p7-09-mini-project-rag, kind: project, title: { en: "Mini-project: RAG", vi: "Mini-project: RAG" }, prerequisites: [p7-08-evals] }
+      - { id: p7-10-mini-project-agent, kind: project, title: { en: "Mini-project: simple agent", vi: "Mini-project: agent đơn giản" }, prerequisites: [p7-07-agents] }
+
+  - id: p8
+    dir: phase-08-production
+    order: 8
+    icon: rocket
+    runner: local
+    title: { en: "Production", vi: "Production" }
+    summary:
+      en: "FastAPI, Docker basics, caching, monitoring, cost and latency."
+      vi: "FastAPI, Docker cơ bản, cache, monitoring, chi phí và độ trễ."
+    lessons:
+      - { id: p8-01-fastapi, title: { en: "FastAPI services", vi: "Dịch vụ FastAPI" }, prerequisites: [p2-05-typing] }
+      - { id: p8-02-docker, title: { en: "Docker basics", vi: "Docker cơ bản" }, prerequisites: [p8-01-fastapi] }
+      - { id: p8-03-caching, title: { en: "Caching", vi: "Cache" }, prerequisites: [p8-01-fastapi] }
+      - { id: p8-04-monitoring, title: { en: "Monitoring, cost & latency", vi: "Monitoring, chi phí & độ trễ" }, prerequisites: [p8-03-caching] }
+
+capstones:
+  - id: cap-01-rag-chatbot
+    title: { en: "Capstone: RAG chatbot with evals", vi: "Capstone: RAG chatbot có eval" }
+  - id: cap-02-tool-agent
+    title: { en: "Capstone: tool-using agent", vi: "Capstone: agent dùng tool" }
+
+further_reading:
+  en: ["Advanced asyncio", "Metaclasses", "C extensions", "Proof-based math", "Kubernetes", "Deep profiling"]
+  vi: ["asyncio nâng cao", "Metaclass", "C extension", "Toán chứng minh", "Kubernetes", "Profiling chuyên sâu"]

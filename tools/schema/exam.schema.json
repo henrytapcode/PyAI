@@ -1,0 +1,22 @@
+{
+  "$id": "exam.schema.json",
+  "title": "Phase test / placement test / mock exam",
+  "type": "object",
+  "required": ["id", "kind", "title", "duration_min", "pass_score", "questions"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "kind": { "enum": ["phase_test", "placement", "mock"] },
+    "phase": { "type": "string" },
+    "title": { "$ref": "common.schema.json#/$defs/i18nText" },
+    "description": { "$ref": "common.schema.json#/$defs/i18nText" },
+    "duration_min": { "type": "integer", "minimum": 1 },
+    "pass_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "skips_phases": { "type": "array", "items": { "type": "string" } },
+    "questions": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/question" },
+      "minItems": 5
+    }
+  },
+  "additionalProperties": false
+}

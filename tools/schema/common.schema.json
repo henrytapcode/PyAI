@@ -1,0 +1,78 @@
+{
+  "$id": "common.schema.json",
+  "$defs": {
+    "i18nText": {
+      "type": "object",
+      "required": ["en"],
+      "properties": { "en": { "type": "string", "minLength": 1 }, "vi": { "type": "string", "minLength": 1 } },
+      "additionalProperties": false
+    },
+    "i18nList": {
+      "type": "object",
+      "required": ["en"],
+      "properties": {
+        "en": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "vi": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      },
+      "additionalProperties": false
+    },
+    "questionText": {
+      "type": "object",
+      "required": ["prompt"],
+      "properties": {
+        "prompt": { "type": "string", "minLength": 1 },
+        "options": { "type": "array", "items": { "type": "string" }, "minItems": 2 },
+        "explanation": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "question": {
+      "type": "object",
+      "required": ["id", "type", "tags", "en"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "type": { "enum": ["mcq", "output", "fill", "parsons"] },
+        "tags": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "difficulty": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "code": { "type": "string" },
+        "lines": { "type": "array", "items": { "type": "string" }, "minItems": 2 },
+        "answer": {},
+        "en": { "$ref": "#/$defs/questionText" },
+        "vi": { "$ref": "#/$defs/questionText" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "mcq" } } },
+          "then": { "required": ["answer"], "properties": { "answer": { "type": "integer", "minimum": 0 } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "output" } } },
+          "then": { "required": ["answer", "code"], "properties": { "answer": { "type": "string" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "fill" } } },
+          "then": {
+            "required": ["answer", "code"],
+            "properties": {
+              "answer": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "parsons" } } },
+          "then": { "required": ["lines"] }
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

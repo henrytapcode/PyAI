@@ -1,0 +1,148 @@
+questions:
+  - id: p1-01-q01
+    type: mcq
+    tags: [types]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is the type of `3.0`?"
+      options: ["int", "float", "str", "bool"]
+      explanation: "Any number written with a decimal point is a `float`, even if the decimal part is 0."
+    vi:
+      prompt: "Kiểu của `3.0` là gì?"
+      options: ["int", "float", "str", "bool"]
+      explanation: "Mọi số viết có dấu chấm thập phân đều là `float`, kể cả khi phần thập phân bằng 0."
+
+  - id: p1-01-q02
+    type: output
+    tags: [operators]
+    difficulty: 1
+    code: |
+      a = 7
+      b = 2
+      print(a // b, a % b)
+    answer: "3 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`7 // 2` is floor division (3) and `7 % 2` is the remainder (1). `print` separates values with a space."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`7 // 2` là chia lấy phần nguyên (3), `7 % 2` là phần dư (1). `print` ngăn cách các giá trị bằng dấu cách."
+
+  - id: p1-01-q03
+    type: mcq
+    tags: [conversion, strings]
+    difficulty: 1
+    answer: 2
+    code: |
+      print("5" + "5")
+    en:
+      prompt: "What is printed?"
+      options: ["10", "55.0", "55", "An error"]
+      explanation: "Both values are strings, so `+` joins them into `\"55\"`."
+    vi:
+      prompt: "Kết quả in ra là gì?"
+      options: ["10", "55.0", "55", "Lỗi"]
+      explanation: "Cả hai giá trị đều là chuỗi, nên `+` nối chúng thành `\"55\"`."
+
+  - id: p1-01-q04
+    type: fill
+    tags: [conversion]
+    difficulty: 1
+    code: |
+      text = "42"
+      number = ___(text)
+      print(number + 1)  # 43
+    answer: ["int"]
+    en:
+      prompt: "Fill in the blank so the code prints 43."
+      explanation: "`int(\"42\")` converts the text to the whole number 42."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra 43."
+      explanation: "`int(\"42\")` chuyển chuỗi thành số nguyên 42."
+
+  - id: p1-01-q05
+    type: mcq
+    tags: [variables]
+    difficulty: 1
+    answer: 3
+    en:
+      prompt: "Which one is a valid variable name?"
+      options: ["2nd_place", "total-price", "class", "total_price"]
+      explanation: "Names cannot start with a digit, cannot contain `-`, and cannot be a keyword like `class`."
+    vi:
+      prompt: "Tên biến nào hợp lệ?"
+      options: ["2nd_place", "total-price", "class", "total_price"]
+      explanation: "Tên biến không được bắt đầu bằng số, không chứa `-`, và không được là từ khóa như `class`."
+
+  - id: p1-01-q06
+    type: parsons
+    tags: [variables, operators]
+    difficulty: 2
+    lines:
+      - "price = 4.5"
+      - "quantity = 2"
+      - "total = price * quantity"
+      - "print(f\"Total: {total}\")"
+    en:
+      prompt: "Put the lines in order so the program prints `Total: 9.0`."
+      explanation: "A variable must be created before it is used, so both inputs come first, then the calculation, then the print."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Total: 9.0`."
+      explanation: "Biến phải được tạo trước khi dùng, nên hai đầu vào đứng trước, rồi phép tính, cuối cùng là print."
+
+  - id: p1-01-q07
+    type: output
+    tags: [variables]
+    difficulty: 2
+    code: |
+      x = 10
+      x = x * 2
+      x = x - 5
+      print(x)
+    answer: "15"
+    en:
+      prompt: "What does this code print?"
+      explanation: "x goes 10 → 20 → 15. Each line overwrites the old value."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "x đi từ 10 → 20 → 15. Mỗi dòng ghi đè giá trị cũ."
+
+  - id: p1-01-q08
+    type: mcq
+    tags: [operators, types]
+    difficulty: 2
+    answer: 0
+    code: |
+      result = 10 / 2
+    en:
+      prompt: "What is the value and type of `result`?"
+      options: ["5.0 (float)", "5 (int)", "5 (str)", "2 (int)"]
+      explanation: "`/` always returns a float in Python 3. Use `//` for whole-number division."
+    vi:
+      prompt: "Giá trị và kiểu của `result` là gì?"
+      options: ["5.0 (float)", "5 (int)", "5 (str)", "2 (int)"]
+      explanation: "Trong Python 3, `/` luôn trả về float. Dùng `//` nếu muốn chia lấy số nguyên."
+
+flashcards:
+  - id: p1-01-f01
+    tags: [types]
+    en: { front: "The 4 basic Python types?", back: "`int`, `float`, `str`, `bool`" }
+    vi: { front: "4 kiểu cơ bản của Python?", back: "`int`, `float`, `str`, `bool`" }
+  - id: p1-01-f02
+    tags: [operators]
+    en: { front: "Difference between `/` and `//`?", back: "`/` always gives a float (7/2 = 3.5). `//` is floor division (7//2 = 3)." }
+    vi: { front: "Khác nhau giữa `/` và `//`?", back: "`/` luôn trả về float (7/2 = 3.5). `//` chia lấy phần nguyên (7//2 = 3)." }
+  - id: p1-01-f03
+    tags: [operators]
+    en: { front: "What does `%` do?", back: "Remainder of a division. `7 % 2` is `1`. `n % 2 == 0` means n is even." }
+    vi: { front: "`%` dùng để làm gì?", back: "Lấy phần dư của phép chia. `7 % 2` là `1`. `n % 2 == 0` nghĩa là n chẵn." }
+  - id: p1-01-f04
+    tags: [conversion]
+    en: { front: "How do you turn `\"3.5\"` into a number?", back: "`float(\"3.5\")`. `int(\"3.5\")` raises `ValueError`." }
+    vi: { front: "Làm sao biến `\"3.5\"` thành số?", back: "`float(\"3.5\")`. `int(\"3.5\")` sẽ lỗi `ValueError`." }
+  - id: p1-01-f05
+    tags: [strings]
+    code: 'print(f"{name} is {age}")'
+    en: { front: "What is an f-string?", back: "A string prefixed with `f` where `{expression}` is replaced by its value." }
+    vi: { front: "f-string là gì?", back: "Chuỗi có tiền tố `f`, trong đó `{biểu thức}` được thay bằng giá trị của nó." }
