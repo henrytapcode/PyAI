@@ -1,0 +1,29 @@
+id: p1-05-functions
+phase: p1
+order: 5
+kind: lesson
+title:
+  en: "Functions"
+  vi: "Hàm"
+summary:
+  en: "Package code into reusable, named functions: parameters, return values, default arguments and scope."
+  vi: "Đóng gói code thành các hàm có tên, dùng lại được: tham số, giá trị trả về, tham số mặc định và phạm vi biến."
+level: beginner
+tags: [functions, scope]
+prerequisites: [p1-04-collections]
+duration_min: 12
+outcomes:
+  en:
+    - "Define functions with parameters"
+    - "Tell return apart from print"
+    - "Use default and keyword arguments"
+    - "Write docstrings and understand local scope"
+  vi:
+    - "Định nghĩa hàm có tham số"
+    - "Phân biệt return và print"
+    - "Dùng tham số mặc định và keyword argument"
+    - "Viết docstring và hiểu phạm vi biến cục bộ"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: Defining functions", vi: "Python tutorial: Định nghĩa hàm (EN)" }
+    url: "https://docs.python.org/3/tutorial/controlflow.html#defining-functions"

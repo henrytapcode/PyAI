@@ -1,0 +1,367 @@
+id: mock-python-core
+kind: mock
+title:
+  en: "Mock exam: Python core"
+  vi: "Thi thử: Python cốt lõi"
+description:
+  en: "20 interview-style questions on Python core. Aim for 80% or more."
+  vi: "20 câu hỏi kiểu phỏng vấn về Python cốt lõi. Mục tiêu từ 80% trở lên."
+duration_min: 30
+pass_score: 0.8
+questions:
+  - id: mock1-q01
+    type: mcq
+    tags: [dicts, types]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Which of these can be used as a dictionary key?"
+      options: ["[1, 2]", "{\"a\": 1}", "(1, 2)", "[]"]
+      explanation: "Keys must be hashable, which in practice means immutable. A tuple of numbers is hashable; lists and dicts are mutable and raise `TypeError`."
+    vi:
+      prompt: "Giá trị nào dùng được làm key của dictionary?"
+      options: ["[1, 2]", "{\"a\": 1}", "(1, 2)", "[]"]
+      explanation: "Key phải hashable, trên thực tế nghĩa là immutable. Tuple chứa số là hashable; list và dict là mutable nên báo `TypeError`."
+
+  - id: mock1-q02
+    type: output
+    tags: [types, operators]
+    difficulty: 2
+    code: |
+      print(0.1 + 0.2 == 0.3, round(0.1 + 0.2, 2) == 0.3)
+    answer: "False True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Floats are stored in binary, so `0.1 + 0.2` is 0.30000000000000004. Compare floats after rounding, or with a tolerance."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Float được lưu ở dạng nhị phân, nên `0.1 + 0.2` là 0.30000000000000004. Hãy so sánh float sau khi làm tròn, hoặc dùng một ngưỡng sai số."
+
+  - id: mock1-q03
+    type: output
+    tags: [strings]
+    difficulty: 2
+    code: |
+      s = "Hello, World"
+      print(s[7:], s[::-1][:3], s.lower().count("l"))
+    answer: "World dlr 3"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`s[7:]` is \"World\". Reversed, the string starts with \"dlr\". After lowercasing there are three \"l\" characters (two in Hello, one in World)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`s[7:]` là \"World\". Khi đảo ngược, chuỗi bắt đầu bằng \"dlr\". Sau khi hạ chữ thường có ba ký tự \"l\" (hai trong Hello, một trong World)."
+
+  - id: mock1-q04
+    type: output
+    tags: [booleans]
+    difficulty: 2
+    code: |
+      values = [0, "", None, "0", [], [0]]
+      count = 0
+      for v in values:
+          if v:
+              count += 1
+      print(count)
+    answer: "2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Only `\"0\"` (a non-empty string) and `[0]` (a non-empty list) are truthy. 0, an empty string, `None` and an empty list are falsy."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Chỉ có `\"0\"` (chuỗi không rỗng) và `[0]` (list không rỗng) là truthy. 0, chuỗi rỗng, `None` và list rỗng đều là falsy."
+
+  - id: mock1-q05
+    type: mcq
+    tags: [types, lists]
+    difficulty: 2
+    answer: 1
+    code: |
+      a = [1]
+      b = [1]
+      print(a == b, a is b)
+    en:
+      prompt: "What does this code print?"
+      options: ["True True", "True False", "False True", "False False"]
+      explanation: "`==` compares values (equal), `is` compares identity. Two separately created lists are equal but are different objects."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["True True", "True False", "False True", "False False"]
+      explanation: "`==` so sánh giá trị (bằng nhau), `is` so sánh danh tính. Hai list được tạo riêng thì bằng nhau nhưng là hai đối tượng khác nhau."
+
+  - id: mock1-q06
+    type: output
+    tags: [lists]
+    difficulty: 3
+    code: |
+      grid = [[0] * 2] * 2
+      grid[0][0] = 1
+      print(grid)
+    answer: "[[1, 0], [1, 0]]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`[[0] * 2] * 2` repeats a reference to the same inner list, so changing one row changes both. Build rows in a loop to get independent lists."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`[[0] * 2] * 2` lặp lại tham chiếu tới cùng một list con, nên sửa một hàng là sửa cả hai. Hãy tạo từng hàng trong vòng lặp để có các list độc lập."
+
+  - id: mock1-q07
+    type: output
+    tags: [loops]
+    difficulty: 3
+    code: |
+      primes = []
+      for n in range(2, 6):
+          for d in range(2, n):
+              if n % d == 0:
+                  break
+          else:
+              primes.append(n)
+      print(primes)
+    answer: "[2, 3, 5]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The `else` of a `for` loop runs only when the loop did not hit `break`. Here that means no divisor was found, so n is prime."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Phần `else` của vòng `for` chỉ chạy khi vòng lặp không gặp `break`. Ở đây nghĩa là không tìm thấy ước nào, nên n là số nguyên tố."
+
+  - id: mock1-q08
+    type: output
+    tags: [dicts]
+    difficulty: 2
+    code: |
+      d = {}
+      d.setdefault("a", []).append(1)
+      d.setdefault("a", []).append(2)
+      d["b"] = d.get("b", 0) + 1
+      print(d)
+    answer: "{'a': [1, 2], 'b': 1}"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`setdefault` inserts the default only if the key is missing and returns the stored value, so both appends go to the same list."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`setdefault` chỉ thêm giá trị mặc định khi key chưa có và trả về giá trị đang lưu, nên cả hai lần append đều vào cùng một list."
+
+  - id: mock1-q09
+    type: mcq
+    tags: [lists, loops]
+    difficulty: 3
+    answer: 1
+    code: |
+      nums = [2, 4, 6, 7]
+      for n in nums:
+          if n % 2 == 0:
+              nums.remove(n)
+      print(nums)
+    en:
+      prompt: "What does this code print?"
+      options: ["[7]", "[4, 7]", "[]", "[2, 4, 6, 7]"]
+      explanation: "Removing items while iterating shifts the remaining ones left, so the loop skips elements. Build a new list instead."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["[7]", "[4, 7]", "[]", "[2, 4, 6, 7]"]
+      explanation: "Xóa phần tử trong khi đang lặp làm các phần tử còn lại dồn sang trái, nên vòng lặp bỏ sót phần tử. Hãy tạo list mới thay vì xóa."
+
+  - id: mock1-q10
+    type: fill
+    tags: [dicts, functions]
+    difficulty: 3
+    code: |
+      scores = {"ann": 3, "bob": 9, "cy": 5}
+      best = max(scores, key=___)
+      print(best)  # bob
+    answer: [["scores.get", "scores.__getitem__"]]
+    en:
+      prompt: "Fill in the blank so `best` is the key with the highest value."
+      explanation: "`max` over a dict iterates over keys. The `key` function tells it what to compare, here the value for each key: `scores.get`."
+    vi:
+      prompt: "Điền vào chỗ trống để `best` là key có giá trị lớn nhất."
+      explanation: "`max` trên dict lặp qua các key. Hàm `key` cho biết so sánh theo cái gì, ở đây là giá trị của từng key: `scores.get`."
+
+  - id: mock1-q11
+    type: mcq
+    tags: [scope]
+    difficulty: 3
+    answer: 2
+    code: |
+      count = 0
+
+      def inc():
+          count += 1
+
+      inc()
+    en:
+      prompt: "What happens when `inc()` is called?"
+      options: ["count becomes 1", "Nothing happens", "UnboundLocalError", "SyntaxError"]
+      explanation: "Because `count` is assigned inside the function, Python treats it as local, and reading it before assignment fails. Use `global count` or, better, pass and return values."
+    vi:
+      prompt: "Điều gì xảy ra khi gọi `inc()`?"
+      options: ["count thành 1", "Không có gì xảy ra", "UnboundLocalError", "SyntaxError"]
+      explanation: "Vì `count` được gán bên trong hàm nên Python coi nó là biến cục bộ, và đọc nó trước khi gán sẽ lỗi. Dùng `global count` hoặc tốt hơn là truyền vào và trả về giá trị."
+
+  - id: mock1-q12
+    type: output
+    tags: [functions]
+    difficulty: 2
+    code: |
+      def greet(name, greeting="Hi", punct="!"):
+          return f"{greeting}, {name}{punct}"
+
+      print(greet("Ann", punct="?"), greet("Bo", "Yo"))
+    answer: "Hi, Ann? Yo, Bo!"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Keyword arguments pick parameters by name and the rest keep their defaults. The second call fills `greeting` positionally."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Keyword argument chọn tham số theo tên, các tham số còn lại giữ giá trị mặc định. Lời gọi thứ hai gán `greeting` theo vị trí."
+
+  - id: mock1-q13
+    type: mcq
+    tags: [functions, types]
+    difficulty: 2
+    answer: 1
+    code: |
+      def stats():
+          return 1, 2
+
+      print(type(stats()))
+    en:
+      prompt: "What type does `stats()` return?"
+      options: ["list", "tuple", "set", "dict"]
+      explanation: "`return 1, 2` packs the values into a tuple. You can unpack it with `a, b = stats()`."
+    vi:
+      prompt: "`stats()` trả về kiểu gì?"
+      options: ["list", "tuple", "set", "dict"]
+      explanation: "`return 1, 2` gói các giá trị thành một tuple. Có thể giải nén bằng `a, b = stats()`."
+
+  - id: mock1-q14
+    type: parsons
+    tags: [functions, loops]
+    difficulty: 2
+    lines:
+      - "def count_vowels(text):"
+      - "    count = 0"
+      - "    for ch in text.lower():"
+      - "        if ch in \"aeiou\":"
+      - "            count += 1"
+      - "    return count"
+      - "print(count_vowels(\"Python AI\"))"
+    en:
+      prompt: "Put the lines in order so the program prints `3`."
+      explanation: "Initialise the counter, loop, test each character, increment, and only after the loop return the total."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `3`."
+      explanation: "Khởi tạo biến đếm, lặp, kiểm tra từng ký tự, tăng đếm, và chỉ sau vòng lặp mới trả về tổng."
+
+  - id: mock1-q15
+    type: output
+    tags: [exceptions, functions]
+    difficulty: 3
+    code: |
+      def parse(s):
+          try:
+              return int(s)
+          except ValueError:
+              return -1
+          finally:
+              print("done", end=" ")
+
+      print(parse("x"), parse("7"))
+    answer: "done done -1 7"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`finally` always runs, even after `return`. Both calls finish (printing \"done \") before the outer `print` shows -1 and 7."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`finally` luôn chạy, kể cả sau `return`. Cả hai lời gọi hoàn tất (in \"done \") trước khi `print` bên ngoài in -1 và 7."
+
+  - id: mock1-q16
+    type: mcq
+    tags: [exceptions]
+    difficulty: 3
+    answer: 0
+    code: |
+      try:
+          int("x")
+      except Exception:
+          print("A")
+      except ValueError:
+          print("B")
+    en:
+      prompt: "What does this code print?"
+      options: ["A", "B", "SyntaxError", "A then B"]
+      explanation: "`ValueError` is a subclass of `Exception`, so the first handler catches it and the second is unreachable. Put specific exceptions first."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["A", "B", "SyntaxError", "A rồi B"]
+      explanation: "`ValueError` là lớp con của `Exception`, nên handler đầu tiên bắt nó và handler thứ hai không bao giờ chạy. Hãy đặt exception cụ thể lên trước."
+
+  - id: mock1-q17
+    type: fill
+    tags: [strings]
+    difficulty: 2
+    code: |
+      ratio = 0.12345
+      print(f"{ratio:___}")  # 12.3%
+    answer: [".1%"]
+    en:
+      prompt: "Fill in the format spec so the output is `12.3%`."
+      explanation: "The `%` format multiplies by 100 and adds a percent sign; `.1` keeps one decimal place."
+    vi:
+      prompt: "Điền format spec để kết quả là `12.3%`."
+      explanation: "Định dạng `%` nhân với 100 và thêm dấu phần trăm; `.1` giữ một chữ số thập phân."
+
+  - id: mock1-q18
+    type: output
+    tags: [lists, variables]
+    difficulty: 3
+    code: |
+      a, b, *rest = [1, 2, 3, 4]
+      a, b = b, a
+      print(a, b, rest)
+    answer: "2 1 [3, 4]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`*rest` collects the leftover items into a list. `a, b = b, a` swaps the two values without a temporary variable."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`*rest` gom các phần tử còn lại vào một list. `a, b = b, a` hoán đổi hai giá trị mà không cần biến tạm."
+
+  - id: mock1-q19
+    type: output
+    tags: [strings, lists]
+    difficulty: 2
+    code: |
+      words = "  the quick  brown fox ".split()
+      out = []
+      for w in words:
+          out.append(w.capitalize())
+      print("-".join(out), len(words))
+    answer: "The-Quick-Brown-Fox 4"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`split()` with no argument splits on any run of whitespace and drops empty pieces, giving 4 words."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`split()` không có đối số tách theo mọi chuỗi khoảng trắng liên tiếp và bỏ các phần rỗng, cho ra 4 từ."
+
+  - id: mock1-q20
+    type: parsons
+    tags: [dicts, loops]
+    difficulty: 2
+    lines:
+      - "grades = {\"ann\": 90, \"bob\": 72}"
+      - "passed = []"
+      - "for name, score in grades.items():"
+      - "    if score >= 80:"
+      - "        passed.append(name)"
+      - "print(passed)"
+    en:
+      prompt: "Put the lines in order so the program prints `['ann']`."
+      explanation: "Create the data and the empty result list, loop over the items, filter with `if`, and print after the loop."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `['ann']`."
+      explanation: "Tạo dữ liệu và list kết quả rỗng, lặp qua các phần tử, lọc bằng `if`, rồi in sau vòng lặp."

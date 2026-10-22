@@ -1,0 +1,16 @@
+id: p1-06-ex02
+kind: project
+title:
+  en: "Class statistics"
+  vi: "Thống kê cả lớp"
+difficulty: 3
+tags: [functions, dicts, loops, lists]
+hints:
+  en:
+    - "`average` and `letter_grade` are already written for you. Compute one average per student first and keep them in a list."
+    - "Start `grade_counts` as `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` and add 1 to the right key for each student. Handle the empty class first with an early `return`."
+    - "Keep `(name, avg)` pairs in `rows`. Shape: `best = min(rows, key=lambda r: (-r[1], r[0]))[0]` and `worst = min(rows, key=lambda r: (r[1], r[0]))[0]`. The key makes ties go to the first name."
+  vi:
+    - "`average` và `letter_grade` đã được viết sẵn. Hãy tính trước điểm trung bình của từng học sinh và lưu vào một list."
+    - "Bắt đầu `grade_counts` là `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` rồi cộng 1 vào đúng khóa cho mỗi học sinh. Xử lý lớp rỗng trước bằng một `return` sớm."
+    - "Giữ các cặp `(name, avg)` trong `rows`. Khung: `best = min(rows, key=lambda r: (-r[1], r[0]))[0]` và `worst = min(rows, key=lambda r: (r[1], r[0]))[0]`. Key này làm cho khi bằng điểm sẽ chọn tên đứng trước."

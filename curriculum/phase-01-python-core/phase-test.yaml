@@ -1,0 +1,278 @@
+id: p1-phase-test
+kind: phase_test
+phase: p1
+title:
+  en: "Phase 1 test: Python core"
+  vi: "Bài kiểm tra Phase 1: Python cốt lõi"
+description:
+  en: "15 questions covering variables, conditions, loops, lists and dicts, and functions."
+  vi: "15 câu hỏi về biến, điều kiện, vòng lặp, list và dict, và hàm."
+duration_min: 20
+pass_score: 0.7
+questions:
+  # ---- Variables, types, conversion, operators
+  - id: p1-test-q01
+    type: mcq
+    tags: [conversion]
+    difficulty: 1
+    answer: 2
+    code: |
+      value = int("3.7")
+    en:
+      prompt: "What happens when this line runs?"
+      options: ["value becomes 3", "value becomes 4", "It raises ValueError", "value becomes 3.7"]
+      explanation: "`int()` cannot parse a string with a decimal point. Use `int(float(\"3.7\"))` if you want 3."
+    vi:
+      prompt: "Điều gì xảy ra khi chạy dòng này?"
+      options: ["value bằng 3", "value bằng 4", "Báo lỗi ValueError", "value bằng 3.7"]
+      explanation: "`int()` không phân tích được chuỗi có dấu chấm thập phân. Dùng `int(float(\"3.7\"))` nếu muốn có 3."
+
+  - id: p1-test-q02
+    type: output
+    tags: [operators]
+    difficulty: 1
+    code: |
+      print(17 // 5, 17 % 5, 2 ** 3)
+    answer: "3 2 8"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`17 // 5` is 3, `17 % 5` is the remainder 2, and `2 ** 3` is 2 to the power 3, which is 8."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`17 // 5` là 3, `17 % 5` là phần dư 2, và `2 ** 3` là 2 mũ 3, bằng 8."
+
+  - id: p1-test-q03
+    type: fill
+    tags: [conversion, types]
+    difficulty: 1
+    code: |
+      price = "19.99"
+      total = ___(price) * 2
+      print(total)  # 39.98
+    answer: ["float"]
+    en:
+      prompt: "Fill in the blank so the code prints 39.98."
+      explanation: "`price` is a string. `float(price)` turns it into a number so it can be multiplied. `int` would fail on \"19.99\"."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra 39.98."
+      explanation: "`price` là chuỗi. `float(price)` biến nó thành số để nhân được. `int` sẽ lỗi với \"19.99\"."
+
+  # ---- Conditions, booleans
+  - id: p1-test-q04
+    type: mcq
+    tags: [conditions]
+    difficulty: 1
+    answer: 1
+    code: |
+      x = 5
+      if x > 5:
+          print("big")
+      elif x == 5:
+          print("five")
+      else:
+          print("small")
+    en:
+      prompt: "What does this code print?"
+      options: ["big", "five", "small", "five and small"]
+      explanation: "`5 > 5` is False, so Python checks the `elif`: `5 == 5` is True. Only the first matching branch runs."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["big", "five", "small", "five và small"]
+      explanation: "`5 > 5` là False, nên Python kiểm tra `elif`: `5 == 5` là True. Chỉ nhánh đúng đầu tiên được chạy."
+
+  - id: p1-test-q05
+    type: output
+    tags: [booleans]
+    difficulty: 2
+    code: |
+      print(not (3 > 2 and 1 > 2), bool(""))
+    answer: "True False"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`3 > 2 and 1 > 2` is `True and False` = False, and `not False` is True. An empty string is falsy, so `bool(\"\")` is False."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`3 > 2 and 1 > 2` là `True and False` = False, và `not False` là True. Chuỗi rỗng là falsy, nên `bool(\"\")` là False."
+
+  - id: p1-test-q06
+    type: parsons
+    tags: [conditions]
+    difficulty: 2
+    lines:
+      - "score = 72"
+      - "if score >= 90:"
+      - "    grade = \"A\""
+      - "elif score >= 70:"
+      - "    grade = \"B\""
+      - "else:"
+      - "    grade = \"C\""
+      - "print(grade)"
+    en:
+      prompt: "Put the lines in order so the program prints `B`."
+      explanation: "Set the score first, then `if` comes before `elif`, `else` comes last, and `print` runs after the whole block."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `B`."
+      explanation: "Gán điểm trước, sau đó `if` đứng trước `elif`, `else` đứng cuối, và `print` chạy sau toàn bộ khối."
+
+  # ---- Loops, range
+  - id: p1-test-q07
+    type: output
+    tags: [loops]
+    difficulty: 1
+    code: |
+      total = 0
+      for i in range(1, 5):
+          total += i
+      print(total)
+    answer: "10"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`range(1, 5)` gives 1, 2, 3, 4 (the end is excluded). Their sum is 10."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`range(1, 5)` cho 1, 2, 3, 4 (không gồm số cuối). Tổng của chúng là 10."
+
+  - id: p1-test-q08
+    type: mcq
+    tags: [range]
+    difficulty: 1
+    answer: 2
+    code: |
+      for i in range(3, 8):
+          print(i)
+    en:
+      prompt: "How many times does the loop body run?"
+      options: ["3", "4", "5", "8"]
+      explanation: "`range(3, 8)` produces 3, 4, 5, 6, 7: that is 8 - 3 = 5 numbers."
+    vi:
+      prompt: "Thân vòng lặp chạy bao nhiêu lần?"
+      options: ["3", "4", "5", "8"]
+      explanation: "`range(3, 8)` tạo ra 3, 4, 5, 6, 7: tức là 8 - 3 = 5 số."
+
+  - id: p1-test-q09
+    type: fill
+    tags: [loops, booleans]
+    difficulty: 2
+    code: |
+      n = 0
+      while True:
+          n += 1
+          if n ___ 3:
+              break
+      print(n)  # 3
+    answer: [["==", ">="]]
+    en:
+      prompt: "Fill in the comparison so the loop stops when `n` reaches 3."
+      explanation: "`while True` never ends by itself. `break` runs once `n == 3` (or `n >= 3`) is true."
+    vi:
+      prompt: "Điền phép so sánh để vòng lặp dừng khi `n` đạt 3."
+      explanation: "`while True` tự nó không bao giờ dừng. `break` chạy khi `n == 3` (hoặc `n >= 3`) đúng."
+
+  # ---- Lists and dicts
+  - id: p1-test-q10
+    type: output
+    tags: [lists]
+    difficulty: 2
+    code: |
+      nums = [1, 2, 3, 4, 5]
+      print(nums[1:4], nums[-1])
+    answer: "[2, 3, 4] 5"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The slice `nums[1:4]` takes indexes 1, 2, 3 (the end is excluded). `nums[-1]` is the last item."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Lát cắt `nums[1:4]` lấy các chỉ số 1, 2, 3 (không gồm chỉ số cuối). `nums[-1]` là phần tử cuối."
+
+  - id: p1-test-q11
+    type: mcq
+    tags: [dicts]
+    difficulty: 1
+    answer: 2
+    code: |
+      stock = {"apple": 3}
+      print(stock.get("pear", 0))
+    en:
+      prompt: "What is printed?"
+      options: ["KeyError", "None", "0", "pear"]
+      explanation: "`dict.get(key, default)` returns the default when the key is missing, instead of raising `KeyError`."
+    vi:
+      prompt: "Kết quả in ra là gì?"
+      options: ["KeyError", "None", "0", "pear"]
+      explanation: "`dict.get(key, default)` trả về giá trị mặc định khi key không tồn tại, thay vì báo lỗi `KeyError`."
+
+  - id: p1-test-q12
+    type: output
+    tags: [dicts, loops]
+    difficulty: 2
+    code: |
+      prices = {"apple": 2, "pear": 3}
+      prices["kiwi"] = 5
+      total = 0
+      for name, value in prices.items():
+          total += value
+      print(len(prices), total)
+    answer: "3 10"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Assigning to a new key adds it, so there are 3 items. The values 2 + 3 + 5 sum to 10."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Gán cho một key mới sẽ thêm nó vào, nên có 3 phần tử. Các giá trị 2 + 3 + 5 cộng lại bằng 10."
+
+  # ---- Functions, scope
+  - id: p1-test-q13
+    type: mcq
+    tags: [functions]
+    difficulty: 2
+    answer: 3
+    code: |
+      def double(x):
+          x * 2
+
+      print(double(4))
+    en:
+      prompt: "What does this code print?"
+      options: ["8", "4", "An error", "None"]
+      explanation: "The function computes `x * 2` but never returns it. A function without `return` gives back `None`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["8", "4", "Lỗi", "None"]
+      explanation: "Hàm tính `x * 2` nhưng không `return` nó. Hàm không có `return` sẽ trả về `None`."
+
+  - id: p1-test-q14
+    type: output
+    tags: [scope]
+    difficulty: 3
+    code: |
+      count = 10
+
+      def bump():
+          count = 99
+          return count
+
+      bump()
+      print(count)
+    answer: "10"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Assigning inside the function creates a new local `count`. The global `count` is untouched, so it is still 10."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Phép gán bên trong hàm tạo ra biến `count` cục bộ mới. `count` toàn cục không bị đổi, nên vẫn là 10."
+
+  - id: p1-test-q15
+    type: parsons
+    tags: [functions]
+    difficulty: 2
+    lines:
+      - "def add_tax(price, rate=0.1):"
+      - "    return price * (1 + rate)"
+      - "result = add_tax(100, 0.2)"
+      - "print(result)"
+    en:
+      prompt: "Put the lines in order so the program prints `120.0`."
+      explanation: "Define the function first (header, then its indented body), call it, then print the result."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `120.0`."
+      explanation: "Định nghĩa hàm trước (dòng khai báo, rồi thân hàm thụt lề), sau đó gọi hàm, cuối cùng in kết quả."

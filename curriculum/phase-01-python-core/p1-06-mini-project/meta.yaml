@@ -1,0 +1,29 @@
+id: p1-06-mini-project
+phase: p1
+order: 6
+kind: project
+title:
+  en: "Mini-project: grade report"
+  vi: "Mini-project: bảng điểm"
+summary:
+  en: "Combine lists, dicts, loops, conditions and functions into a small grade-report program."
+  vi: "Kết hợp list, dict, vòng lặp, điều kiện và hàm thành một chương trình bảng điểm nhỏ."
+level: beginner
+tags: [functions, lists, dicts, loops, conditions]
+prerequisites: [p1-05-functions]
+duration_min: 40
+outcomes:
+  en:
+    - "Break a problem into small functions"
+    - "Loop over a list of dicts and read their values"
+    - "Turn numbers into letter grades with conditions"
+    - "Sort data and format a readable report"
+  vi:
+    - "Chia một bài toán thành các hàm nhỏ"
+    - "Duyệt list các dict và đọc giá trị trong đó"
+    - "Đổi điểm số thành xếp loại bằng điều kiện"
+    - "Sắp xếp dữ liệu và định dạng báo cáo dễ đọc"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: More on defining functions", vi: "Python tutorial: Định nghĩa hàm nâng cao (EN)" }
+    url: "https://docs.python.org/3/tutorial/controlflow.html#more-on-defining-functions"

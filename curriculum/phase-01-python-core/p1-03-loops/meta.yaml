@@ -1,0 +1,27 @@
+id: p1-03-loops
+phase: p1
+order: 3
+kind: lesson
+title:
+  en: "Loops"
+  vi: "Vòng lặp"
+summary:
+  en: "Repeat work with for and while, control loops with break and continue, and build up results with accumulators."
+  vi: "Lặp lại công việc bằng for và while, điều khiển vòng lặp với break và continue, và tích lũy kết quả."
+level: beginner
+tags: [loops, range, operators, strings]
+prerequisites: [p1-02-conditions]
+duration_min: 10
+outcomes:
+  en:
+    - "Loop with for and range()"
+    - "Use while, break and continue"
+    - "Accumulate results with total += value"
+  vi:
+    - "Lặp với for và range()"
+    - "Dùng while, break và continue"
+    - "Tích lũy kết quả bằng total += value"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: for statements", vi: "Python tutorial: câu lệnh for (EN)" }
+    url: "https://docs.python.org/3/tutorial/controlflow.html#for-statements"

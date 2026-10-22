@@ -1,0 +1,168 @@
+questions:
+  - id: p1-06-q01
+    type: mcq
+    tags: [dicts]
+    difficulty: 1
+    answer: 2
+    code: |
+      student = {"name": "An", "scores": [8, 7.5, 9]}
+    en:
+      prompt: "Which expression gives the number `7.5`?"
+      options: ["student[1]", "student.scores[1]", "student[\"scores\"][1]", "student[\"scores\", 1]"]
+      explanation: "Look up the key `\"scores\"` in the dict to get the list, then take index 1 of the list."
+    vi:
+      prompt: "Biểu thức nào cho ra số `7.5`?"
+      options: ["student[1]", "student.scores[1]", "student[\"scores\"][1]", "student[\"scores\", 1]"]
+      explanation: "Tra khóa `\"scores\"` trong dict để lấy list, rồi lấy phần tử ở chỉ số 1 của list."
+
+  - id: p1-06-q02
+    type: output
+    tags: [functions, lists]
+    difficulty: 1
+    code: |
+      def average(scores):
+          if not scores:
+              return 0.0
+          return sum(scores) / len(scores)
+
+      print(average([6, 8]), average([]))
+    answer: "7.0 0.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`sum([6, 8]) / 2` is `7.0` (division always gives a float). The empty list hits the early return, giving `0.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`sum([6, 8]) / 2` là `7.0` (phép chia luôn cho float). List rỗng chạm vào `return` sớm nên cho `0.0`."
+
+  - id: p1-06-q03
+    type: mcq
+    tags: [conditions]
+    difficulty: 2
+    answer: 1
+    code: |
+      def letter_grade(avg):
+          if avg >= 5.5:
+              return "C"
+          if avg >= 7:
+              return "B"
+          return "F"
+    en:
+      prompt: "What does `letter_grade(9)` return?"
+      options: ["\"B\"", "\"C\"", "\"F\"", "\"A\""]
+      explanation: "The first condition `avg >= 5.5` is already true for 9, so it returns `\"C\"` and never reaches the `B` check. Order the checks from the highest threshold down."
+    vi:
+      prompt: "`letter_grade(9)` trả về gì?"
+      options: ["\"B\"", "\"C\"", "\"F\"", "\"A\""]
+      explanation: "Điều kiện đầu `avg >= 5.5` đã đúng với 9 nên hàm trả về `\"C\"` và không bao giờ tới phép kiểm tra `B`. Hãy kiểm tra từ ngưỡng cao nhất xuống."
+
+  - id: p1-06-q04
+    type: fill
+    tags: [loops, dicts]
+    difficulty: 2
+    code: |
+      grades = ["B", "A", "B"]
+      counts = {"A": 0, "B": 0}
+      for grade in ___:
+          counts[grade] ___ 1
+      print(counts)
+    answer: ["grades", ["+=", "+= "]]
+    en:
+      prompt: "Fill in the blanks so the code counts each grade and prints `{'A': 1, 'B': 2}`."
+      explanation: "Loop over `grades`, and for each one add 1 to its counter with `+=`."
+    vi:
+      prompt: "Điền vào chỗ trống để code đếm từng loại điểm và in ra `{'A': 1, 'B': 2}`."
+      explanation: "Duyệt qua `grades`, và với mỗi phần tử cộng 1 vào bộ đếm của nó bằng `+=`."
+
+  - id: p1-06-q05
+    type: parsons
+    tags: [functions, loops]
+    difficulty: 2
+    lines:
+      - "def total(scores):"
+      - "    result = 0"
+      - "    for score in scores:"
+      - "        result += score"
+      - "    return result"
+      - "print(total([8, 7.5, 9]))"
+    en:
+      prompt: "Put the lines in order to define `total` and print `24.5`."
+      explanation: "Define the function header, start the accumulator, loop and add, then `return` after the loop (dedented). Call it last."
+    vi:
+      prompt: "Sắp xếp các dòng để định nghĩa `total` và in ra `24.5`."
+      explanation: "Viết dòng khai báo hàm, khởi tạo biến cộng dồn, lặp và cộng, rồi `return` sau vòng lặp (thụt lề ra ngoài). Gọi hàm ở cuối."
+
+  - id: p1-06-q06
+    type: output
+    tags: [lists, functions]
+    difficulty: 2
+    code: |
+      rows = [("Zoe", 7.0), ("An", 9.0), ("Bao", 7.0)]
+      rows.sort(key=lambda row: (-row[1], row[0]))
+      print([name for name, avg in rows])
+    answer: "['An', 'Bao', 'Zoe']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The key `(-avg, name)` sorts by highest average first. Bao and Zoe tie at 7.0, so the name breaks the tie."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Key `(-avg, name)` sắp xếp điểm cao nhất trước. Bao và Zoe cùng 7.0 nên tên quyết định thứ tự."
+
+  - id: p1-06-q07
+    type: mcq
+    tags: [functions]
+    difficulty: 2
+    answer: 0
+    code: |
+      def double(x):
+          print(x * 2)
+
+      result = double(4)
+    en:
+      prompt: "What is the value of `result`?"
+      options: ["None", "8", "4", "An error"]
+      explanation: "`double` prints 8 but has no `return`, so it returns `None`. In the project, `return` the answer so other code can use it."
+    vi:
+      prompt: "Giá trị của `result` là gì?"
+      options: ["None", "8", "4", "Lỗi"]
+      explanation: "`double` in ra 8 nhưng không có `return`, nên trả về `None`. Trong project, hãy `return` kết quả để code khác dùng được."
+
+  - id: p1-06-q08
+    type: mcq
+    tags: [strings, conversion]
+    difficulty: 1
+    answer: 3
+    code: |
+      avg = 8.1666
+      print(f"{avg:.2f}")
+    en:
+      prompt: "What is printed?"
+      options: ["8.1666", "8", "8.1", "8.17"]
+      explanation: "`:.2f` formats a float with exactly 2 decimals, rounding the last digit."
+    vi:
+      prompt: "Kết quả in ra là gì?"
+      options: ["8.1666", "8", "8.1", "8.17"]
+      explanation: "`:.2f` định dạng float với đúng 2 chữ số thập phân, có làm tròn chữ số cuối."
+
+flashcards:
+  - id: p1-06-f01
+    tags: [dicts]
+    code: 'student = {"name": "An", "scores": [8, 9]}'
+    en: { front: "How do you read the scores list from this dict?", back: "`student[\"scores\"]`. Use the key in square brackets." }
+    vi: { front: "Đọc list điểm từ dict này thế nào?", back: "`student[\"scores\"]`. Dùng khóa trong ngoặc vuông." }
+  - id: p1-06-f02
+    tags: [functions]
+    en: { front: "`return` vs `print` in a function?", back: "`return` hands a value back to the caller. `print` only shows text and the function returns `None`." }
+    vi: { front: "`return` khác `print` trong hàm thế nào?", back: "`return` trả giá trị về cho nơi gọi. `print` chỉ hiện chữ và hàm trả về `None`." }
+  - id: p1-06-f03
+    tags: [conditions]
+    en: { front: "How do you order `if` checks for grade thresholds?", back: "From the highest threshold down. The first true condition wins, so each check needs one comparison." }
+    vi: { front: "Sắp xếp các `if` cho ngưỡng xếp loại thế nào?", back: "Từ ngưỡng cao nhất xuống thấp. Điều kiện đúng đầu tiên thắng, nên mỗi lần chỉ cần một phép so sánh." }
+  - id: p1-06-f04
+    tags: [lists]
+    code: 'rows.sort(key=lambda row: (-row[1], row[0]))'
+    en: { front: "What does this sort do?", back: "Highest `row[1]` first; rows with equal `row[1]` are ordered by `row[0]` (A to Z)." }
+    vi: { front: "Câu sort này làm gì?", back: "`row[1]` cao nhất đứng trước; các dòng bằng `row[1]` được xếp theo `row[0]` (A đến Z)." }
+  - id: p1-06-f05
+    tags: [functions, conditions]
+    en: { front: "Why guard `sum(xs) / len(xs)` for an empty list?", back: "`len([])` is 0, so the division raises `ZeroDivisionError`. Check `if not xs:` first and return a safe value." }
+    vi: { front: "Vì sao phải kiểm tra list rỗng trước `sum(xs) / len(xs)`?", back: "`len([])` bằng 0 nên phép chia gây `ZeroDivisionError`. Kiểm tra `if not xs:` trước và trả về giá trị an toàn." }

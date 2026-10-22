@@ -1,0 +1,16 @@
+id: p1-05-ex02
+kind: debug
+title:
+  en: "Debug: print, return and defaults"
+  vi: "Debug: print, return và tham số mặc định"
+difficulty: 2
+tags: [functions, debugging]
+hints:
+  en:
+    - "Three functions, three bugs. Call each one in the editor and look at what it gives back, not just what it shows on screen."
+    - "`area` prints its answer, `price_with_tax` has a wrong default and no way to return, and `greet` ignores its `greeting` parameter. Which one is which?"
+    - "Replace `print(...)` with `return ...`. The default tax rate should be `0.1`, and the text in `greet` should use the `greeting` variable instead of a fixed word."
+  vi:
+    - "Ba hàm, ba lỗi. Hãy gọi từng hàm trong editor và xem nó trả về gì, đừng chỉ nhìn thứ nó in ra màn hình."
+    - "`area` chỉ in kết quả, `price_with_tax` có giá trị mặc định sai và không trả về gì, còn `greet` bỏ qua tham số `greeting`. Hàm nào là lỗi nào?"
+    - "Thay `print(...)` bằng `return ...`. Thuế mặc định phải là `0.1`, và chuỗi trong `greet` phải dùng biến `greeting` thay vì một từ cố định."

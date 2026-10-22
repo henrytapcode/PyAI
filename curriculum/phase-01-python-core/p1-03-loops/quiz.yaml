@@ -1,0 +1,161 @@
+questions:
+  - id: p1-03-q01
+    type: mcq
+    tags: [range, loops]
+    difficulty: 1
+    answer: 2
+    code: |
+      for i in range(4):
+          print(i)
+    en:
+      prompt: "Which numbers does this loop print?"
+      options: ["1, 2, 3, 4", "0, 1, 2, 3, 4", "0, 1, 2, 3", "1, 2, 3"]
+      explanation: "`range(4)` starts at 0 and stops before 4, so it gives 0, 1, 2, 3."
+    vi:
+      prompt: "Vòng lặp này in ra những số nào?"
+      options: ["1, 2, 3, 4", "0, 1, 2, 3, 4", "0, 1, 2, 3", "1, 2, 3"]
+      explanation: "`range(4)` bắt đầu từ 0 và dừng trước 4, nên cho ra 0, 1, 2, 3."
+
+  - id: p1-03-q02
+    type: output
+    tags: [loops, range]
+    difficulty: 1
+    code: |
+      total = 0
+      for n in range(1, 5):
+          total += n
+      print(total)
+    answer: "10"
+    en:
+      prompt: "What does this code print?"
+      explanation: "n takes the values 1, 2, 3, 4 (5 is excluded), and 1 + 2 + 3 + 4 = 10."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "n lần lượt là 1, 2, 3, 4 (không có 5), và 1 + 2 + 3 + 4 = 10."
+
+  - id: p1-03-q03
+    type: fill
+    tags: [range, loops]
+    difficulty: 1
+    code: |
+      for n in range(___, 11, 2):
+          print(n)  # 1 3 5 7 9
+    answer: ["1"]
+    en:
+      prompt: "Fill in the blank so the loop prints the odd numbers 1, 3, 5, 7, 9."
+      explanation: "`range(1, 11, 2)` starts at 1 and jumps by 2 until it would pass 10."
+    vi:
+      prompt: "Điền vào chỗ trống để vòng lặp in ra các số lẻ 1, 3, 5, 7, 9."
+      explanation: "`range(1, 11, 2)` bắt đầu từ 1 và nhảy mỗi bước 2 cho đến khi vượt quá 10."
+
+  - id: p1-03-q04
+    type: parsons
+    tags: [loops, strings]
+    difficulty: 2
+    lines:
+      - "count = 0"
+      - "for letter in \"hello\":"
+      - "    if letter == \"l\":"
+      - "        count += 1"
+      - "print(count)"
+    en:
+      prompt: "Put the lines in order so the program counts the letter `l` in `hello` and prints `2`."
+      explanation: "Set the counter first, then loop over the letters, check each one, add 1 on a match, and print after the loop."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình đếm chữ `l` trong `hello` và in ra `2`."
+      explanation: "Đặt bộ đếm trước, rồi lặp qua từng chữ cái, kiểm tra từng chữ, cộng 1 khi khớp, và in sau vòng lặp."
+
+  - id: p1-03-q05
+    type: output
+    tags: [loops, conditions]
+    difficulty: 2
+    code: |
+      for n in range(1, 8):
+          if n == 3:
+              continue
+          if n == 6:
+              break
+          print(n, end=" ")
+    answer: "1 2 4 5"
+    en:
+      prompt: "What does this code print? (`end=\" \"` keeps everything on one line.)"
+      explanation: "`continue` skips 3, `break` stops the loop when n reaches 6, so only 1 2 4 5 are printed."
+    vi:
+      prompt: "Đoạn code này in ra gì? (`end=\" \"` giữ mọi thứ trên cùng một dòng.)"
+      explanation: "`continue` bỏ qua 3, `break` dừng vòng lặp khi n chạm 6, nên chỉ in 1 2 4 5."
+
+  - id: p1-03-q06
+    type: mcq
+    tags: [loops, debugging]
+    difficulty: 2
+    answer: 1
+    code: |
+      n = 5
+      while n > 0:
+          print(n)
+    en:
+      prompt: "What happens when you run this code?"
+      options: ["It prints 5 once", "It prints 5 forever (infinite loop)", "It prints 5 4 3 2 1", "It prints nothing"]
+      explanation: "Nothing changes `n` inside the loop, so `n > 0` stays true forever. Add `n -= 1` to fix it."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["In 5 một lần", "In 5 mãi mãi (vòng lặp vô hạn)", "In 5 4 3 2 1", "Không in gì"]
+      explanation: "Không có gì thay đổi `n` trong vòng lặp, nên `n > 0` luôn đúng. Thêm `n -= 1` để sửa."
+
+  - id: p1-03-q07
+    type: fill
+    tags: [loops, operators]
+    difficulty: 2
+    code: |
+      product = 1
+      for n in range(1, 5):
+          product ___ n
+      print(product)  # 24
+    answer: ["*="]
+    en:
+      prompt: "Fill in the blank so the code prints 24 (1 * 2 * 3 * 4)."
+      explanation: "`product *= n` means `product = product * n`. Start at 1 (not 0) or the result would stay 0."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra 24 (1 * 2 * 3 * 4)."
+      explanation: "`product *= n` nghĩa là `product = product * n`. Phải bắt đầu từ 1 (không phải 0), nếu không kết quả luôn là 0."
+
+  - id: p1-03-q08
+    type: mcq
+    tags: [range, loops]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Which call loops over the numbers 1 to 10 including 10?"
+      options: ["range(10)", "range(1, 10)", "range(0, 10)", "range(1, 11)"]
+      explanation: "The stop value is excluded, so you need `range(1, 11)` to include 10."
+    vi:
+      prompt: "Lệnh nào lặp qua các số từ 1 đến 10, bao gồm cả 10?"
+      options: ["range(10)", "range(1, 10)", "range(0, 10)", "range(1, 11)"]
+      explanation: "Giá trị stop không được tính, nên cần `range(1, 11)` để có cả 10."
+
+flashcards:
+  - id: p1-03-f01
+    tags: [range]
+    en: { front: "What numbers does `range(2, 8, 2)` give?", back: "`2, 4, 6`. It starts at 2, steps by 2, and stops before 8." }
+    vi: { front: "`range(2, 8, 2)` cho những số nào?", back: "`2, 4, 6`. Bắt đầu từ 2, bước nhảy 2, dừng trước 8." }
+  - id: p1-03-f02
+    tags: [loops, operators]
+    code: |
+      total = 0
+      for n in range(1, 4):
+          total += n
+    en: { front: "What is the accumulator pattern?", back: "Set a variable (`total = 0`) before the loop, then update it inside with `total += value`." }
+    vi: { front: "Mẫu tích lũy (accumulator) là gì?", back: "Đặt biến (`total = 0`) trước vòng lặp, rồi cập nhật nó bên trong bằng `total += value`." }
+  - id: p1-03-f03
+    tags: [loops]
+    en: { front: "`for` or `while`?", back: "`for` when you know how many rounds (or what to walk through). `while` when you repeat until a condition turns false." }
+    vi: { front: "Khi nào dùng `for`, khi nào dùng `while`?", back: "`for` khi biết số vòng (hoặc biết cần duyệt qua cái gì). `while` khi lặp cho đến khi điều kiện thành sai." }
+  - id: p1-03-f04
+    tags: [loops]
+    en: { front: "`break` vs `continue`?", back: "`break` ends the whole loop. `continue` skips only the current round." }
+    vi: { front: "`break` khác `continue` thế nào?", back: "`break` kết thúc cả vòng lặp. `continue` chỉ bỏ qua vòng hiện tại." }
+  - id: p1-03-f05
+    tags: [operators]
+    code: "count += 1"
+    en: { front: "What does `count += 1` mean?", back: "Shorthand for `count = count + 1`: add 1 to the current value." }
+    vi: { front: "`count += 1` nghĩa là gì?", back: "Viết gọn của `count = count + 1`: cộng 1 vào giá trị hiện tại." }

@@ -1,0 +1,16 @@
+id: p1-02-ex02
+kind: debug
+title:
+  en: "Debug: cinema ticket price"
+  vi: "Debug: giá vé xem phim"
+difficulty: 2
+tags: [conditions, booleans]
+hints:
+  en:
+    - "Try ages 4, 5, 12, 65 and a 30-year-old student in your head. Which results differ from the rules?"
+    - "Three bugs: a boundary (`<=` vs `<`), `and` where `or` is needed, and a missing age limit for students."
+    - "Fix: `age < 5`; `age < 12 or age >= 65` (one person cannot be both); `is_student and age <= 25`."
+  vi:
+    - "Thử trong đầu với tuổi 4, 5, 12, 65 và một sinh viên 30 tuổi. Kết quả nào khác với quy tắc?"
+    - "Ba lỗi: một mốc biên (`<=` so với `<`), dùng `and` ở chỗ cần `or`, và thiếu giới hạn tuổi cho sinh viên."
+    - "Sửa: `age < 5`; `age < 12 or age >= 65` (một người không thể vừa nhỏ vừa lớn); `is_student and age <= 25`."

@@ -1,0 +1,160 @@
+questions:
+  - id: p1-05-q01
+    type: mcq
+    tags: [functions]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "In `def square(n):`, what is `n`?"
+      options: ["An argument", "A return value", "A parameter", "A docstring"]
+      explanation: "`n` is a parameter: the name in the `def` line. The value you pass when calling, like the `5` in `square(5)`, is the argument."
+    vi:
+      prompt: "Trong `def square(n):`, `n` là gì?"
+      options: ["Đối số (argument)", "Giá trị trả về", "Tham số (parameter)", "Docstring"]
+      explanation: "`n` là tham số: tên nằm ở dòng `def`. Giá trị bạn truyền khi gọi, như số `5` trong `square(5)`, mới là đối số."
+
+  - id: p1-05-q02
+    type: output
+    tags: [functions]
+    difficulty: 1
+    code: |
+      def add(a, b):
+          return a + b
+
+      print(add(2, 3) * 2)
+    answer: "10"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`add(2, 3)` returns 5, and that value is then multiplied by 2."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`add(2, 3)` trả về 5, sau đó giá trị đó được nhân với 2."
+
+  - id: p1-05-q03
+    type: output
+    tags: [functions]
+    difficulty: 2
+    code: |
+      def show(n):
+          print(n * 2)
+
+      result = show(4)
+      print(result)
+    answer: "8\nNone"
+    en:
+      prompt: "What does this code print (two lines)?"
+      explanation: "`show(4)` prints 8 but has no `return`, so it gives back `None`, which is then stored in `result` and printed."
+    vi:
+      prompt: "Đoạn code này in ra gì (hai dòng)?"
+      explanation: "`show(4)` in ra 8 nhưng không có `return`, nên trả về `None`; giá trị đó được lưu vào `result` rồi in ra."
+
+  - id: p1-05-q04
+    type: fill
+    tags: [functions]
+    difficulty: 1
+    code: |
+      def triple(n):
+          ___ n * 3
+
+      print(triple(5) + 1)  # 16
+    answer: ["return"]
+    en:
+      prompt: "Fill in the blank so the code prints 16."
+      explanation: "`return` hands `15` back to the caller so that `+ 1` can use it. With `print` the result would be `None`."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra 16."
+      explanation: "`return` trả `15` về cho nơi gọi để `+ 1` dùng được. Nếu dùng `print` thì kết quả sẽ là `None`."
+
+  - id: p1-05-q05
+    type: parsons
+    tags: [functions]
+    difficulty: 2
+    lines:
+      - "def greet(name, greeting=\"Hello\"):"
+      - "    return f\"{greeting}, {name}!\""
+      - "message = greet(\"Lan\", greeting=\"Hi\")"
+      - "print(message)"
+    en:
+      prompt: "Put the lines in order so the program prints `Hi, Lan!`."
+      explanation: "Define the function first (header, then its indented body), then call it and store the returned text, then print it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Hi, Lan!`."
+      explanation: "Định nghĩa hàm trước (dòng def rồi phần thân thụt lề), sau đó gọi hàm và lưu chuỗi trả về, cuối cùng in ra."
+
+  - id: p1-05-q06
+    type: mcq
+    tags: [functions]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Which function header is a syntax error?"
+      options: ["`def f(a, b=2):`", "`def f(a=1, b):`", "`def f(a, b):`", "`def f():`"]
+      explanation: "A parameter with a default cannot come before one without. `def f(a=1, b)` is invalid."
+    vi:
+      prompt: "Dòng khai báo hàm nào bị lỗi cú pháp?"
+      options: ["`def f(a, b=2):`", "`def f(a=1, b):`", "`def f(a, b):`", "`def f():`"]
+      explanation: "Tham số có giá trị mặc định không được đứng trước tham số không có. `def f(a=1, b)` không hợp lệ."
+
+  - id: p1-05-q07
+    type: output
+    tags: [functions, scope]
+    difficulty: 2
+    code: |
+      def label(n):
+          if n > 0:
+              return "positive"
+          return "not positive"
+          print("done")
+
+      print(label(5))
+      print(label(-1))
+    answer: "positive\nnot positive"
+    en:
+      prompt: "What does this code print (two lines)?"
+      explanation: "`return` ends the function immediately, so the `print(\"done\")` line is never reached."
+    vi:
+      prompt: "Đoạn code này in ra gì (hai dòng)?"
+      explanation: "`return` kết thúc hàm ngay lập tức, nên dòng `print(\"done\")` không bao giờ được chạy."
+
+  - id: p1-05-q08
+    type: mcq
+    tags: [scope]
+    difficulty: 2
+    answer: 0
+    code: |
+      def compute():
+          result = 42
+
+      compute()
+      print(result)
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["NameError: `result` is not defined", "It prints 42", "It prints None", "It prints nothing"]
+      explanation: "`result` is local to `compute`; it disappears when the function ends, so the outer `print(result)` fails."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["NameError: `result` chưa được định nghĩa", "In ra 42", "In ra None", "Không in gì"]
+      explanation: "`result` là biến cục bộ của `compute`; nó biến mất khi hàm kết thúc, nên `print(result)` bên ngoài bị lỗi."
+
+flashcards:
+  - id: p1-05-f01
+    tags: [functions]
+    en: { front: "Parameter vs argument?", back: "A parameter is the name in `def f(x)`. An argument is the value you pass: `f(5)`." }
+    vi: { front: "Tham số khác đối số thế nào?", back: "Tham số là tên trong `def f(x)`. Đối số là giá trị bạn truyền vào: `f(5)`." }
+  - id: p1-05-f02
+    tags: [functions]
+    en: { front: "`print` vs `return`?", back: "`print` shows a value on screen. `return` hands it back to the caller so it can be reused." }
+    vi: { front: "`print` khác `return` thế nào?", back: "`print` hiển thị giá trị lên màn hình. `return` trả giá trị về cho nơi gọi để dùng tiếp." }
+  - id: p1-05-f03
+    tags: [functions]
+    en: { front: "What does a function without `return` give back?", back: "`None`." }
+    vi: { front: "Hàm không có `return` trả về gì?", back: "`None`." }
+  - id: p1-05-f04
+    tags: [functions]
+    code: 'def greet(name, greeting="Hello"): ...'
+    en: { front: "How do you make a parameter optional?", back: "Give it a default value with `=`. Defaults must come after parameters without defaults." }
+    vi: { front: "Làm sao để tham số thành tùy chọn?", back: "Gán giá trị mặc định bằng `=`. Tham số mặc định phải đứng sau các tham số không có mặc định." }
+  - id: p1-05-f05
+    tags: [functions, scope]
+    en: { front: "What is a local variable?", back: "A variable created inside a function. It exists only while the function runs and is invisible outside." }
+    vi: { front: "Biến cục bộ là gì?", back: "Biến tạo bên trong hàm. Nó chỉ tồn tại khi hàm chạy và không nhìn thấy được từ bên ngoài." }

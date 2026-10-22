@@ -1,0 +1,333 @@
+# Bilingual glossary. `term` is English, `vi_term` is the usual Vietnamese rendering.
+terms:
+  # ---------------------------------------------------------- Python core
+  - term: variable
+    vi_term: biến
+    tags: [variables]
+    en: "A name that refers to a value stored in memory."
+    vi: "Một cái tên trỏ tới một giá trị đang được lưu trong bộ nhớ."
+    example: "age = 25"
+
+  - term: data type
+    vi_term: kiểu dữ liệu
+    tags: [types]
+    en: "The kind of a value, such as int, float, str or bool, which decides what you can do with it."
+    vi: "Loại của một giá trị, như int, float, str hay bool, quyết định bạn làm được gì với nó."
+    example: "type(3.5)  # <class 'float'>"
+
+  - term: type conversion
+    vi_term: chuyển kiểu
+    tags: [conversion]
+    en: "Turning a value of one type into another, for example a string into an integer."
+    vi: "Biến một giá trị từ kiểu này sang kiểu khác, ví dụ từ chuỗi sang số nguyên."
+    example: "int(\"42\")  # 42"
+
+  - term: boolean
+    vi_term: boolean
+    tags: [booleans]
+    en: "A value that is either True or False, used for decisions in conditions and loops."
+    vi: "Giá trị chỉ là True hoặc False, dùng để ra quyết định trong điều kiện và vòng lặp."
+    example: "is_adult = age >= 18"
+
+  - term: None
+    vi_term: None
+    tags: [types]
+    en: "The special value that means \"no value\"; functions without a return statement give it back."
+    vi: "Giá trị đặc biệt nghĩa là \"không có giá trị\"; hàm không có lệnh return sẽ trả về nó."
+    example: "result = None"
+
+  - term: f-string
+    vi_term: f-string
+    tags: [strings]
+    en: "A string with an f prefix whose {expressions} are replaced by their values."
+    vi: "Chuỗi có tiền tố f, trong đó các {biểu thức} được thay bằng giá trị của chúng."
+    example: "f\"{name} is {age}\""
+
+  - term: condition
+    vi_term: điều kiện
+    tags: [conditions]
+    en: "An expression that evaluates to True or False and decides which branch of code runs."
+    vi: "Biểu thức cho kết quả True hoặc False và quyết định nhánh code nào được chạy."
+    example: "if score >= 50:"
+
+  - term: loop
+    vi_term: vòng lặp
+    tags: [loops]
+    en: "A structure that repeats a block of code, using for or while."
+    vi: "Cấu trúc lặp lại một khối code, dùng for hoặc while."
+    example: "for n in range(3):"
+
+  - term: iteration
+    vi_term: lần lặp
+    tags: [loops]
+    en: "One pass through the body of a loop, or the act of going through items one by one."
+    vi: "Một lượt chạy qua thân vòng lặp, hoặc hành động duyệt qua từng phần tử một."
+
+  - term: list
+    vi_term: list
+    tags: [lists]
+    en: "An ordered, changeable collection of items written in square brackets."
+    vi: "Tập hợp có thứ tự và có thể thay đổi các phần tử, viết trong dấu ngoặc vuông."
+    example: "scores = [90, 85, 70]"
+
+  - term: dictionary
+    vi_term: dictionary
+    tags: [dicts]
+    en: "A collection of key-value pairs where you look up a value by its key."
+    vi: "Tập hợp các cặp key-value, trong đó bạn tra giá trị bằng key."
+    example: "user = {\"name\": \"An\", \"age\": 25}"
+
+  - term: index
+    vi_term: chỉ số
+    tags: [lists]
+    en: "The position of an item in a sequence, starting at 0."
+    vi: "Vị trí của một phần tử trong dãy, bắt đầu từ 0."
+    example: "scores[0]  # first item"
+
+  - term: slice
+    vi_term: lát cắt
+    tags: [lists]
+    en: "A part of a sequence selected with start:stop, where stop is excluded."
+    vi: "Một phần của dãy được chọn bằng start:stop, trong đó stop không được tính."
+    example: "nums[1:3]"
+
+  - term: function
+    vi_term: hàm
+    tags: [functions]
+    en: "A named, reusable block of code that can take inputs and give back a result."
+    vi: "Khối code có tên, dùng lại được, có thể nhận đầu vào và trả về kết quả."
+    example: "def square(x):\n    return x * x"
+
+  - term: parameter
+    vi_term: tham số
+    tags: [functions]
+    en: "A variable name in a function definition that receives a value when the function is called."
+    vi: "Tên biến trong phần định nghĩa hàm, nhận giá trị khi hàm được gọi."
+    example: "def greet(name):  # name is a parameter"
+
+  - term: argument
+    vi_term: đối số
+    tags: [functions]
+    en: "The actual value you pass to a function when you call it."
+    vi: "Giá trị thực tế bạn truyền vào hàm khi gọi nó."
+    example: "greet(\"An\")  # \"An\" is an argument"
+
+  - term: return value
+    vi_term: giá trị trả về
+    tags: [functions]
+    en: "The result a function hands back to the caller with the return statement."
+    vi: "Kết quả mà hàm đưa lại cho nơi gọi bằng lệnh return."
+    example: "return total"
+
+  - term: scope
+    vi_term: phạm vi biến
+    tags: [scope]
+    en: "The region of code where a variable name can be used, such as local to a function or global."
+    vi: "Vùng code mà tên biến có thể được dùng, như cục bộ trong hàm hoặc toàn cục."
+
+  - term: exception
+    vi_term: ngoại lệ
+    tags: [exceptions]
+    en: "An error raised while the program runs that stops execution unless it is handled with try/except."
+    vi: "Lỗi phát sinh khi chương trình đang chạy, làm dừng chương trình trừ khi được xử lý bằng try/except."
+    example: "try:\n    int(\"x\")\nexcept ValueError:\n    print(\"bad number\")"
+
+  - term: traceback
+    vi_term: traceback
+    tags: [debugging]
+    en: "The report Python prints when an exception is not handled, showing the chain of calls that led to the error."
+    vi: "Báo cáo Python in ra khi exception không được xử lý, cho thấy chuỗi lời gọi dẫn đến lỗi."
+
+  - term: module
+    vi_term: module
+    tags: [modules]
+    en: "A Python file whose functions and variables you can reuse with import."
+    vi: "Một file Python mà bạn có thể dùng lại các hàm và biến của nó bằng import."
+    example: "import math"
+
+  - term: package
+    vi_term: package
+    tags: [modules]
+    en: "A folder of modules, or an installable library distributed through an index such as PyPI."
+    vi: "Thư mục chứa các module, hoặc một thư viện cài được phân phối qua kho như PyPI."
+    example: "uv add requests"
+
+  - term: virtual environment
+    vi_term: môi trường ảo
+    tags: [setup]
+    en: "An isolated Python installation per project, so packages do not clash between projects."
+    vi: "Bản cài Python tách biệt cho từng project, để các package không xung đột giữa các project."
+    example: "uv venv"
+
+  - term: dependency
+    vi_term: dependency
+    tags: [setup]
+    en: "A package that your project needs in order to run."
+    vi: "Package mà project của bạn cần để có thể chạy."
+    example: "dependencies = [\"numpy\"]"
+
+  - term: mutable
+    vi_term: mutable (có thể thay đổi)
+    tags: [types]
+    en: "Describes an object that can be changed in place after creation, such as a list or dict."
+    vi: "Mô tả đối tượng có thể bị sửa tại chỗ sau khi tạo, như list hoặc dict."
+
+  - term: immutable
+    vi_term: immutable (bất biến)
+    tags: [types]
+    en: "Describes an object that cannot be changed after creation, such as a str, int or tuple."
+    vi: "Mô tả đối tượng không thể thay đổi sau khi tạo, như str, int hoặc tuple."
+
+  - term: class
+    vi_term: class
+    tags: [oop]
+    en: "A blueprint that defines the data and behaviour of a kind of object."
+    vi: "Bản thiết kế định nghĩa dữ liệu và hành vi của một loại đối tượng."
+    example: "class Dog:\n    pass"
+
+  - term: object
+    vi_term: đối tượng
+    tags: [oop]
+    en: "A value in memory with a type, such as a number, a list or an instance of a class."
+    vi: "Một giá trị trong bộ nhớ có kiểu xác định, như số, list hoặc một instance của class."
+
+  - term: method
+    vi_term: phương thức
+    tags: [oop]
+    en: "A function that belongs to an object or class and is called with dot notation."
+    vi: "Hàm thuộc về một đối tượng hoặc class và được gọi bằng dấu chấm."
+    example: "\"hello\".upper()"
+
+  - term: decorator
+    vi_term: decorator
+    tags: [functions]
+    en: "A function that wraps another function to add behaviour, applied with the @ syntax."
+    vi: "Hàm bọc một hàm khác để thêm hành vi, được áp dụng bằng cú pháp @."
+    example: "@functools.lru_cache"
+
+  - term: generator
+    vi_term: generator
+    tags: [functions]
+    en: "A function that uses yield to produce values lazily, one at a time."
+    vi: "Hàm dùng yield để sinh giá trị một cách lười (lazy), từng giá trị một."
+    example: "def count():\n    yield 1\n    yield 2"
+
+  # ---------------------------------------------------------- Testing
+  - term: unit test
+    vi_term: unit test
+    tags: [testing]
+    en: "A small automated check that one piece of code, such as a function, gives the expected result."
+    vi: "Một kiểm tra tự động nhỏ xác nhận một đoạn code, như một hàm, cho kết quả mong đợi."
+    example: "assert add(1, 2) == 3"
+
+  # ---------------------------------------------------------- Data
+  - term: array
+    vi_term: mảng
+    tags: [data]
+    en: "A fixed-type grid of numbers, such as a NumPy ndarray, that supports fast math on whole blocks."
+    vi: "Lưới số có kiểu cố định, như ndarray của NumPy, cho phép tính toán nhanh trên cả khối."
+    example: "np.array([1, 2, 3]) * 2"
+
+  - term: DataFrame
+    vi_term: DataFrame
+    tags: [data]
+    en: "A Pandas table with labelled rows and columns, like a spreadsheet in code."
+    vi: "Bảng của Pandas có hàng và cột được gắn nhãn, giống bảng tính trong code."
+    example: "df = pd.DataFrame({\"a\": [1, 2]})"
+
+  - term: vector
+    vi_term: vector
+    tags: [data]
+    en: "An ordered list of numbers, used to represent a point, a feature set or an embedding."
+    vi: "Danh sách số có thứ tự, dùng để biểu diễn một điểm, tập feature hoặc embedding."
+    example: "[0.12, -0.8, 0.33]"
+
+  # ---------------------------------------------------------- ML
+  - term: feature
+    vi_term: feature (đặc trưng)
+    tags: [ml]
+    en: "An input variable used by a model to make a prediction, such as the age column."
+    vi: "Biến đầu vào mà model dùng để dự đoán, ví dụ cột tuổi."
+
+  - term: label
+    vi_term: label (nhãn)
+    tags: [ml]
+    en: "The correct answer the model should predict for an example in supervised learning."
+    vi: "Đáp án đúng mà model cần dự đoán cho một mẫu trong học có giám sát."
+
+  - term: training
+    vi_term: huấn luyện
+    tags: [ml]
+    en: "The process of adjusting a model's parameters so it fits the data."
+    vi: "Quá trình điều chỉnh tham số của model để nó khớp với dữ liệu."
+    example: "model.fit(X_train, y_train)"
+
+  - term: overfitting
+    vi_term: overfitting (quá khớp)
+    tags: [ml]
+    en: "When a model memorises the training data and performs poorly on new data."
+    vi: "Khi model học thuộc dữ liệu train và hoạt động kém trên dữ liệu mới."
+
+  # ---------------------------------------------------------- LLM / GenAI
+  - term: token
+    vi_term: token
+    tags: [llm]
+    en: "A small chunk of text, often a word piece, that a language model reads and writes; pricing and limits are counted in tokens."
+    vi: "Một mẩu văn bản nhỏ, thường là một phần của từ, mà language model đọc và viết; giá và giới hạn được tính theo token."
+
+  - term: prompt
+    vi_term: prompt
+    tags: [llm]
+    en: "The text instructions and context you send to a language model."
+    vi: "Phần hướng dẫn và ngữ cảnh dạng văn bản bạn gửi cho language model."
+    example: "Summarise this text in two sentences."
+
+  - term: embedding
+    vi_term: embedding
+    tags: [llm]
+    en: "A vector of numbers that captures the meaning of a text, so similar meanings are close together."
+    vi: "Vector số nắm bắt ý nghĩa của văn bản, để các ý nghĩa giống nhau nằm gần nhau."
+
+  - term: RAG
+    vi_term: RAG (sinh có truy xuất)
+    tags: [rag]
+    en: "Retrieval-Augmented Generation: fetch relevant documents first, then give them to the LLM so it answers from them."
+    vi: "Retrieval-Augmented Generation: truy xuất tài liệu liên quan trước, rồi đưa cho LLM để nó trả lời dựa trên đó."
+
+  - term: vector database
+    vi_term: vector database
+    tags: [rag]
+    en: "A database that stores embeddings and quickly finds the ones closest to a query."
+    vi: "Cơ sở dữ liệu lưu các embedding và nhanh chóng tìm những cái gần nhất với câu truy vấn."
+
+  - term: agent
+    vi_term: agent
+    tags: [agents]
+    en: "An LLM-based program that decides which tools to call and loops until it finishes a task."
+    vi: "Chương trình dựa trên LLM tự quyết định gọi tool nào và lặp lại cho đến khi hoàn thành tác vụ."
+
+  - term: tool use
+    vi_term: tool use (gọi công cụ)
+    tags: [agents]
+    en: "The ability of an LLM to request that your code run a function, such as a search or a calculation."
+    vi: "Khả năng LLM yêu cầu code của bạn chạy một hàm, như tìm kiếm hay tính toán."
+
+  - term: eval
+    vi_term: eval (đánh giá)
+    tags: [llm]
+    en: "A repeatable test set and metric used to measure how good a model or LLM system is."
+    vi: "Bộ test và metric có thể lặp lại, dùng để đo model hoặc hệ thống LLM tốt đến đâu."
+
+  # ---------------------------------------------------------- Production
+  - term: latency
+    vi_term: độ trễ
+    tags: [production]
+    en: "The time between sending a request and receiving the response."
+    vi: "Khoảng thời gian từ lúc gửi yêu cầu đến lúc nhận được phản hồi."
+
+  - term: API
+    vi_term: API
+    tags: [production]
+    en: "Application Programming Interface: a defined way for programs to talk to each other, often over HTTP."
+    vi: "Application Programming Interface: cách thức được định nghĩa để các chương trình giao tiếp với nhau, thường qua HTTP."
+    example: "GET /users/1"

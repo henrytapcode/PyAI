@@ -1,0 +1,16 @@
+id: p1-04-ex01
+kind: code
+title:
+  en: "Count the words"
+  vi: "Đếm từ"
+difficulty: 2
+tags: [dicts, lists, loops]
+hints:
+  en:
+    - "Start with an empty dict, then loop over `words` with `for word in words:`."
+    - "For each word, the new count is the old count plus 1. If the word is new, the old count is 0."
+    - "`counts[word] = counts.get(word, 0) + 1` inside the loop, then `return counts` after it."
+  vi:
+    - "Bắt đầu với một dict rỗng, rồi lặp qua `words` bằng `for word in words:`."
+    - "Với mỗi từ, số đếm mới bằng số đếm cũ cộng 1. Nếu từ chưa có thì số đếm cũ là 0."
+    - "`counts[word] = counts.get(word, 0) + 1` bên trong vòng lặp, rồi `return counts` ở sau vòng lặp."

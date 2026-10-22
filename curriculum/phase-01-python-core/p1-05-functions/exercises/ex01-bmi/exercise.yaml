@@ -1,0 +1,16 @@
+id: p1-05-ex01
+kind: code
+title:
+  en: "Write: BMI calculator"
+  vi: "Viết hàm: tính BMI"
+difficulty: 2
+tags: [functions, conditions]
+hints:
+  en:
+    - "Both functions must `return` a value, not `print` it. The tests look at the returned value."
+    - "BMI is `weight_kg / height_m ** 2`. For the category, check the limits from the smallest up: below 18.5, below 25, below 30, otherwise."
+    - "Shape: `if value < 18.5: return \"underweight\"`, then `if value < 25: return \"normal\"`, and so on. Each `return` ends the function."
+  vi:
+    - "Cả hai hàm phải `return` giá trị, không phải `print`. Test kiểm tra giá trị được trả về."
+    - "BMI bằng `weight_kg / height_m ** 2`. Với phân loại, kiểm tra các mốc từ nhỏ đến lớn: dưới 18.5, dưới 25, dưới 30, còn lại."
+    - "Khung code: `if value < 18.5: return \"underweight\"`, rồi `if value < 25: return \"normal\"`, v.v. Mỗi `return` kết thúc hàm."

@@ -1,0 +1,501 @@
+# AI Engineer interview bank. `topic` must be a tag from curriculum/topics.yaml.
+questions:
+  # ------------------------------------------------------------ Python core / intermediate
+  - id: iv-01
+    topic: types
+    level: junior
+    en:
+      question: "What is the difference between mutable and immutable types in Python? Give examples."
+      answer: |
+        Immutable objects cannot be changed after creation: `int`, `float`, `str`, `bool`, `tuple`, `frozenset`. "Changing" them really creates a new object. Mutable objects can be modified in place: `list`, `dict`, `set`, and most user-defined classes.
+        This matters for three things: aliasing (`b = a` shares a mutable object, so edits show through both names), function arguments (a function can modify a list you pass in), and dictionary keys (only hashable, in practice immutable, objects can be keys).
+    vi:
+      question: "Mutable và immutable trong Python khác nhau thế nào? Cho ví dụ."
+      answer: |
+        Immutable là đối tượng không thể thay đổi sau khi tạo: `int`, `float`, `str`, `bool`, `tuple`, `frozenset`. "Sửa" chúng thực chất là tạo đối tượng mới. Mutable có thể sửa tại chỗ: `list`, `dict`, `set` và hầu hết class tự định nghĩa.
+        Điều này ảnh hưởng đến ba thứ: aliasing (`b = a` dùng chung một đối tượng mutable nên sửa ở tên này sẽ thấy ở tên kia), tham số hàm (hàm có thể sửa list bạn truyền vào), và key của dictionary (chỉ đối tượng hashable, thực tế là immutable, mới làm key được).
+
+  - id: iv-02
+    topic: lists
+    level: junior
+    en:
+      question: "When would you use a tuple instead of a list?"
+      answer: |
+        Use a tuple for a fixed collection of values that should not change, such as a coordinate `(x, y)` or a database row, and when you need a hashable value (a dict key or set member). Tuples signal intent ("this does not change"), are slightly smaller and faster, and cannot be modified by accident.
+        Use a list when the collection grows, shrinks or is reordered. Note that a tuple is only shallowly immutable: a list inside a tuple can still change.
+    vi:
+      question: "Khi nào nên dùng tuple thay vì list?"
+      answer: |
+        Dùng tuple cho tập giá trị cố định, không nên thay đổi, như tọa độ `(x, y)` hoặc một dòng dữ liệu, và khi cần giá trị hashable (key của dict, phần tử của set). Tuple thể hiện ý định "cái này không đổi", nhỏ và nhanh hơn một chút, và không bị sửa nhầm.
+        Dùng list khi tập hợp có thể tăng, giảm hoặc đổi thứ tự. Lưu ý tuple chỉ immutable ở mức nông: một list nằm trong tuple vẫn sửa được.
+
+  - id: iv-03
+    topic: dicts
+    level: junior
+    en:
+      question: "How fast is a dictionary lookup, and what is the difference between `d[key]` and `d.get(key)`?"
+      answer: |
+        A dict is a hash table, so lookup, insert and delete are O(1) on average, independent of size. Checking `key in d` is also O(1), while `x in some_list` is O(n).
+        `d[key]` raises `KeyError` if the key is missing. `d.get(key)` returns `None` (or a default you provide, `d.get(key, 0)`) instead. Use `[]` when a missing key is a bug, and `get` when absence is normal.
+    vi:
+      question: "Tra cứu dictionary nhanh cỡ nào, và `d[key]` khác `d.get(key)` thế nào?"
+      answer: |
+        Dict là hash table nên tra cứu, thêm và xóa trung bình đều là O(1), không phụ thuộc kích thước. Kiểm tra `key in d` cũng là O(1), trong khi `x in some_list` là O(n).
+        `d[key]` báo `KeyError` nếu key không có. `d.get(key)` thì trả về `None` (hoặc giá trị mặc định bạn đưa vào, `d.get(key, 0)`). Dùng `[]` khi thiếu key là lỗi, dùng `get` khi việc thiếu key là bình thường.
+
+  - id: iv-04
+    topic: functions
+    level: junior
+    code: |
+      def log(msg, *args, **kwargs):
+          print(msg, args, kwargs)
+
+      log("hi", 1, 2, level="info")
+    en:
+      question: "What do `*args` and `**kwargs` do? What does the call below print?"
+      answer: |
+        `*args` collects extra positional arguments into a tuple, and `**kwargs` collects extra keyword arguments into a dict. The call prints `hi (1, 2) {'level': 'info'}`.
+        They are used for wrappers and decorators that forward arguments unchanged, and for flexible APIs. The same symbols also unpack when calling: `f(*items, **options)`. Prefer explicit parameters in public functions, since `**kwargs` hides the real signature.
+    vi:
+      question: "`*args` và `**kwargs` dùng để làm gì? Lời gọi dưới đây in ra gì?"
+      answer: |
+        `*args` gom các đối số vị trí thừa thành một tuple, `**kwargs` gom các đối số keyword thừa thành một dict. Lời gọi in ra `hi (1, 2) {'level': 'info'}`.
+        Chúng hay dùng cho wrapper, decorator chuyển tiếp nguyên đối số, và cho API linh hoạt. Cùng ký hiệu đó còn dùng để giải nén khi gọi: `f(*items, **options)`. Với hàm public nên ưu tiên tham số tường minh, vì `**kwargs` che mất chữ ký thật của hàm.
+
+  - id: iv-05
+    topic: functions
+    level: mid
+    code: |
+      def read_batches(items, size):
+          for i in range(0, len(items), size):
+              yield items[i:i + size]
+    en:
+      question: "What is a generator and why is it useful for AI workloads?"
+      answer: |
+        A generator is a function that uses `yield` to produce values one at a time and pauses between them, keeping its local state. It is lazy: nothing is computed until you iterate, and only one item lives in memory at a time.
+        This is ideal for streaming large files, batching a dataset for training or embedding (like the example), and streaming LLM tokens. The trade-off: a generator can be consumed only once and has no `len()` or indexing.
+    vi:
+      question: "Generator là gì và vì sao hữu ích trong các tác vụ AI?"
+      answer: |
+        Generator là hàm dùng `yield` để sinh từng giá trị một và tạm dừng giữa các lần, giữ nguyên trạng thái cục bộ. Nó chạy lười (lazy): không tính gì cho đến khi bạn lặp, và mỗi lúc chỉ có một phần tử nằm trong bộ nhớ.
+        Rất hợp để đọc file lớn theo luồng, chia dataset thành batch khi train hoặc tạo embedding (như ví dụ), và stream token từ LLM. Đổi lại, generator chỉ duyệt được một lần và không có `len()` hay truy cập theo chỉ số.
+
+  - id: iv-06
+    topic: functions
+    level: mid
+    code: |
+      import functools
+      import time
+
+      def timed(func):
+          @functools.wraps(func)
+          def wrapper(*args, **kwargs):
+              start = time.perf_counter()
+              result = func(*args, **kwargs)
+              print(f"{func.__name__}: {time.perf_counter() - start:.3f}s")
+              return result
+          return wrapper
+    en:
+      question: "What is a decorator? Explain the example."
+      answer: |
+        A decorator is a function that takes a function and returns a new function that adds behaviour around it. `@timed` above `def f()` is shorthand for `f = timed(f)`.
+        In the example, `wrapper` times the call and forwards `*args, **kwargs`, so it works with any signature. `functools.wraps` keeps the original name and docstring. Common uses: logging, timing, retries, caching (`functools.lru_cache`), and auth checks in web frameworks.
+    vi:
+      question: "Decorator là gì? Giải thích ví dụ."
+      answer: |
+        Decorator là hàm nhận vào một hàm và trả về hàm mới bổ sung hành vi xung quanh nó. Viết `@timed` phía trên `def f()` tương đương `f = timed(f)`.
+        Trong ví dụ, `wrapper` đo thời gian lời gọi và chuyển tiếp `*args, **kwargs`, nên dùng được với mọi chữ ký hàm. `functools.wraps` giữ lại tên và docstring gốc. Dùng phổ biến cho logging, đo thời gian, retry, cache (`functools.lru_cache`) và kiểm tra quyền trong web framework.
+
+  - id: iv-07
+    topic: production
+    level: mid
+    en:
+      question: "What is the GIL, and how does it affect concurrency in Python?"
+      answer: |
+        The Global Interpreter Lock (GIL) in CPython lets only one thread execute Python bytecode at a time. So threads do not speed up CPU-bound pure-Python code.
+        Threads still help for I/O-bound work (HTTP calls, disk), because the lock is released while waiting. For CPU-bound work use `multiprocessing` or native libraries such as NumPy, which release the GIL in their C code. `asyncio` is the usual choice for many concurrent LLM API calls.
+    vi:
+      question: "GIL là gì và nó ảnh hưởng thế nào đến concurrency trong Python?"
+      answer: |
+        Global Interpreter Lock (GIL) trong CPython chỉ cho phép một thread thực thi Python bytecode tại một thời điểm. Vì vậy thread không làm code Python thuần nặng về CPU chạy nhanh hơn.
+        Thread vẫn hữu ích cho tác vụ I/O (gọi HTTP, đọc đĩa) vì khóa được nhả khi chờ. Với tác vụ nặng CPU hãy dùng `multiprocessing` hoặc thư viện native như NumPy, vốn nhả GIL trong code C. `asyncio` là lựa chọn thường dùng khi gọi nhiều API LLM đồng thời.
+
+  - id: iv-08
+    topic: functions
+    level: junior
+    code: |
+      def add_item(item, items=[]):
+          items.append(item)
+          return items
+    en:
+      question: "What is wrong with this function, and how do you fix it?"
+      answer: |
+        The default list is created once, when the function is defined, and shared by every call that omits `items`. So `add_item(1)` then `add_item(2)` returns `[1, 2]` the second time.
+        Fix it with a `None` sentinel:
+        ```python
+        def add_item(item, items=None):
+            if items is None:
+                items = []
+            items.append(item)
+            return items
+        ```
+        The same rule applies to any mutable default (dict, set).
+    vi:
+      question: "Hàm này sai ở đâu và sửa thế nào?"
+      answer: |
+        List mặc định được tạo một lần khi hàm được định nghĩa và dùng chung cho mọi lời gọi bỏ qua `items`. Vì vậy `add_item(1)` rồi `add_item(2)` sẽ trả về `[1, 2]` ở lần thứ hai.
+        Sửa bằng giá trị canh `None`:
+        ```python
+        def add_item(item, items=None):
+            if items is None:
+                items = []
+            items.append(item)
+            return items
+        ```
+        Quy tắc này áp dụng cho mọi default mutable khác (dict, set).
+
+  - id: iv-09
+    topic: types
+    level: junior
+    en:
+      question: "What is the difference between `==` and `is`?"
+      answer: |
+        `==` compares values (it calls `__eq__`). `is` compares identity: whether two names refer to the exact same object in memory.
+        `[1] == [1]` is True but `[1] is [1]` is False, because they are two different list objects. Use `is` only for singletons, mainly `x is None` and `x is not None`. Never rely on `is` for numbers or strings, since small-object caching makes the result implementation-dependent.
+    vi:
+      question: "`==` và `is` khác nhau thế nào?"
+      answer: |
+        `==` so sánh giá trị (gọi `__eq__`). `is` so sánh danh tính: hai tên có trỏ tới cùng một đối tượng trong bộ nhớ hay không.
+        `[1] == [1]` là True nhưng `[1] is [1]` là False vì đó là hai đối tượng list khác nhau. Chỉ dùng `is` cho singleton, chủ yếu là `x is None` và `x is not None`. Đừng dựa vào `is` cho số hay chuỗi, vì cơ chế cache đối tượng nhỏ làm kết quả phụ thuộc vào cài đặt.
+
+  - id: iv-10
+    topic: files
+    level: junior
+    code: |
+      with open("notes.txt", encoding="utf-8") as f:
+          text = f.read()
+    en:
+      question: "Why use a `with` statement when opening files?"
+      answer: |
+        `with` uses a context manager that guarantees cleanup: the file is closed when the block ends, even if an exception is raised. Without it you must remember `f.close()` in a `finally`, and forgotten handles leak resources or lose buffered writes.
+        The same pattern is used for database connections, locks and HTTP sessions. You can write your own with `contextlib.contextmanager` or by defining `__enter__` and `__exit__`. Also pass `encoding="utf-8"` explicitly so behaviour does not depend on the OS.
+    vi:
+      question: "Vì sao nên dùng `with` khi mở file?"
+      answer: |
+        `with` dùng context manager đảm bảo dọn dẹp: file được đóng khi khối kết thúc, kể cả khi có exception. Nếu không dùng, bạn phải nhớ `f.close()` trong `finally`, và handle bị quên sẽ rò rỉ tài nguyên hoặc mất dữ liệu ghi trong buffer.
+        Cùng mẫu này dùng cho kết nối database, lock và HTTP session. Bạn có thể tự viết bằng `contextlib.contextmanager` hoặc định nghĩa `__enter__` và `__exit__`. Nên truyền `encoding="utf-8"` rõ ràng để hành vi không phụ thuộc hệ điều hành.
+
+  # ------------------------------------------------------------ Testing / code quality
+  - id: iv-11
+    topic: testing
+    level: junior
+    en:
+      question: "What is the difference between unit tests and integration tests?"
+      answer: |
+        A unit test checks one small piece (a function or class) in isolation, with dependencies replaced by fakes. It is fast, deterministic and pinpoints failures. An integration test checks that several parts work together, for example your API, the database and a vector store.
+        Aim for many unit tests and fewer integration tests (the test pyramid). Integration tests catch wiring and configuration bugs that unit tests miss, but they are slower and flakier.
+    vi:
+      question: "Unit test và integration test khác nhau thế nào?"
+      answer: |
+        Unit test kiểm tra một phần nhỏ (hàm hoặc class) một cách độc lập, thay dependency bằng bản giả. Nó nhanh, ổn định và chỉ ra chính xác chỗ lỗi. Integration test kiểm tra nhiều phần phối hợp với nhau, ví dụ API, database và vector store.
+        Nên có nhiều unit test và ít integration test hơn (kim tự tháp test). Integration test bắt được lỗi ghép nối và cấu hình mà unit test bỏ sót, nhưng chậm và dễ flaky hơn.
+
+  - id: iv-12
+    topic: testing
+    level: junior
+    code: |
+      import pytest
+
+      @pytest.mark.parametrize("a, b, expected", [(1, 2, 3), (0, 0, 0), (-1, 1, 0)])
+      def test_add(a, b, expected):
+          assert a + b == expected
+    en:
+      question: "What are pytest fixtures and `parametrize` used for?"
+      answer: |
+        `parametrize` runs the same test body with several input/expected pairs, as in the example, and reports each case separately. It removes copy-pasted tests.
+        A fixture is a reusable setup (and optional teardown) that tests request by naming it as an argument: a temporary directory, a sample DataFrame, a fake client. Fixtures keep tests short, make dependencies explicit and can be shared through `conftest.py`.
+    vi:
+      question: "Fixture của pytest và `parametrize` dùng để làm gì?"
+      answer: |
+        `parametrize` chạy cùng một thân test với nhiều cặp đầu vào/kết quả mong đợi, như ví dụ, và báo cáo từng trường hợp riêng. Nó giúp khỏi phải copy-paste test.
+        Fixture là phần setup (và teardown tùy chọn) tái sử dụng, test yêu cầu bằng cách ghi tên nó làm tham số: thư mục tạm, một DataFrame mẫu, một client giả. Fixture giúp test ngắn gọn, dependency rõ ràng và chia sẻ được qua `conftest.py`.
+
+  - id: iv-13
+    topic: testing
+    level: mid
+    en:
+      question: "How do you test code that calls an LLM API?"
+      answer: |
+        Do not call the real API in unit tests: it is slow, costs money and is non-deterministic. Hide the call behind a small function or class, then inject a fake or use `unittest.mock` to return canned responses. Test your own logic: prompt construction, parsing, retries, error handling.
+        Keep a few separate, clearly marked tests that hit the real model (smoke tests), and use a dataset of examples with an eval metric for judging output quality, rather than exact string asserts.
+    vi:
+      question: "Làm sao test code có gọi API LLM?"
+      answer: |
+        Không gọi API thật trong unit test: chậm, tốn tiền và không xác định. Hãy bọc lời gọi vào một hàm hoặc class nhỏ, rồi inject bản giả hoặc dùng `unittest.mock` để trả về phản hồi dựng sẵn. Test logic của bạn: tạo prompt, phân tích kết quả, retry, xử lý lỗi.
+        Giữ vài test riêng, đánh dấu rõ, gọi model thật (smoke test), và dùng bộ ví dụ cùng metric eval để đánh giá chất lượng đầu ra thay vì assert chuỗi chính xác.
+
+  - id: iv-14
+    topic: debugging
+    level: junior
+    en:
+      question: "A script crashes with a traceback. How do you approach debugging it?"
+      answer: |
+        Read the traceback from the bottom: the last line names the error type and message, and the lines above show the call chain with file and line numbers. Find the first frame in your own code.
+        Then reproduce it with the smallest input, inspect the actual values (print, `logging`, or a debugger breakpoint), form one hypothesis and test it. Fix the cause, not the symptom, and add a regression test so the bug cannot return.
+    vi:
+      question: "Script báo lỗi kèm traceback. Bạn tiếp cận việc debug thế nào?"
+      answer: |
+        Đọc traceback từ dưới lên: dòng cuối cho biết loại lỗi và thông báo, các dòng phía trên cho thấy chuỗi lời gọi kèm file và số dòng. Tìm frame đầu tiên nằm trong code của bạn.
+        Sau đó tái hiện lỗi với đầu vào nhỏ nhất, xem giá trị thực tế (print, `logging` hoặc breakpoint của debugger), đặt một giả thuyết rồi kiểm chứng. Sửa nguyên nhân chứ không sửa triệu chứng, và thêm regression test để lỗi không quay lại.
+
+  # ------------------------------------------------------------ Data
+  - id: iv-15
+    topic: data
+    level: junior
+    en:
+      question: "Why is a NumPy array usually faster than a Python list for numeric work?"
+      answer: |
+        A NumPy array stores values of one type in a contiguous block of memory, and its operations run in compiled C code over the whole array (vectorization). A Python list holds pointers to separate objects and a Python-level loop pays interpreter overhead on every element.
+        So `arr * 2` or `arr.sum()` is often 10 to 100 times faster than a loop, and uses less memory. The rule of thumb: avoid Python loops over array elements; express the work as array operations.
+    vi:
+      question: "Vì sao NumPy array thường nhanh hơn Python list khi tính toán số?"
+      answer: |
+        NumPy array lưu các giá trị cùng kiểu trong một vùng nhớ liên tục, và các phép toán chạy bằng code C đã biên dịch trên toàn mảng (vectorization). Python list chứa con trỏ tới các đối tượng riêng lẻ và vòng lặp Python phải trả chi phí của interpreter cho từng phần tử.
+        Nhờ đó `arr * 2` hay `arr.sum()` thường nhanh hơn vòng lặp 10 đến 100 lần và tốn ít bộ nhớ hơn. Nguyên tắc: tránh vòng lặp Python trên từng phần tử mảng, hãy diễn đạt bằng phép toán trên mảng.
+
+  - id: iv-16
+    topic: data
+    level: mid
+    code: |
+      import numpy as np
+
+      X = np.ones((3, 4))      # shape (3, 4)
+      mean = X.mean(axis=0)    # shape (4,)
+      centered = X - mean      # works through broadcasting
+    en:
+      question: "What is broadcasting in NumPy? Why does the last line work?"
+      answer: |
+        Broadcasting lets NumPy combine arrays of different shapes without copying data. Shapes are compared from the last dimension backwards; two dimensions are compatible if they are equal or one of them is 1 (or missing), and the size-1 dimension is stretched.
+        Here `(3, 4)` and `(4,)` are compatible, so `mean` is applied to each of the 3 rows. A common bug is a silent wrong shape, such as `(n,)` combined with `(n, 1)` producing an `(n, n)` matrix, so always check `.shape`.
+    vi:
+      question: "Broadcasting trong NumPy là gì? Vì sao dòng cuối chạy được?"
+      answer: |
+        Broadcasting cho phép NumPy kết hợp các mảng khác shape mà không sao chép dữ liệu. Các shape được so sánh từ chiều cuối trở về trước; hai chiều tương thích nếu bằng nhau hoặc một trong hai là 1 (hoặc không có), và chiều có kích thước 1 được kéo giãn.
+        Ở đây `(3, 4)` và `(4,)` tương thích, nên `mean` được áp dụng cho từng trong 3 hàng. Lỗi hay gặp là shape sai mà không báo, ví dụ `(n,)` kết hợp với `(n, 1)` ra ma trận `(n, n)`, vì vậy luôn kiểm tra `.shape`.
+
+  - id: iv-17
+    topic: data
+    level: junior
+    en:
+      question: "How do you handle missing values in a Pandas DataFrame?"
+      answer: |
+        First measure them: `df.isna().sum()` shows missing counts per column. Then decide per column. Drop rows or columns with `dropna()` when little data is lost, or fill with `fillna()` using a constant, the mean or median, or a forward fill for time series.
+        The choice depends on why values are missing and on the model. Never fill using statistics computed on the whole dataset before splitting, because that leaks test information into training. Sometimes adding an "is missing" indicator column is useful.
+    vi:
+      question: "Xử lý giá trị thiếu trong Pandas DataFrame thế nào?"
+      answer: |
+        Trước hết đo lường: `df.isna().sum()` cho biết số giá trị thiếu theo cột. Rồi quyết định theo từng cột. Xóa hàng hoặc cột bằng `dropna()` khi mất ít dữ liệu, hoặc điền bằng `fillna()` với một hằng số, trung bình, median, hoặc forward fill cho chuỗi thời gian.
+        Lựa chọn phụ thuộc vào lý do thiếu và loại model. Đừng điền bằng thống kê tính trên toàn bộ dataset trước khi chia tập, vì như vậy làm rò thông tin tập test vào quá trình train. Đôi khi thêm cột chỉ báo "bị thiếu" cũng hữu ích.
+
+  - id: iv-18
+    topic: data
+    level: mid
+    en:
+      question: "What is the difference between `loc` and `iloc`, and how does `merge` work?"
+      answer: |
+        `loc` selects by label (index values and column names, with inclusive slices), `iloc` selects by integer position (exclusive end, like Python slices). Prefer `loc` with boolean masks for filtering: `df.loc[df["age"] > 30, "name"]`.
+        `merge` joins two DataFrames on key columns like a SQL join. `how` can be `inner`, `left`, `right` or `outer`. After merging, check the row count: duplicate keys on both sides multiply rows, which is a common silent bug.
+    vi:
+      question: "`loc` và `iloc` khác nhau thế nào, và `merge` hoạt động ra sao?"
+      answer: |
+        `loc` chọn theo nhãn (giá trị index và tên cột, lát cắt gồm cả đầu mút cuối), `iloc` chọn theo vị trí số nguyên (không gồm điểm cuối, như lát cắt Python). Khi lọc nên dùng `loc` với mask boolean: `df.loc[df["age"] > 30, "name"]`.
+        `merge` nối hai DataFrame theo cột khóa giống JOIN trong SQL. `how` có thể là `inner`, `left`, `right` hoặc `outer`. Sau khi merge hãy kiểm tra số dòng: key trùng ở cả hai phía làm số dòng nhân lên, một lỗi thầm lặng rất hay gặp.
+
+  # ------------------------------------------------------------ ML
+  - id: iv-19
+    topic: ml
+    level: junior
+    en:
+      question: "What is overfitting and how do you reduce it?"
+      answer: |
+        Overfitting is when a model learns the training data, including its noise, so it scores very well on training data but poorly on new data. The signature is a large gap between training and validation performance.
+        Remedies: get more (or more varied) data, use a simpler model, add regularization (L1/L2, dropout), stop training early, use cross-validation to tune, and reduce noisy features. Underfitting is the opposite: poor on both sets.
+    vi:
+      question: "Overfitting là gì và giảm nó bằng cách nào?"
+      answer: |
+        Overfitting là khi model học thuộc cả dữ liệu train, kể cả nhiễu, nên điểm trên tập train rất cao nhưng trên dữ liệu mới thì kém. Dấu hiệu là khoảng cách lớn giữa hiệu năng train và validation.
+        Cách khắc phục: thêm dữ liệu (hoặc đa dạng hơn), dùng model đơn giản hơn, thêm regularization (L1/L2, dropout), dừng train sớm, dùng cross-validation để tinh chỉnh và bớt feature nhiễu. Underfitting thì ngược lại: kém ở cả hai tập.
+
+  - id: iv-20
+    topic: ml
+    level: junior
+    en:
+      question: "Why do we split data into train, validation and test sets?"
+      answer: |
+        The training set fits the model's parameters. The validation set is used to compare models and tune hyperparameters. The test set is touched once at the end to estimate how the final model performs on unseen data.
+        If you tune on the test set, its score becomes optimistic because you indirectly fit to it. A typical split is 70/15/15 or 80/10/10. Use stratified splits for imbalanced classes, and time-based splits for time series.
+    vi:
+      question: "Vì sao phải chia dữ liệu thành tập train, validation và test?"
+      answer: |
+        Tập train dùng để fit tham số của model. Tập validation dùng để so sánh model và tinh chỉnh hyperparameter. Tập test chỉ dùng một lần ở cuối để ước lượng hiệu năng của model cuối cùng trên dữ liệu chưa thấy.
+        Nếu tinh chỉnh trên tập test thì điểm của nó sẽ lạc quan quá mức vì bạn đã gián tiếp fit vào nó. Tỷ lệ thường dùng là 70/15/15 hoặc 80/10/10. Dùng chia stratified cho lớp mất cân bằng và chia theo thời gian cho chuỗi thời gian.
+
+  - id: iv-21
+    topic: ml
+    level: junior
+    en:
+      question: "Explain precision and recall. When would you prefer one over the other?"
+      answer: |
+        Precision = TP / (TP + FP): of the items predicted positive, how many really are. Recall = TP / (TP + FN): of the real positives, how many did we find. F1 is their harmonic mean.
+        Prefer recall when missing a positive is costly (disease screening, fraud detection) and prefer precision when false alarms are costly (spam filter deleting real mail). Accuracy alone is misleading on imbalanced data: predicting "not fraud" every time can be 99% accurate and useless.
+    vi:
+      question: "Giải thích precision và recall. Khi nào ưu tiên cái nào?"
+      answer: |
+        Precision = TP / (TP + FP): trong số được dự đoán là positive, bao nhiêu thật sự đúng. Recall = TP / (TP + FN): trong số positive thật, ta tìm được bao nhiêu. F1 là trung bình điều hòa của hai chỉ số này.
+        Ưu tiên recall khi bỏ sót positive gây tốn kém (tầm soát bệnh, phát hiện gian lận) và ưu tiên precision khi báo động giả tốn kém (bộ lọc spam xóa nhầm thư thật). Chỉ nhìn accuracy dễ gây hiểu lầm với dữ liệu mất cân bằng: luôn dự đoán "không gian lận" có thể đạt 99% accuracy mà vô dụng.
+
+  - id: iv-22
+    topic: ml
+    level: mid
+    en:
+      question: "What is data leakage? Give an example."
+      answer: |
+        Data leakage is when information that would not be available at prediction time gets into training, producing unrealistically good validation scores that collapse in production.
+        Examples: fitting a scaler or imputer on the whole dataset before the split; including a feature derived from the label (such as "refund_issued" when predicting churn); random splitting of time series so the future trains the past; duplicates across train and test. Prevent it by splitting first and doing all preprocessing inside a pipeline fitted on training data only.
+    vi:
+      question: "Data leakage là gì? Cho ví dụ."
+      answer: |
+        Data leakage là khi thông tin không có sẵn tại thời điểm dự đoán lọt vào quá trình train, tạo ra điểm validation cao phi thực tế rồi sụp đổ khi lên production.
+        Ví dụ: fit scaler hoặc imputer trên toàn bộ dataset trước khi chia tập; dùng feature suy ra từ label (như "refund_issued" khi dự đoán churn); chia ngẫu nhiên chuỗi thời gian khiến tương lai dạy quá khứ; dữ liệu trùng giữa train và test. Phòng tránh bằng cách chia tập trước và đặt mọi bước tiền xử lý trong một pipeline chỉ fit trên dữ liệu train.
+
+  - id: iv-23
+    topic: ml
+    level: mid
+    en:
+      question: "What is cross-validation and when is it worth using?"
+      answer: |
+        In k-fold cross-validation you split the training data into k parts, train on k-1 of them and validate on the remaining one, rotating k times, then average the scores. It gives a more stable estimate than a single split and also shows variance across folds.
+        It is most valuable with small datasets and for model selection and hyperparameter tuning. It costs k times the training time, so for huge datasets or deep learning a single validation split is usually enough. Keep a final test set outside of it.
+    vi:
+      question: "Cross-validation là gì và khi nào đáng dùng?"
+      answer: |
+        Với k-fold cross-validation, bạn chia dữ liệu train thành k phần, train trên k-1 phần và validate trên phần còn lại, xoay vòng k lần rồi lấy trung bình điểm. Cách này cho ước lượng ổn định hơn một lần chia duy nhất và còn cho thấy độ dao động giữa các fold.
+        Nó đáng giá nhất với dataset nhỏ, khi chọn model và tinh chỉnh hyperparameter. Chi phí là thời gian train gấp k lần, nên với dataset rất lớn hoặc deep learning thường chỉ cần một tập validation. Luôn giữ một tập test cuối nằm ngoài quá trình này.
+
+  # ------------------------------------------------------------ LLM / RAG / agents
+  - id: iv-24
+    topic: llm
+    level: junior
+    en:
+      question: "What is an embedding and what is it used for?"
+      answer: |
+        An embedding is a list of numbers (a vector) that represents the meaning of a piece of text, image or other data, produced by a model. Items with similar meaning end up close together in the vector space, usually measured by cosine similarity.
+        Uses: semantic search, RAG retrieval, clustering, deduplication, recommendations and classification features. Always use the same embedding model for documents and queries, and remember that changing the model means re-embedding everything.
+    vi:
+      question: "Embedding là gì và dùng để làm gì?"
+      answer: |
+        Embedding là một danh sách số (vector) biểu diễn ý nghĩa của đoạn văn bản, hình ảnh hoặc dữ liệu khác, do một model tạo ra. Các mục có nghĩa gần nhau sẽ nằm gần nhau trong không gian vector, thường đo bằng cosine similarity.
+        Dùng cho tìm kiếm ngữ nghĩa, truy xuất trong RAG, clustering, khử trùng lặp, gợi ý và làm feature cho phân loại. Luôn dùng cùng một embedding model cho tài liệu và câu truy vấn, và nhớ rằng đổi model nghĩa là phải embed lại toàn bộ.
+
+  - id: iv-25
+    topic: rag
+    level: mid
+    en:
+      question: "How do you choose a chunking strategy for a RAG system?"
+      answer: |
+        Chunks must be small enough to be specific and fit the context window, but large enough to carry complete ideas. Common starting points are 200 to 500 tokens with 10 to 20% overlap, so facts split at a boundary still appear whole in one chunk.
+        Better than fixed size is splitting on structure (headings, paragraphs, code blocks) and attaching metadata such as title and source. Then tune with evidence: measure retrieval hit rate and answer quality on a test set for different chunk sizes instead of guessing.
+    vi:
+      question: "Chọn chiến lược chunking cho hệ thống RAG thế nào?"
+      answer: |
+        Chunk phải đủ nhỏ để cụ thể và vừa context window, nhưng đủ lớn để chứa ý trọn vẹn. Điểm khởi đầu thường là 200 đến 500 token với overlap 10 đến 20%, để thông tin bị cắt ở ranh giới vẫn xuất hiện đầy đủ trong một chunk.
+        Tốt hơn kích thước cố định là tách theo cấu trúc (heading, đoạn văn, khối code) và gắn metadata như tiêu đề và nguồn. Sau đó tinh chỉnh dựa trên bằng chứng: đo hit rate truy xuất và chất lượng câu trả lời trên bộ test với các kích thước chunk khác nhau thay vì đoán.
+
+  - id: iv-26
+    topic: rag
+    level: mid
+    en:
+      question: "How do you evaluate a RAG system?"
+      answer: |
+        Evaluate retrieval and generation separately. For retrieval, build a labelled set of questions with the correct source chunks and measure recall@k, precision@k or MRR. For generation, measure faithfulness (is every claim supported by the retrieved context?) and answer relevance and correctness against reference answers.
+        Use human review on a sample, and LLM-as-judge for scale, validated against the human labels. Track results per release so changes to chunking, embeddings or prompts are compared on the same fixed test set, and add failing production queries to it.
+    vi:
+      question: "Đánh giá một hệ thống RAG như thế nào?"
+      answer: |
+        Đánh giá riêng phần truy xuất và phần sinh. Với truy xuất, xây bộ câu hỏi có gán nhãn nguồn đúng rồi đo recall@k, precision@k hoặc MRR. Với phần sinh, đo faithfulness (mọi khẳng định có được context truy xuất hỗ trợ không?) cùng độ liên quan và độ đúng của câu trả lời so với đáp án tham chiếu.
+        Dùng người đánh giá trên một mẫu, và LLM-as-judge để mở rộng quy mô, có đối chiếu với nhãn của người. Theo dõi kết quả theo từng bản phát hành để thay đổi chunking, embedding hay prompt được so sánh trên cùng một bộ test cố định, và bổ sung các truy vấn lỗi từ production vào bộ đó.
+
+  - id: iv-27
+    topic: llm
+    level: junior
+    en:
+      question: "What is hallucination in LLMs and how can you reduce it?"
+      answer: |
+        A hallucination is a fluent but false or unsupported output: invented facts, citations or API names. It happens because an LLM predicts plausible text, not verified truth.
+        Mitigations: ground the model with retrieved documents (RAG) and instruct it to answer only from them or say "I do not know"; ask for citations and verify them; use structured output and validation; lower the temperature; use tools for facts and calculations; and evaluate on a test set. You can reduce hallucination but not eliminate it, so design for checking.
+    vi:
+      question: "Hallucination trong LLM là gì và giảm nó thế nào?"
+      answer: |
+        Hallucination là đầu ra trôi chảy nhưng sai hoặc không có căn cứ: bịa sự kiện, trích dẫn hay tên API. Nó xảy ra vì LLM dự đoán văn bản hợp lý chứ không phải sự thật đã kiểm chứng.
+        Cách giảm: neo model vào tài liệu truy xuất (RAG) và yêu cầu chỉ trả lời dựa trên đó hoặc nói "tôi không biết"; yêu cầu trích dẫn và kiểm tra chúng; dùng structured output kèm validation; hạ temperature; dùng tool cho dữ kiện và phép tính; đánh giá trên bộ test. Có thể giảm nhưng không loại bỏ hoàn toàn, nên hãy thiết kế để có bước kiểm tra.
+
+  - id: iv-28
+    topic: agents
+    level: mid
+    code: |
+      tools = [{
+          "name": "get_weather",
+          "description": "Current weather for a city",
+          "input_schema": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]},
+      }]
+    en:
+      question: "How does tool use (function calling) work, and what makes an LLM agent different from a single call?"
+      answer: |
+        You describe tools to the model with a name, description and JSON schema (like above). The model does not run anything: it returns a request such as `get_weather(city="Hanoi")`. Your code validates the arguments, executes the function, and sends the result back as a new message so the model can continue.
+        An agent runs this in a loop: the model plans, calls tools, observes results, and repeats until it can answer, with a step limit. Keep tools few and well described, validate inputs, handle errors by returning them to the model, and require confirmation for risky actions.
+    vi:
+      question: "Tool use (function calling) hoạt động thế nào, và agent LLM khác một lần gọi đơn lẻ ở đâu?"
+      answer: |
+        Bạn mô tả tool cho model bằng tên, mô tả và JSON schema (như trên). Model không tự chạy gì cả: nó trả về một yêu cầu như `get_weather(city="Hanoi")`. Code của bạn kiểm tra đối số, thực thi hàm, rồi gửi kết quả lại dưới dạng message mới để model tiếp tục.
+        Agent chạy quy trình này trong một vòng lặp: model lập kế hoạch, gọi tool, quan sát kết quả, và lặp lại cho đến khi trả lời được, kèm giới hạn số bước. Giữ số tool ít và mô tả rõ, validate đầu vào, xử lý lỗi bằng cách trả lỗi về cho model, và yêu cầu xác nhận với hành động rủi ro.
+
+  # ------------------------------------------------------------ Production
+  - id: iv-29
+    topic: production
+    level: junior
+    code: |
+      from fastapi import FastAPI
+      from pydantic import BaseModel
+
+      app = FastAPI()
+
+      class Question(BaseModel):
+          text: str
+
+      @app.post("/ask")
+      def ask(q: Question):
+          return {"answer": q.text.upper()}
+    en:
+      question: "Why is FastAPI popular for serving ML and LLM features? Explain the example."
+      answer: |
+        FastAPI turns type-annotated functions into HTTP endpoints. In the example, the `Question` model (Pydantic) makes FastAPI parse and validate the JSON body automatically and return a clear 422 error when it is wrong. It also generates OpenAPI docs at `/docs` for free.
+        It supports `async` endpoints for many concurrent I/O calls (LLM APIs, databases), has dependency injection for shared clients, and streaming responses for tokens. Load the model once at startup, not on every request.
+    vi:
+      question: "Vì sao FastAPI phổ biến khi triển khai tính năng ML và LLM? Giải thích ví dụ."
+      answer: |
+        FastAPI biến các hàm có type annotation thành HTTP endpoint. Trong ví dụ, model `Question` (Pydantic) giúp FastAPI tự phân tích và kiểm tra JSON body, đồng thời trả lỗi 422 rõ ràng khi sai. Nó cũng tự sinh tài liệu OpenAPI tại `/docs`.
+        FastAPI hỗ trợ endpoint `async` cho nhiều lời gọi I/O đồng thời (API LLM, database), có dependency injection cho các client dùng chung, và streaming response cho token. Hãy tải model một lần lúc khởi động chứ không phải ở mỗi request.
+
+  - id: iv-30
+    topic: production
+    level: mid
+    en:
+      question: "How can you reduce the cost and latency of an LLM-powered feature?"
+      answer: |
+        Cache: exact-match caching of repeated requests, and provider prompt caching for long shared prefixes (system prompt, documents). Send fewer tokens: trim context, retrieve only top-k chunks, and cap `max_tokens`. Route easy requests to a smaller, cheaper model and reserve the large model for hard ones.
+        For latency, stream tokens so users see output immediately, run independent calls in parallel, and batch offline work. Measure first: log tokens, cost and p50/p95 latency per request, then optimise the biggest contributor.
+    vi:
+      question: "Làm sao giảm chi phí và độ trễ (latency) của một tính năng dùng LLM?"
+      answer: |
+        Cache: cache khớp chính xác cho các yêu cầu lặp lại, và prompt caching của nhà cung cấp cho các phần đầu dài dùng chung (system prompt, tài liệu). Gửi ít token hơn: cắt bớt context, chỉ truy xuất top-k chunk, và giới hạn `max_tokens`. Chuyển yêu cầu dễ sang model nhỏ rẻ hơn và dành model lớn cho yêu cầu khó.
+        Với latency, stream token để người dùng thấy kết quả ngay, chạy song song các lời gọi độc lập, và gom batch cho việc offline. Hãy đo trước: ghi log token, chi phí và latency p50/p95 cho mỗi request, rồi tối ưu phần đóng góp lớn nhất.

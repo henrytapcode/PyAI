@@ -1,0 +1,12 @@
+n=1 total=1
+n=2 total=3
+n=3 total=6
+n=4 total=10
+n=5 total=15
+Sum of 1..5: 15
+letter: A
+letter: I
+countdown: 10
+countdown: 7
+countdown: 4
+countdown: 1

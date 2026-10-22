@@ -1,0 +1,29 @@
+id: p1-02-conditions
+phase: p1
+order: 2
+kind: lesson
+title:
+  en: "Conditions"
+  vi: "Câu lệnh điều kiện"
+summary:
+  en: "Make your program choose: if / elif / else, indentation, and combining conditions with and / or / not."
+  vi: "Cho chương trình biết cách lựa chọn: if / elif / else, thụt lề, và kết hợp điều kiện bằng and / or / not."
+level: beginner
+tags: [conditions, booleans, operators]
+prerequisites: [p1-01-variables]
+duration_min: 10
+outcomes:
+  en:
+    - "Write if / elif / else blocks with correct indentation"
+    - "Combine conditions with and / or / not"
+    - "Know which values count as False (0, empty string)"
+    - "Choose between elif and nested if"
+  vi:
+    - "Viết khối if / elif / else với thụt lề đúng"
+    - "Kết hợp điều kiện bằng and / or / not"
+    - "Biết những giá trị nào được coi là False (0, chuỗi rỗng)"
+    - "Chọn giữa elif và if lồng nhau"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: if statements", vi: "Python tutorial: câu lệnh if (EN)" }
+    url: "https://docs.python.org/3/tutorial/controlflow.html#if-statements"

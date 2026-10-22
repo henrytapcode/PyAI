@@ -1,0 +1,27 @@
+id: p1-04-collections
+phase: p1
+order: 4
+kind: lesson
+title:
+  en: "Lists & dictionaries"
+  vi: "List & dictionary"
+summary:
+  en: "Keep many values together with lists, and label them with dictionaries. Count words like a tiny NLP program."
+  vi: "Gom nhiều giá trị bằng list và gắn nhãn cho chúng bằng dictionary. Đếm từ như một chương trình NLP thu nhỏ."
+level: beginner
+tags: [lists, dicts, loops]
+prerequisites: [p1-03-loops]
+duration_min: 12
+outcomes:
+  en:
+    - "Index, slice and modify lists"
+    - "Store data in dicts"
+    - "Loop over collections"
+  vi:
+    - "Truy cập, cắt và sửa list"
+    - "Lưu dữ liệu bằng dict"
+    - "Lặp qua collection"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: Data structures", vi: "Python tutorial: Cấu trúc dữ liệu (EN)" }
+    url: "https://docs.python.org/3/tutorial/datastructures.html"

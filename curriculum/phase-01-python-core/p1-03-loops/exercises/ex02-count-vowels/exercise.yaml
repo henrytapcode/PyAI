@@ -1,0 +1,16 @@
+id: p1-03-ex02
+kind: debug
+title:
+  en: "Debug: count the vowels"
+  vi: "Debug: đếm nguyên âm"
+difficulty: 2
+tags: [loops, strings, debugging]
+hints:
+  en:
+    - "Run it on `\"banana\"`. It should say 3 but does not. Look at what happens to `count` each time a vowel is found."
+    - "`count = 1` overwrites the counter instead of adding to it. Which operator adds to an existing variable?"
+    - "Replace `count = 1` with `count += 1` inside the `if`."
+  vi:
+    - "Chạy thử với `\"banana\"`. Kết quả phải là 3 nhưng không đúng. Hãy xem `count` thay đổi thế nào mỗi lần gặp nguyên âm."
+    - "`count = 1` ghi đè bộ đếm thay vì cộng thêm. Toán tử nào cộng thêm vào một biến có sẵn?"
+    - "Thay `count = 1` bằng `count += 1` bên trong `if`."

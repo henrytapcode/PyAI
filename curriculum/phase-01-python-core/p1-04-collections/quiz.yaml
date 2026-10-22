@@ -1,0 +1,161 @@
+questions:
+  - id: p1-04-q01
+    type: mcq
+    tags: [lists]
+    difficulty: 1
+    answer: 2
+    code: |
+      names = ["Lan", "Minh", "Hoa", "Nam"]
+      print(names[-1])
+    en:
+      prompt: "What is printed?"
+      options: ["Lan", "Hoa", "Nam", "An error"]
+      explanation: "Negative indexes count from the end, so `-1` is the last item."
+    vi:
+      prompt: "Kết quả in ra là gì?"
+      options: ["Lan", "Hoa", "Nam", "Lỗi"]
+      explanation: "Chỉ số âm đếm từ cuối lên, nên `-1` là phần tử cuối cùng."
+
+  - id: p1-04-q02
+    type: output
+    tags: [lists]
+    difficulty: 1
+    code: |
+      nums = [10, 20, 30, 40, 50]
+      print(nums[1:3])
+    answer: "[20, 30]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A slice includes the start index (1) but stops before the end index (3), so it takes indexes 1 and 2."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Slice lấy chỉ số bắt đầu (1) nhưng dừng trước chỉ số kết thúc (3), nên chỉ lấy vị trí 1 và 2."
+
+  - id: p1-04-q03
+    type: mcq
+    tags: [lists]
+    difficulty: 2
+    answer: 1
+    code: |
+      scores = [3, 1, 2]
+      ordered = sorted(scores)
+    en:
+      prompt: "After this code, what is `scores`?"
+      options: ["[1, 2, 3]", "[3, 1, 2]", "None", "An error"]
+      explanation: "`sorted()` returns a new sorted list and leaves the original unchanged."
+    vi:
+      prompt: "Sau đoạn code này, `scores` là gì?"
+      options: ["[1, 2, 3]", "[3, 1, 2]", "None", "Lỗi"]
+      explanation: "`sorted()` trả về một list mới đã sắp xếp và không thay đổi list gốc."
+
+  - id: p1-04-q04
+    type: fill
+    tags: [dicts]
+    difficulty: 1
+    code: |
+      ages = {"Lan": 21}
+      print(ages.___("Minh", 0))  # 0
+    answer: ["get"]
+    en:
+      prompt: "Fill in the blank so it prints 0 instead of crashing."
+      explanation: "`.get(key, default)` returns the default when the key is missing; `ages[\"Minh\"]` would raise `KeyError`."
+    vi:
+      prompt: "Điền vào chỗ trống để in ra 0 thay vì bị lỗi."
+      explanation: "`.get(key, default)` trả về giá trị mặc định khi key không tồn tại; `ages[\"Minh\"]` sẽ báo `KeyError`."
+
+  - id: p1-04-q05
+    type: output
+    tags: [dicts, loops]
+    difficulty: 2
+    code: |
+      d = {"a": 1, "b": 2}
+      d["c"] = 3
+      d["a"] = 10
+      total = 0
+      for key, value in d.items():
+          total = total + value
+      print(total)
+    answer: "15"
+    en:
+      prompt: "What does this code print?"
+      explanation: "After the changes d is {'a': 10, 'b': 2, 'c': 3}. The loop adds the values: 10 + 2 + 3 = 15."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Sau khi sửa, d là {'a': 10, 'b': 2, 'c': 3}. Vòng lặp cộng các value: 10 + 2 + 3 = 15."
+
+  - id: p1-04-q06
+    type: parsons
+    tags: [dicts, loops]
+    difficulty: 2
+    lines:
+      - "words = [\"hi\", \"ai\", \"hi\"]"
+      - "counts = {}"
+      - "for word in words:"
+      - "    counts[word] = counts.get(word, 0) + 1"
+      - "print(counts)"
+    en:
+      prompt: "Put the lines in order so the program prints `{'hi': 2, 'ai': 1}`."
+      explanation: "Create the list and the empty dict first, then loop and update the counts, and print once the loop is done."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `{'hi': 2, 'ai': 1}`."
+      explanation: "Tạo list và dict rỗng trước, rồi lặp và cập nhật số đếm, cuối cùng in sau khi vòng lặp kết thúc."
+
+  - id: p1-04-q07
+    type: mcq
+    tags: [dicts]
+    difficulty: 2
+    answer: 3
+    code: |
+      d = {"x": 1}
+      print(d["y"])
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["It prints 0", "It prints None", "It prints 1", "It crashes with KeyError"]
+      explanation: "Reading a missing key with `[]` raises `KeyError`. Only `.get()` returns a default instead."
+    vi:
+      prompt: "Điều gì xảy ra khi chạy đoạn code này?"
+      options: ["In ra 0", "In ra None", "In ra 1", "Báo lỗi KeyError"]
+      explanation: "Đọc key không tồn tại bằng `[]` sẽ báo `KeyError`. Chỉ `.get()` mới trả về giá trị mặc định."
+
+  - id: p1-04-q08
+    type: fill
+    tags: [lists, loops]
+    difficulty: 2
+    code: |
+      scores = [4, 8, 6]
+      best = scores[0]
+      for s in scores:
+          if s ___ best:
+              best = s
+      print(best)  # 8
+    answer: [">"]
+    en:
+      prompt: "Fill in the blank so the code finds the largest score."
+      explanation: "Whenever a score is greater than the best so far, it becomes the new best."
+    vi:
+      prompt: "Điền vào chỗ trống để code tìm ra điểm lớn nhất."
+      explanation: "Mỗi khi một điểm lớn hơn điểm tốt nhất hiện có, nó trở thành điểm tốt nhất mới."
+
+flashcards:
+  - id: p1-04-f01
+    tags: [lists]
+    code: 'names = ["Lan", "Minh", "Hoa"]'
+    en: { front: "What are `names[0]` and `names[-1]`?", back: "`names[0]` is the first item (\"Lan\"), `names[-1]` is the last (\"Hoa\"). Indexes start at 0." }
+    vi: { front: "`names[0]` và `names[-1]` là gì?", back: "`names[0]` là phần tử đầu (\"Lan\"), `names[-1]` là phần tử cuối (\"Hoa\"). Chỉ số bắt đầu từ 0." }
+  - id: p1-04-f02
+    tags: [lists]
+    en: { front: "What does the slice `items[1:3]` return?", back: "Items at index 1 and 2. The start is included, the stop is not." }
+    vi: { front: "Slice `items[1:3]` trả về gì?", back: "Các phần tử ở chỉ số 1 và 2. Lấy điểm bắt đầu, không lấy điểm dừng." }
+  - id: p1-04-f03
+    tags: [lists]
+    en: { front: "`sorted(x)` vs sorting in place?", back: "`sorted(x)` returns a new sorted list and leaves `x` unchanged." }
+    vi: { front: "`sorted(x)` hoạt động thế nào?", back: "`sorted(x)` trả về một list mới đã sắp xếp và không thay đổi `x`." }
+  - id: p1-04-f04
+    tags: [dicts]
+    en: { front: "`d[key]` vs `d.get(key, 0)`?", back: "`d[key]` raises `KeyError` if the key is missing. `d.get(key, 0)` returns 0 instead." }
+    vi: { front: "`d[key]` khác `d.get(key, 0)` thế nào?", back: "`d[key]` báo `KeyError` nếu thiếu key. `d.get(key, 0)` trả về 0 thay vào đó." }
+  - id: p1-04-f05
+    tags: [dicts, loops]
+    code: 'for k, v in d.items():'
+    en: { front: "How do you loop over a dict's keys and values together?", back: "`for key, value in d.items():`" }
+    vi: { front: "Làm sao lặp qua cả key và value của dict?", back: "`for key, value in d.items():`" }

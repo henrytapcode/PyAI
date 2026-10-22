@@ -1,0 +1,16 @@
+id: p1-03-ex01
+kind: code
+title:
+  en: "Sum of even numbers"
+  vi: "Tổng các số chẵn"
+difficulty: 2
+tags: [loops, range, conditions]
+hints:
+  en:
+    - "Start with `total = 0`, then use `for number in range(...)` to visit the numbers. Remember `range` stops *before* its second value."
+    - "Inside the loop, use `if number % 2 == 0:` to keep only even numbers, and add them to `total`."
+    - "Shape: `total = 0` / `for number in range(1, n + 1):` / `if number % 2 == 0:` / `total += number` / then `return total` after the loop."
+  vi:
+    - "Bắt đầu với `total = 0`, rồi dùng `for number in range(...)` để duyệt các số. Nhớ `range` dừng *trước* giá trị thứ hai."
+    - "Trong vòng lặp, dùng `if number % 2 == 0:` để chỉ giữ số chẵn, rồi cộng vào `total`."
+    - "Hình dạng: `total = 0` / `for number in range(1, n + 1):` / `if number % 2 == 0:` / `total += number` / rồi `return total` sau vòng lặp."

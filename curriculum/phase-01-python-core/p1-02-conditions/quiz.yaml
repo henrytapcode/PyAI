@@ -1,0 +1,164 @@
+questions:
+  - id: p1-02-q01
+    type: mcq
+    tags: [conditions]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which line is a correct `if` statement?"
+      options: ["if x > 5", "if x > 5;", "if x > 5:", "if (x > 5) then:"]
+      explanation: "An `if` line must end with a colon `:`. The indented lines below it form the block."
+    vi:
+      prompt: "Dòng nào là câu lệnh `if` đúng?"
+      options: ["if x > 5", "if x > 5;", "if x > 5:", "if (x > 5) then:"]
+      explanation: "Dòng `if` phải kết thúc bằng dấu hai chấm `:`. Các dòng thụt lề bên dưới tạo thành khối code."
+
+  - id: p1-02-q02
+    type: output
+    tags: [conditions]
+    difficulty: 1
+    code: |
+      n = 7
+      if n % 2 == 0:
+          print("even")
+      else:
+          print("odd")
+    answer: "odd"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`7 % 2` is 1, so `n % 2 == 0` is False and the `else` branch runs."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`7 % 2` bằng 1, nên `n % 2 == 0` là False và nhánh `else` được chạy."
+
+  - id: p1-02-q03
+    type: output
+    tags: [conditions]
+    difficulty: 2
+    code: |
+      score = 75
+      if score >= 50:
+          print("pass")
+      elif score >= 70:
+          print("good")
+      else:
+          print("fail")
+    answer: "pass"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Only the first True branch runs. `75 >= 50` is True, so `elif score >= 70` is never checked. Put the stricter check first."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Chỉ nhánh True đầu tiên được chạy. `75 >= 50` đúng, nên `elif score >= 70` không bao giờ được kiểm tra. Hãy đặt điều kiện chặt hơn lên trước."
+
+  - id: p1-02-q04
+    type: mcq
+    tags: [booleans]
+    difficulty: 2
+    answer: 1
+    code: |
+      age = 30
+      is_student = False
+      print(age < 25 or is_student)
+    en:
+      prompt: "What is printed?"
+      options: ["True", "False", "30", "An error"]
+      explanation: "`age < 25` is False and `is_student` is False. `or` needs at least one True, so the result is False."
+    vi:
+      prompt: "Kết quả in ra là gì?"
+      options: ["True", "False", "30", "Lỗi"]
+      explanation: "`age < 25` là False và `is_student` cũng False. `or` cần ít nhất một vế True, nên kết quả là False."
+
+  - id: p1-02-q05
+    type: fill
+    tags: [booleans, conditions]
+    difficulty: 2
+    code: |
+      age = 20
+      has_id = True
+      if age >= 18 ___ has_id:
+          print("Enter")
+    answer: ["and"]
+    en:
+      prompt: "Fill in the blank so the person enters only if they are an adult AND have an ID."
+      explanation: "`and` requires both conditions to be True."
+    vi:
+      prompt: "Điền vào chỗ trống để người đó chỉ được vào khi đủ tuổi VÀ có giấy tờ."
+      explanation: "`and` yêu cầu cả hai điều kiện đều True."
+
+  - id: p1-02-q06
+    type: parsons
+    tags: [conditions]
+    difficulty: 2
+    lines:
+      - "temperature = 12"
+      - "if temperature < 15:"
+      - "    print(\"Take a jacket\")"
+      - "else:"
+      - "    print(\"T-shirt weather\")"
+    en:
+      prompt: "Put the lines in order so the program prints `Take a jacket`."
+      explanation: "Create the variable first, then the `if` line (ending with `:`), its indented block, then `else` with its own indented block."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Take a jacket`."
+      explanation: "Tạo biến trước, rồi đến dòng `if` (kết thúc bằng `:`) cùng khối thụt lề, sau đó là `else` với khối thụt lề riêng."
+
+  - id: p1-02-q07
+    type: output
+    tags: [booleans, conditions]
+    difficulty: 2
+    code: |
+      name = ""
+      if name:
+          print("has name")
+      else:
+          print("empty")
+      print(bool("0"))
+    answer: |-
+      empty
+      True
+    en:
+      prompt: "What does this code print?"
+      explanation: "The empty string is falsy, so `else` runs. But `\"0\"` is a non-empty string, so `bool(\"0\")` is True."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Chuỗi rỗng được coi là False nên `else` chạy. Nhưng `\"0\"` là chuỗi không rỗng nên `bool(\"0\")` là True."
+
+  - id: p1-02-q08
+    type: mcq
+    tags: [conditions, booleans]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "Which condition checks that `x` is between 1 and 10 (inclusive)?"
+      options: ["1 <= x <= 10", "x >= 1 or x <= 10", "x > 1 and x < 10", "not (x >= 1 and x <= 10)"]
+      explanation: "`1 <= x <= 10` is exactly 'x >= 1 and x <= 10'. Using `or` accepts every number, and `>`/`<` would exclude 1 and 10."
+    vi:
+      prompt: "Điều kiện nào kiểm tra `x` nằm trong khoảng từ 1 đến 10 (gồm cả hai đầu)?"
+      options: ["1 <= x <= 10", "x >= 1 or x <= 10", "x > 1 and x < 10", "not (x >= 1 and x <= 10)"]
+      explanation: "`1 <= x <= 10` chính là 'x >= 1 and x <= 10'. Dùng `or` sẽ chấp nhận mọi số, còn `>`/`<` sẽ loại 1 và 10."
+
+flashcards:
+  - id: p1-02-f01
+    tags: [conditions]
+    code: |
+      if x > 0:
+          print("positive")
+    en: { front: "What two things does an `if` line need?", back: "A condition and a colon `:` at the end. The block below must be indented (4 spaces)." }
+    vi: { front: "Dòng `if` cần hai thứ gì?", back: "Một điều kiện và dấu hai chấm `:` ở cuối. Khối code bên dưới phải thụt lề (4 dấu cách)." }
+  - id: p1-02-f02
+    tags: [conditions]
+    en: { front: "How does `elif` choose a branch?", back: "Python checks from top to bottom and runs only the first branch whose condition is True." }
+    vi: { front: "`elif` chọn nhánh như thế nào?", back: "Python kiểm tra từ trên xuống dưới và chỉ chạy nhánh đầu tiên có điều kiện True." }
+  - id: p1-02-f03
+    tags: [booleans]
+    en: { front: "`and` vs `or` vs `not`?", back: "`and`: both True. `or`: at least one True. `not`: flips True/False." }
+    vi: { front: "`and`, `or`, `not` khác nhau thế nào?", back: "`and`: cả hai True. `or`: ít nhất một True. `not`: đảo True/False." }
+  - id: p1-02-f04
+    tags: [booleans]
+    en: { front: "Which values count as False in an `if`?", back: "`0`, `0.0` and `\"\"` (empty string). Non-empty text like `\"0\"` is True." }
+    vi: { front: "Những giá trị nào được coi là False trong `if`?", back: "`0`, `0.0` và `\"\"` (chuỗi rỗng). Chuỗi không rỗng như `\"0\"` là True." }
+  - id: p1-02-f05
+    tags: [operators, conditions]
+    en: { front: "`=` vs `==`?", back: "`=` assigns a value to a variable. `==` compares two values and gives True/False." }
+    vi: { front: "`=` khác `==` thế nào?", back: "`=` gán giá trị cho biến. `==` so sánh hai giá trị và cho ra True/False." }

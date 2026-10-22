@@ -1,0 +1,259 @@
+id: placement
+kind: placement
+title:
+  en: "Placement test (Track B)"
+  vi: "Bài kiểm tra đầu vào (Track B)"
+description:
+  en: "Already know the basics? Score 80% or more to skip phase 0 and phase 1."
+  vi: "Đã biết cơ bản? Đạt từ 80% trở lên để bỏ qua phase 0 và phase 1."
+duration_min: 15
+pass_score: 0.8
+skips_phases: [p0, p1]
+questions:
+  # ---- Phase 0: setup
+  - id: place-q01
+    type: mcq
+    tags: [setup]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is the main purpose of a virtual environment?"
+      options:
+        - "To make Python run faster"
+        - "To keep each project's packages separate from other projects"
+        - "To back up your code to the cloud"
+        - "To run Python without installing it"
+      explanation: "A virtual environment isolates dependencies per project, so versions do not clash between projects."
+    vi:
+      prompt: "Mục đích chính của môi trường ảo (virtual environment) là gì?"
+      options:
+        - "Để Python chạy nhanh hơn"
+        - "Để tách các package của mỗi project khỏi các project khác"
+        - "Để sao lưu code lên cloud"
+        - "Để chạy Python mà không cần cài đặt"
+      explanation: "Môi trường ảo cô lập dependency theo từng project, nên các phiên bản không xung đột giữa các project."
+
+  - id: place-q02
+    type: mcq
+    tags: [setup]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which command adds the `requests` package to a uv project and records it in `pyproject.toml`?"
+      options: ["uv add requests", "uv run requests", "uv init requests", "uv python requests"]
+      explanation: "`uv add` installs the package into the project's environment and updates `pyproject.toml` and the lock file."
+    vi:
+      prompt: "Lệnh nào thêm package `requests` vào project uv và ghi vào `pyproject.toml`?"
+      options: ["uv add requests", "uv run requests", "uv init requests", "uv python requests"]
+      explanation: "`uv add` cài package vào môi trường của project và cập nhật `pyproject.toml` cùng file lock."
+
+  - id: place-q03
+    type: mcq
+    tags: [setup]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "You edited a file and ran `git add .`. Which command now saves the staged changes into the project history?"
+      options: ["git status", "git push", "git commit -m \"message\"", "git clone"]
+      explanation: "`git commit` records the staged changes as a snapshot. `git push` only uploads existing commits to a remote."
+    vi:
+      prompt: "Bạn đã sửa file và chạy `git add .`. Lệnh nào lưu các thay đổi đã stage vào lịch sử project?"
+      options: ["git status", "git push", "git commit -m \"message\"", "git clone"]
+      explanation: "`git commit` ghi các thay đổi đã stage thành một snapshot. `git push` chỉ đẩy các commit có sẵn lên remote."
+
+  # ---- Phase 1: Python core
+  - id: place-q04
+    type: output
+    tags: [strings]
+    difficulty: 2
+    code: |
+      x = 3.14159
+      print(f"{x:.2f}|{7:03d}")
+    answer: "3.14|007"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`.2f` rounds to 2 decimals and `03d` pads the integer with zeros to width 3."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`.2f` làm tròn đến 2 chữ số thập phân và `03d` đệm số nguyên bằng số 0 cho đủ độ rộng 3."
+
+  - id: place-q05
+    type: output
+    tags: [booleans]
+    difficulty: 2
+    code: |
+      print(bool([]), bool([0]), "a" or "b", 0 or "b")
+    answer: "False True a b"
+    en:
+      prompt: "What does this code print?"
+      explanation: "An empty list is falsy, but `[0]` has one item so it is truthy. `or` returns the first truthy operand: \"a\", then \"b\" because 0 is falsy."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "List rỗng là falsy, nhưng `[0]` có một phần tử nên là truthy. `or` trả về toán hạng truthy đầu tiên: \"a\", rồi \"b\" vì 0 là falsy."
+
+  - id: place-q06
+    type: output
+    tags: [operators]
+    difficulty: 3
+    code: |
+      print(-7 // 2, -7 % 2, round(2.5))
+    answer: "-4 1 2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`//` floors toward negative infinity: -3.5 becomes -4, and the remainder is then 1. `round(2.5)` rounds half to the nearest even number, 2."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`//` làm tròn xuống về phía âm vô cùng: -3.5 thành -4, và phần dư khi đó là 1. `round(2.5)` làm tròn nửa về số chẵn gần nhất, tức 2."
+
+  - id: place-q07
+    type: output
+    tags: [loops]
+    difficulty: 2
+    code: |
+      found = []
+      for n in range(2, 8):
+          if n % 2 == 0:
+              continue
+          if n > 5:
+              break
+          found.append(n)
+      print(found)
+    answer: "[3, 5]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Even numbers are skipped by `continue`. 3 and 5 are appended. At 7 (odd and greater than 5) the loop breaks."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Số chẵn bị `continue` bỏ qua. 3 và 5 được thêm vào. Đến 7 (lẻ và lớn hơn 5) vòng lặp dừng bằng `break`."
+
+  - id: place-q08
+    type: mcq
+    tags: [lists]
+    difficulty: 2
+    answer: 2
+    code: |
+      a = [1, 2]
+      b = a
+      b.append(3)
+      print(a)
+    en:
+      prompt: "What does this code print?"
+      options: ["[1, 2]", "[3]", "[1, 2, 3]", "An error"]
+      explanation: "`b = a` does not copy the list; both names point to the same object, so the change shows through `a`. Use `a.copy()` for a copy."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["[1, 2]", "[3]", "[1, 2, 3]", "Lỗi"]
+      explanation: "`b = a` không sao chép list; cả hai tên cùng trỏ tới một đối tượng, nên thay đổi hiện ra ở `a`. Dùng `a.copy()` để tạo bản sao."
+
+  - id: place-q09
+    type: fill
+    tags: [dicts]
+    difficulty: 2
+    code: |
+      text = "a b a c a b"
+      counts = {}
+      for w in text.split():
+          counts[w] = counts.get(w, ___) + 1
+      print(counts["a"])  # 3
+    answer: ["0"]
+    en:
+      prompt: "Fill in the blank to count how often each word appears."
+      explanation: "The first time a word is seen, `get` must return 0 so that adding 1 starts the count at 1."
+    vi:
+      prompt: "Điền vào chỗ trống để đếm số lần mỗi từ xuất hiện."
+      explanation: "Lần đầu gặp một từ, `get` phải trả về 0 để cộng thêm 1 thì bộ đếm bắt đầu từ 1."
+
+  - id: place-q10
+    type: output
+    tags: [lists]
+    difficulty: 3
+    code: |
+      words = ["pear", "fig", "apple"]
+      words.sort(key=len)
+      print(words[0], words[::-1][0])
+    answer: "fig apple"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Sorting by length gives fig, pear, apple. The first is \"fig\"; reversing makes \"apple\" the first item."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Sắp xếp theo độ dài cho fig, pear, apple. Phần tử đầu là \"fig\"; đảo ngược thì \"apple\" thành phần tử đầu."
+
+  - id: place-q11
+    type: mcq
+    tags: [functions]
+    difficulty: 3
+    answer: 1
+    code: |
+      def add(x, items=[]):
+          items.append(x)
+          return items
+
+      add(1)
+      print(add(2))
+    en:
+      prompt: "What does this code print?"
+      options: ["[2]", "[1, 2]", "[1]", "[]"]
+      explanation: "The default list is created once, when the function is defined, and shared by all calls. Use `items=None` and create the list inside the function."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["[2]", "[1, 2]", "[1]", "[]"]
+      explanation: "List mặc định được tạo một lần khi hàm được định nghĩa và dùng chung cho mọi lần gọi. Hãy dùng `items=None` rồi tạo list bên trong hàm."
+
+  - id: place-q12
+    type: output
+    tags: [scope]
+    difficulty: 3
+    code: |
+      x = "global"
+
+      def outer():
+          x = "outer"
+
+          def inner():
+              return x
+
+          return inner()
+
+      print(outer(), x)
+    answer: "outer global"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`inner` looks up `x` in the nearest enclosing scope first, which is `outer`'s \"outer\". The global `x` is unchanged."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`inner` tìm `x` ở phạm vi bao ngoài gần nhất trước, tức \"outer\" của hàm `outer`. `x` toàn cục không đổi."
+
+  - id: place-q13
+    type: parsons
+    tags: [exceptions, functions]
+    difficulty: 2
+    lines:
+      - "def safe_div(a, b):"
+      - "    try:"
+      - "        return a / b"
+      - "    except ZeroDivisionError:"
+      - "        return None"
+      - "print(safe_div(1, 0))"
+    en:
+      prompt: "Put the lines in order so the program prints `None`."
+      explanation: "The `try` body comes first, its `except` handler follows at the same indentation as `try`, and the call comes after the function definition."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `None`."
+      explanation: "Thân `try` đứng trước, `except` theo sau cùng mức thụt lề với `try`, và lời gọi hàm đứng sau phần định nghĩa."
+
+  - id: place-q14
+    type: fill
+    tags: [modules]
+    difficulty: 1
+    code: |
+      import ___
+
+      print(math.sqrt(16))  # 4.0
+    answer: ["math"]
+    en:
+      prompt: "Fill in the blank with the standard-library module that provides `sqrt`."
+      explanation: "`import math` makes the `math` module available as `math.sqrt`, `math.pi`, and so on."
+    vi:
+      prompt: "Điền tên module trong thư viện chuẩn cung cấp `sqrt`."
+      explanation: "`import math` giúp dùng module `math` như `math.sqrt`, `math.pi`, v.v."

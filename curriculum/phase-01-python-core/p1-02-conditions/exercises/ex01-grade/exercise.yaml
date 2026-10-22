@@ -1,0 +1,16 @@
+id: p1-02-ex01
+kind: code
+title:
+  en: "Letter grades"
+  vi: "Xếp loại điểm"
+difficulty: 1
+tags: [conditions, operators]
+hints:
+  en:
+    - "You need one `if` and several `elif`s, ending with an `else`. Which score is the highest threshold?"
+    - "Start with the highest grade: `if score >= 90: return \"A\"`, then `elif score >= 80:` and so on. Order matters."
+    - "Shape: `if score >= 90:` return A / `elif score >= 80:` return B / `elif score >= 70:` / `elif score >= 60:` / `else:` return F."
+  vi:
+    - "Bạn cần một `if`, vài `elif`, và kết thúc bằng `else`. Mốc điểm nào cao nhất?"
+    - "Bắt đầu từ hạng cao nhất: `if score >= 90: return \"A\"`, rồi `elif score >= 80:` và tiếp tục. Thứ tự rất quan trọng."
+    - "Khung: `if score >= 90:` return A / `elif score >= 80:` return B / `elif score >= 70:` / `elif score >= 60:` / `else:` return F."

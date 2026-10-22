@@ -1,0 +1,16 @@
+id: p1-04-ex02
+kind: debug
+title:
+  en: "Debug: who passed?"
+  vi: "Debug: ai đã đậu?"
+difficulty: 2
+tags: [dicts, lists, loops]
+hints:
+  en:
+    - "Try it on a dict like `{\"Lan\": 5, \"Minh\": 8}` with threshold 5. Is Lan in the result? Is the result a list of names?"
+    - "There are three bugs: the comparison, what gets appended, and the order of the result."
+    - "Use `>=`, append `name` (not `score`), and `return sorted(result)`."
+  vi:
+    - "Thử với dict như `{\"Lan\": 5, \"Minh\": 8}` và threshold 5. Lan có trong kết quả không? Kết quả có phải list tên không?"
+    - "Có ba lỗi: phép so sánh, thứ được thêm vào list, và thứ tự của kết quả."
+    - "Dùng `>=`, append `name` (không phải `score`), và `return sorted(result)`."

@@ -102,7 +102,8 @@ class _CaptureResult(tuple):
 class _Capsys:
     def __init__(self, out: io.StringIO, err: io.StringIO):
         self._out, self._err = out, err
-        self._o = self._e = 0
+        # Start from the current end so each test only sees its own output.
+        self._o, self._e = len(out.getvalue()), len(err.getvalue())
 
     def readouterr(self):
         out, err = self._out.getvalue(), self._err.getvalue()
