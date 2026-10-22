@@ -124,6 +124,120 @@ questions:
       options: ["5.0 (float)", "5 (int)", "5 (str)", "2 (int)"]
       explanation: "Trong Python 3, `/` luôn trả về float. Dùng `//` nếu muốn chia lấy số nguyên."
 
+  - id: p1-01-q09
+    type: fill
+    tags: [operators]
+    difficulty: 1
+    code: |
+      apples = 17
+      per_box = 5
+      full_boxes = apples ___ per_box
+      left_over = apples ___ per_box
+      print(full_boxes, left_over)  # 3 2
+    answer: ["//", "%"]
+    en:
+      prompt: "Fill in the operators so the code prints `3 2` (full boxes and apples left over)."
+      explanation: "`17 // 5` is floor division (3 full boxes) and `17 % 5` is the remainder (2 apples left)."
+    vi:
+      prompt: "Điền toán tử để code in ra `3 2` (số hộp đầy và số táo còn dư)."
+      explanation: "`17 // 5` là chia lấy phần nguyên (3 hộp đầy), `17 % 5` là phần dư (còn 2 quả)."
+
+  - id: p1-01-q10
+    type: fill
+    tags: [strings, variables]
+    difficulty: 2
+    code: |
+      model = "gpt"
+      tokens = 128
+      print(___"{model} used {tokens} tokens")
+    answer: ["f"]
+    en:
+      prompt: "Fill in the blank so the values of the variables appear in the text."
+      explanation: "Without the `f` prefix, `{model}` is printed literally. The `f` turns the string into an f-string."
+    vi:
+      prompt: "Điền vào chỗ trống để giá trị của các biến xuất hiện trong chuỗi."
+      explanation: "Không có tiền tố `f` thì `{model}` được in nguyên văn. Chữ `f` biến chuỗi thành f-string."
+
+  - id: p1-01-q11
+    type: parsons
+    tags: [conversion]
+    difficulty: 2
+    lines:
+      - "price_text = \"19.5\""
+      - "price = float(price_text)"
+      - "total = price * 2"
+      - "print(f\"Total: {total}\")"
+    en:
+      prompt: "Put the lines in order: read a price that arrived as text, double it and print `Total: 39.0`."
+      explanation: "Text first, then convert it, then compute, then print. Each line uses the variable created by the line above."
+    vi:
+      prompt: "Sắp xếp các dòng: đọc giá tiền nhận được dưới dạng văn bản, nhân đôi và in ra `Total: 39.0`."
+      explanation: "Có văn bản trước, rồi chuyển kiểu, rồi tính, rồi in. Mỗi dòng dùng biến do dòng phía trên tạo ra."
+
+  - id: p1-01-q12
+    type: output
+    tags: [conversion, strings]
+    difficulty: 2
+    code: |
+      a = "3"
+      b = 4
+      print(a * 2, b * 2)
+    answer: "33 8"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A string times a number repeats the text: `\"3\" * 2` is `\"33\"`. An int times a number is normal maths: `4 * 2` is `8`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Chuỗi nhân với số sẽ lặp lại văn bản: `\"3\" * 2` là `\"33\"`. Số nguyên nhân số là phép nhân bình thường: `4 * 2` là `8`."
+
+  - id: p1-01-q13
+    type: mcq
+    tags: [conversion]
+    difficulty: 2
+    answer: 2
+    code: |
+      value = int("2.5")
+    en:
+      prompt: "What happens when this line runs?"
+      options: ["`value` becomes 2", "`value` becomes 3", "It crashes with `ValueError`", "`value` becomes 2.5"]
+      explanation: "`int()` only reads text that looks like a whole number. For decimals use `float(\"2.5\")`, and `int(2.5)` (a float, not text) gives 2."
+    vi:
+      prompt: "Điều gì xảy ra khi dòng này chạy?"
+      options: ["`value` thành 2", "`value` thành 3", "Lỗi `ValueError`", "`value` thành 2.5"]
+      explanation: "`int()` chỉ đọc được văn bản trông như số nguyên. Với số thập phân hãy dùng `float(\"2.5\")`; còn `int(2.5)` (là float, không phải văn bản) cho ra 2."
+
+  - id: p1-01-q14
+    type: mcq
+    tags: [types, booleans]
+    difficulty: 1
+    answer: 1
+    code: |
+      is_ready = 10 > 3
+    en:
+      prompt: "What is the type of `is_ready`?"
+      options: ["int", "bool", "str", "float"]
+      explanation: "A comparison answers a yes/no question, so the result is a `bool` (`True` here)."
+    vi:
+      prompt: "`is_ready` có kiểu gì?"
+      options: ["int", "bool", "str", "float"]
+      explanation: "Phép so sánh trả lời câu hỏi có/không, nên kết quả là `bool` (ở đây là `True`)."
+
+  - id: p1-01-q15
+    type: parsons
+    tags: [variables, operators]
+    difficulty: 3
+    lines:
+      - "balance = 100"
+      - "balance = balance - 30"
+      - "balance = balance * 2"
+      - "print(balance)  # 140"
+    en:
+      prompt: "Put the lines in order so the program prints `140`."
+      explanation: "100 - 30 = 70, then 70 * 2 = 140. Doing the multiplication first would give 100 * 2 - 30 = 170, so the order matters."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `140`."
+      explanation: "100 - 30 = 70, rồi 70 * 2 = 140. Nếu nhân trước sẽ được 100 * 2 - 30 = 170, nên thứ tự rất quan trọng."
+
 flashcards:
   - id: p1-01-f01
     tags: [types]
@@ -146,3 +260,8 @@ flashcards:
     code: 'print(f"{name} is {age}")'
     en: { front: "What is an f-string?", back: "A string prefixed with `f` where `{expression}` is replaced by its value." }
     vi: { front: "f-string là gì?", back: "Chuỗi có tiền tố `f`, trong đó `{biểu thức}` được thay bằng giá trị của nó." }
+  - id: p1-01-f06
+    tags: [variables]
+    code: "score = score + 5"
+    en: { front: "In `score = score + 5`, which side runs first?", back: "The right side: Python computes `score + 5` with the old value, then stores the result back in `score`." }
+    vi: { front: "Trong `score = score + 5`, vế nào chạy trước?", back: "Vế phải: Python tính `score + 5` bằng giá trị cũ, rồi lưu kết quả vào lại `score`." }

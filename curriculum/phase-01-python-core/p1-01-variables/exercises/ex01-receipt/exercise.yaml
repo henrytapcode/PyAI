@@ -7,10 +7,32 @@ difficulty: 1
 tags: [variables, operators, strings]
 hints:
   en:
-    - "Each `___` is one blank. Replace it with a value or a variable name."
-    - "`total` is the price multiplied by the quantity. Which variable holds the quantity?"
-    - "Inside the f-string, put the name of the variable that holds the total between `{}`."
+    - "This uses §1 (storing a value) and §5 (f-strings). There are 3 blanks. The tests expect `quantity == 3`, `total == 37.5` and `label == \"3 x notebook = 37.5\"`."
+    - |
+      Fill the blanks one at a time, top to bottom:
+      1. `quantity` must hold the whole number `3` (no quotes, so it is an `int`).
+      2. `total` is `price` times the quantity: the second blank is a variable name.
+      3. Inside `{}` in the f-string, write the name of the variable that holds the total.
+    - |
+      Two of the three lines, finished:
+      ```python
+      quantity = 3
+      total = price * quantity
+      label = f"{quantity} x {item} = {...}"
+      ```
+      Which variable holds `37.5`? Put its name where the `...` is.
   vi:
-    - "Mỗi `___` là một chỗ trống. Thay nó bằng một giá trị hoặc tên biến."
-    - "`total` là giá nhân với số lượng. Biến nào đang giữ số lượng?"
-    - "Trong f-string, đặt tên biến chứa tổng tiền vào giữa `{}`."
+    - "Bài này dùng §1 (lưu giá trị) và §5 (f-string). Có 3 chỗ trống. Test cần `quantity == 3`, `total == 37.5` và `label == \"3 x notebook = 37.5\"`."
+    - |
+      Điền lần lượt từng chỗ trống, từ trên xuống:
+      1. `quantity` phải chứa số nguyên `3` (không có dấu nháy, để nó là `int`).
+      2. `total` là `price` nhân số lượng: chỗ trống thứ hai là một tên biến.
+      3. Trong `{}` của f-string, viết tên biến đang chứa tổng tiền.
+    - |
+      Hai trong ba dòng đã hoàn chỉnh:
+      ```python
+      quantity = 3
+      total = price * quantity
+      label = f"{quantity} x {item} = {...}"
+      ```
+      Biến nào đang giữ `37.5`? Đặt tên nó vào chỗ `...`.

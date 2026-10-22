@@ -7,10 +7,30 @@ difficulty: 2
 tags: [conversion, types, strings]
 hints:
   en:
-    - "Run the code first and read the error. Which line crashes, and why?"
-    - "`age_text` and `height_text` are strings. One holds a whole number, the other a decimal. Which conversion function fits each?"
-    - "You cannot join a str with an int using `+`. An f-string like `f\"Age {age}, ...\"` converts values for you."
+    - "This is §6 (converting types). Press **Run** first: the error message names the line that crashes. There are 3 bugs, one on each of the lines that create `age`, `height` and `summary`."
+    - |
+      Fix them in this order:
+      1. `age` is still the text `"29"`. Convert it to a whole number.
+      2. `height_text` is `"1.72"`, a decimal. `int()` cannot read decimals: which function can?
+      3. `summary` joins text and numbers with `+`, which crashes. Rebuild it with an f-string.
+    - |
+      The fixed lines look like this:
+      ```python
+      age = int(age_text)
+      height = ...(height_text)
+      summary = f"Age {age}, height {...}m"
+      ```
   vi:
-    - "Chạy code trước rồi đọc lỗi. Dòng nào bị lỗi, vì sao?"
-    - "`age_text` và `height_text` là chuỗi. Một cái là số nguyên, cái kia là số thập phân. Hàm chuyển kiểu nào hợp với từng cái?"
-    - "Không thể nối str với int bằng `+`. f-string như `f\"Age {age}, ...\"` sẽ tự chuyển giá trị cho bạn."
+    - "Bài này thuộc §6 (chuyển kiểu). Bấm **Run** trước: thông báo lỗi chỉ ra dòng bị lỗi. Có 3 lỗi, mỗi lỗi nằm ở một dòng tạo `age`, `height` và `summary`."
+    - |
+      Sửa theo thứ tự này:
+      1. `age` vẫn đang là văn bản `"29"`. Hãy chuyển nó thành số nguyên.
+      2. `height_text` là `"1.72"`, một số thập phân. `int()` không đọc được số thập phân: hàm nào đọc được?
+      3. `summary` nối văn bản với số bằng `+` nên bị lỗi. Viết lại bằng f-string.
+    - |
+      Các dòng sau khi sửa trông như sau:
+      ```python
+      age = int(age_text)
+      height = ...(height_text)
+      summary = f"Age {age}, height {...}m"
+      ```
