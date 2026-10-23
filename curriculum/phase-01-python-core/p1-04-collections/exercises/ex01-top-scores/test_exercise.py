@@ -1,22 +1,27 @@
-from exercise import word_count
+from exercise import top_scores
 
 
-def test_returns_empty_dict_for_empty_list():
-    assert word_count([]) == {}
+def test_returns_the_biggest_first():
+    assert top_scores([0.5, 0.9, 0.7, 0.8], 2) == [0.9, 0.8], "sort biggest first, then keep n"
 
 
-def test_counts_a_single_word():
-    assert word_count(["ai"]) == {"ai": 1}
+def test_returns_everything_when_n_is_larger_than_the_list():
+    assert top_scores([3, 1, 2], 5) == [3, 2, 1]
 
 
-def test_counts_repeated_words():
-    assert word_count(["ai", "is", "fun", "ai"]) == {"ai": 2, "is": 1, "fun": 1}
+def test_empty_list_gives_empty_list():
+    assert top_scores([], 3) == []
 
 
-def test_words_are_case_sensitive():
-    assert word_count(["AI", "ai", "AI"]) == {"AI": 2, "ai": 1}
+def test_n_zero_gives_empty_list():
+    assert top_scores([4, 8], 0) == []
 
 
-def test_counts_a_longer_sentence():
-    words = ["to", "be", "or", "not", "to", "be"]
-    assert word_count(words) == {"to": 2, "be": 2, "or": 1, "not": 1}
+def test_keeps_duplicate_scores():
+    assert top_scores([5, 9, 5, 9, 1], 3) == [9, 9, 5]
+
+
+def test_does_not_change_the_original_list():
+    scores = [3, 1, 2]
+    top_scores(scores, 2)
+    assert scores == [3, 1, 2], "use sorted(), not scores.sort(), so the original is left alone"

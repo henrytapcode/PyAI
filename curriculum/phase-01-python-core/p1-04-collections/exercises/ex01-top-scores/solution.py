@@ -1,6 +1,4 @@
-def word_count(words):
-    """Return a dict mapping each word in `words` to how many times it appears."""
-    counts = {}
-    for word in words:
-        counts[word] = counts.get(word, 0) + 1
-    return counts
+def top_scores(scores, n):
+    """Return the n biggest numbers in `scores`, biggest first."""
+    ordered = sorted(scores, reverse=True)
+    return ordered[:n]

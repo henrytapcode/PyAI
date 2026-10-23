@@ -7,10 +7,34 @@ difficulty: 2
 tags: [dicts, lists, loops]
 hints:
   en:
-    - "Try it on a dict like `{\"Lan\": 5, \"Minh\": 8}` with threshold 5. Is Lan in the result? Is the result a list of names?"
-    - "There are three bugs: the comparison, what gets appended, and the order of the result."
-    - "Use `>=`, append `name` (not `score`), and `return sorted(result)`."
+    - |
+      This uses looping over a dict (§7) and building a new list (§11). Press **Check** and read the failing tests. For `passed({"Minh": 8, "Lan": 5, "Hoa": 3}, 5)` the answer is `["Lan", "Minh"]`: Lan has exactly 5 and still passes. There are 3 bugs.
+    - |
+      Check the three lines one by one:
+      1. The comparison: does a score equal to `threshold` count as passed? (The prompt says "at least".)
+      2. What goes into `result`: the example wants only names, but the code appends a `(name, score)` pair.
+      3. The order: the example wants `["Lan", "Minh"]`, alphabetical. Which built-in from §5 gives a sorted copy?
+    - |
+      The fixed code has this shape:
+      ```python
+      if score ... threshold:
+          result.append(...)
+      return sorted(...)
+      ```
+      Fill the three gaps: which comparison, what to append, and what to sort.
   vi:
-    - "Thử với dict như `{\"Lan\": 5, \"Minh\": 8}` và threshold 5. Lan có trong kết quả không? Kết quả có phải list tên không?"
-    - "Có ba lỗi: phép so sánh, thứ được thêm vào list, và thứ tự của kết quả."
-    - "Dùng `>=`, append `name` (không phải `score`), và `return sorted(result)`."
+    - |
+      Bài này dùng lặp qua dict (§7) và tạo list mới (§11). Bấm **Check** và đọc các test đang đỏ. Với `passed({"Minh": 8, "Lan": 5, "Hoa": 3}, 5)` đáp án là `["Lan", "Minh"]`: Lan có đúng 5 điểm và vẫn đậu. Có 3 lỗi.
+    - |
+      Kiểm tra từng dòng một:
+      1. Phép so sánh: điểm bằng `threshold` có được tính là đậu không? (Đề bài nói "từ ... trở lên".)
+      2. Thứ được bỏ vào `result`: ví dụ chỉ cần tên, nhưng code lại thêm cả cặp `(name, score)`.
+      3. Thứ tự: ví dụ cần `["Lan", "Minh"]`, theo bảng chữ cái. Hàm có sẵn nào ở §5 cho ra bản sao đã sắp xếp?
+    - |
+      Code sau khi sửa có dạng như sau:
+      ```python
+      if score ... threshold:
+          result.append(...)
+      return sorted(...)
+      ```
+      Điền ba chỗ trống: dùng phép so sánh nào, thêm cái gì vào list, và sắp xếp cái gì.

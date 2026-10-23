@@ -1,16 +1,40 @@
 id: p1-04-ex01
 kind: code
 title:
-  en: "Count the words"
-  vi: "Đếm từ"
+  en: "Top scores"
+  vi: "Điểm cao nhất"
 difficulty: 2
-tags: [dicts, lists, loops]
+tags: [lists, loops]
 hints:
   en:
-    - "Start with an empty dict, then loop over `words` with `for word in words:`."
-    - "For each word, the new count is the old count plus 1. If the word is new, the old count is 0."
-    - "`counts[word] = counts.get(word, 0) + 1` inside the loop, then `return counts` after it."
+    - |
+      This uses `sorted(..., reverse=True)` (§5) and slicing (§3). For `top_scores([0.5, 0.9, 0.7], 2)` you must return `[0.9, 0.7]`: the 2 biggest, biggest first.
+    - |
+      The plan:
+      1. Make a sorted copy of `scores`, biggest first.
+      2. Keep only the first `n` items of that copy.
+      3. Return them.
+      Remember that a slice never crashes, even when `n` is bigger than the list.
+    - |
+      The shape:
+      ```python
+      ordered = sorted(scores, reverse=...)
+      return ordered[...]
+      ```
+      Which slice means "the first `n` items"?
   vi:
-    - "Bắt đầu với một dict rỗng, rồi lặp qua `words` bằng `for word in words:`."
-    - "Với mỗi từ, số đếm mới bằng số đếm cũ cộng 1. Nếu từ chưa có thì số đếm cũ là 0."
-    - "`counts[word] = counts.get(word, 0) + 1` bên trong vòng lặp, rồi `return counts` ở sau vòng lặp."
+    - |
+      Bài này dùng `sorted(..., reverse=True)` (§5) và slicing (§3). Với `top_scores([0.5, 0.9, 0.7], 2)` bạn phải trả về `[0.9, 0.7]`: 2 điểm lớn nhất, điểm lớn nhất đứng đầu.
+    - |
+      Kế hoạch:
+      1. Tạo một bản sao đã sắp xếp của `scores`, lớn nhất trước.
+      2. Chỉ giữ `n` phần tử đầu của bản sao đó.
+      3. Trả về chúng.
+      Nhớ rằng slice không bao giờ gây lỗi, kể cả khi `n` lớn hơn độ dài list.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      ordered = sorted(scores, reverse=...)
+      return ordered[...]
+      ```
+      Slice nào có nghĩa là "`n` phần tử đầu tiên"?

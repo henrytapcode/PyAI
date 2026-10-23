@@ -135,6 +135,132 @@ questions:
       prompt: "Điền vào chỗ trống để code tìm ra điểm lớn nhất."
       explanation: "Mỗi khi một điểm lớn hơn điểm tốt nhất hiện có, nó trở thành điểm tốt nhất mới."
 
+  - id: p1-04-q09
+    type: mcq
+    tags: [lists]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "How do you add 5 to the end of the list `nums`?"
+      options: ["`nums.add(5)`", "`nums.append(5)`", "`nums.push(5)`", "`nums.insert(5)`"]
+      explanation: "`append` adds to the end of a list. `add` is for sets, `push` is a JavaScript habit, and `insert` needs a position first: `nums.insert(i, 5)`."
+    vi:
+      prompt: "Làm sao thêm số 5 vào cuối list `nums`?"
+      options: ["`nums.add(5)`", "`nums.append(5)`", "`nums.push(5)`", "`nums.insert(5)`"]
+      explanation: "`append` thêm vào cuối list. `add` dùng cho set, `push` là thói quen của JavaScript, còn `insert` cần vị trí trước: `nums.insert(i, 5)`."
+
+  - id: p1-04-q10
+    type: output
+    tags: [lists]
+    difficulty: 1
+    code: |
+      words = ["a", "b", "c"]
+      print("b" in words, "z" in words)
+    answer: "True False"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`in` checks whether a value is somewhere in the list. `\"b\"` is there, `\"z\"` is not."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`in` kiểm tra xem một giá trị có nằm đâu đó trong list không. `\"b\"` có trong list, `\"z\"` thì không."
+
+  - id: p1-04-q11
+    type: fill
+    tags: [lists]
+    difficulty: 2
+    code: |
+      nums = [3, 1, 2]
+      print(sorted(nums) ___ [1, 2, 3])
+    answer: ["=="]
+    en:
+      prompt: "Fill in the operator so the code prints `True`."
+      explanation: "`sorted(nums)` returns the new list `[1, 2, 3]`. `==` compares the contents of two lists. `is` checks whether they are the same object, which is `False` here."
+    vi:
+      prompt: "Điền toán tử vào chỗ trống để code in ra `True`."
+      explanation: "`sorted(nums)` trả về list mới `[1, 2, 3]`. `==` so sánh nội dung hai list. `is` kiểm tra xem có phải cùng một object không, và ở đây kết quả là `False`."
+
+  - id: p1-04-q12
+    type: parsons
+    tags: [lists]
+    difficulty: 2
+    lines:
+      - "scores = [5, 9, 7]"
+      - "ranked = sorted(scores)"
+      - "best = ranked[-1]"
+      - "print(best)"
+    en:
+      prompt: "Put the lines in order so the program prints `9`."
+      explanation: "Each line uses the variable made by the line above: `ranked` needs `scores`, and `best` needs `ranked`. Reading `scores[-1]` without sorting would print 7."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `9`."
+      explanation: "Mỗi dòng dùng biến do dòng trên tạo ra: `ranked` cần `scores`, còn `best` cần `ranked`. Nếu lấy `scores[-1]` mà không sắp xếp thì sẽ in ra 7."
+
+  - id: p1-04-q13
+    type: mcq
+    tags: [lists]
+    difficulty: 3
+    answer: 1
+    code: |
+      a = [1, 2]
+      b = a
+      b.append(3)
+    en:
+      prompt: "After this code runs, what is `a`?"
+      options: ["`[1, 2]`", "`[1, 2, 3]`", "`[3]`", "An error"]
+      explanation: "`b = a` does not copy the list. Both names point to the same list, so `append` through `b` also changes what `a` sees. Write `b = list(a)` for an independent copy."
+    vi:
+      prompt: "Sau khi chạy đoạn code này, `a` là gì?"
+      options: ["`[1, 2]`", "`[1, 2, 3]`", "`[3]`", "Lỗi"]
+      explanation: "`b = a` không sao chép list. Cả hai tên cùng trỏ đến một list, nên `append` qua `b` cũng làm thay đổi những gì `a` thấy. Muốn có bản sao độc lập, hãy viết `b = list(a)`."
+
+  - id: p1-04-q14
+    type: output
+    tags: [lists]
+    difficulty: 3
+    code: |
+      items = [3, 1, 2]
+      result = items.sort()
+      print(result, items)
+    answer: "None [1, 2, 3]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`list.sort()` sorts the list in place and returns `None`. `sorted(items)` would return a new list instead. So `result = items.sort()` stores `None`, not the sorted list."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`list.sort()` sắp xếp list ngay tại chỗ và trả về `None`. `sorted(items)` thì trả về list mới. Vì vậy `result = items.sort()` lưu `None`, không phải list đã sắp xếp."
+
+  - id: p1-04-q15
+    type: mcq
+    tags: [dicts, loops]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "Which line adds 1 to `counts[word]` when `word` is not in the dict yet?"
+      options: ["`counts[word] += 1`", "`counts[word] = counts.get(word, 0) + 1`", "`counts.get(word) += 1`", "`counts[word] = counts.get(word) + 1`"]
+      explanation: "`counts[word] += 1` reads the missing key first, so it raises `KeyError`. `.get(word)` with no default returns `None`, and `None + 1` fails. `.get(word, 0)` supplies the starting count."
+    vi:
+      prompt: "Dòng nào cộng 1 vào `counts[word]` khi `word` chưa có trong dict?"
+      options: ["`counts[word] += 1`", "`counts[word] = counts.get(word, 0) + 1`", "`counts.get(word) += 1`", "`counts[word] = counts.get(word) + 1`"]
+      explanation: "`counts[word] += 1` đọc key chưa có trước nên báo `KeyError`. `.get(word)` không có giá trị mặc định sẽ trả về `None`, và `None + 1` bị lỗi. `.get(word, 0)` cung cấp số đếm bắt đầu."
+
+  - id: p1-04-q16
+    type: parsons
+    tags: [dicts, loops]
+    difficulty: 3
+    lines:
+      - 'rows = [("Lan", 9), ("Minh", 7), ("Hoa", 8)]'
+      - 'best_name, best_score = rows[0]'
+      - 'for name, score in rows:'
+      - '    if score > best_score:'
+      - '        best_name, best_score = name, score'
+      - 'print(best_name)'
+    en:
+      prompt: "Put the lines in order so the program prints `Lan`."
+      explanation: "The best starts as the first row, the loop compares each score with it, and only then is the result printed. Every line needs the one before it, and the `if` must sit inside the loop."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Lan`."
+      explanation: "Người đứng đầu ban đầu là dòng đầu tiên, vòng lặp so sánh từng điểm với nó, rồi mới in kết quả. Mỗi dòng cần dòng đứng trước, và `if` phải nằm trong vòng lặp."
+
 flashcards:
   - id: p1-04-f01
     tags: [lists]
@@ -158,3 +284,10 @@ flashcards:
     code: 'for k, v in d.items():'
     en: { front: "How do you loop over a dict's keys and values together?", back: "`for key, value in d.items():`" }
     vi: { front: "Làm sao lặp qua cả key và value của dict?", back: "`for key, value in d.items():`" }
+  - id: p1-04-f06
+    tags: [lists]
+    code: |
+      a = [1, 2]
+      b = a
+    en: { front: "After `b = a` with lists, what happens when you change `b`?", back: "`a` changes too: both names point to the same list. Use `b = list(a)` for an independent copy." }
+    vi: { front: "Với list, sau `b = a` thì điều gì xảy ra khi đổi `b`?", back: "`a` cũng đổi: hai tên cùng trỏ đến một list. Dùng `b = list(a)` để có bản sao độc lập." }
