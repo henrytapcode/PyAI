@@ -7,10 +7,58 @@ difficulty: 3
 tags: [functions, dicts, loops, lists]
 hints:
   en:
-    - "`average` and `letter_grade` are already written for you. Compute one average per student inside a loop, and use it for the sum, the best/worst check and the grade count."
-    - "Start `grade_counts` as `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` and add 1 to the right key for each student. Handle the empty class first with an early `return`. For best and worst, remember the best name and best average so far, and replace them when a student has a higher average, or the same average and an earlier name."
-    - "Shape: `best_name = students[0][\"name\"]`; `best_avg = average(students[0][\"scores\"])` (same for worst); `for student in students:` compute `avg`; `total += ___`; `grade_counts[letter_grade(___)] += 1`; `if avg > best_avg or (avg == best_avg and student[\"name\"] < ___):` update `best_name` and `best_avg`; the same idea with `<` for worst."
+    - |
+      This combines the loop-with-"best so far" idea and the counting dict from section 9. `average` and `letter_grade` are already written, so you only call them. For a class of `An` (average 8.17) and `Binh` (average 9.0) you must return `count` 2, `best` `"Binh"`, `worst` `"An"`, and `grade_counts` `{"A": 1, "B": 1, "C": 0, "D": 0, "F": 0}`. Compute each student's average once, inside one loop, and use it for everything.
+    - |
+      Plan:
+      1. Create `grade_counts` with all five letters set to `0`.
+      2. If `students` is empty, return the empty-class dict right away.
+      3. Set `best_name`, `best_avg`, `worst_name`, `worst_avg` from the first student, and `total = 0`.
+      4. Loop over the students: compute `avg`, add it to `total`, and add 1 to `grade_counts[letter_grade(avg)]`.
+      5. Still in the loop: if `avg` is higher than `best_avg` (or equal with an earlier name), replace the best. Do the mirror image for the worst.
+      6. Return the dict. The mean is `total / len(students)`.
+    - |
+      The shape of the loop and the return:
+      ```python
+      for student in students:
+          name = student["name"]
+          avg = average(student["scores"])
+          total += avg
+          grade_counts[letter_grade(avg)] += 1
+          if avg > best_avg or (avg == best_avg and name < best_name):
+              best_name = name
+              best_avg = avg
+          if avg < worst_avg or ...:
+              ...
+
+      return {"count": len(students), "mean": total / ..., "best": best_name,
+              "worst": worst_name, "grade_counts": grade_counts}
+      ```
   vi:
-    - "`average` và `letter_grade` đã được viết sẵn. Hãy tính điểm trung bình của từng học sinh trong một vòng lặp, rồi dùng nó để cộng tổng, kiểm tra tốt nhất/kém nhất và đếm xếp loại."
-    - "Bắt đầu `grade_counts` là `{\"A\": 0, \"B\": 0, \"C\": 0, \"D\": 0, \"F\": 0}` rồi cộng 1 vào đúng khóa cho mỗi học sinh. Xử lý lớp rỗng trước bằng một `return` sớm. Với tốt nhất và kém nhất, hãy nhớ tên và điểm tốt nhất cho đến lúc này, và thay thế khi một học sinh có điểm cao hơn, hoặc cùng điểm nhưng tên đứng trước."
-    - "Khung: `best_name = students[0][\"name\"]`; `best_avg = average(students[0][\"scores\"])` (worst làm tương tự); `for student in students:` tính `avg`; `total += ___`; `grade_counts[letter_grade(___)] += 1`; `if avg > best_avg or (avg == best_avg and student[\"name\"] < ___):` cập nhật `best_name` và `best_avg`; worst cùng ý tưởng nhưng dùng `<`."
+    - |
+      Bài này kết hợp ý tưởng vòng lặp với "người tốt nhất cho đến lúc này" và dict đếm ở phần 9. `average` và `letter_grade` đã được viết sẵn, bạn chỉ cần gọi chúng. Với lớp có `An` (trung bình 8.17) và `Binh` (trung bình 9.0), bạn phải trả về `count` là 2, `best` là `"Binh"`, `worst` là `"An"`, và `grade_counts` là `{"A": 1, "B": 1, "C": 0, "D": 0, "F": 0}`. Hãy tính điểm trung bình của mỗi học sinh một lần, trong một vòng lặp, và dùng nó cho mọi việc.
+    - |
+      Kế hoạch:
+      1. Tạo `grade_counts` với cả năm loại bằng `0`.
+      2. Nếu `students` rỗng, trả về dict của lớp rỗng ngay.
+      3. Gán `best_name`, `best_avg`, `worst_name`, `worst_avg` từ học sinh đầu tiên, và `total = 0`.
+      4. Duyệt các học sinh: tính `avg`, cộng vào `total`, và cộng 1 vào `grade_counts[letter_grade(avg)]`.
+      5. Vẫn trong vòng lặp: nếu `avg` cao hơn `best_avg` (hoặc bằng nhưng tên đứng trước) thì thay người tốt nhất. Làm ngược lại cho người kém nhất.
+      6. Trả về dict. Điểm trung bình lớp là `total / len(students)`.
+    - |
+      Khung của vòng lặp và câu return:
+      ```python
+      for student in students:
+          name = student["name"]
+          avg = average(student["scores"])
+          total += avg
+          grade_counts[letter_grade(avg)] += 1
+          if avg > best_avg or (avg == best_avg and name < best_name):
+              best_name = name
+              best_avg = avg
+          if avg < worst_avg or ...:
+              ...
+
+      return {"count": len(students), "mean": total / ..., "best": best_name,
+              "worst": worst_name, "grade_counts": grade_counts}
+      ```

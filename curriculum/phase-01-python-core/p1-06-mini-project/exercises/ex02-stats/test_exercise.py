@@ -17,7 +17,7 @@ def test_result_has_the_five_keys():
 
 
 def test_count_is_number_of_students():
-    assert exercise.class_stats(CLASS)["count"] == 3
+    assert exercise.class_stats(CLASS)["count"] == 3, "count = number of students"
 
 
 def test_mean_is_mean_of_student_averages():
@@ -33,7 +33,8 @@ def test_best_and_worst_names():
 
 def test_grade_counts_include_every_letter():
     stats = exercise.class_stats(CLASS)
-    assert stats["grade_counts"] == {"A": 1, "B": 1, "C": 0, "D": 1, "F": 0}
+    expected = {"A": 1, "B": 1, "C": 0, "D": 1, "F": 0}
+    assert stats["grade_counts"] == expected, "start all five letters at 0, add 1 per student"
 
 
 @pytest.mark.parametrize(

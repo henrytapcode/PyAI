@@ -144,6 +144,134 @@ questions:
       options: ["8.1666", "8", "8.1", "8.17"]
       explanation: "`:.2f` định dạng float với đúng 2 chữ số thập phân, có làm tròn chữ số cuối."
 
+  - id: p1-06-q09
+    type: mcq
+    tags: [lists, functions]
+    difficulty: 1
+    answer: 2
+    code: |
+      def by_name(s):
+          return s["name"]
+    en:
+      prompt: "Which call sorts the list `students` (a list of dicts) by `by_name`?"
+      options: ["`sorted(students, by_name)`", "`students.key(by_name)`", "`sorted(students, key=by_name)`", "`sorted(students, key=by_name())`"]
+      explanation: "`key=` must be named and takes the function itself, without parentheses. `by_name()` calls the function at once with no student, and `sorted(students, by_name)` is an error because the second argument must be named `key`."
+    vi:
+      prompt: "Lời gọi nào sắp xếp list `students` (list các dict) theo `by_name`?"
+      options: ["`sorted(students, by_name)`", "`students.key(by_name)`", "`sorted(students, key=by_name)`", "`sorted(students, key=by_name())`"]
+      explanation: "`key=` phải được ghi tên và nhận chính hàm đó, không có ngoặc. `by_name()` gọi hàm ngay lập tức mà không có student, còn `sorted(students, by_name)` bị lỗi vì đối số thứ hai phải được gọi là `key`."
+
+  - id: p1-06-q10
+    type: output
+    tags: [dicts]
+    difficulty: 1
+    code: |
+      letters = {"A": 0, "B": 0}
+      letters["B"] += 2
+      print(letters)
+    answer: "{'A': 0, 'B': 2}"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`letters[\"B\"] += 2` reads the current value (0), adds 2, and stores the result. Only that one key changes."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`letters[\"B\"] += 2` đọc giá trị hiện tại (0), cộng 2 rồi lưu lại. Chỉ key đó thay đổi."
+
+  - id: p1-06-q11
+    type: parsons
+    tags: [functions, lists]
+    difficulty: 2
+    lines:
+      - "scores = [8, 7.5, 9]"
+      - "total = sum(scores)"
+      - "avg = total / len(scores)"
+      - 'print(f"{avg:.2f}")'
+    en:
+      prompt: "Put the lines in order so the program prints `8.17`."
+      explanation: "Each line uses the variable from the line above: `total` needs `scores`, `avg` needs `total`, and the print needs `avg`. Formatting happens last, on the finished number."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `8.17`."
+      explanation: "Mỗi dòng dùng biến của dòng trên: `total` cần `scores`, `avg` cần `total`, và lệnh in cần `avg`. Định dạng làm ở bước cuối, trên số đã tính xong."
+
+  - id: p1-06-q12
+    type: fill
+    tags: [lists, functions]
+    difficulty: 2
+    code: |
+      def by_avg(row):
+          return row["avg"]
+
+      rows = [{"name": "Zoe", "avg": 7.0}, {"name": "An", "avg": 9.0}]
+      print(sorted(rows, ___=by_avg)[0]["name"])
+    answer: ["key"]
+    en:
+      prompt: "Fill in the keyword so the code prints `Zoe`."
+      explanation: "`key=` tells `sorted` which value to compare. Without it, Python tries to compare two dicts directly and fails with `TypeError`."
+    vi:
+      prompt: "Điền tên từ khóa để code in ra `Zoe`."
+      explanation: "`key=` cho `sorted` biết giá trị nào dùng để so sánh. Không có nó, Python cố so sánh trực tiếp hai dict và báo `TypeError`."
+
+  - id: p1-06-q13
+    type: output
+    tags: [conversion]
+    difficulty: 3
+    code: |
+      print(round(2.5), round(3.5))
+    answer: "2 4"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`round()` sends an exact half to the nearest even whole number (banker's rounding), so 2.5 becomes 2 and 3.5 becomes 4. Do not assume it always rounds .5 up."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`round()` làm tròn các số đúng giữa (.5) về số nguyên chẵn gần nhất (kiểu làm tròn banker), nên 2.5 thành 2 và 3.5 thành 4. Đừng nghĩ rằng nó luôn làm tròn .5 lên."
+
+  - id: p1-06-q14
+    type: mcq
+    tags: [lists, functions]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "Which key puts the highest `avg` first, and sorts equal averages by `name` from A to Z?"
+      options: ['`row["avg"]`', '`(-row["avg"], row["name"])`', '`(row["name"], -row["avg"])`', '`(row["avg"], -row["name"])`']
+      explanation: "Negating `avg` flips the order, so the highest comes first. Tuples compare the first value and use the second only on a tie. `(name, -avg)` sorts by name first, and negating a string raises `TypeError`."
+    vi:
+      prompt: "Key nào đưa `avg` cao nhất lên đầu, và xếp các điểm bằng nhau theo `name` từ A đến Z?"
+      options: ['`row["avg"]`', '`(-row["avg"], row["name"])`', '`(row["name"], -row["avg"])`', '`(row["avg"], -row["name"])`']
+      explanation: "Đổi dấu `avg` làm đảo thứ tự nên điểm cao nhất lên trước. Tuple so sánh giá trị đầu và chỉ dùng giá trị thứ hai khi bằng nhau. `(name, -avg)` xếp theo tên trước, còn đổi dấu một chuỗi gây `TypeError`."
+
+  - id: p1-06-q15
+    type: mcq
+    tags: [functions, conditions]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "Which change makes `average([])` return `0.0` instead of crashing?"
+      options: ["Wrap the division in `print(...)`", "Change `/` to `//`", "Add `if not scores: return 0.0` at the top", "Add `if scores == None: return 0.0` at the top"]
+      explanation: "`[]` counts as false, so `if not scores` catches it before the division. `print` does not stop the division by zero and returns `None`, `//` still divides by zero, and `[]` is not `None`, so `== None` never matches."
+    vi:
+      prompt: "Thay đổi nào làm `average([])` trả về `0.0` thay vì bị lỗi?"
+      options: ["Bọc phép chia trong `print(...)`", "Đổi `/` thành `//`", "Thêm `if not scores: return 0.0` ở đầu hàm", "Thêm `if scores == None: return 0.0` ở đầu hàm"]
+      explanation: "`[]` được coi là False, nên `if not scores` bắt được trước khi chia. `print` không ngăn lỗi chia cho 0 và trả về `None`, `//` vẫn chia cho 0, còn `[]` không phải `None` nên `== None` không khớp."
+
+  - id: p1-06-q16
+    type: parsons
+    tags: [functions, loops, lists]
+    difficulty: 3
+    lines:
+      - "def best_name(students):"
+      - '    best = students[0]'
+      - "    for student in students:"
+      - '        if student["avg"] > best["avg"]:'
+      - "            best = student"
+      - '    return best["name"]'
+      - 'print(best_name([{"name": "An", "avg": 8.2}, {"name": "Binh", "avg": 9.0}, {"name": "Chi", "avg": 6.5}]))'
+    en:
+      prompt: "Put the lines in order so the program prints `Binh`."
+      explanation: "The function must be defined before it is called. `best` must be set before the loop compares with it, and `return` must come after the loop, or the function stops at the first student."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Binh`."
+      explanation: "Hàm phải được định nghĩa trước khi gọi. `best` phải được gán trước khi vòng lặp so sánh với nó, và `return` phải đứng sau vòng lặp, nếu không hàm sẽ dừng ở học sinh đầu tiên."
+
 flashcards:
   - id: p1-06-f01
     tags: [dicts]
@@ -169,3 +297,7 @@ flashcards:
     tags: [functions, conditions]
     en: { front: "Why guard `sum(xs) / len(xs)` for an empty list?", back: "`len([])` is 0, so the division raises `ZeroDivisionError`. Check `if not xs:` first and return a safe value." }
     vi: { front: "Vì sao phải kiểm tra list rỗng trước `sum(xs) / len(xs)`?", back: "`len([])` bằng 0 nên phép chia gây `ZeroDivisionError`. Kiểm tra `if not xs:` trước và trả về giá trị an toàn." }
+  - id: p1-06-f06
+    tags: [conversion]
+    en: { front: "Does `round()` always round `.5` up?", back: "No. Exact halves go to the nearest even whole number: `round(2.5)` is 2 and `round(3.5)` is 4. Use `:.2f` only to format for display." }
+    vi: { front: "`round()` có luôn làm tròn `.5` lên không?", back: "Không. Số đúng giữa được làm tròn về số nguyên chẵn gần nhất: `round(2.5)` là 2 và `round(3.5)` là 4. Chỉ dùng `:.2f` để hiển thị." }

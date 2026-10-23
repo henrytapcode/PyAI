@@ -7,10 +7,64 @@ difficulty: 3
 tags: [functions, lists, dicts, loops, conditions]
 hints:
   en:
-    - "Build it bottom-up: get `average` passing first, then `letter_grade`, then `build_report`, which calls both. Re-read lesson section 3 for the sorting and 2-decimal tricks."
-    - "`sort_key(row)` returns a tuple `(-row[\"avg\"], row[\"name\"])`. In `build_report`, make a list of small dicts with `name` and `avg`, sort it with `sorted(rows, key=sort_key)`, and build one f-string per row in a loop."
-    - "Shape: `rows = []`; `for student in students:` then `rows.append({\"name\": ___, \"avg\": average(___)})`; `lines = []`; `for row in sorted(rows, key=___):` then `lines.append(f\"{row['name']}: {row['avg']:___} ({letter_grade(___)})\")`; then `return lines`."
+    - |
+      This is the pipeline from section 2: average, then grade, then a sorted report. Build it from the bottom up, one function at a time. Check the target values:
+      - `average([8, 7.5, 9])` must give `8.1666...` (that is `24.5 / 3`) and `average([])` must give `0.0`.
+      - `letter_grade(8.5)` must give `"A"`.
+      - `build_report([{"name": "An", "scores": [8, 7.5, 9]}])` must give `["An: 8.17 (B)"]`.
+    - |
+      Plan for `build_report`:
+      1. Make an empty list `rows`.
+      2. For each student, append a small dict with `"name"` and `"avg"` (call `average` on the student's scores).
+      3. Make an empty list `lines`.
+      4. Loop over `sorted(rows, key=sort_key)` (no parentheses after `sort_key`).
+      5. For each row, append an f-string like `An: 8.17 (B)`: the name, the average with `:.2f`, and `letter_grade` of the average.
+      6. `return lines`.
+
+      For `sort_key`, return a tuple with the average's sign flipped first and the name second.
+    - |
+      The shape of `build_report` and `sort_key`:
+      ```python
+      def sort_key(row):
+          return (-row["avg"], ...)
+
+      def build_report(students):
+          rows = []
+          for student in students:
+              rows.append({"name": student["name"], "avg": average(...)})
+          lines = []
+          for row in sorted(rows, key=sort_key):
+              lines.append(f"{row['name']}: {row['avg']:.2f} ({letter_grade(...)})")
+          return lines
+      ```
   vi:
-    - "Làm từ dưới lên: cho `average` qua test trước, rồi `letter_grade`, rồi `build_report` gọi cả hai. Đọc lại phần 3 của bài học về mẹo sắp xếp và 2 chữ số thập phân."
-    - "`sort_key(row)` trả về một tuple `(-row[\"avg\"], row[\"name\"])`. Trong `build_report`, tạo list các dict nhỏ gồm `name` và `avg`, sắp xếp bằng `sorted(rows, key=sort_key)`, rồi dùng vòng lặp tạo một f-string cho mỗi dòng."
-    - "Khung: `rows = []`; `for student in students:` rồi `rows.append({\"name\": ___, \"avg\": average(___)})`; `lines = []`; `for row in sorted(rows, key=___):` rồi `lines.append(f\"{row['name']}: {row['avg']:___} ({letter_grade(___)})\")`; cuối cùng `return lines`."
+    - |
+      Đây là dây chuyền ở phần 2: trung bình, rồi xếp loại, rồi bảng điểm đã sắp xếp. Hãy xây từ dưới lên, mỗi lần một hàm. Đây là các giá trị đích để đối chiếu:
+      - `average([8, 7.5, 9])` phải cho `8.1666...` (tức `24.5 / 3`) và `average([])` phải cho `0.0`.
+      - `letter_grade(8.5)` phải cho `"A"`.
+      - `build_report([{"name": "An", "scores": [8, 7.5, 9]}])` phải cho `["An: 8.17 (B)"]`.
+    - |
+      Kế hoạch cho `build_report`:
+      1. Tạo một list rỗng `rows`.
+      2. Với mỗi học sinh, thêm vào một dict nhỏ gồm `"name"` và `"avg"` (gọi `average` trên điểm của học sinh đó).
+      3. Tạo một list rỗng `lines`.
+      4. Duyệt `sorted(rows, key=sort_key)` (không có dấu ngoặc sau `sort_key`).
+      5. Với mỗi row, thêm vào một f-string dạng `An: 8.17 (B)`: tên, điểm trung bình với `:.2f`, và `letter_grade` của điểm trung bình đó.
+      6. `return lines`.
+
+      Với `sort_key`, trả về một tuple: điểm trung bình đã đổi dấu đứng trước, tên đứng sau.
+    - |
+      Khung của `build_report` và `sort_key`:
+      ```python
+      def sort_key(row):
+          return (-row["avg"], ...)
+
+      def build_report(students):
+          rows = []
+          for student in students:
+              rows.append({"name": student["name"], "avg": average(...)})
+          lines = []
+          for row in sorted(rows, key=sort_key):
+              lines.append(f"{row['name']}: {row['avg']:.2f} ({letter_grade(...)})")
+          return lines
+      ```

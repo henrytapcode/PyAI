@@ -13,11 +13,11 @@ import exercise
     ],
 )
 def test_average_of_scores(scores, expected):
-    assert exercise.average(scores) == pytest.approx(expected)
+    assert exercise.average(scores) == pytest.approx(expected), "average = sum / len"
 
 
 def test_average_returns_zero_for_empty_list():
-    assert exercise.average([]) == 0.0
+    assert exercise.average([]) == 0.0, "an empty list must return 0.0, not crash"
 
 
 @pytest.mark.parametrize(
@@ -36,7 +36,7 @@ def test_average_returns_zero_for_empty_list():
     ],
 )
 def test_letter_grade_boundaries(avg, expected):
-    assert exercise.letter_grade(avg) == expected
+    assert exercise.letter_grade(avg) == expected, "use >= and go from the top down"
 
 
 def test_report_has_one_line_per_student():
@@ -45,7 +45,7 @@ def test_report_has_one_line_per_student():
         {"name": "Binh", "scores": [9, 9.5, 8.5]},
         {"name": "Chi", "scores": [5, 6, 4.5]},
     ]
-    assert len(exercise.build_report(students)) == 3
+    assert len(exercise.build_report(students)) == 3, "return a list with one line per student"
 
 
 def test_report_line_format():
