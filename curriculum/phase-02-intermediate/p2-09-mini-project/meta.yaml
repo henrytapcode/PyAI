@@ -1,0 +1,33 @@
+id: p2-09-mini-project
+phase: p2
+order: 9
+kind: project
+title:
+  en: "Mini-project: expense tracker"
+  vi: "Mini-project: quản lý chi tiêu"
+summary:
+  en: "Combine a frozen dataclass, validation, JSON files and a context manager into a small expense tracker (a generator and a decorator are demonstrated in the lesson and examples)."
+  vi: "Kết hợp frozen dataclass, kiểm tra dữ liệu, file JSON và context manager thành một công cụ quản lý chi tiêu nhỏ (generator và decorator được minh họa trong bài và các ví dụ)."
+level: beginner
+tags: [dataclasses, json, files, exceptions, dicts]
+prerequisites: [p2-05-typing, p2-08-context-managers, p1-09-files]
+duration_min: 50
+outcomes:
+  en:
+    - "Model expenses with a frozen dataclass"
+    - "Validate data and raise ValueError for bad input"
+    - "Save and load a list of objects as a JSON file"
+    - "Edit a saved list safely with a context manager"
+    - "Summarise spending by category and month with a dict accumulator"
+  vi:
+    - "Mô hình hóa khoản chi bằng frozen dataclass"
+    - "Kiểm tra dữ liệu và raise ValueError khi đầu vào sai"
+    - "Lưu và đọc một list object bằng file JSON"
+    - "Sửa một list đã lưu an toàn bằng context manager"
+    - "Tổng hợp chi tiêu theo danh mục và tháng bằng dict accumulator"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: dataclasses", vi: "Python docs: dataclasses (EN)" }
+    url: "https://docs.python.org/3/library/dataclasses.html"
+  - title: { en: "Python docs: json", vi: "Python docs: json (EN)" }
+    url: "https://docs.python.org/3/library/json.html"

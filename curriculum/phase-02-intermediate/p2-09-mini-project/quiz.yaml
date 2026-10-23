@@ -1,0 +1,362 @@
+questions:
+  - id: p2-09-q01
+    type: mcq
+    tags: [dataclasses]
+    difficulty: 1
+    answer: 2
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass(frozen=True)
+      class Expense:
+          category: str
+          amount: float
+
+
+      e = Expense("food", 4.5)
+      e.amount = 9.0
+    en:
+      prompt: "What happens when the last line runs?"
+      options: ["`e.amount` becomes `9.0` and a warning is printed", "`e.amount` stays `4.5` and nothing is printed", "It raises `FrozenInstanceError` (a kind of `AttributeError`)", "A new `Expense` with amount `9.0` is created and `e` points to it"]
+      explanation: "A frozen dataclass is read-only. Assigning to a field raises `FrozenInstanceError`, which is a kind of `AttributeError`. To get different values, build a new object."
+    vi:
+      prompt: "Chuyện gì xảy ra khi dòng cuối chạy?"
+      options: ["`e.amount` thành `9.0` và một cảnh báo được in ra", "`e.amount` vẫn là `4.5` và không in gì cả", "Nó raise `FrozenInstanceError` (một loại `AttributeError`)", "Một `Expense` mới có amount `9.0` được tạo và `e` trỏ tới nó"]
+      explanation: "Frozen dataclass là chỉ-đọc. Gán vào một field sẽ raise `FrozenInstanceError`, một loại `AttributeError`. Muốn có giá trị khác, hãy dựng object mới."
+
+  - id: p2-09-q02
+    type: output
+    tags: [dicts, loops]
+    difficulty: 1
+    code: |
+      totals = {}
+      for category, amount in [("food", 2), ("fun", 5), ("food", 3)]:
+          totals[category] = totals.get(category, 0) + amount
+      print(totals)
+    answer: "{'food': 5, 'fun': 5}"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`food` appears twice: `0 + 2` first, then `2 + 3` gives `5`. `fun` is added once as `0 + 5`. The dict keeps the order in which keys first appeared."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`food` xuất hiện hai lần: đầu tiên `0 + 2`, rồi `2 + 3` cho `5`. `fun` được thêm một lần là `0 + 5`. Dict giữ thứ tự mà các key xuất hiện lần đầu."
+
+  - id: p2-09-q03
+    type: mcq
+    tags: [json, dataclasses]
+    difficulty: 1
+    answer: 0
+    code: |
+      import json
+      from dataclasses import dataclass
+
+
+      @dataclass
+      class Expense:
+          category: str
+          amount: float
+
+
+      print(json.dumps([Expense("food", 4.5)]))
+    en:
+      prompt: "This code raises `TypeError`. Why?"
+      options: ["JSON cannot write custom objects such as `Expense`", "`json.dumps` needs the text to be encoded to bytes first", "A dataclass can only be saved when it is frozen", "`json.dumps` only accepts a dict, never a list"]
+      explanation: "JSON has no idea how to write a custom object. Convert it first, for example with `asdict(expense)`, and save the resulting dict. A list is fine, and no encoding step is needed."
+    vi:
+      prompt: "Đoạn code này raise `TypeError`. Vì sao?"
+      options: ["JSON không ghi được object tự định nghĩa như `Expense`", "`json.dumps` cần text được mã hóa thành bytes trước", "Dataclass chỉ lưu được khi nó là frozen", "`json.dumps` chỉ nhận dict, không bao giờ nhận list"]
+      explanation: "JSON không biết cách ghi một object tự định nghĩa. Hãy chuyển nó trước, ví dụ bằng `asdict(expense)`, rồi lưu dict thu được. List thì được, và không cần bước mã hóa nào."
+
+  - id: p2-09-q04
+    type: fill
+    tags: [strings]
+    difficulty: 1
+    code: |
+      date = "2024-03-05"
+      month = date[___]
+      print(month)  # 2024-03
+    answer: [[":7", "0:7", ":-3", "0:-3"]]
+    en:
+      prompt: "Fill in the blank so `month` holds the year and the month of the date."
+      explanation: "`\"2024-03\"` is the first 7 characters of the date (`2024-03` has 7 characters). The slice `[:7]` takes the characters from the start up to, but not including, index 7."
+    vi:
+      prompt: "Điền vào chỗ trống để `month` chứa năm và tháng của ngày."
+      explanation: "`\"2024-03\"` là 7 ký tự đầu của ngày (`2024-03` có 7 ký tự). Slice `[:7]` lấy các ký tự từ đầu tới trước chỉ số 7."
+
+  - id: p2-09-q05
+    type: mcq
+    tags: [typing]
+    difficulty: 1
+    answer: 3
+    code: |
+      def total(amounts: list[float]) -> float:
+          return sum(amounts)
+
+
+      print(total((1, 2, 3)))
+    en:
+      prompt: "The hint says `list[float]` but the call passes a tuple. What happens?"
+      options: ["Python raises `TypeError` before the function starts", "Python converts the tuple to a list first", "Python prints a warning and then stops", "It prints `6`: hints are not checked at run time"]
+      explanation: "Type hints are notes for readers and tools such as editors. Python does not enforce them at run time, and `sum` happens to work with a tuple."
+    vi:
+      prompt: "Hint ghi `list[float]` nhưng lời gọi truyền một tuple. Chuyện gì xảy ra?"
+      options: ["Python raise `TypeError` trước khi hàm bắt đầu", "Python đổi tuple thành list trước", "Python in một cảnh báo rồi dừng", "In ra `6`: hint không được kiểm tra khi chạy"]
+      explanation: "Type hint là ghi chú cho người đọc và các công cụ như editor. Python không ép chúng khi chạy, và `sum` tình cờ làm việc được với tuple."
+
+  - id: p2-09-q06
+    type: mcq
+    tags: [exceptions, json]
+    difficulty: 2
+    answer: 1
+    code: |
+      records = [{"date": "2024-01-05", "category": "food"}]
+      expense = Expense(**records[0])   # Expense also needs an amount
+    en:
+      prompt: "This line raises `TypeError` (a required argument is missing). What should `load_expenses` do with it?"
+      options: ["Let it go: the caller must catch `TypeError` and `ValueError` separately", "Catch it and raise `ValueError`, so one `except` covers bad data", "Catch it and skip the record without telling anyone", "Catch it and fill the missing amount with `0`"]
+      explanation: "Bad data should look the same to the caller: one `ValueError`. Skipping records silently loses data, and inventing an amount of `0` would break the rule that amounts are above 0."
+    vi:
+      prompt: "Dòng này raise `TypeError` (thiếu một argument bắt buộc). `load_expenses` nên làm gì với nó?"
+      options: ["Để nó đi tiếp: người gọi phải bắt `TypeError` và `ValueError` riêng", "Bắt nó và raise `ValueError`, để một `except` bao hết dữ liệu sai", "Bắt nó và bỏ qua record mà không báo ai", "Bắt nó và điền amount còn thiếu bằng `0`"]
+      explanation: "Dữ liệu sai nên trông giống nhau với người gọi: một `ValueError`. Bỏ qua record trong im lặng làm mất dữ liệu, và tự bịa amount `0` sẽ phá quy tắc amount phải lớn hơn 0."
+
+  - id: p2-09-q07
+    type: output
+    tags: [exceptions, functions]
+    difficulty: 2
+    code: |
+      def check_amount(amount):
+          if not isinstance(amount, (int, float)) or amount <= 0:
+              raise ValueError("bad amount")
+
+
+      for value in [4.5, 0, "9"]:
+          try:
+              check_amount(value)
+              print("ok")
+          except ValueError:
+              print("bad")
+    answer: "ok\nbad\nbad"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`4.5` is a positive number, so it passes. `0` is a number but not above 0. `\"9\"` is text, so `isinstance` is false and Python stops at the first `True` of the `or`, so `\"9\" <= 0` is never evaluated."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`4.5` là số dương nên qua được. `0` là số nhưng không lớn hơn 0. `\"9\"` là text, nên `isinstance` sai và Python dừng ở `True` đầu tiên của `or`, vì vậy `\"9\" <= 0` không bao giờ được tính."
+
+  - id: p2-09-q08
+    type: mcq
+    tags: [context-managers, exceptions]
+    difficulty: 2
+    answer: 2
+    code: |
+      from contextlib import contextmanager
+
+
+      @contextmanager
+      def ledger(rows):
+          yield rows
+          print("saved", len(rows))
+
+
+      try:
+          with ledger([1]) as rows:
+              rows.append(2)
+              raise RuntimeError("crash")
+      except RuntimeError:
+          print("caught")
+    en:
+      prompt: "There is no `try/finally` around `yield`. What does this code print?"
+      options: ["`saved 2`, then `caught`", "`saved 2` only", "`caught` only", "Nothing: the error stops the program"]
+      explanation: "The error is raised at the `yield` line, so the `print(\"saved\", ...)` line after it is skipped. The error then continues to the outer `except`, which prints `caught`. Skipping the save is what we want after a failure."
+    vi:
+      prompt: "Không có `try/finally` quanh `yield`. Đoạn code này in ra gì?"
+      options: ["`saved 2`, rồi `caught`", "Chỉ `saved 2`", "Chỉ `caught`", "Không in gì: lỗi làm dừng chương trình"]
+      explanation: "Lỗi được raise tại dòng `yield`, nên dòng `print(\"saved\", ...)` phía sau bị bỏ qua. Lỗi sau đó đi tiếp tới `except` bên ngoài và in `caught`. Bỏ qua bước lưu sau một thất bại chính là điều ta muốn."
+
+  - id: p2-09-q09
+    type: fill
+    tags: [iterators]
+    difficulty: 2
+    code: |
+      def big_spends(amounts, limit):
+          for amount in amounts:
+              if amount >= limit:
+                  yield amount
+
+
+      first = ___(big_spends([5, 80, 60], 50))
+      print(first)  # 80
+    answer: ["next"]
+    en:
+      prompt: "Fill in the blank to take only the first value from the generator."
+      explanation: "`next(generator)` runs the generator until the first `yield` and returns that value. The generator pauses there, so `60` is never looked at."
+    vi:
+      prompt: "Điền vào chỗ trống để chỉ lấy giá trị đầu tiên từ generator."
+      explanation: "`next(generator)` chạy generator tới `yield` đầu tiên và trả về giá trị đó. Generator tạm dừng ở đó, nên `60` không bao giờ được xét tới."
+
+  - id: p2-09-q10
+    type: output
+    tags: [iterators]
+    difficulty: 2
+    code: |
+      spends = (x for x in [5, 20, 30] if x >= 10)
+      print(sum(spends), sum(spends))
+    answer: "50 0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A generator is used up after one pass. The first `sum` reads `20` and `30` and gets `50`. The second `sum` finds nothing left and gets `0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Generator dùng hết sau một lượt. `sum` đầu tiên đọc `20` và `30` và được `50`. `sum` thứ hai không còn gì để đọc nên được `0`."
+
+  - id: p2-09-q11
+    type: parsons
+    tags: [dicts, loops]
+    difficulty: 2
+    lines:
+      - "totals = {}"
+      - 'for category, amount in [("a", 1), ("b", 2), ("a", 3)]:'
+      - "    totals[category] = totals.get(category, 0) + amount"
+      - "print(totals)"
+    en:
+      prompt: "Put the lines in order so the program prints `{'a': 4, 'b': 2}`."
+      explanation: "The empty dict must exist before the loop uses it. The update line is the body of the loop, so it comes right after the `for` line and is indented. `print` is last, after all the adding is done."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `{'a': 4, 'b': 2}`."
+      explanation: "Dict rỗng phải có trước khi vòng lặp dùng nó. Dòng cập nhật là thân của vòng lặp nên đứng ngay sau dòng `for` và thụt vào. `print` ở cuối, sau khi đã cộng xong."
+
+  - id: p2-09-q12
+    type: fill
+    tags: [context-managers]
+    difficulty: 2
+    code: |
+      from contextlib import contextmanager
+
+
+      @contextmanager
+      def opened(rows):
+          print("open")
+          ___ rows
+          print("close")
+
+
+      with opened([1]) as r:
+          print(len(r))
+    answer: ["yield"]
+    en:
+      prompt: "Fill in the blank so the function works in a `with` statement and the program prints `open`, `1`, `close`."
+      explanation: "`@contextmanager` needs a function with exactly one `yield`. The code before it is the set-up, the value after `yield` is what follows `as`, and the code after it runs when the block ends."
+    vi:
+      prompt: "Điền vào chỗ trống để hàm dùng được trong câu lệnh `with` và chương trình in `open`, `1`, `close`."
+      explanation: "`@contextmanager` cần một hàm có đúng một `yield`. Code trước nó là phần chuẩn bị, giá trị sau `yield` là thứ đứng sau `as`, và code sau nó chạy khi khối kết thúc."
+
+  - id: p2-09-q13
+    type: mcq
+    tags: [files, exceptions]
+    difficulty: 3
+    answer: 3
+    code: |
+      def save(path, amounts):
+          with open(path, "w", encoding="utf-8") as f:
+              for amount in amounts:
+                  if amount <= 0:
+                      raise ValueError("bad amount")
+              f.write(str(amounts))
+    en:
+      prompt: "`path` already holds good data. What is the problem if `amounts` contains a `-1`?"
+      options: ["Nothing: the old data is still there because the write never happened", "The file is not closed, because `with` is skipped by `raise`", "The error is hidden by the `with` block", "The old data is gone: mode `\"w\"` empties the file on open"]
+      explanation: "Mode `\"w\"` empties the file at the moment it opens. The `with` block does close the file and does not hide the error, but the good data is gone. Check all values first, and open the file only after that."
+    vi:
+      prompt: "`path` đang chứa dữ liệu tốt. Vấn đề là gì nếu `amounts` có một số `-1`?"
+      options: ["Không sao: dữ liệu cũ vẫn còn vì việc ghi chưa xảy ra", "File không được đóng, vì `raise` làm `with` bị bỏ qua", "Lỗi bị khối `with` giấu đi", "Dữ liệu cũ mất rồi: mode `\"w\"` làm rỗng file khi mở"]
+      explanation: "Mode `\"w\"` làm rỗng file ngay lúc mở. Khối `with` vẫn đóng file và không giấu lỗi, nhưng dữ liệu tốt đã mất. Hãy kiểm tra mọi giá trị trước, và chỉ mở file sau đó."
+
+  - id: p2-09-q14
+    type: parsons
+    tags: [context-managers]
+    difficulty: 2
+    lines:
+      - "from contextlib import contextmanager"
+      - "@contextmanager"
+      - "def saving(store):"
+      - "    yield store"
+      - '    print("saved", len(store))'
+      - "with saving([]) as items:"
+      - "    items.append(1)"
+    en:
+      prompt: "Put the lines in order so the program prints `saved 1`."
+      explanation: "The import comes first, then the decorator right above `def`. Inside the function the work happens at `yield`, and the save comes after it. The `with` line uses the function, so it comes after the definition, and its body is indented under it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `saved 1`."
+      explanation: "Import đứng đầu, rồi decorator ngay phía trên `def`. Trong hàm, phần việc diễn ra tại `yield`, và việc lưu nằm sau nó. Dòng `with` dùng hàm nên nằm sau phần định nghĩa, và thân của nó thụt vào dưới."
+
+  - id: p2-09-q15
+    type: output
+    tags: [dicts, loops, conditions]
+    difficulty: 3
+    code: |
+      totals = {"b": 5, "a": 5, "c": 2}
+      best = None
+      best_total = 0
+      for category in sorted(totals):
+          if totals[category] >= best_total:
+              best = category
+              best_total = totals[category]
+      print(best)
+    answer: "b"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`sorted(totals)` gives `a`, `b`, `c`. `a` becomes best with 5. `b` ties with 5, and `>=` replaces the best, so `b` wins. `c` is smaller. To keep the earlier name on a tie, use `>` instead of `>=`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`sorted(totals)` cho `a`, `b`, `c`. `a` trở thành best với 5. `b` hòa với 5, và `>=` thay thế best, nên `b` thắng. `c` nhỏ hơn. Muốn giữ tên đứng trước khi hòa, hãy dùng `>` thay cho `>=`."
+
+  - id: p2-09-q16
+    type: fill
+    tags: [dicts, loops]
+    difficulty: 2
+    code: |
+      totals = {}
+      for date, amount in [("2024-01-05", 4), ("2024-02-01", 1), ("2024-01-20", 6)]:
+          month = date[:7]
+          totals[___] = totals.get(___, 0) + amount
+      print(totals)  # {'2024-01': 10, '2024-02': 1}
+    answer: [["month", "date[:7]"], ["month", "date[:7]"]]
+    en:
+      prompt: "Fill in the blanks so the code adds up the amounts per month."
+      explanation: "The key must be the month, not the full date, otherwise every day would be its own group. Both blanks use the same key: read the old total with it, and store the new total under it."
+    vi:
+      prompt: "Điền vào các chỗ trống để code cộng số tiền theo từng tháng."
+      explanation: "Key phải là tháng, không phải cả ngày, nếu không mỗi ngày sẽ là một nhóm riêng. Cả hai chỗ trống dùng cùng một key: đọc tổng cũ bằng nó, và lưu tổng mới dưới nó."
+
+flashcards:
+  - id: p2-09-f01
+    tags: [dataclasses]
+    code: "@dataclass(frozen=True)\nclass Expense:\n    date: str\n    amount: float"
+    en: { front: "Why make a record dataclass frozen?", back: "A frozen object cannot be changed after it is built (assigning to a field raises an error). Recorded data should not change by accident. To get a different value, build a new object." }
+    vi: { front: "Vì sao cho dataclass của một bản ghi là frozen?", back: "Object frozen không đổi được sau khi dựng (gán vào field sẽ raise lỗi). Dữ liệu đã ghi không nên bị đổi nhầm. Muốn có giá trị khác, hãy dựng object mới." }
+  - id: p2-09-f02
+    tags: [json, dataclasses]
+    code: "data = [asdict(e) for e in expenses]\nexpenses = [Expense(**r) for r in data]"
+    en: { front: "How do you move dataclass objects to and from JSON?", back: "Save: turn each object into a dict with `asdict`, then `json.dump`. Load: `json.load` gives dicts, and `Expense(**record)` turns each one back into an object." }
+    vi: { front: "Chuyển object dataclass sang JSON và ngược lại thế nào?", back: "Lưu: đổi mỗi object thành dict bằng `asdict`, rồi `json.dump`. Đọc: `json.load` cho ra các dict, và `Expense(**record)` đổi từng dict về object." }
+  - id: p2-09-f03
+    tags: [exceptions]
+    en: { front: "Why validate data when you load a file?", back: "A file is not trusted: it may be edited by hand or damaged. Bad data that gets in makes every later step wrong without an error. Check at the door and raise `ValueError` with a clear message." }
+    vi: { front: "Vì sao phải kiểm tra dữ liệu khi đọc file?", back: "File không đáng tin: nó có thể bị sửa tay hoặc hỏng. Dữ liệu sai lọt vào làm mọi bước sau sai mà không báo lỗi. Hãy kiểm tra ngay ở cửa và raise `ValueError` với thông báo rõ ràng." }
+  - id: p2-09-f04
+    tags: [dicts, loops]
+    code: "totals = {}\nfor key, amount in pairs:\n    totals[key] = totals.get(key, 0) + amount"
+    en: { front: "What is the accumulator pattern for grouping?", back: "Start with an empty dict. For each item, set `totals[key]` to the old total (`get` with a default of 0) plus the amount. Use `sorted(totals)` to print the groups in a stable order." }
+    vi: { front: "Mẫu accumulator để gom nhóm là gì?", back: "Bắt đầu bằng dict rỗng. Với mỗi phần tử, đặt `totals[key]` bằng tổng cũ (`get` với mặc định 0) cộng số tiền. Dùng `sorted(totals)` để in các nhóm theo thứ tự ổn định." }
+  - id: p2-09-f05
+    tags: [strings, dicts]
+    code: "\"2024-03-05\"[:7]   # \"2024-03\""
+    en: { front: "How do you get the month from an ISO date `YYYY-MM-DD`?", back: "Slice the first 7 characters: `date[:7]`. ISO dates also sort correctly as plain text, so `sorted` on the months gives a chronological order." }
+    vi: { front: "Lấy tháng từ ngày ISO `YYYY-MM-DD` thế nào?", back: "Slice 7 ký tự đầu: `date[:7]`. Ngày ISO cũng sắp xếp đúng khi coi như text thường, nên `sorted` trên các tháng cho thứ tự thời gian." }
+  - id: p2-09-f06
+    tags: [files, context-managers]
+    en: { front: "Why check all the data before opening a file with mode `\"w\"`?", back: "Mode `\"w\"` empties the file the moment it opens. If a check fails after that, the old data is lost. Check everything first, open the file last." }
+    vi: { front: "Vì sao phải kiểm tra hết dữ liệu trước khi mở file với mode `\"w\"`?", back: "Mode `\"w\"` làm rỗng file ngay khi mở. Nếu một phép kiểm tra thất bại sau đó, dữ liệu cũ mất. Hãy kiểm tra mọi thứ trước, mở file sau cùng." }

@@ -1,0 +1,9 @@
+error: crash before the session ended
+rows saved: 4
+large: 0.0400
+mid: 0.0400
+small: 0.0025
+2024-05-01: 0.0420
+2024-05-02: 0.0405
+most expensive model: mid
+tied at the top: ['large', 'mid']

@@ -1,0 +1,72 @@
+id: p2-09-ex02
+kind: project
+title:
+  en: "Expense tracker: totals and top category"
+  vi: "Quản lý chi tiêu: tổng hợp và danh mục lớn nhất"
+difficulty: 3
+tags: [dicts, loops, dataclasses]
+hints:
+  en:
+    - |
+      This is the accumulator from §7. Build `totals_by_category` first, then reuse the same loop idea for the month. For the three example expenses, the category totals are `{"food": 10.75, "fun": 9.0}` (`4.5 + 6.25` is `10.75`), the month totals are `{"2024-01": 13.5, "2024-02": 6.25}`, and the top category is `"food"`.
+    - |
+      Plan for `totals_by_category`:
+      1. Make an empty dict `totals`.
+      2. Loop over the expenses. For each one, set the entry of its category to the old total (`get` with a default of `0`) plus the amount.
+      3. Build the answer: go through `sorted(totals)` and keep each total rounded to 2 decimals. A dict comprehension is a nice way to do it.
+
+      `totals_by_month` is the same, with the first 7 characters of the date as the key. For `top_category`, loop over the result of `totals_by_category` and replace the best category only when a total is strictly bigger than the best total so far.
+    - |
+      The shape of the three functions:
+      ```python
+      def totals_by_category(expenses):
+          totals = {}
+          for expense in expenses:
+              totals[expense.category] = totals.get(expense.category, 0) + ...
+          return {category: round(..., 2) for category in sorted(totals)}
+
+      def totals_by_month(expenses):
+          ...  # the key is expense.date[:7]
+
+      def top_category(expenses):
+          totals = totals_by_category(expenses)
+          best = None
+          best_total = 0
+          for category in totals:
+              if ...:
+                  best = category
+                  best_total = ...
+          return best
+      ```
+  vi:
+    - |
+      Đây là accumulator ở §7. Hãy xây `totals_by_category` trước, rồi dùng lại ý tưởng của vòng lặp đó cho tháng. Với ba khoản chi trong ví dụ, tổng theo danh mục là `{"food": 10.75, "fun": 9.0}` (`4.5 + 6.25` là `10.75`), tổng theo tháng là `{"2024-01": 13.5, "2024-02": 6.25}`, và danh mục lớn nhất là `"food"`.
+    - |
+      Kế hoạch cho `totals_by_category`:
+      1. Tạo một dict rỗng `totals`.
+      2. Duyệt các khoản chi. Với mỗi khoản, đặt mục của danh mục đó bằng tổng cũ (`get` với mặc định `0`) cộng số tiền.
+      3. Dựng kết quả: đi qua `sorted(totals)` và giữ mỗi tổng đã làm tròn 2 chữ số thập phân. Dict comprehension là cách gọn để làm việc này.
+
+      `totals_by_month` giống hệt, với 7 ký tự đầu của ngày làm key. Với `top_category`, duyệt kết quả của `totals_by_category` và chỉ thay danh mục tốt nhất khi một tổng lớn hơn hẳn tổng tốt nhất cho đến lúc này.
+    - |
+      Khung của ba hàm:
+      ```python
+      def totals_by_category(expenses):
+          totals = {}
+          for expense in expenses:
+              totals[expense.category] = totals.get(expense.category, 0) + ...
+          return {category: round(..., 2) for category in sorted(totals)}
+
+      def totals_by_month(expenses):
+          ...  # the key is expense.date[:7]
+
+      def top_category(expenses):
+          totals = totals_by_category(expenses)
+          best = None
+          best_total = 0
+          for category in totals:
+              if ...:
+                  best = category
+                  best_total = ...
+          return best
+      ```

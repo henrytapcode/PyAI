@@ -1,0 +1,106 @@
+id: p2-09-ex01
+kind: project
+title:
+  en: "Expense tracker: model, checks, JSON file"
+  vi: "Quản lý chi tiêu: model, kiểm tra, file JSON"
+difficulty: 3
+tags: [dataclasses, json, files, exceptions]
+hints:
+  en:
+    - |
+      This combines sections 2 to 5. Build it from the top down, one function at a time, and let the tests tell you what is still red. The target values: `check_expense(Expense("2024-03-05", "food", 4.5))` returns `None`, the same call with the date `"2024-3-5"` raises `ValueError`, and `load_expenses` of a file saved from `[Expense("2024-03-05", "food", 4.5, "pho")]` gives back an equal list. For `edit_expenses`, appending one expense inside the `with` block must leave two expenses in the file.
+    - |
+      Plan:
+      1. `Expense`: put `@dataclass` with the `frozen=True` parameter above the class and list the four annotated fields. Give the last one a default.
+      2. `check_expense`: three `if` checks, each one raises `ValueError`. For the date, check that it is a `str` first, then split the text and look at the number and the size of the parts. Do the same `str` check for the category.
+      3. `save_expenses`: loop over the expenses and check each one. Only after the loop, open the file with `"w"` and write `[asdict(e) for e in expenses]` with `json.dump`.
+      4. `load_expenses`: read with `json.load`. If the result is not a list, raise `ValueError`. For each record, build `Expense(**record)` inside a `try` and turn the `TypeError` into a `ValueError` (`raise ValueError(...) from None`, see section 4). Then check the expense and collect it.
+      5. `edit_expenses`: put `@contextmanager` above it. Before `yield`, load the list (or start with `[]` if the file is missing). `yield` the list. After `yield`, call `save_expenses`. Do not use `try/finally`, so a failing block skips the save.
+    - |
+      The shape of the pieces:
+      ```python
+      def check_expense(expense):
+          parts = ...   # only a str can be split: check isinstance first
+          if not isinstance(expense.date, str) or ...:
+              raise ValueError("...")
+          if not isinstance(expense.category, str) or ...:
+              raise ValueError("...")
+          if ...:
+              raise ValueError("...")
+
+      def save_expenses(path, expenses):
+          for expense in expenses:
+              ...
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(..., f)
+
+      def load_expenses(path):
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+          if not isinstance(data, list):
+              raise ValueError("...")
+          expenses = []
+          for record in data:
+              try:
+                  expense = ...
+              except TypeError:
+                  raise ValueError("...") from None
+              ...
+              expenses.append(expense)
+          return expenses
+
+      @contextmanager
+      def edit_expenses(path):
+          expenses = ... if Path(path).exists() else []
+          yield ...
+          ...   # save, and only after the yield
+      ```
+  vi:
+    - |
+      Bài này kết hợp các phần 2 đến 5. Hãy xây từ trên xuống, mỗi lần một hàm, và để các test cho bạn biết cái gì còn đỏ. Các giá trị đích: `check_expense(Expense("2024-03-05", "food", 4.5))` trả về `None`, cùng lời gọi đó với ngày `"2024-3-5"` raise `ValueError`, và `load_expenses` của một file đã lưu từ `[Expense("2024-03-05", "food", 4.5, "pho")]` trả về một list bằng nhau. Với `edit_expenses`, thêm một khoản chi trong khối `with` phải để lại hai khoản chi trong file.
+    - |
+      Kế hoạch:
+      1. `Expense`: đặt `@dataclass` với tham số `frozen=True` phía trên class và liệt kê bốn field có annotation. Cho field cuối một giá trị mặc định.
+      2. `check_expense`: ba phép kiểm tra `if`, mỗi cái raise `ValueError`. Với ngày, hãy kiểm tra nó là `str` trước, rồi tách text và nhìn số lượng và độ dài của các phần. Làm phép kiểm tra `str` tương tự cho category.
+      3. `save_expenses`: duyệt các khoản chi và kiểm tra từng khoản. Chỉ sau vòng lặp mới mở file bằng `"w"` và ghi `[asdict(e) for e in expenses]` bằng `json.dump`.
+      4. `load_expenses`: đọc bằng `json.load`. Nếu kết quả không phải list thì raise `ValueError`. Với mỗi record, dựng `Expense(**record)` trong một `try` và đổi `TypeError` thành `ValueError` (`raise ValueError(...) from None`, xem phần 4). Sau đó kiểm tra khoản chi và gom nó lại.
+      5. `edit_expenses`: đặt `@contextmanager` phía trên. Trước `yield`, đọc list (hoặc bắt đầu bằng `[]` nếu file không tồn tại). `yield` list đó. Sau `yield`, gọi `save_expenses`. Đừng dùng `try/finally`, để khối bị lỗi sẽ bỏ qua bước lưu.
+    - |
+      Khung của các phần:
+      ```python
+      def check_expense(expense):
+          parts = ...   # chỉ str mới tách được: kiểm tra isinstance trước
+          if not isinstance(expense.date, str) or ...:
+              raise ValueError("...")
+          if not isinstance(expense.category, str) or ...:
+              raise ValueError("...")
+          if ...:
+              raise ValueError("...")
+
+      def save_expenses(path, expenses):
+          for expense in expenses:
+              ...
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(..., f)
+
+      def load_expenses(path):
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+          if not isinstance(data, list):
+              raise ValueError("...")
+          expenses = []
+          for record in data:
+              try:
+                  expense = ...
+              except TypeError:
+                  raise ValueError("...") from None
+              ...
+              expenses.append(expense)
+          return expenses
+
+      @contextmanager
+      def edit_expenses(path):
+          expenses = ... if Path(path).exists() else []
+          yield ...
+          ...   # lưu, và chỉ sau yield
+      ```

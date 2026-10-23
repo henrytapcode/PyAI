@@ -1,0 +1,8 @@
+nothing parsed yet
+  parsed small,0.01 -> ('small', 0.01)
+  parsed large,0.40 -> ('large', 0.4)
+first: ('large', 0.4)
+  parsed small,0.02 -> ('small', 0.02)
+  parsed large,0.55 -> ('large', 0.55)
+second: ('large', 0.55)
+name kept by wraps: parse_line
