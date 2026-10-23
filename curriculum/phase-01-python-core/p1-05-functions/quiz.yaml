@@ -136,6 +136,152 @@ questions:
       options: ["NameError: `result` chưa được định nghĩa", "In ra 42", "In ra None", "Không in gì"]
       explanation: "`result` là biến cục bộ của `compute`; nó biến mất khi hàm kết thúc, nên `print(result)` bên ngoài bị lỗi."
 
+  - id: p1-05-q09
+    type: mcq
+    tags: [functions]
+    difficulty: 1
+    answer: 0
+    code: |
+      def area(w, h=2):
+          return w * h
+    en:
+      prompt: "What does `area(5)` return?"
+      options: ["10", "25", "An error: `h` is missing", "2"]
+      explanation: "`h` has a default of 2, so the call can skip it: 5 * 2 = 10. The error only happens when a parameter has no default."
+    vi:
+      prompt: "`area(5)` trả về gì?"
+      options: ["10", "25", "Lỗi: thiếu `h`", "2"]
+      explanation: "`h` có giá trị mặc định là 2, nên lời gọi có thể bỏ qua nó: 5 * 2 = 10. Lỗi chỉ xảy ra khi tham số không có mặc định."
+
+  - id: p1-05-q10
+    type: output
+    tags: [functions]
+    difficulty: 1
+    code: |
+      def add_one(n):
+          return n + 1
+
+      print(add_one(add_one(3)))
+    answer: "5"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The inner call returns 4, which becomes the argument of the outer call, so the result is 5. Nested calls run from the inside out."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Lời gọi bên trong trả về 4, trở thành đối số của lời gọi bên ngoài, nên kết quả là 5. Các lời gọi lồng nhau chạy từ trong ra ngoài."
+
+  - id: p1-05-q11
+    type: parsons
+    tags: [functions, loops]
+    difficulty: 2
+    lines:
+      - "def count_even(nums):"
+      - "    count = 0"
+      - "    for n in nums:"
+      - "        if n % 2 == 0:"
+      - "            count += 1"
+      - "    return count"
+      - "print(count_even([1, 2, 4, 7]))"
+    en:
+      prompt: "Put the lines in order so the program prints `2`."
+      explanation: "The counter must exist before the loop, the `if` must sit inside the loop, and `return` must come after the loop ends. A `return` placed earlier would stop the function before it counts anything."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `2`."
+      explanation: "Biến đếm phải được tạo trước vòng lặp, `if` phải nằm trong vòng lặp, và `return` phải đứng sau khi vòng lặp kết thúc. Nếu `return` đứng sớm hơn thì hàm dừng trước khi đếm gì."
+
+  - id: p1-05-q12
+    type: fill
+    tags: [functions]
+    difficulty: 2
+    code: |
+      def greet(name, greeting="Hello"):
+          return f"{greeting}, {name}!"
+
+      print(greet("Lan", ___="Hi"))
+    answer: ["greeting"]
+    en:
+      prompt: "Fill in the parameter name so the code prints `Hi, Lan!`."
+      explanation: "`greeting=\"Hi\"` is a keyword argument: it passes the value by parameter name, so its position in the call does not matter."
+    vi:
+      prompt: "Điền tên tham số vào chỗ trống để code in ra `Hi, Lan!`."
+      explanation: "`greeting=\"Hi\"` là đối số từ khóa (keyword argument): truyền giá trị theo tên tham số, nên vị trí trong lời gọi không quan trọng."
+
+  - id: p1-05-q13
+    type: output
+    tags: [functions]
+    difficulty: 3
+    code: |
+      def info(name, age=0, city="?"):
+          return f"{name}/{age}/{city}"
+
+      print(info("Lan", city="Hue"))
+      print(info("Minh", 20))
+    answer: "Lan/0/Hue\nMinh/20/?"
+    en:
+      prompt: "What does this code print (two lines)?"
+      explanation: "Skipped parameters use their defaults. `city=` names the parameter, so `age` keeps 0. The positional `20` fills the next parameter after `name`, which is `age`."
+    vi:
+      prompt: "Đoạn code này in ra gì (hai dòng)?"
+      explanation: "Tham số bị bỏ qua dùng giá trị mặc định. `city=` chỉ rõ tên tham số nên `age` giữ 0. Đối số không tên `20` được gán vào tham số kế tiếp sau `name`, tức là `age`."
+
+  - id: p1-05-q14
+    type: output
+    tags: [functions, loops]
+    difficulty: 3
+    code: |
+      def first_even(nums):
+          for n in nums:
+              if n % 2 == 0:
+                  return n
+              print("odd", n)
+          return None
+
+      print(first_even([3, 8, 5]))
+    answer: "odd 3\n8"
+    en:
+      prompt: "What does this code print (two lines)?"
+      explanation: "`return` leaves the whole function the moment it runs, even from inside a loop. The loop prints `odd 3`, then reaches 8 and returns it, so `None` is never returned."
+    vi:
+      prompt: "Đoạn code này in ra gì (hai dòng)?"
+      explanation: "`return` thoát khỏi toàn bộ hàm ngay khi chạy, kể cả khi đang ở trong vòng lặp. Vòng lặp in `odd 3`, rồi gặp 8 và trả về 8, nên `None` không bao giờ được trả về."
+
+  - id: p1-05-q15
+    type: mcq
+    tags: [functions]
+    difficulty: 3
+    answer: 0
+    code: |
+      def tax(price):
+          price * 0.2
+
+      total = tax(50) + 10
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["`TypeError`: `None` + 10 is not allowed", "`total` becomes 20.0", "`total` becomes 10", "`total` becomes 60.0"]
+      explanation: "The function has no `return`, so `tax(50)` gives `None`. `None + 10` raises `TypeError`. The `price * 0.2` line computes a value and throws it away."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["`TypeError`: `None` + 10 không hợp lệ", "`total` thành 20.0", "`total` thành 10", "`total` thành 60.0"]
+      explanation: "Hàm không có `return`, nên `tax(50)` cho `None`. `None + 10` gây `TypeError`. Dòng `price * 0.2` tính giá trị rồi bỏ đi."
+
+  - id: p1-05-q16
+    type: parsons
+    tags: [functions, loops, conditions]
+    difficulty: 3
+    lines:
+      - "def first_long(words, size):"
+      - "    for word in words:"
+      - "        if len(word) >= size:"
+      - "            return word"
+      - "    return None"
+      - 'print(first_long(["hi", "hello", "hey"], 4))'
+    en:
+      prompt: "Put the lines in order so the program prints `hello`."
+      explanation: "The function must be defined before it is called. The loop must run before the final `return None`, or the function stops with `None` before it checks any word. The `return word` must be inside the `if`."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `hello`."
+      explanation: "Hàm phải được định nghĩa trước khi gọi. Vòng lặp phải chạy trước `return None` cuối hàm, nếu không hàm sẽ trả về `None` trước khi kiểm tra từ nào. `return word` phải nằm trong `if`."
+
 flashcards:
   - id: p1-05-f01
     tags: [functions]
@@ -158,3 +304,7 @@ flashcards:
     tags: [functions, scope]
     en: { front: "What is a local variable?", back: "A variable created inside a function. It exists only while the function runs and is invisible outside." }
     vi: { front: "Biến cục bộ là gì?", back: "Biến tạo bên trong hàm. Nó chỉ tồn tại khi hàm chạy và không nhìn thấy được từ bên ngoài." }
+  - id: p1-05-f06
+    tags: [scope, functions]
+    en: { front: "What is a `NameError`?", back: "Python cannot find the name: a variable was never created, or a local variable is used outside its function." }
+    vi: { front: "`NameError` là gì?", back: "Python không tìm thấy tên đó: biến chưa từng được tạo, hoặc biến cục bộ bị dùng bên ngoài hàm của nó." }

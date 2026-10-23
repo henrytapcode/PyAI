@@ -11,7 +11,7 @@ summary:
 level: beginner
 tags: [functions, scope]
 prerequisites: [p1-04-collections]
-duration_min: 12
+duration_min: 15
 outcomes:
   en:
     - "Define functions with parameters"

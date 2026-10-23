@@ -7,10 +7,48 @@ difficulty: 2
 tags: [functions, conditions]
 hints:
   en:
-    - "Both functions must `return` a value, not `print` it. The tests look at the returned value."
-    - "BMI is `weight_kg / height_m ** 2`. For the category, check the limits from the smallest up: below 18.5, below 25, below 30, otherwise."
-    - "Shape: `if value < 18.5: return \"underweight\"`, then `if value < 25: return \"normal\"`, and so on. Each `return` ends the function."
+    - |
+      This uses §4 (return) and §8 (functions with if checks). Both functions must `return` a value, not `print` it: the tests look at the returned value.
+      They expect `bmi(80, 2.0) == 20.0`, `bmi_category(18.5) == "normal"` and `bmi_category(30.0) == "obese"`.
+    - |
+      Plan:
+      1. `bmi`: compute `weight_kg / height_m ** 2` and `return` it.
+      2. `bmi_category`: check the limits from the smallest up. Below 18.5 is "underweight".
+      3. Then below 25 is "normal", then below 30 is "overweight".
+      4. If none matched, `return "obese"`. Each `return` ends the function, so you do not need `else`.
+    - |
+      Code shape:
+      ```python
+      def bmi(weight_kg, height_m):
+          return ...
+
+      def bmi_category(bmi_value):
+          if bmi_value < 18.5:
+              return "underweight"
+          if bmi_value < 25:
+              return ...
+          # ... same idea for 30, then the final return
+      ```
   vi:
-    - "Cả hai hàm phải `return` giá trị, không phải `print`. Test kiểm tra giá trị được trả về."
-    - "BMI bằng `weight_kg / height_m ** 2`. Với phân loại, kiểm tra các mốc từ nhỏ đến lớn: dưới 18.5, dưới 25, dưới 30, còn lại."
-    - "Khung code: `if value < 18.5: return \"underweight\"`, rồi `if value < 25: return \"normal\"`, v.v. Mỗi `return` kết thúc hàm."
+    - |
+      Bài này dùng §4 (return) và §8 (hàm có kiểm tra if). Cả hai hàm phải `return` giá trị, không phải `print`: test kiểm tra giá trị được trả về.
+      Test cần `bmi(80, 2.0) == 20.0`, `bmi_category(18.5) == "normal"` và `bmi_category(30.0) == "obese"`.
+    - |
+      Kế hoạch:
+      1. `bmi`: tính `weight_kg / height_m ** 2` rồi `return` nó.
+      2. `bmi_category`: kiểm tra các mốc từ nhỏ lên. Dưới 18.5 là "underweight".
+      3. Rồi dưới 25 là "normal", dưới 30 là "overweight".
+      4. Nếu không khớp mốc nào, `return "obese"`. Mỗi `return` kết thúc hàm nên bạn không cần `else`.
+    - |
+      Khung code:
+      ```python
+      def bmi(weight_kg, height_m):
+          return ...
+
+      def bmi_category(bmi_value):
+          if bmi_value < 18.5:
+              return "underweight"
+          if bmi_value < 25:
+              return ...
+          # ... cùng ý tưởng cho mốc 30, rồi return cuối cùng
+      ```

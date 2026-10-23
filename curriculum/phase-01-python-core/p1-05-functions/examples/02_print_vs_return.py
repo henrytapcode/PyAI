@@ -12,11 +12,3 @@ b = double_return(4)   # prints nothing, b is 8
 print("a is", a)
 print("b is", b)
 print("b + 1 =", b + 1)
-
-
-def greet(name, greeting="Hello"):
-    return f"{greeting}, {name}!"
-
-
-print(greet("Lan"))
-print(greet("Lan", greeting="Xin chao"))

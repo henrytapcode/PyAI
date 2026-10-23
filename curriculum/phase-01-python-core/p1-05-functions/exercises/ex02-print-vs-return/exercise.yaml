@@ -7,10 +7,44 @@ difficulty: 2
 tags: [functions, debugging]
 hints:
   en:
-    - "Three functions, four bugs (one function has two). Call each one in the editor and look at what it gives back, not just what it shows on screen."
-    - "`area` prints its answer, `price_with_tax` has a wrong default and no way to return, and `greet` ignores its `greeting` parameter. Which one is which?"
-    - "Replace `print(...)` with `return ...`. The default tax rate should be `0.1`, and the text in `greet` should use the `greeting` variable instead of a fixed word."
+    - |
+      This uses §4 (print vs return) and §5 (default arguments). There are 4 bugs in 3 functions. Call each one in the editor, for example `print(area(3, 4) + 1)`, and look at what it gives back, not just what it shows on screen.
+      The tests expect `area(3, 4) + 1 == 13` and `price_with_tax(100) == 110.0`.
+    - |
+      Plan, one function at a time:
+      1. `area` shows its answer with `print`. It should hand the answer back instead.
+      2. `price_with_tax` has two bugs: the default `rate=10` is wrong (a tax of 10 means 1000%), and the result is computed but never returned.
+      3. `greet` ignores its `greeting` parameter. This is the only function that should still print.
+    - |
+      Code shape:
+      ```python
+      def area(width, height):
+          return ...
+
+      def price_with_tax(price, rate=0.1):
+          return price * (1 + ...)
+
+      def greet(name, greeting="Hello"):
+          print(f"{...}, {name}!")
+      ```
   vi:
-    - "Ba hàm, bốn lỗi (một hàm có hai lỗi). Hãy gọi từng hàm trong editor và xem nó trả về gì, đừng chỉ nhìn thứ nó in ra màn hình."
-    - "`area` chỉ in kết quả, `price_with_tax` có giá trị mặc định sai và không trả về gì, còn `greet` bỏ qua tham số `greeting`. Hàm nào là lỗi nào?"
-    - "Thay `print(...)` bằng `return ...`. Thuế mặc định phải là `0.1`, và chuỗi trong `greet` phải dùng biến `greeting` thay vì một từ cố định."
+    - |
+      Bài này dùng §4 (print và return) và §5 (tham số mặc định). Có 4 lỗi trong 3 hàm. Hãy gọi từng hàm trong editor, ví dụ `print(area(3, 4) + 1)`, và xem nó trả về gì, đừng chỉ nhìn thứ nó in ra màn hình.
+      Test cần `area(3, 4) + 1 == 13` và `price_with_tax(100) == 110.0`.
+    - |
+      Kế hoạch, từng hàm một:
+      1. `area` hiển thị đáp án bằng `print`. Thay vào đó nó phải trả đáp án về.
+      2. `price_with_tax` có hai lỗi: giá trị mặc định `rate=10` sai (thuế 10 nghĩa là 1000%), và kết quả được tính nhưng không bao giờ được trả về.
+      3. `greet` bỏ qua tham số `greeting`. Đây là hàm duy nhất vẫn phải `print`.
+    - |
+      Khung code:
+      ```python
+      def area(width, height):
+          return ...
+
+      def price_with_tax(price, rate=0.1):
+          return price * (1 + ...)
+
+      def greet(name, greeting="Hello"):
+          print(f"{...}, {name}!")
+      ```
