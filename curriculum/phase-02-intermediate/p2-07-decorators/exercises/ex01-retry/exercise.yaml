@@ -1,0 +1,60 @@
+id: p2-07-ex01
+kind: code
+title:
+  en: "Write: retry a flaky call"
+  vi: "Viết hàm: thử lại một lời gọi hay lỗi"
+difficulty: 3
+tags: [decorators, closures, exceptions]
+hints:
+  en:
+    - |
+      This is a decorator with an argument from §7, so it has three levels. For a function that fails twice and then works, `@retry(3)` must return the good result. If all 3 attempts fail, the error of the last attempt is raised.
+    - |
+      The plan:
+      1. `retry(times)` defines `decorator(func)` and returns it.
+      2. `decorator` defines `wrapper(*args, **kwargs)`, with `@wraps(func)` above it, and returns it.
+      3. `wrapper` repeats `times` times: try to call `func` with the arguments, and `return` the result as soon as one call works.
+      4. If a call raises an error, remember it and try again. After the last attempt, raise the error you remembered.
+    - |
+      The shape:
+      ```python
+      def retry(times):
+          def decorator(func):
+              @wraps(func)
+              def wrapper(*args, **kwargs):
+                  for _attempt in range(times):
+                      try:
+                          return func(*args, **kwargs)
+                      except Exception as error:
+                          last_error = ...
+                  raise ...
+              return wrapper
+          return decorator
+      ```
+      Fill the two gaps: remember the failure inside `except`, and raise it after the loop.
+  vi:
+    - |
+      Đây là decorator có tham số ở §7, nên nó có ba tầng. Với một hàm lỗi hai lần rồi chạy được, `@retry(3)` phải trả về kết quả tốt. Nếu cả 3 lần đều lỗi, lỗi của lần thử cuối cùng được raise.
+    - |
+      Kế hoạch:
+      1. `retry(times)` định nghĩa `decorator(func)` và trả về nó.
+      2. `decorator` định nghĩa `wrapper(*args, **kwargs)`, có `@wraps(func)` phía trên, và trả về nó.
+      3. `wrapper` lặp `times` lần: thử gọi `func` với các đối số, và `return` kết quả ngay khi một lần gọi chạy được.
+      4. Nếu một lần gọi raise lỗi, hãy nhớ lỗi đó và thử lại. Sau lần thử cuối, raise lỗi bạn đã nhớ.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      def retry(times):
+          def decorator(func):
+              @wraps(func)
+              def wrapper(*args, **kwargs):
+                  for _attempt in range(times):
+                      try:
+                          return func(*args, **kwargs)
+                      except Exception as error:
+                          last_error = ...
+                  raise ...
+              return wrapper
+          return decorator
+      ```
+      Hãy điền hai chỗ trống: nhớ lỗi bên trong `except`, và raise nó sau vòng lặp.

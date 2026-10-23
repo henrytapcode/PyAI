@@ -1,0 +1,361 @@
+questions:
+  - id: p2-07-q01
+    type: mcq
+    tags: [functions]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "What does the line `yell = shout` do (no brackets after `shout`)?"
+      options: ["It gives the same function a second name", "It calls `shout` and stores the result in `yell`", "It makes an independent copy of the code of `shout`", "It raises an error because `shout` needs an argument"]
+      explanation: "Without brackets nothing is called. `shout` is the function itself, so `yell` becomes another name for the same function, and `yell is shout` is `True`. Calling would need `shout(...)`."
+    vi:
+      prompt: "Dòng `yell = shout` làm gì (không có ngoặc sau `shout`)?"
+      options: ["Nó đặt cho cùng một hàm một cái tên thứ hai", "Nó gọi `shout` và lưu kết quả vào `yell`", "Nó tạo một bản sao độc lập của code `shout`", "Nó báo lỗi vì `shout` cần một đối số"]
+      explanation: "Không có ngoặc thì không có gì được gọi. `shout` là bản thân hàm, nên `yell` trở thành tên thứ hai của cùng hàm đó, và `yell is shout` là `True`. Muốn gọi thì phải viết `shout(...)`."
+
+  - id: p2-07-q02
+    type: output
+    tags: [functions]
+    difficulty: 1
+    code: |
+      def add_one(n):
+          return n + 1
+
+
+      def apply_twice(func, value):
+          return func(func(value))
+
+
+      print(apply_twice(add_one, 5))
+    answer: "7"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`apply_twice` receives the function `add_one` and calls it on the result of calling it: 5 becomes 6, then 6 becomes 7."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`apply_twice` nhận hàm `add_one` và gọi nó trên kết quả của chính lời gọi đó: 5 thành 6, rồi 6 thành 7."
+
+  - id: p2-07-q03
+    type: mcq
+    tags: [decorators]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is a decorator?"
+      options: ["A comment above a function that Python ignores", "A function that takes and returns a function", "A special class that stores the settings of a function", "A keyword that makes a function run faster"]
+      explanation: "A decorator takes the original function and returns a wrapper that adds behavior around it. It does not change the speed of the original, and it is a real function, not a comment."
+    vi:
+      prompt: "Decorator là gì?"
+      options: ["Một comment phía trên hàm mà Python bỏ qua", "Một hàm nhận vào và trả về một hàm", "Một class đặc biệt lưu các thiết lập của hàm", "Một từ khóa làm hàm chạy nhanh hơn"]
+      explanation: "Decorator nhận hàm gốc và trả về một wrapper thêm hành vi xung quanh nó. Nó không đổi tốc độ của hàm gốc, và nó là một hàm thật, không phải comment."
+
+  - id: p2-07-q04
+    type: fill
+    tags: [closures, functions]
+    difficulty: 1
+    code: |
+      def make_adder(n):
+          def add(x):
+              return x + n
+          return ___
+
+
+      add5 = make_adder(5)
+      print(add5(1))  # 6
+    answer: ["add"]
+    en:
+      prompt: "Fill in the blank so `make_adder` hands out the inner function, without calling it."
+      explanation: "`return add` gives back the function itself. `return add(...)` would call it and return a number instead, and it would fail because `x` is missing."
+    vi:
+      prompt: "Điền vào chỗ trống để `make_adder` đưa ra hàm bên trong mà không gọi nó."
+      explanation: "`return add` trả về chính hàm. `return add(...)` sẽ gọi nó và trả về một số, và sẽ lỗi vì thiếu `x`."
+
+  - id: p2-07-q05
+    type: mcq
+    tags: [closures]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "After `add5 = make_adder(5)` has run, `make_adder` is finished. What does the inner function `add` still remember?"
+      options: ["Only its own parameter `x`", "Every variable of the whole program", "The value `n = 5` from the call that created it", "The result of the last call to `add5`"]
+      explanation: "That is a closure: the inner function carries the variables of the outer call that created it, here `n = 5`. A second call `make_adder(10)` makes another function with its own `n`."
+    vi:
+      prompt: "Sau khi `add5 = make_adder(5)` chạy xong, `make_adder` đã kết thúc. Hàm bên trong `add` vẫn nhớ gì?"
+      options: ["Chỉ tham số `x` của chính nó", "Mọi biến của cả chương trình", "Giá trị `n = 5` từ lần gọi đã tạo ra nó", "Kết quả của lần gọi `add5` gần nhất"]
+      explanation: "Đó là closure: hàm bên trong mang theo các biến của lần gọi bên ngoài đã tạo ra nó, ở đây là `n = 5`. Lần gọi `make_adder(10)` thứ hai tạo ra một hàm khác với `n` riêng."
+
+  - id: p2-07-q06
+    type: output
+    tags: [closures]
+    difficulty: 2
+    code: |
+      def make_label(prefix):
+          def label(n):
+              return prefix + str(n)
+          return label
+
+
+      doc = make_label("doc-")
+      img = make_label("img-")
+      print(doc(1), img(2), doc(3))
+    answer: "doc-1 img-2 doc-3"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Each call to `make_label` creates its own `prefix`. `doc` remembers `\"doc-\"` and `img` remembers `\"img-\"`, so they never mix."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mỗi lần gọi `make_label` tạo ra `prefix` riêng. `doc` nhớ `\"doc-\"` và `img` nhớ `\"img-\"`, nên chúng không bao giờ lẫn vào nhau."
+
+  - id: p2-07-q07
+    type: fill
+    tags: [decorators, functions]
+    difficulty: 2
+    code: |
+      def log_calls(func):
+          def wrapper(___):
+              print("calling", func.__name__)
+              return func(*args, **kwargs)
+          return wrapper
+
+
+      @log_calls
+      def add(a, b):
+          return a + b
+
+
+      print(add(2, b=3))
+    answer: [["*args, **kwargs", "*args,**kwargs"]]
+    en:
+      prompt: "Fill in the parameters of `wrapper` so it accepts any arguments."
+      explanation: "`*args` collects the positional arguments into a tuple and `**kwargs` collects the keyword arguments into a dict. The wrapper then spreads them again in `func(*args, **kwargs)`."
+    vi:
+      prompt: "Điền các tham số của `wrapper` để nó nhận được mọi đối số."
+      explanation: "`*args` gom đối số vị trí vào một tuple và `**kwargs` gom đối số từ khóa vào một dict. Sau đó wrapper trải chúng ra lại trong `func(*args, **kwargs)`."
+
+  - id: p2-07-q08
+    type: mcq
+    tags: [decorators]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "`@log_calls` is written above `def add(a, b):`. Which line means the same thing?"
+      options: ["`log_calls = add(log_calls)`", "`add = log_calls`", "`log_calls(add())`", "`add = log_calls(add)`"]
+      explanation: "The `@` line is a shortcut: it passes the function to the decorator and stores the returned wrapper under the same name. The decorator receives `add` itself, not the result of calling it."
+    vi:
+      prompt: "`@log_calls` được viết phía trên `def add(a, b):`. Dòng nào có nghĩa giống vậy?"
+      options: ["`log_calls = add(log_calls)`", "`add = log_calls`", "`log_calls(add())`", "`add = log_calls(add)`"]
+      explanation: "Dòng `@` là lối tắt: nó đưa hàm cho decorator và lưu wrapper được trả về dưới cùng tên. Decorator nhận chính `add`, không phải kết quả của việc gọi nó."
+
+  - id: p2-07-q09
+    type: output
+    tags: [decorators]
+    difficulty: 2
+    code: |
+      def double_result(func):
+          def wrapper(*args, **kwargs):
+              return func(*args, **kwargs) * 2
+          return wrapper
+
+
+      @double_result
+      def add(a, b):
+          return a + b
+
+
+      print(add(1, 2))
+      print(add(a=3, b=4))
+    answer: "6\n14"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The wrapper calls the original with the same arguments and doubles what it returns: (1 + 2) * 2 is 6 and (3 + 4) * 2 is 14. Keyword arguments pass through `**kwargs`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Wrapper gọi hàm gốc với cùng các đối số và nhân đôi thứ nó trả về: (1 + 2) * 2 là 6 và (3 + 4) * 2 là 14. Đối số từ khóa đi qua `**kwargs`."
+
+  - id: p2-07-q10
+    type: mcq
+    tags: [decorators, functions]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "The wrapper calls `func(*args, **kwargs)` but does not `return` it. What does `add(1, 2)` give you?"
+      options: ["`None`, even though the original `add` returns 3", "`3`, because the original `add` returns it", "A `SyntaxError` when the file is loaded", "The wrapper function itself"]
+      explanation: "A function without `return` gives back `None`. The original does compute 3, but the wrapper throws it away. The wrapper must `return` the result."
+    vi:
+      prompt: "Wrapper gọi `func(*args, **kwargs)` nhưng không `return` nó. `add(1, 2)` cho bạn kết quả gì?"
+      options: ["`None`, dù `add` gốc trả về 3", "`3`, vì `add` gốc trả về nó", "Một `SyntaxError` khi nạp file", "Chính hàm wrapper"]
+      explanation: "Hàm không có `return` trả về `None`. Hàm gốc có tính ra 3, nhưng wrapper vứt nó đi. Wrapper phải `return` kết quả."
+
+  - id: p2-07-q11
+    type: mcq
+    tags: [decorators]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What is `@wraps(func)` above the wrapper for?"
+      options: ["It lets the wrapper accept any arguments", "It keeps the original name and docstring", "It catches errors raised by the original function", "It makes the decorated function run faster"]
+      explanation: "Without it, the decorated function reports its name as `wrapper` and loses its docstring. `wraps` fixes that. Accepting any arguments is the job of `*args, **kwargs`."
+    vi:
+      prompt: "`@wraps(func)` phía trên wrapper dùng để làm gì?"
+      options: ["Để wrapper nhận được mọi đối số", "Để giữ tên và docstring gốc", "Để bắt lỗi do hàm gốc raise", "Để hàm được decorate chạy nhanh hơn"]
+      explanation: "Nếu không có nó, hàm được decorate báo tên là `wrapper` và mất docstring. `wraps` sửa điều đó. Việc nhận mọi đối số là của `*args, **kwargs`."
+
+  - id: p2-07-q12
+    type: parsons
+    tags: [functions]
+    difficulty: 1
+    lines:
+      - "def square(n):"
+      - "    return n * n"
+      - "func = square"
+      - "print(func(4))"
+    en:
+      prompt: "Put the lines in order so the program prints `16`."
+      explanation: "The function must exist before `func = square` gives it a second name, and the name `func` must exist before `func(4)` calls it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `16`."
+      explanation: "Hàm phải tồn tại trước khi `func = square` đặt cho nó tên thứ hai, và tên `func` phải tồn tại trước khi `func(4)` gọi nó."
+
+  - id: p2-07-q13
+    type: parsons
+    tags: [decorators]
+    difficulty: 3
+    lines:
+      - "def shout(func):"
+      - "    def wrapper(*args, **kwargs):"
+      - "        return func(*args, **kwargs).upper()"
+      - "    return wrapper"
+      - "@shout"
+      - "def greet(name):"
+      - '    return "hi " + name'
+      - 'print(greet("ana"))'
+    en:
+      prompt: "Put the lines in order so the program prints `HI ANA`."
+      explanation: "The decorator `shout` must be defined first, with the wrapper inside it and `return wrapper` as its last line. Then `@shout` goes directly above `def greet`, and the call comes last, after `greet` has been decorated."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `HI ANA`."
+      explanation: "Decorator `shout` phải được định nghĩa trước, với wrapper bên trong và `return wrapper` là dòng cuối của nó. Sau đó `@shout` nằm ngay trên `def greet`, và lời gọi nằm cuối, sau khi `greet` đã được decorate."
+
+  - id: p2-07-q14
+    type: fill
+    tags: [decorators, closures]
+    difficulty: 3
+    code: |
+      def repeat(times):
+          def decorator(func):
+              def wrapper(*args, **kwargs):
+                  result = None
+                  for _ in range(times):
+                      result = func(*args, **kwargs)
+                  return result
+              return wrapper
+          return ___
+
+
+      @repeat(3)
+      def ping():
+          print("ping")
+
+
+      ping()  # prints ping three times
+    answer: ["decorator"]
+    en:
+      prompt: "Fill in the blank. What must the outer function `repeat(times)` return?"
+      explanation: "`repeat(3)` runs first and must hand back the real decorator, which then receives `ping`. So `repeat` returns `decorator`, `decorator` returns `wrapper`."
+    vi:
+      prompt: "Điền vào chỗ trống. Hàm ngoài cùng `repeat(times)` phải trả về gì?"
+      explanation: "`repeat(3)` chạy trước và phải đưa ra decorator thật, rồi decorator đó mới nhận `ping`. Nên `repeat` trả về `decorator`, và `decorator` trả về `wrapper`."
+
+  - id: p2-07-q15
+    type: mcq
+    tags: [decorators]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "`@repeat(3)` is written above `def greet(name):`. Which line means the same thing?"
+      options: ["`greet = repeat(greet, 3)`", "`greet = repeat(greet)(3)`", "`greet = repeat(3)(greet)`", "`greet = repeat(3, greet)`"]
+      explanation: "First `repeat(3)` is called with the setting. Its result is the real decorator, and that is called with `greet`. The setting goes in the first call and the function in the second."
+    vi:
+      prompt: "`@repeat(3)` được viết phía trên `def greet(name):`. Dòng nào có nghĩa giống vậy?"
+      options: ["`greet = repeat(greet, 3)`", "`greet = repeat(greet)(3)`", "`greet = repeat(3)(greet)`", "`greet = repeat(3, greet)`"]
+      explanation: "Đầu tiên `repeat(3)` được gọi với thiết lập. Kết quả của nó là decorator thật, và decorator đó được gọi với `greet`. Thiết lập đi vào lời gọi đầu, hàm đi vào lời gọi thứ hai."
+
+  - id: p2-07-q16
+    type: output
+    tags: [decorators, closures]
+    difficulty: 3
+    code: |
+      def count_calls(func):
+          calls = []
+
+          def wrapper(*args, **kwargs):
+              calls.append(1)
+              print("call", len(calls))
+              return func(*args, **kwargs)
+          return wrapper
+
+
+      @count_calls
+      def ping():
+          return "pong"
+
+
+      ping()
+      print(ping())
+    answer: "call 1\ncall 2\npong"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The list `calls` lives in the closure and survives between calls. The first `ping()` prints `call 1` and discards the result. The second prints `call 2`, and then `print` shows the returned `pong`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "List `calls` nằm trong closure và tồn tại giữa các lần gọi. `ping()` đầu tiên in `call 1` và bỏ kết quả. Lần thứ hai in `call 2`, rồi `print` hiển thị `pong` được trả về."
+
+  - id: p2-07-q17
+    type: parsons
+    tags: [closures, functions]
+    difficulty: 2
+    lines:
+      - "def make_adder(n):"
+      - "    def add(x):"
+      - "        return x + n"
+      - "    return add"
+      - "add3 = make_adder(3)"
+      - "print(add3(4))"
+    en:
+      prompt: "Put the lines in order so the program prints `7`."
+      explanation: "`make_adder` is defined first, with `add` inside it and `return add` at the end. Then `make_adder(3)` builds the function that remembers `n = 3`, and only after that can `add3(4)` be called."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `7`."
+      explanation: "`make_adder` được định nghĩa trước, với `add` bên trong và `return add` ở cuối. Sau đó `make_adder(3)` dựng hàm nhớ `n = 3`, và chỉ sau đó mới gọi được `add3(4)`."
+
+flashcards:
+  - id: p2-07-f01
+    tags: [functions]
+    code: "yell = shout\nshout(\"hi\")"
+    en: { front: "What is the difference between `shout` and `shout(\"hi\")`?", back: "`shout` is the function itself, a value you can rename, pass and return. `shout(\"hi\")` calls it and gives the result." }
+    vi: { front: "`shout` và `shout(\"hi\")` khác nhau thế nào?", back: "`shout` là bản thân hàm, một giá trị mà bạn có thể đặt lại tên, truyền đi và return. `shout(\"hi\")` gọi hàm và cho ra kết quả." }
+  - id: p2-07-f02
+    tags: [closures]
+    code: "def make_adder(n):\n    def add(x):\n        return x + n\n    return add"
+    en: { front: "What is a closure?", back: "An inner function that remembers the variables of the outer function that created it, even after the outer function has finished." }
+    vi: { front: "Closure là gì?", back: "Một hàm bên trong nhớ các biến của hàm bên ngoài đã tạo ra nó, ngay cả khi hàm bên ngoài đã chạy xong." }
+  - id: p2-07-f03
+    tags: [decorators, functions]
+    code: "def wrapper(*args, **kwargs):\n    return func(*args, **kwargs)"
+    en: { front: "Why does a wrapper take `*args, **kwargs`?", back: "It does not know which function it will wrap, so it accepts any positional and keyword arguments and passes them all on to the original function." }
+    vi: { front: "Vì sao wrapper nhận `*args, **kwargs`?", back: "Nó không biết trước sẽ bọc hàm nào, nên nó nhận mọi đối số vị trí và đối số từ khóa rồi chuyển hết cho hàm gốc." }
+  - id: p2-07-f04
+    tags: [decorators]
+    code: "@timed\ndef embed(texts): ..."
+    en: { front: "What does `@timed` above `def embed` mean?", back: "It means `embed = timed(embed)`. The decorator runs once, when the `def` runs, and the name `embed` now points to the wrapper." }
+    vi: { front: "`@timed` phía trên `def embed` có nghĩa là gì?", back: "Nó có nghĩa là `embed = timed(embed)`. Decorator chạy một lần, khi `def` chạy, và tên `embed` giờ trỏ tới wrapper." }
+  - id: p2-07-f05
+    tags: [decorators]
+    code: "from functools import wraps\n\n@wraps(func)\ndef wrapper(*args, **kwargs): ..."
+    en: { front: "Why put `@wraps(func)` above the wrapper?", back: "Without it the decorated function shows the name `wrapper` and loses its docstring. `wraps` copies the name and docstring of the original onto the wrapper." }
+    vi: { front: "Vì sao đặt `@wraps(func)` phía trên wrapper?", back: "Nếu không, hàm được decorate hiện tên `wrapper` và mất docstring. `wraps` chép tên và docstring của hàm gốc sang wrapper." }
+  - id: p2-07-f06
+    tags: [decorators, closures]
+    code: "@retry(3)\ndef ask_llm(prompt): ..."
+    en: { front: "How many levels does a decorator with an argument have?", back: "Three: `retry(3)` takes the setting and returns the decorator, `decorator(func)` takes the function and returns the wrapper, and the wrapper handles each call. `@retry(3)` means `f = retry(3)(f)`." }
+    vi: { front: "Decorator có tham số có bao nhiêu tầng?", back: "Ba tầng: `retry(3)` nhận thiết lập và trả về decorator, `decorator(func)` nhận hàm và trả về wrapper, và wrapper xử lý từng lời gọi. `@retry(3)` có nghĩa là `f = retry(3)(f)`." }

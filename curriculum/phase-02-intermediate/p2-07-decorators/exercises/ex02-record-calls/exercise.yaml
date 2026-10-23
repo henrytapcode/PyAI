@@ -1,0 +1,50 @@
+id: p2-07-ex02
+kind: debug
+title:
+  en: "Debug: a decorator that breaks the function"
+  vi: "Debug: decorator làm hỏng hàm"
+difficulty: 2
+tags: [decorators, debugging, functions]
+hints:
+  en:
+    - |
+      Look at the three jobs of a wrapper in §4 and the name problem in §6. Take `add(2, 3)`: it must still return `5`, and `add(2, b=3)` must return `5` too. Check each job one by one against the code in `wrapper`.
+    - |
+      Run the tests and read which ones fail. Ask yourself:
+      1. What does `add(2, 3)` give back right now? Does the wrapper hand the result of the original function back to the caller?
+      2. What does `add(2, b=3)` give back? Is every argument the caller wrote passed on to the original function?
+      3. What does `add.__name__` say? Which tool from §6 fixes that?
+    - |
+      The shape:
+      ```python
+      from functools import wraps
+
+      def record_calls(func):
+          ...                              # something goes above wrapper
+          def wrapper(*args, **kwargs):
+              CALL_LOG.append((func.__name__, args))
+              ... func(..., ...)
+          return wrapper
+      ```
+      Fill the gaps. The line with `append` is already right, so leave it.
+  vi:
+    - |
+      Hãy nhìn ba việc của một wrapper ở §4 và vấn đề về tên ở §6. Lấy `add(2, 3)`: nó vẫn phải trả về `5`, và `add(2, b=3)` cũng phải trả về `5`. Kiểm tra từng việc một so với code trong `wrapper`.
+    - |
+      Chạy test và đọc xem test nào fail. Tự hỏi:
+      1. `add(2, 3)` hiện đang trả về gì? Wrapper có đưa kết quả của hàm gốc trả lại cho nơi gọi không?
+      2. `add(2, b=3)` đang trả về gì? Mọi đối số mà người gọi đã viết có được chuyển cho hàm gốc không?
+      3. `add.__name__` đang là gì? Công cụ nào ở §6 sửa được điều đó?
+    - |
+      Hình dạng của lời giải:
+      ```python
+      from functools import wraps
+
+      def record_calls(func):
+          ...                              # something goes above wrapper
+          def wrapper(*args, **kwargs):
+              CALL_LOG.append((func.__name__, args))
+              ... func(..., ...)
+          return wrapper
+      ```
+      Hãy điền vào các chỗ trống. Dòng có `append` đã đúng rồi, hãy giữ nguyên.

@@ -1,0 +1,29 @@
+id: p2-07-decorators
+phase: p2
+order: 7
+kind: lesson
+title:
+  en: "Decorators"
+  vi: "Decorator"
+summary:
+  en: "Treat functions as values, understand closures, and write decorators such as timed and retry that add behavior to any function."
+  vi: "Xem hàm như một giá trị, hiểu closure, và viết các decorator như timed và retry để thêm hành vi cho mọi hàm."
+level: beginner
+tags: [decorators, closures, functions]
+prerequisites: [p2-06-generators, p1-05-functions, p1-07-strings, p1-08-modules, p1-10-exceptions]
+duration_min: 12
+outcomes:
+  en:
+    - "Pass a function around like any other value"
+    - "Explain a closure and what the inner function remembers"
+    - "Write a decorator with *args, **kwargs and functools.wraps"
+    - "Write a decorator that takes an argument, such as retry(times)"
+  vi:
+    - "Truyền hàm đi như mọi giá trị khác"
+    - "Giải thích closure và hàm bên trong nhớ gì"
+    - "Viết decorator với *args, **kwargs và functools.wraps"
+    - "Viết decorator nhận tham số, như retry(times)"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: functools.wraps", vi: "Python docs: functools.wraps (EN)" }
+    url: "https://docs.python.org/3/library/functools.html#functools.wraps"
