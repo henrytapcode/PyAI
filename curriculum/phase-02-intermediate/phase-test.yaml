@@ -1,0 +1,321 @@
+id: p2-phase-test
+kind: phase_test
+phase: p2
+title:
+  en: "Phase 2 test: Intermediate Python"
+  vi: "Bài kiểm tra Phase 2: Python trung cấp"
+description:
+  en: "15 questions covering comprehensions, classes, inheritance, dataclasses, type hints, generators, decorators and context managers."
+  vi: "15 câu hỏi về comprehension, class, kế thừa, dataclass, type hint, generator, decorator và context manager."
+duration_min: 25
+pass_score: 0.7
+questions:
+  # ---- Comprehensions
+  - id: p2-test-q01
+    type: output
+    tags: [comprehensions, conditions]
+    difficulty: 1
+    code: |
+      print([w.upper() for w in ["a", "bb", "ccc"] if len(w) > 1])
+    answer: "['BB', 'CCC']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The `if` at the end keeps only words longer than 1 character, so `\"a\"` is dropped. Each remaining word is turned to upper case."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Phần `if` ở cuối chỉ giữ các từ dài hơn 1 ký tự, nên `\"a\"` bị bỏ. Mỗi từ còn lại được đổi sang chữ in hoa."
+
+  - id: p2-test-q02
+    type: fill
+    tags: [comprehensions, dicts]
+    difficulty: 1
+    code: |
+      words = ["ai", "ml", "nlp"]
+      lengths = {w: ___ for w in words}
+      print(lengths)  # {'ai': 2, 'ml': 2, 'nlp': 3}
+    answer: ["len(w)"]
+    en:
+      prompt: "Fill in the blank so each word maps to its length."
+      explanation: "A dict comprehension has the form `{key: value for ...}`. The value for each word `w` is `len(w)`."
+    vi:
+      prompt: "Điền vào chỗ trống để mỗi từ ánh xạ tới độ dài của nó."
+      explanation: "Dict comprehension có dạng `{key: value for ...}`. Giá trị của mỗi từ `w` là `len(w)`."
+
+  - id: p2-test-q03
+    type: mcq
+    tags: [comprehensions]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "When is a plain `for` loop a better choice than a comprehension?"
+      options:
+        - "When the result must be a list"
+        - "When the loop body needs several statements, such as printing and updating other variables"
+        - "When the list is longer than 100 items"
+        - "When you want to filter items with a condition"
+      explanation: "A comprehension builds one new collection from one expression. If the body does several different things, a normal loop is clearer. Filtering and building lists are exactly what comprehensions are for."
+    vi:
+      prompt: "Khi nào vòng lặp `for` thường tốt hơn comprehension?"
+      options:
+        - "Khi kết quả phải là list"
+        - "Khi thân vòng lặp cần nhiều câu lệnh, như vừa in vừa cập nhật biến khác"
+        - "Khi list dài hơn 100 phần tử"
+        - "Khi bạn muốn lọc phần tử bằng một điều kiện"
+      explanation: "Comprehension tạo một collection mới từ một biểu thức. Nếu thân vòng lặp làm nhiều việc khác nhau thì vòng lặp thường rõ ràng hơn. Lọc và tạo list đúng là việc comprehension làm tốt."
+
+  # ---- Classes and inheritance
+  - id: p2-test-q04
+    type: output
+    tags: [classes]
+    difficulty: 2
+    code: |
+      class Counter:
+          def __init__(self):
+              self.n = 0
+
+          def add(self):
+              self.n += 1
+
+      a = Counter()
+      b = Counter()
+      a.add()
+      a.add()
+      b.add()
+      print(a.n, b.n)
+    answer: "2 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Each object has its own `n`. `a.add()` ran twice, so `a.n` is 2. `b.add()` ran once, so `b.n` is 1."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mỗi object có `n` riêng. `a.add()` chạy hai lần nên `a.n` là 2. `b.add()` chạy một lần nên `b.n` là 1."
+
+  - id: p2-test-q05
+    type: parsons
+    tags: [classes]
+    difficulty: 2
+    lines:
+      - "class Dog:"
+      - "    def __init__(self, name):"
+      - "        self.name = name"
+      - "d = Dog(\"Rex\")"
+      - "print(d.name)"
+    en:
+      prompt: "Put the lines in order so the program prints `Rex`."
+      explanation: "Define the class first, with `__init__` and its body inside it. Then create the object, and print its attribute last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Rex`."
+      explanation: "Định nghĩa class trước, với `__init__` và thân của nó nằm bên trong. Sau đó tạo object, và in thuộc tính ở cuối."
+
+  - id: p2-test-q06
+    type: output
+    tags: [inheritance]
+    difficulty: 2
+    code: |
+      class Base:
+          def hello(self):
+              return "base"
+
+      class Child(Base):
+          def hello(self):
+              return super().hello() + "+child"
+
+      print(Child().hello())
+    answer: "base+child"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`Child.hello` overrides `Base.hello`, but `super().hello()` still calls the parent version, which returns `\"base\"`. Then `\"+child\"` is added."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`Child.hello` ghi đè `Base.hello`, nhưng `super().hello()` vẫn gọi phiên bản của lớp cha và trả về `\"base\"`. Sau đó `\"+child\"` được nối vào."
+
+  # ---- Dataclasses
+  - id: p2-test-q07
+    type: mcq
+    tags: [dataclasses]
+    difficulty: 2
+    answer: 2
+    code: |
+      from dataclasses import dataclass
+
+      @dataclass
+      class Chat:
+          messages: list = []
+    en:
+      prompt: "What happens when Python runs this code?"
+      options:
+        - "It works, and every Chat gets its own empty list"
+        - "It works, but every Chat shares one list"
+        - "It raises ValueError because a list cannot be a default value this way"
+        - "It raises SyntaxError"
+      explanation: "A dataclass refuses a list as a plain default, because one list would be shared by all objects. Use `field(default_factory=list)` instead."
+    vi:
+      prompt: "Điều gì xảy ra khi Python chạy đoạn code này?"
+      options:
+        - "Chạy được, và mỗi Chat có một list rỗng riêng"
+        - "Chạy được, nhưng mọi Chat dùng chung một list"
+        - "Báo lỗi ValueError vì list không được làm giá trị mặc định theo cách này"
+        - "Báo lỗi SyntaxError"
+      explanation: "Dataclass từ chối list làm giá trị mặc định thông thường, vì một list sẽ bị mọi object dùng chung. Hãy dùng `field(default_factory=list)`."
+
+  - id: p2-test-q08
+    type: fill
+    tags: [dataclasses]
+    difficulty: 2
+    code: |
+      from dataclasses import dataclass, field
+
+      @dataclass
+      class Prompt:
+          text: str
+          tags: list[str] = field(___=list)
+
+      print(Prompt("hi").tags)  # []
+    answer: ["default_factory"]
+    en:
+      prompt: "Fill in the blank so each Prompt gets its own empty list."
+      explanation: "`field(default_factory=list)` calls `list()` for every new object, so the lists are not shared."
+    vi:
+      prompt: "Điền vào chỗ trống để mỗi Prompt có một list rỗng riêng."
+      explanation: "`field(default_factory=list)` gọi `list()` cho mỗi object mới, nên các list không bị dùng chung."
+
+  # ---- Type hints
+  - id: p2-test-q09
+    type: output
+    tags: [typing]
+    difficulty: 2
+    code: |
+      def double(x: int) -> int:
+          return x * 2
+
+      print(double("ab"))
+    answer: "abab"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Type hints are not enforced when the program runs. `\"ab\" * 2` is just string repetition, so it prints `abab`. A checker tool would warn, but Python does not."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Type hint không bị ép buộc khi chương trình chạy. `\"ab\" * 2` chỉ là lặp chuỗi nên in `abab`. Công cụ kiểm tra sẽ cảnh báo, còn Python thì không."
+
+  - id: p2-test-q10
+    type: fill
+    tags: [typing, dicts]
+    difficulty: 2
+    code: |
+      def count_words(text: str) -> dict[str, ___]:
+          counts: dict[str, int] = {}
+          for word in text.split():
+              counts[word] = counts.get(word, 0) + 1
+          return counts
+
+      print(count_words("a b a"))  # {'a': 2, 'b': 1}
+    answer: ["int"]
+    en:
+      prompt: "Fill in the value type of the returned dict."
+      explanation: "The keys are words (`str`) and the values are counts, which are whole numbers, so `dict[str, int]`."
+    vi:
+      prompt: "Điền kiểu của giá trị trong dict được trả về."
+      explanation: "Key là các từ (`str`) và value là số lần đếm, tức số nguyên, nên kiểu là `dict[str, int]`."
+
+  # ---- Generators
+  - id: p2-test-q11
+    type: output
+    tags: [iterators]
+    difficulty: 2
+    code: |
+      def count(limit):
+          for n in range(limit):
+              yield n
+
+      gen = count(3)
+      print(next(gen), next(gen))
+    answer: "0 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Each `next(gen)` runs the function until the next `yield`. The first gives 0, the second gives 1, and the generator then pauses."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mỗi lần `next(gen)` chạy hàm tới `yield` kế tiếp. Lần đầu cho 0, lần hai cho 1, rồi generator tạm dừng."
+
+  - id: p2-test-q12
+    type: parsons
+    tags: [iterators]
+    difficulty: 2
+    lines:
+      - "def squares(n):"
+      - "    for i in range(n):"
+      - "        yield i * i"
+      - "print(list(squares(4)))"
+    en:
+      prompt: "Put the lines in order so the program prints `[0, 1, 4, 9]`."
+      explanation: "Define the generator function first, with the loop inside it and `yield` inside the loop. Then collect its values with `list` and print."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `[0, 1, 4, 9]`."
+      explanation: "Định nghĩa hàm generator trước, với vòng lặp bên trong và `yield` nằm trong vòng lặp. Sau đó gom các giá trị bằng `list` và in ra."
+
+  # ---- Decorators
+  - id: p2-test-q13
+    type: output
+    tags: [decorators, closures]
+    difficulty: 3
+    code: |
+      def shout(func):
+          def wrapper(name):
+              return func(name).upper()
+          return wrapper
+
+      @shout
+      def greet(name):
+          return "hi " + name
+
+      print(greet("ann"))
+    answer: "HI ANN"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`@shout` replaces `greet` with `wrapper`. Calling `greet(\"ann\")` runs `wrapper`, which calls the original function and upper-cases its result."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`@shout` thay `greet` bằng `wrapper`. Gọi `greet(\"ann\")` chạy `wrapper`, hàm này gọi hàm gốc rồi đổi kết quả sang chữ in hoa."
+
+  # ---- Context managers
+  - id: p2-test-q14
+    type: mcq
+    tags: [context-managers, exceptions]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "An exception is raised inside a `with` block. What happens to the cleanup code of the context manager?"
+      options:
+        - "It still runs, then the exception continues"
+        - "It is skipped, because the block failed"
+        - "It runs only if you catch the exception inside the block"
+        - "It runs twice"
+      explanation: "The exit step of a context manager always runs, even when the block raises. That is why `with open(...)` closes the file on errors."
+    vi:
+      prompt: "Một exception được raise bên trong khối `with`. Code dọn dẹp của context manager sẽ ra sao?"
+      options:
+        - "Vẫn chạy, rồi exception tiếp tục lan ra"
+        - "Bị bỏ qua, vì khối bị lỗi"
+        - "Chỉ chạy nếu bạn bắt exception trong khối"
+        - "Chạy hai lần"
+      explanation: "Bước thoát của context manager luôn chạy, kể cả khi khối raise lỗi. Vì vậy `with open(...)` đóng file ngay cả khi có lỗi."
+
+  - id: p2-test-q15
+    type: parsons
+    tags: [context-managers]
+    difficulty: 3
+    lines:
+      - "from contextlib import contextmanager"
+      - "@contextmanager"
+      - "def tag(name):"
+      - "    print(\"open\", name)"
+      - "    yield"
+      - "    print(\"close\", name)"
+      - "with tag(\"x\"):"
+      - "    print(\"body\")"
+    en:
+      prompt: "Put the lines in order so the program prints `open x`, `body`, `close x` (one per line)."
+      explanation: "Import first, then the decorated function: code before `yield` is the setup and code after it is the cleanup (both use the parameter `name`). The `with` statement comes after the definition, and its body runs at the `yield`."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in `open x`, `body`, `close x` (mỗi dòng một chữ)."
+      explanation: "Import trước, rồi tới hàm có decorator: code trước `yield` là phần chuẩn bị và code sau `yield` là phần dọn dẹp (cả hai dùng tham số `name`). Câu lệnh `with` nằm sau phần định nghĩa, và thân của nó chạy tại `yield`."
