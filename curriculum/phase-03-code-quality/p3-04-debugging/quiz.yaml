@@ -1,0 +1,315 @@
+questions:
+  - id: p3-04-q01
+    type: mcq
+    tags: [debugging, exceptions]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "A traceback is printed after a crash. Which line do you read first?"
+      options:
+        - "The first line, `Traceback (most recent call last):`"
+        - "The first `File` line, because the bug is always at the start"
+        - "The last line, which names the error type and the message"
+        - "The line with the most spaces"
+      explanation: "Read a traceback from the bottom up. The last line says what kind of error happened and why. The lines above it show how the program got there."
+    vi:
+      prompt: "Một traceback được in ra sau khi chương trình crash. Bạn đọc dòng nào trước?"
+      options:
+        - "Dòng đầu tiên, `Traceback (most recent call last):`"
+        - "Dòng `File` đầu tiên, vì bug luôn ở phần bắt đầu"
+        - "Dòng cuối cùng, nơi nêu loại lỗi và thông báo"
+        - "Dòng có nhiều khoảng trắng nhất"
+      explanation: "Hãy đọc traceback từ dưới lên. Dòng cuối cho biết loại lỗi nào đã xảy ra và vì sao. Các dòng phía trên cho thấy chương trình đã đi tới đó như thế nào."
+
+  - id: p3-04-q02
+    type: mcq
+    tags: [debugging, exceptions]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "A traceback has three `File` lines: `main`, then `load_scores`, then `parse_score`. Where was the error raised?"
+      options:
+        - "In `main`, because it is first"
+        - "In `parse_score`, the last frame"
+        - "In `load_scores`, because it is in the middle"
+        - "The traceback does not say"
+      explanation: "Frames are listed in call order, so the last one is where the error was raised. The first ones show who called it. The cause may still be in the data a caller passed in."
+    vi:
+      prompt: "Một traceback có ba dòng `File`: `main`, rồi `load_scores`, rồi `parse_score`. Lỗi được ném ra ở đâu?"
+      options:
+        - "Trong `main`, vì nó đứng đầu"
+        - "Trong `parse_score`, frame cuối cùng"
+        - "Trong `load_scores`, vì nó ở giữa"
+        - "Traceback không cho biết"
+      explanation: "Các frame được liệt kê theo thứ tự gọi, nên frame cuối là nơi lỗi được ném ra. Các frame đầu cho biết ai đã gọi nó. Nguyên nhân vẫn có thể nằm ở dữ liệu mà nơi gọi truyền vào."
+
+  - id: p3-04-q03
+    type: mcq
+    tags: [debugging]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "A teammate says \"the summary is wrong for some documents\". What is the best first step?"
+      options:
+        - "Reproduce the bug with a small input that fails every time"
+        - "Rewrite the summary function from scratch"
+        - "Add `try/except: pass` around the summary code"
+        - "Change a few lines and see if the problem goes away"
+      explanation: "You cannot fix what you cannot repeat. Find a small input that fails every time, and keep it as a test. Rewriting or guessing before you understand the cause often hides the bug."
+    vi:
+      prompt: "Một đồng nghiệp nói \"bản tóm tắt bị sai với một số tài liệu\". Bước đầu tiên tốt nhất là gì?"
+      options:
+        - "Tái hiện bug bằng một input nhỏ luôn thất bại"
+        - "Viết lại hàm tóm tắt từ đầu"
+        - "Thêm `try/except: pass` quanh code tóm tắt"
+        - "Đổi vài dòng xem vấn đề có biến mất không"
+      explanation: "Bạn không thể sửa thứ bạn không lặp lại được. Hãy tìm một input nhỏ luôn thất bại và giữ nó thành một test. Viết lại hoặc đoán mò trước khi hiểu nguyên nhân thường chỉ giấu bug đi."
+
+  - id: p3-04-q04
+    type: mcq
+    tags: [debugging]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What happens when Python runs a line `breakpoint()` in a terminal?"
+      options:
+        - "The program stops for good with an error"
+        - "Nothing, it is only a comment"
+        - "The program prints all its variables and continues"
+        - "The program pauses and opens the debugger, so you can type commands"
+      explanation: "`breakpoint()` pauses the program and opens `pdb` with a `(Pdb)` prompt. You can look at variables, step through lines, and continue. Remove it before committing, or the program will hang."
+    vi:
+      prompt: "Điều gì xảy ra khi Python chạy dòng `breakpoint()` trong terminal?"
+      options:
+        - "Chương trình dừng hẳn với một lỗi"
+        - "Không có gì, nó chỉ là comment"
+        - "Chương trình in mọi biến của nó rồi chạy tiếp"
+        - "Chương trình tạm dừng và mở debugger, để bạn gõ lệnh"
+      explanation: "`breakpoint()` tạm dừng chương trình và mở `pdb` với dấu nhắc `(Pdb)`. Bạn có thể xem biến, chạy từng dòng, và chạy tiếp. Hãy xóa nó trước khi commit, nếu không chương trình sẽ bị treo."
+
+  - id: p3-04-q05
+    type: mcq
+    tags: [debugging]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "You are in `pdb` on a line that calls `clean(text)`. You want to go inside `clean`. Which command?"
+      options:
+        - "`n` (next)"
+        - "`s` (step)"
+        - "`c` (continue)"
+        - "`q` (quit)"
+      explanation: "`s` steps into the function call on the current line. `n` runs the whole call and stops at the next line of the current function. `c` runs on to the next breakpoint, and `q` stops the program."
+    vi:
+      prompt: "Bạn đang ở `pdb` trên một dòng gọi `clean(text)`. Bạn muốn đi vào bên trong `clean`. Dùng lệnh nào?"
+      options:
+        - "`n` (next)"
+        - "`s` (step)"
+        - "`c` (continue)"
+        - "`q` (quit)"
+      explanation: "`s` đi vào lời gọi hàm trên dòng hiện tại. `n` chạy trọn lời gọi và dừng ở dòng kế tiếp của hàm hiện tại. `c` chạy tới breakpoint kế tiếp, còn `q` dừng chương trình."
+
+  - id: p3-04-q06
+    type: mcq
+    tags: [debugging]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "A pipeline has four steps and the final answer is wrong. What is the most efficient way to find the bad step?"
+      options:
+        - "Read all the code twice, slowly"
+        - "Change the last step and hope"
+        - "Print the value after each step and find the first wrong one"
+        - "Delete steps until the answer looks right"
+      explanation: "Checkpoints cut the problem in half: the bug is between the last correct value and the first wrong one. Deleting or changing steps without evidence only adds new problems."
+    vi:
+      prompt: "Một pipeline có bốn bước và đáp án cuối cùng sai. Cách hiệu quả nhất để tìm bước hỏng là gì?"
+      options:
+        - "Đọc toàn bộ code hai lần, thật chậm"
+        - "Sửa bước cuối rồi hy vọng"
+        - "In giá trị sau mỗi bước và tìm giá trị sai đầu tiên"
+        - "Xóa bớt các bước cho đến khi đáp án trông đúng"
+      explanation: "Checkpoint cắt đôi vấn đề: bug nằm giữa giá trị đúng cuối cùng và giá trị sai đầu tiên. Xóa hoặc sửa các bước mà không có bằng chứng chỉ tạo thêm vấn đề mới."
+
+  - id: p3-04-q07
+    type: output
+    tags: [debugging, exceptions]
+    difficulty: 1
+    code: |
+      try:
+          {}["a"]
+      except KeyError as err:
+          print(type(err).__name__, err)
+    answer: "KeyError 'a'"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`type(err).__name__` is the name of the error type, `KeyError`. Printing a `KeyError` shows the missing key, with its quotes: `'a'`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`type(err).__name__` là tên loại lỗi, `KeyError`. In một `KeyError` ra sẽ hiện key bị thiếu, kèm dấu nháy: `'a'`."
+
+  - id: p3-04-q08
+    type: output
+    tags: [debugging, exceptions]
+    difficulty: 2
+    code: |
+      try:
+          [1, 2, 3][3]
+      except IndexError as err:
+          print(type(err).__name__, err)
+    answer: "IndexError list index out of range"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A list of three items has positions 0, 1 and 2. Position 3 is past the end, so Python raises `IndexError` with the message `list index out of range`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Một list ba phần tử có các vị trí 0, 1 và 2. Vị trí 3 vượt quá cuối list, nên Python ném `IndexError` với thông báo `list index out of range`."
+
+  - id: p3-04-q09
+    type: output
+    tags: [debugging, exceptions]
+    difficulty: 2
+    code: |
+      try:
+          int("x")
+      except ValueError as err:
+          print(type(err).__name__, err)
+    answer: "ValueError invalid literal for int() with base 10: 'x'"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`int()` gets a string that is not a number, so it raises `ValueError`. The message names the bad value, `'x'`. Messages like this one point straight at the cause."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`int()` nhận một chuỗi không phải số, nên nó ném `ValueError`. Thông báo nêu rõ giá trị sai, `'x'`. Những thông báo như thế này chỉ thẳng vào nguyên nhân."
+
+  - id: p3-04-q10
+    type: output
+    tags: [debugging, lists]
+    difficulty: 3
+    code: |
+      items = [1, 2, 3]
+      n = 0
+      print(items[-n:])
+    answer: "[1, 2, 3]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`-0` is the same as `0`, so `items[-0:]` is `items[0:]`, the whole list. This is the classic bug when you want \"the last 0 items\" and get everything."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`-0` bằng `0`, nên `items[-0:]` là `items[0:]`, cả list. Đây là bug kinh điển khi bạn muốn \"0 phần tử cuối\" mà nhận về tất cả."
+
+  - id: p3-04-q11
+    type: fill
+    tags: [debugging, exceptions]
+    difficulty: 1
+    code: |
+      try:
+          1 / 0
+      except ___ as err:
+          print(type(err).__name__)  # ZeroDivisionError
+    answer: ["ZeroDivisionError"]
+    en:
+      prompt: "Fill in the error type that dividing by zero raises."
+      explanation: "Dividing by zero raises `ZeroDivisionError`. A name in `except` must match the error you expect, so the right error is caught and the others are not hidden."
+    vi:
+      prompt: "Điền loại lỗi mà phép chia cho không ném ra."
+      explanation: "Chia cho không ném `ZeroDivisionError`. Tên trong `except` phải khớp với lỗi bạn chờ đợi, để bắt đúng lỗi và không giấu các lỗi khác."
+
+  - id: p3-04-q12
+    type: fill
+    tags: [debugging, exceptions]
+    difficulty: 2
+    code: |
+      try:
+          int("x")
+      except ValueError as err:
+          print(___(err).__name__)  # ValueError
+    answer: ["type"]
+    en:
+      prompt: "Fill in the built-in function that gives the type of the error object."
+      explanation: "`type(err)` is the class of the error, and `.__name__` is its name as text. Together they print `ValueError`."
+    vi:
+      prompt: "Điền hàm có sẵn cho biết kiểu của object lỗi."
+      explanation: "`type(err)` là class của lỗi, và `.__name__` là tên của nó dưới dạng chữ. Hai thứ này cùng in ra `ValueError`."
+
+  - id: p3-04-q13
+    type: fill
+    tags: [debugging, logging]
+    difficulty: 2
+    code: |
+      import logging
+      import sys
+
+      logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format="%(levelname)s %(message)s", force=True)
+      logger = logging.getLogger("app")
+
+      logger.___("after clean: %s", "hello")  # DEBUG after clean: hello
+    answer: ["debug"]
+    en:
+      prompt: "Fill in the logger method for a checkpoint that you can switch off with the level."
+      explanation: "`logger.debug(...)` is for details you only need while hunting a bug. Unlike `print`, it can stay in the code and be turned off by raising the threshold."
+    vi:
+      prompt: "Điền method của logger cho một checkpoint mà bạn có thể tắt bằng level."
+      explanation: "`logger.debug(...)` dành cho những chi tiết bạn chỉ cần khi săn bug. Khác với `print`, nó có thể ở lại trong code và được tắt bằng cách nâng ngưỡng."
+
+  - id: p3-04-q14
+    type: parsons
+    tags: [debugging, lists]
+    difficulty: 2
+    lines:
+      - "data = [3, 1, 2]"
+      - "data.sort()"
+      - "middle = data[1]"
+      - "print(middle)"
+    en:
+      prompt: "Put the lines in order so the program prints `2`."
+      explanation: "Create the list, sort it, then take the item at position 1 and print it. If you take the middle item before sorting, you get `1` instead of `2`."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `2`."
+      explanation: "Tạo list, sắp xếp nó, rồi lấy phần tử ở vị trí 1 và in ra. Nếu lấy phần tử giữa trước khi sắp xếp, bạn nhận `1` thay vì `2`."
+
+  - id: p3-04-q15
+    type: parsons
+    tags: [debugging, strings]
+    difficulty: 2
+    lines:
+      - "text = \"  Hello  \""
+      - "cleaned = text.strip()"
+      - "lowered = cleaned.lower()"
+      - "print(repr(lowered))"
+    en:
+      prompt: "Put the lines in order so the program prints `'hello'` (with the quotes)."
+      explanation: "Each line needs the value from the line before it: `text`, then `cleaned`, then `lowered`. `repr` adds the quotes, which makes hidden spaces visible when you debug."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `'hello'` (có cả dấu nháy)."
+      explanation: "Mỗi dòng cần giá trị từ dòng trước nó: `text`, rồi `cleaned`, rồi `lowered`. `repr` thêm dấu nháy, giúp thấy các khoảng trắng ẩn khi debug."
+
+flashcards:
+  - id: p3-04-f01
+    tags: [debugging]
+    en: { front: "What are the steps of the debugging loop?", back: "Reproduce the bug, make a guess (hypothesis), check it with a traceback, print, log or debugger, fix one thing, and run the tests again. Change code only after you understand the cause." }
+    vi: { front: "Các bước của vòng lặp debug là gì?", back: "Tái hiện bug, đưa ra phỏng đoán (hypothesis), kiểm tra bằng traceback, print, log hoặc debugger, sửa một thứ, và chạy lại test. Chỉ sửa code sau khi hiểu nguyên nhân." }
+  - id: p3-04-f02
+    tags: [debugging, exceptions]
+    code: "ValueError: invalid literal for int() with base 10: 'abc'"
+    en: { front: "How do you read a traceback?", back: "From the bottom up. The last line gives the error type and message. The last `File` line is where it was raised. The lines above show who called whom." }
+    vi: { front: "Đọc traceback như thế nào?", back: "Từ dưới lên. Dòng cuối cho loại lỗi và thông báo. Dòng `File` cuối là nơi lỗi được ném ra. Các dòng phía trên cho biết ai gọi ai." }
+  - id: p3-04-f03
+    tags: [debugging]
+    code: "items[-0:]  # the same as items[0:]"
+    en: { front: "What does it mean to reproduce a bug, and why do it first?", back: "Find the smallest input that makes the bug happen every time. You cannot fix what you cannot repeat, and that input becomes your first test." }
+    vi: { front: "Tái hiện một bug nghĩa là gì, và vì sao làm trước?", back: "Tìm input nhỏ nhất khiến bug xảy ra mọi lần. Bạn không thể sửa thứ không lặp lại được, và input đó trở thành test đầu tiên của bạn." }
+  - id: p3-04-f04
+    tags: [debugging, logging]
+    code: "print(\"after clean:\", repr(text))"
+    en: { front: "How do checkpoints narrow a bug down?", back: "Print (or `logger.debug`) the value after each step. The bug is between the last correct value and the first wrong one. `repr` shows quotes and hidden spaces." }
+    vi: { front: "Checkpoint thu hẹp vùng lỗi như thế nào?", back: "In (hoặc `logger.debug`) giá trị sau mỗi bước. Bug nằm giữa giá trị đúng cuối cùng và giá trị sai đầu tiên. `repr` hiện dấu nháy và các khoảng trắng ẩn." }
+  - id: p3-04-f05
+    tags: [debugging]
+    code: "breakpoint()"
+    en: { front: "Name the main pdb commands.", back: "`p x` prints a value, `l` lists code, `n` runs to the next line, `s` steps into a call, `c` continues, `q` quits. `pytest --pdb` opens it at a failing test." }
+    vi: { front: "Kể tên các lệnh chính của pdb.", back: "`p x` in một giá trị, `l` liệt kê code, `n` chạy tới dòng kế, `s` đi vào lời gọi hàm, `c` chạy tiếp, `q` thoát. `pytest --pdb` mở nó tại test thất bại." }
+  - id: p3-04-f06
+    tags: [debugging]
+    en: { front: "What are the F5, F10 and F11 keys in the VS Code debugger?", back: "`F5` continues (or starts debugging), `F10` steps over a line (like `n`), `F11` steps into a call (like `s`). Never commit a `breakpoint()`." }
+    vi: { front: "Các phím F5, F10 và F11 trong debugger của VS Code là gì?", back: "`F5` chạy tiếp (hoặc bắt đầu debug), `F10` chạy qua một dòng (như `n`), `F11` đi vào lời gọi hàm (như `s`). Đừng bao giờ commit một `breakpoint()`." }

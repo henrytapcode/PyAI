@@ -1,0 +1,7 @@
+lowercase -> 'use  gpt-4, now!'
+remove_punctuation -> 'use  gpt now'
+collapse_spaces -> 'use gpt now'
+---
+lowercase -> 'use  gpt-4, now!'
+remove_punctuation -> 'use  gpt-4 now'
+collapse_spaces -> 'use gpt-4 now'

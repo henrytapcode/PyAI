@@ -1,0 +1,33 @@
+id: p3-04-debugging
+phase: p3
+order: 4
+kind: lesson
+title:
+  en: "Debugging"
+  vi: "Debug"
+summary:
+  en: "Find and fix bugs on purpose: read a traceback, narrow the problem down, and step through code with breakpoint() and the VS Code debugger."
+  vi: "Tìm và sửa lỗi có chủ đích: đọc traceback, thu hẹp vùng nghi ngờ, và chạy từng bước với breakpoint() và debugger của VS Code."
+level: beginner
+tags: [debugging, exceptions, logging]
+prerequisites: [p3-03-logging, p1-10-exceptions]
+duration_min: 12
+outcomes:
+  en:
+    - "Read a traceback from the bottom up and name the error type, the message, and the line to look at"
+    - "Reproduce a bug with the smallest possible input before changing any code"
+    - "Narrow a bug down with checkpoints (print or logging) instead of guessing"
+    - "Stop a program with breakpoint() and use the pdb commands n, s, c, p, l and q"
+    - "Use breakpoints, stepping, the call stack and watch in the VS Code debugger"
+  vi:
+    - "Đọc traceback từ dưới lên và gọi tên loại lỗi, thông báo lỗi, và dòng cần xem"
+    - "Tái hiện (reproduce) một bug bằng input nhỏ nhất có thể trước khi sửa bất kỳ dòng code nào"
+    - "Thu hẹp vùng lỗi bằng các điểm kiểm tra (print hoặc logging) thay vì đoán mò"
+    - "Dừng chương trình bằng breakpoint() và dùng các lệnh pdb n, s, c, p, l và q"
+    - "Dùng breakpoint, chạy từng bước, call stack và watch trong debugger của VS Code"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: pdb, the Python debugger", vi: "Python docs: pdb, debugger của Python (EN)" }
+    url: "https://docs.python.org/3/library/pdb.html"
+  - title: { en: "VS Code: Python debugging", vi: "VS Code: debug Python (EN)" }
+    url: "https://code.visualstudio.com/docs/python/debugging"

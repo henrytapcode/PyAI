@@ -1,0 +1,44 @@
+id: p3-04-ex01
+kind: debug
+title:
+  en: "Debug: read the traceback"
+  vi: "Sửa lỗi: đọc traceback"
+difficulty: 2
+tags: [debugging, exceptions, strings]
+hints:
+  en:
+    - |
+      Start at the **last line** of each traceback (§2): the error type and the message. The first one says `could not convert string to float: '0.84s'`, so `float()` received a string that still ends with an `s`. The second one is a `KeyError`: ask which key is missing, and what kind of line has no keys at all (§2, the table of errors).
+    - |
+      The plan:
+      1. In `parse_line`, remove the trailing `s` from the latency text before you call `float()`. A string method such as `rstrip("s")` removes the given characters from the end, and does nothing if there are none.
+      2. In `summarize`, a blank line (or a line with only spaces) is not a record. Only parse the lines that still have some text after `strip()`.
+      3. Keep the `if not records` check: it already handles the case where nothing is left.
+    - |
+      The shape:
+      ```python
+      "latency": float(parts["latency"].rstrip("s")),
+      ```
+      and in `summarize`:
+      ```python
+      records = [parse_line(line) for line in lines if ...]
+      ```
+      Replace `...` with a condition that is true only for lines that contain some text once the spaces are stripped.
+  vi:
+    - |
+      Hãy bắt đầu từ **dòng cuối** của mỗi traceback (§2): loại lỗi và thông báo. Traceback đầu nói `could not convert string to float: '0.84s'`, nghĩa là `float()` nhận một chuỗi vẫn còn chữ `s` ở cuối. Traceback thứ hai là một `KeyError`: hãy hỏi key nào bị thiếu, và loại dòng nào thì không có key nào cả (§2, bảng các loại lỗi).
+    - |
+      Kế hoạch:
+      1. Trong `parse_line`, bỏ chữ `s` ở cuối của chuỗi latency trước khi gọi `float()`. Một method của chuỗi như `rstrip("s")` bỏ các ký tự đã cho ở cuối, và không làm gì nếu không có.
+      2. Trong `summarize`, một dòng trống (hoặc chỉ có khoảng trắng) không phải là một record. Chỉ parse những dòng vẫn còn chữ sau khi `strip()`.
+      3. Giữ nguyên kiểm tra `if not records`: nó đã xử lý trường hợp không còn gì.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      "latency": float(parts["latency"].rstrip("s")),
+      ```
+      và trong `summarize`:
+      ```python
+      records = [parse_line(line) for line in lines if ...]
+      ```
+      Thay `...` bằng một điều kiện chỉ đúng với những dòng có chữ sau khi đã bỏ khoảng trắng.
