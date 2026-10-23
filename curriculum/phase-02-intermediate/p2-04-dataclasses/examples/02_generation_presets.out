@@ -1,0 +1,7 @@
+default -> small: creative, up to 256 tokens
+precise -> large: deterministic, up to 1024 tokens
+brainstorm -> small: creative, up to 256 tokens
+presets are read-only
+GenerationConfig(model='small', temperature=0.7, max_tokens=256)
+GenerationConfig(model='small', temperature=0.2, max_tokens=256)
+False

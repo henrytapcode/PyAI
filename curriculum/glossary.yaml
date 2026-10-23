@@ -688,6 +688,17 @@ terms:
       vi: "Dataclass là cách gọn gàng để mang các bản ghi như Document hay SearchResult qua pipeline, thay cho dict rời rạc."
     related: [class, type hint, constructor (__init__)]
 
+  - term: field
+    vi_term: field (trường dữ liệu)
+    tags: [dataclasses]
+    en: "A named piece of data a dataclass holds, declared as a line with an annotation such as role: str."
+    vi: "Một mẩu dữ liệu có tên mà dataclass giữ, được khai báo bằng một dòng có annotation như role: str."
+    example: "from dataclasses import dataclass\n\n@dataclass\nclass Message:\n    role: str      # a field\n    text: str      # another field"
+    in_practice:
+      en: "A chat message, a search hit or a model setting is a handful of fields, so listing them once gives you __init__, printing and comparison for free."
+      vi: "Một tin nhắn chat, một kết quả tìm kiếm hay một cài đặt model chỉ là vài field, nên liệt kê chúng một lần là có sẵn __init__, in ra và so sánh."
+    related: [dataclass, attribute, type hint]
+
   - term: type hint
     vi_term: type hint (gợi ý kiểu)
     tags: [typing]
@@ -698,6 +709,17 @@ terms:
       en: "Type hints make editors autocomplete correctly and let a type checker find mistakes before you run; libraries like Pydantic and FastAPI also read them."
       vi: "Type hint giúp editor gợi ý đúng và để công cụ kiểm tra kiểu tìm lỗi trước khi chạy; các thư viện như Pydantic và FastAPI cũng đọc chúng."
     related: [Optional, generic, dataclass]
+
+  - term: type checker
+    vi_term: type checker (công cụ kiểm tra kiểu)
+    tags: [typing]
+    en: "A tool such as mypy or pyright that reads your type hints and reports places where they are broken, without running the code."
+    vi: "Công cụ như mypy hay pyright đọc type hint của bạn và báo những chỗ vi phạm, mà không cần chạy code."
+    example: "# in a terminal:\n# mypy chat.py\n# chat.py:6: error: Argument 1 to \"double\" has incompatible type \"str\"; expected \"int\""
+    in_practice:
+      en: "Running a type checker in CI catches a wrong argument to an embedding or API function before it crashes in production."
+      vi: "Chạy type checker trong CI bắt được đối số sai truyền vào hàm embedding hay API trước khi nó làm sập production."
+    related: [type hint, Optional, TypeError]
 
   - term: Optional
     vi_term: Optional (có thể None)
@@ -721,6 +743,17 @@ terms:
       vi: "Viết list[str] thay vì chỉ list cho người đọc (và editor) biết hàm cần một list văn bản, đúng thứ nhiều hàm embedding nhận vào."
     related: [type hint, list, dictionary]
 
+  - term: iterable
+    vi_term: iterable (đối tượng có thể lặp)
+    tags: [iterators]
+    en: "Anything a for loop can walk through, such as a list, a string, a dict or a range; iter() turns it into an iterator."
+    vi: "Bất cứ thứ gì vòng for có thể duyệt qua, như list, chuỗi, dict hay range; iter() biến nó thành iterator."
+    example: "for letter in \"abc\":\n    print(letter)\n\nit = iter([1, 2])"
+    in_practice:
+      en: "Functions that accept any iterable work on a list, a file or a generator alike, so you can switch to streaming data later without changing them."
+      vi: "Hàm nhận bất kỳ iterable nào chạy được trên list, file hay generator, nên sau này chuyển sang dữ liệu streaming mà không phải sửa hàm."
+    related: [iterator, iteration, generator]
+
   - term: iterator
     vi_term: iterator
     tags: [iterators]
@@ -742,6 +775,17 @@ terms:
       en: "You write generators to read a huge file line by line or to batch records, and streaming LLM replies arrive as a generator of chunks."
       vi: "Bạn viết generator để đọc file khổng lồ từng dòng hoặc chia lô bản ghi, và câu trả lời streaming của LLM đến dưới dạng generator các mẩu nhỏ."
     related: [yield, iterator, lazy evaluation]
+
+  - term: generator expression
+    vi_term: generator expression (biểu thức generator)
+    tags: [iterators]
+    en: "A comprehension written in round brackets that produces its items lazily, one at a time, and can be used only once."
+    vi: "Comprehension viết trong ngoặc tròn, tạo các phần tử một cách lười, từng cái một, và chỉ dùng được một lần."
+    example: "total = sum(n * n for n in range(5))  # 30\nhas_error = any(\"ERROR\" in line for line in lines)"
+    in_practice:
+      en: "Use one when you only need an answer such as a sum, a maximum or \"is there any error?\", so a huge log never has to be stored as a list."
+      vi: "Dùng khi bạn chỉ cần một câu trả lời như tổng, giá trị lớn nhất hay \"có lỗi nào không?\", để log khổng lồ không phải lưu thành list."
+    related: [generator, comprehension, lazy evaluation]
 
   - term: yield
     vi_term: yield

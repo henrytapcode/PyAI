@@ -1,0 +1,6 @@
+Hit(score=3, doc_id='d4')
+Hit(score=1, doc_id='d2')
+Hit(score=1, doc_id='d1')
+best: d4
+tags of d1: ['python']
+tags of d2: []

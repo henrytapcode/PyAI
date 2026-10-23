@@ -1,0 +1,56 @@
+id: p2-04-ex01
+kind: code
+title:
+  en: "Write: Message dataclass"
+  vi: "Viết dataclass: Message"
+difficulty: 2
+tags: [dataclasses, oop]
+hints:
+  en:
+    - |
+      This uses §2 (`@dataclass` and fields), §4 (`field(default_factory=list)`) and §6 (`asdict`). The three fields are `role`, `content` and `tags`. For `Message("user", "Hi there")` the method `word_count()` must give `2`, and `to_dict()` must give `{"role": "user", "content": "Hi there", "tags": []}`.
+    - |
+      Plan:
+      1. Under the `@dataclass` line, write the fields as `name: type`: `role: str`, `content: str`, and `tags: list`.
+      2. Required fields come first. Give `tags` the default `field(default_factory=list)` so each message has its own list.
+      3. In `word_count`, cut `self.content` into words with `.split()` and `return` how many there are.
+      4. In `to_dict`, `return` the result of `asdict(self)`.
+    - |
+      Code shape:
+      ```python
+      @dataclass
+      class Message:
+          role: str
+          content: str
+          tags: list = ...
+
+          def word_count(self):
+              return len(...)
+
+          def to_dict(self):
+              return ...
+      ```
+  vi:
+    - |
+      Bài này dùng §2 (`@dataclass` và field), §4 (`field(default_factory=list)`) và §6 (`asdict`). Ba field là `role`, `content` và `tags`. Với `Message("user", "Hi there")`, method `word_count()` phải cho `2`, và `to_dict()` phải cho `{"role": "user", "content": "Hi there", "tags": []}`.
+    - |
+      Kế hoạch:
+      1. Dưới dòng `@dataclass`, viết các field dạng `name: type`: `role: str`, `content: str` và `tags: list`.
+      2. Field bắt buộc đứng trước. Cho `tags` giá trị mặc định `field(default_factory=list)` để mỗi message có list riêng.
+      3. Trong `word_count`, tách `self.content` thành các từ bằng `.split()` rồi `return` số từ.
+      4. Trong `to_dict`, `return` kết quả của `asdict(self)`.
+    - |
+      Khung code:
+      ```python
+      @dataclass
+      class Message:
+          role: str
+          content: str
+          tags: list = ...
+
+          def word_count(self):
+              return len(...)
+
+          def to_dict(self):
+              return ...
+      ```

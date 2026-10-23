@@ -1,0 +1,56 @@
+id: p2-04-ex02
+kind: debug
+title:
+  en: "Debug: the broken dataclasses"
+  vi: "Debug: các dataclass bị lỗi"
+difficulty: 2
+tags: [dataclasses, debugging]
+hints:
+  en:
+    - |
+      Run the code and read the first error: it mentions a "mutable default" and `default_factory`. That is §4 (lists as defaults). After you fix it, the rest of the tests show two more bugs in `GenerationConfig`. See §3 and §5 and the "Common mistakes" section. For example, `GenerationConfig("small", temperature=0.2)` must work, and `config.max_tokens = 1` must raise an error.
+    - |
+      There are 3 bugs, one per line:
+      1. In `Chat`, the default `[]` is refused. Which function makes a fresh list for each object?
+      2. In `GenerationConfig`, the line `temperature = 0.7` has no annotation. What does a line need to become a field?
+      3. `GenerationConfig` must be read-only after it is built. Which option of `@dataclass` does that?
+      Fix one, run the tests, then fix the next.
+    - |
+      Code shape (fill in the `...`):
+      ```python
+      @dataclass
+      class Chat:
+          title: str
+          messages: list = field(...)
+
+
+      @dataclass(...)
+      class GenerationConfig:
+          model: str
+          temperature: ... = 0.7
+          max_tokens: int = 256
+      ```
+  vi:
+    - |
+      Chạy code và đọc lỗi đầu tiên: nó nhắc đến "mutable default" và `default_factory`. Đó là §4 (list làm giá trị mặc định). Sau khi sửa, các test còn lại sẽ cho thấy thêm hai lỗi trong `GenerationConfig`. Xem §3, §5 và mục "Lỗi thường gặp". Ví dụ, `GenerationConfig("small", temperature=0.2)` phải chạy được, và `config.max_tokens = 1` phải gây lỗi.
+    - |
+      Có 3 lỗi, mỗi dòng một lỗi:
+      1. Trong `Chat`, giá trị mặc định `[]` bị từ chối. Hàm nào tạo một list mới cho mỗi object?
+      2. Trong `GenerationConfig`, dòng `temperature = 0.7` không có annotation. Một dòng cần gì để trở thành field?
+      3. `GenerationConfig` phải chỉ đọc sau khi được tạo. Tùy chọn nào của `@dataclass` làm được việc đó?
+      Sửa một lỗi, chạy test, rồi sửa lỗi tiếp theo.
+    - |
+      Khung code (điền vào chỗ `...`):
+      ```python
+      @dataclass
+      class Chat:
+          title: str
+          messages: list = field(...)
+
+
+      @dataclass(...)
+      class GenerationConfig:
+          model: str
+          temperature: ... = 0.7
+          max_tokens: int = 256
+      ```

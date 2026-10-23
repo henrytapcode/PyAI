@@ -1,0 +1,31 @@
+id: p2-04-dataclasses
+phase: p2
+order: 4
+kind: lesson
+title:
+  en: "Dataclasses"
+  vi: "Dataclass"
+summary:
+  en: "Let Python write the boring code for records: @dataclass, defaults, default_factory, frozen, order and asdict."
+  vi: "Để Python viết phần code nhàm chán cho các bản ghi: @dataclass, giá trị mặc định, default_factory, frozen, order và asdict."
+level: beginner
+tags: [dataclasses, oop, classes]
+prerequisites: [p2-02-classes, p1-09-files, p1-10-exceptions]
+duration_min: 12
+outcomes:
+  en:
+    - "Turn a class into a dataclass and read its generated __repr__ and __eq__"
+    - "Give fields default values"
+    - "Use field(default_factory=list) to avoid a shared list"
+    - "Make objects read-only with frozen=True"
+    - "Convert a dataclass object to a dict with asdict"
+  vi:
+    - "Biến một class thành dataclass và đọc __repr__, __eq__ do nó sinh ra"
+    - "Đặt giá trị mặc định cho field"
+    - "Dùng field(default_factory=list) để tránh list dùng chung"
+    - "Làm object chỉ đọc bằng frozen=True"
+    - "Chuyển object dataclass thành dict bằng asdict"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: dataclasses", vi: "Python docs: dataclasses (EN)" }
+    url: "https://docs.python.org/3/library/dataclasses.html"

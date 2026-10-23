@@ -138,7 +138,7 @@ phases:
           vi: ["Tạo lớp con và override", "Ưu tiên composition khi phù hợp"]
       - id: p2-04-dataclasses
         title: { en: "Dataclasses", vi: "Dataclass" }
-        prerequisites: [p2-02-classes]
+        prerequisites: [p2-02-classes, p1-09-files, p1-10-exceptions]
         outcomes:
           en: ["@dataclass, field defaults, frozen"]
           vi: ["@dataclass, giá trị mặc định, frozen"]
@@ -150,19 +150,19 @@ phases:
           vi: ["Chú thích kiểu cho hàm", "Optional, Union, generic cơ bản"]
       - id: p2-06-generators
         title: { en: "Iterators & generators", vi: "Iterator & generator" }
-        prerequisites: [p2-01-comprehensions, p1-03-loops]
+        prerequisites: [p2-01-comprehensions, p1-03-loops, p1-09-files, p1-10-exceptions]
         outcomes:
           en: ["yield", "Lazy pipelines over big data"]
           vi: ["yield", "Pipeline lười cho dữ liệu lớn"]
       - id: p2-07-decorators
         title: { en: "Decorators", vi: "Decorator" }
-        prerequisites: [p2-06-generators, p1-05-functions]
+        prerequisites: [p2-06-generators, p1-05-functions, p1-07-strings, p1-08-modules, p1-10-exceptions]
         outcomes:
           en: ["Functions as values", "Write a timing / retry decorator"]
           vi: ["Hàm là giá trị", "Viết decorator đo thời gian / retry"]
       - id: p2-08-context-managers
         title: { en: "Context managers", vi: "Context manager" }
-        prerequisites: [p2-07-decorators, p1-09-files, p1-10-exceptions]
+        prerequisites: [p2-07-decorators, p2-03-inheritance, p1-09-files, p1-10-exceptions]
         outcomes:
           en: ["with statement", "contextlib.contextmanager"]
           vi: ["Câu lệnh with", "contextlib.contextmanager"]

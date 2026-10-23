@@ -1,0 +1,390 @@
+questions:
+  - id: p2-04-q01
+    type: mcq
+    tags: [dataclasses]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "A class `Message` has the decorator `@dataclass` and two annotated fields. What does the decorator do for you?"
+      options: ["Writes `__init__`, `__repr__` and `__eq__` from the list of fields", "Turns every object into a dictionary automatically", "Makes all fields read-only", "Checks the types of the values and raises an error when they are wrong"]
+      explanation: "`@dataclass` reads the annotated fields and writes the boring methods for you. It does not turn objects into dicts (that is `asdict`), it does not make fields read-only (that needs `frozen=True`), and it does not check types."
+    vi:
+      prompt: "Class `Message` có decorator `@dataclass` và hai field có annotation. Decorator này làm gì giúp bạn?"
+      options: ["Viết `__init__`, `__repr__` và `__eq__` từ danh sách field", "Tự động biến mọi object thành dictionary", "Làm mọi field chỉ đọc", "Kiểm tra kiểu của giá trị và báo lỗi khi sai"]
+      explanation: "`@dataclass` đọc các field có annotation và viết giúp bạn những method nhàm chán. Nó không biến object thành dict (đó là việc của `asdict`), không làm field chỉ đọc (việc đó cần `frozen=True`) và không kiểm tra kiểu."
+
+  - id: p2-04-q02
+    type: fill
+    tags: [dataclasses]
+    difficulty: 1
+    code: |
+      from dataclasses import dataclass
+
+
+      @___
+      class Point:
+          x: int
+          y: int
+
+
+      print(Point(1, 2))
+    answer: [["dataclass", "dataclass()"]]
+    en:
+      prompt: "Fill in the blank so the code prints `Point(x=1, y=2)`."
+      explanation: "The decorator is called `dataclass`, and you write it with `@` right above the class. It is what writes the `__repr__` that prints `Point(x=1, y=2)`."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra `Point(x=1, y=2)`."
+      explanation: "Decorator có tên `dataclass`, và bạn viết nó với `@` ngay phía trên class. Chính nó viết ra `__repr__` để in `Point(x=1, y=2)`."
+
+  - id: p2-04-q03
+    type: output
+    tags: [dataclasses]
+    difficulty: 1
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass
+      class Tag:
+          name: str
+
+
+      print(Tag("ai"))
+    answer: "Tag(name='ai')"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The generated `__repr__` shows the class name and every field as `name=value`. Strings are shown with quotes, so you get `Tag(name='ai')`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`__repr__` được sinh tự động hiển thị tên class và mọi field dưới dạng `name=value`. Chuỗi được hiển thị kèm dấu nháy, nên bạn nhận được `Tag(name='ai')`."
+
+  - id: p2-04-q04
+    type: parsons
+    tags: [dataclasses]
+    difficulty: 1
+    lines:
+      - "from dataclasses import dataclass"
+      - "@dataclass"
+      - "class Tag:"
+      - "    name: str"
+      - 'print(Tag("ai"))'
+    en:
+      prompt: "Put the lines in order so the program prints `Tag(name='ai')`."
+      explanation: "The import comes first because `@dataclass` needs it. The decorator sits directly above the `class` line, the indented field comes next, and the class must exist before you print an object of it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Tag(name='ai')`."
+      explanation: "Dòng import đứng đầu vì `@dataclass` cần nó. Decorator nằm ngay phía trên dòng `class`, field thụt lề đi tiếp theo, và class phải tồn tại trước khi bạn in một object của nó."
+
+  - id: p2-04-q05
+    type: output
+    tags: [dataclasses]
+    difficulty: 1
+    code: |
+      from dataclasses import asdict, dataclass
+
+
+      @dataclass
+      class Message:
+          role: str
+          content: str
+
+
+      print(asdict(Message("user", "Hi")))
+    answer: "{'role': 'user', 'content': 'Hi'}"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`asdict` turns the object into a normal dict. The keys are the field names, in the order the fields were listed."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`asdict` biến object thành một dict bình thường. Các key là tên field, theo đúng thứ tự các field được liệt kê."
+
+  - id: p2-04-q06
+    type: mcq
+    tags: [dataclasses, classes]
+    difficulty: 2
+    answer: 1
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass
+      class Message:
+          role: str
+          content: str
+
+
+      msg = Message(role=5, content=3)
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["`TypeError`, because 5 and 3 are not strings", "Nothing visible: it runs without an error", "`ValueError`, because the role is not a valid role", "The numbers are changed into the strings `'5'` and `'3'`"]
+      explanation: "Annotations are labels, not checks. The dataclass uses them to find the fields, but it never tests the values, so `msg.role` is simply the number 5."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["`TypeError`, vì 5 và 3 không phải chuỗi", "Không có gì đáng chú ý: code chạy không lỗi", "`ValueError`, vì role không hợp lệ", "Các số được đổi thành chuỗi `'5'` và `'3'`"]
+      explanation: "Annotation là nhãn, không phải phép kiểm tra. Dataclass dùng chúng để tìm field nhưng không bao giờ kiểm tra giá trị, nên `msg.role` đơn giản là số 5."
+
+  - id: p2-04-q07
+    type: output
+    tags: [dataclasses, classes]
+    difficulty: 2
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass
+      class Config:
+          model: str
+          temperature: float = 0.7
+
+
+      c = Config("small")
+      c.temperature = 0.2
+      print(c)
+    answer: "Config(model='small', temperature=0.2)"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A normal dataclass is not frozen, so you can assign to its fields. The default 0.7 was only the starting value, and the printout shows the changed value 0.2."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Dataclass bình thường không bị frozen, nên bạn có thể gán vào các field của nó. Giá trị mặc định 0.7 chỉ là giá trị ban đầu, và kết quả in ra cho thấy giá trị đã đổi là 0.2."
+
+  - id: p2-04-q08
+    type: mcq
+    tags: [dataclasses]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why does a dataclass refuse the field `messages: list = []`?"
+      options: ["Lists are not allowed as fields", "A list default needs the `frozen=True` option first", "One list would be shared by every object, so changing it in one would change them all", "The empty list is slower than a factory"]
+      explanation: "A default is created once, when the class is defined. If it were a list, every object would get the same list, like `b = a`. A factory builds a fresh list for each object instead."
+    vi:
+      prompt: "Vì sao dataclass từ chối field `messages: list = []`?"
+      options: ["List không được phép làm field", "Giá trị mặc định kiểu list cần bật tùy chọn `frozen=True` trước", "Một list sẽ được mọi object dùng chung, nên đổi ở một object là đổi ở tất cả", "List rỗng chậm hơn factory"]
+      explanation: "Giá trị mặc định được tạo một lần, lúc class được định nghĩa. Nếu là list thì mọi object sẽ nhận cùng một list, giống như `b = a`. Factory thì tạo một list mới cho mỗi object."
+
+  - id: p2-04-q09
+    type: fill
+    tags: [dataclasses]
+    difficulty: 2
+    code: |
+      from dataclasses import dataclass, field
+
+
+      @dataclass
+      class Chat:
+          title: str
+          messages: list = field(default_factory=___)
+
+
+      a = Chat("a")
+      b = Chat("b")
+      a.messages.append("hi")
+      print(b.messages)
+    answer: ["list"]
+    en:
+      prompt: "Fill in the blank so each chat gets its own empty list and the code prints `[]`."
+      explanation: "`default_factory` needs something it can call to make a new value. `list` (without parentheses) is that recipe: the dataclass calls `list()` for each new object."
+    vi:
+      prompt: "Điền vào chỗ trống để mỗi chat có list rỗng riêng và code in ra `[]`."
+      explanation: "`default_factory` cần một thứ có thể gọi để tạo giá trị mới. `list` (không có ngoặc) chính là công thức đó: dataclass gọi `list()` cho mỗi object mới."
+
+  - id: p2-04-q10
+    type: output
+    tags: [dataclasses]
+    difficulty: 2
+    code: |
+      from dataclasses import dataclass, field
+
+
+      @dataclass
+      class Chat:
+          title: str
+          messages: list = field(default_factory=list)
+
+
+      a = Chat("a")
+      b = Chat("b")
+      a.messages.append("hi")
+      a.messages.append("yo")
+      print(len(a.messages), len(b.messages))
+    answer: "2 0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "With `default_factory=list`, `a` and `b` each own a separate list. Two items were added to `a`'s list, and `b`'s list is still empty."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Với `default_factory=list`, `a` và `b` mỗi object sở hữu một list riêng. Hai phần tử được thêm vào list của `a`, còn list của `b` vẫn rỗng."
+
+  - id: p2-04-q11
+    type: mcq
+    tags: [dataclasses]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "With `@dataclass(frozen=True)`, what happens on `config.temperature = 1.5`?"
+      options: ["The value changes, but Python prints a warning", "The line is silently ignored and nothing changes", "A new object with the new value replaces `config`", "It raises a `FrozenInstanceError`"]
+      explanation: "A frozen object is read-only. Assigning to a field raises `FrozenInstanceError`, a kind of `AttributeError`. To get different settings you build a new object instead."
+    vi:
+      prompt: "Với `@dataclass(frozen=True)`, chuyện gì xảy ra ở `config.temperature = 1.5`?"
+      options: ["Giá trị được đổi, nhưng Python in ra cảnh báo", "Dòng đó bị bỏ qua một cách im lặng và không có gì đổi", "Một object mới với giá trị mới thay thế `config`", "Nó gây `FrozenInstanceError`"]
+      explanation: "Object frozen là chỉ đọc. Gán vào một field sẽ gây `FrozenInstanceError`, một loại `AttributeError`. Muốn có cài đặt khác, bạn tạo một object mới."
+
+  - id: p2-04-q12
+    type: parsons
+    tags: [dataclasses]
+    difficulty: 2
+    lines:
+      - "from dataclasses import dataclass, field"
+      - "@dataclass"
+      - "class Chat:"
+      - "    title: str"
+      - "    messages: list = field(default_factory=list)"
+      - 'chat = Chat("demo")'
+      - 'chat.messages.append("Hi")'
+      - "print(chat.messages)"
+    en:
+      prompt: "Put the lines in order so the program prints `['Hi']`. A field without a default goes before a field with a default."
+      explanation: "The import must come before the decorator, the decorator before the class, and `title` (no default) before `messages` (has a default). The object is built, then the message is added, then the list is printed."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `['Hi']`. Field không có giá trị mặc định đứng trước field có giá trị mặc định."
+      explanation: "Import phải đứng trước decorator, decorator đứng trước class, và `title` (không có mặc định) đứng trước `messages` (có mặc định). Object được tạo, rồi message được thêm, rồi list được in ra."
+
+  - id: p2-04-q13
+    type: mcq
+    tags: [dataclasses]
+    difficulty: 3
+    answer: 0
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass
+      class Doc:
+          doc_id: str = "none"
+          text: str
+    en:
+      prompt: "What happens when Python runs this code?"
+      options: ["`TypeError`, as soon as the class is defined", "Nothing yet; `Doc()` fails later because `text` is missing", "It works, and `text` becomes `None` when you leave it out", "It works only if you add `frozen=True`"]
+      explanation: "The error comes from a field without a default that follows one with a default. The generated `__init__` is like a function, and a function cannot have a required parameter after one with a default. The dataclass checks this when the class is defined and raises `TypeError`."
+    vi:
+      prompt: "Chuyện gì xảy ra khi Python chạy đoạn code này?"
+      options: ["`TypeError` ngay khi class được định nghĩa", "Chưa có gì; `Doc()` mới lỗi sau đó vì thiếu `text`", "Nó chạy được, và `text` thành `None` khi bạn bỏ qua", "Nó chỉ chạy được nếu bạn thêm `frozen=True`"]
+      explanation: "Lỗi đến từ field không có mặc định đứng sau field có mặc định. `__init__` được sinh ra giống một hàm, và hàm không thể có tham số bắt buộc đứng sau tham số có mặc định. Dataclass kiểm tra điều này khi class được định nghĩa và gây `TypeError`."
+
+  - id: p2-04-q14
+    type: output
+    tags: [dataclasses]
+    difficulty: 3
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass(order=True)
+      class Hit:
+          score: float
+          doc_id: str
+
+
+      hits = [Hit(0.5, "b"), Hit(0.9, "a"), Hit(0.5, "a")]
+      print(sorted(hits)[0])
+    answer: "Hit(score=0.5, doc_id='a')"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`sorted` puts the smallest hit first. Hits compare by `score` first, and two hits with score 0.5 are compared by `doc_id`, where `'a'` is smaller than `'b'`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`sorted` đặt hit nhỏ nhất lên đầu. Các hit so sánh theo `score` trước, và hai hit cùng score 0.5 được so sánh theo `doc_id`, trong đó `'a'` nhỏ hơn `'b'`."
+
+  - id: p2-04-q15
+    type: output
+    tags: [dataclasses]
+    difficulty: 3
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass(frozen=True)
+      class Config:
+          model: str
+          temperature: float = 0.7
+
+
+      c = Config("small")
+      try:
+          c.temperature = 1.0
+      except AttributeError:
+          print("blocked")
+      print(c.temperature)
+    answer: "blocked\n0.7"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The assignment raises `FrozenInstanceError`, a kind of `AttributeError`, so the `except` branch prints `blocked`. The object was never changed, so its temperature is still 0.7."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Phép gán gây `FrozenInstanceError`, một loại `AttributeError`, nên nhánh `except` in `blocked`. Object chưa hề bị đổi, nên temperature của nó vẫn là 0.7."
+
+  - id: p2-04-q16
+    type: mcq
+    tags: [dataclasses, classes]
+    difficulty: 2
+    answer: 1
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass
+      class GenerationConfig:
+          model: str
+          temperature = 0.7
+
+
+      config = GenerationConfig("small", temperature=0.2)
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["`config.temperature` becomes 0.2", "`TypeError`: `__init__()` got an unexpected keyword argument `temperature`", "`config.temperature` stays 0.7 and the 0.2 is silently ignored", "`ValueError`, because `temperature` has no type"]
+      explanation: "Without an annotation, `temperature = 0.7` is not a field, so it is not a parameter of the generated `__init__`. Passing `temperature=0.2` fails with `TypeError`. The fix is `temperature: float = 0.7`."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["`config.temperature` trở thành 0.2", "`TypeError`: `__init__()` nhận một keyword argument `temperature` không mong đợi", "`config.temperature` vẫn là 0.7 và giá trị 0.2 bị bỏ qua một cách im lặng", "`ValueError`, vì `temperature` không có kiểu"]
+      explanation: "Không có annotation thì `temperature = 0.7` không phải là field, nên nó không là tham số của `__init__` được sinh ra. Truyền `temperature=0.2` sẽ gây `TypeError`. Cách sửa là `temperature: float = 0.7`."
+
+flashcards:
+  - id: p2-04-f01
+    tags: [dataclasses]
+    code: |
+      @dataclass
+      class Message:
+          role: str
+          content: str
+    en: { front: "What does `@dataclass` give you?", back: "It reads the annotated fields and writes `__init__`, `__repr__` and `__eq__` for you. You can still add your own methods." }
+    vi: { front: "`@dataclass` cho bạn những gì?", back: "Nó đọc các field có annotation và viết sẵn `__init__`, `__repr__` và `__eq__` cho bạn. Bạn vẫn có thể thêm method của riêng mình." }
+  - id: p2-04-f02
+    tags: [dataclasses]
+    en: { front: "What makes a line a field?", back: "An annotation: `name: type`. A line like `temperature = 0.7` without `: type` is not a field. Annotations are labels, they are not checked." }
+    vi: { front: "Điều gì khiến một dòng trở thành field?", back: "Một annotation: `name: type`. Dòng như `temperature = 0.7` không có `: type` thì không phải field. Annotation là nhãn, không được kiểm tra." }
+  - id: p2-04-f03
+    tags: [dataclasses]
+    code: |
+      @dataclass
+      class Config:
+          model: str
+          temperature: float = 0.7
+    en: { front: "Which fields come first?", back: "Fields without a default come before fields with a default, like function parameters." }
+    vi: { front: "Field nào đứng trước?", back: "Field không có giá trị mặc định đứng trước field có giá trị mặc định, giống tham số của hàm." }
+  - id: p2-04-f04
+    tags: [dataclasses]
+    code: |
+      messages: list = field(default_factory=list)
+    en: { front: "How do you give a field an empty list as its default?", back: "`field(default_factory=list)`. Every object gets its own new list. Writing `= []` is refused because one list would be shared." }
+    vi: { front: "Làm sao đặt list rỗng làm giá trị mặc định cho một field?", back: "`field(default_factory=list)`. Mỗi object nhận một list mới của riêng nó. Viết `= []` bị từ chối vì một list sẽ bị dùng chung." }
+  - id: p2-04-f05
+    tags: [dataclasses]
+    en: { front: "What do `frozen=True` and `order=True` do?", back: "`frozen=True` makes objects read-only (assigning raises an error). `order=True` lets you compare objects with `<` and `>` and use `sorted`, field by field." }
+    vi: { front: "`frozen=True` và `order=True` làm gì?", back: "`frozen=True` làm object chỉ đọc (gán vào sẽ gây lỗi). `order=True` cho phép so sánh object bằng `<` và `>` và dùng `sorted`, lần lượt theo từng field." }
+  - id: p2-04-f06
+    tags: [dataclasses]
+    code: |
+      asdict(Message("user", "Hi"))
+      # {'role': 'user', 'content': 'Hi'}
+    en: { front: "How do you turn a dataclass object into a dict?", back: "Import `asdict` from `dataclasses` and call `asdict(obj)`. It is handy for JSON and API payloads." }
+    vi: { front: "Làm sao chuyển object dataclass thành dict?", back: "Import `asdict` từ `dataclasses` rồi gọi `asdict(obj)`. Rất tiện cho JSON và payload gửi API." }

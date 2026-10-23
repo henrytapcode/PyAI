@@ -1,0 +1,6 @@
+Message(role='system', content='You are a helpful tutor.', tags=[])
+Message(role='user', content='What is a dataclass?', tags=['question'])
+Message(role='assistant', content='A class that writes the boring code for you.', tags=[])
+total words: 18
+True
+{"role": "user", "content": "What is a dataclass?", "tags": ["question"]}
