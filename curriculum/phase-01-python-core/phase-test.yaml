@@ -100,19 +100,17 @@ questions:
     difficulty: 2
     lines:
       - "score = 72"
-      - "if score >= 90:"
-      - "    grade = \"A\""
-      - "elif score >= 70:"
-      - "    grade = \"B\""
+      - "if score >= 70:"
+      - "    grade = \"pass\""
       - "else:"
-      - "    grade = \"C\""
+      - "    grade = \"fail\""
       - "print(grade)"
     en:
-      prompt: "Put the lines in order so the program prints `B`."
-      explanation: "Set the score first, then `if` comes before `elif`, `else` comes last, and `print` runs after the whole block."
+      prompt: "Put the lines in order so the program prints `pass`."
+      explanation: "Set the score first, then `if` with its block, then `else` with its block, and `print` runs after the whole `if`/`else`."
     vi:
-      prompt: "Sắp xếp các dòng để chương trình in ra `B`."
-      explanation: "Gán điểm trước, sau đó `if` đứng trước `elif`, `else` đứng cuối, và `print` chạy sau toàn bộ khối."
+      prompt: "Sắp xếp các dòng để chương trình in ra `pass`."
+      explanation: "Gán điểm trước, sau đó `if` cùng khối của nó, rồi `else` cùng khối của nó, và `print` chạy sau toàn bộ `if`/`else`."
 
   # ---- Loops, range
   - id: p1-test-q07

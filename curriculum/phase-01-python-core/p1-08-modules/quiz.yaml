@@ -258,16 +258,15 @@ questions:
     difficulty: 3
     lines:
       - "def main():"
-      - "    message = \"start\""
-      - "    print(message)"
+      - "    return \"start\""
       - "if __name__ == \"__main__\":"
-      - "    main()"
+      - "    print(main())"
     en:
       prompt: "Put the lines in order so the program prints `start` when run directly."
-      explanation: "Define `main` first: the header, then `message` is created, then it is printed. Both body lines are indented under the header. The `__main__` guard comes after, because it calls `main()`."
+      explanation: "Define `main` first: the header, then its `return` line indented under it. The `__main__` guard comes after, because it calls `main()` and prints what it returns. A `return` outside a function would be an error."
     vi:
       prompt: "Sắp xếp các dòng để chương trình in ra `start` khi chạy trực tiếp."
-      explanation: "Định nghĩa `main` trước: dòng header, rồi tạo `message`, rồi in nó ra. Hai dòng thân đều thụt lề dưới header. Đoạn guard `__main__` đứng sau, vì nó gọi `main()`."
+      explanation: "Định nghĩa `main` trước: dòng header, rồi dòng `return` thụt lề dưới nó. Đoạn guard `__main__` đứng sau, vì nó gọi `main()` và in ra giá trị trả về. `return` nằm ngoài hàm sẽ gây lỗi."
 
 flashcards:
   - id: p1-08-f01

@@ -235,11 +235,12 @@ questions:
       - "    except ZeroDivisionError:"
       - "        return None"
       - "print(safe_div(1, 0))"
+      - "print(safe_div(6, 3))"
     en:
-      prompt: "Put the lines in order so the program prints `None`."
+      prompt: "Put the lines in order so the program prints `None`, then `2.0`."
       explanation: "The `try` body comes first, its `except` handler follows at the same indentation as `try`, and the call comes after the function definition."
     vi:
-      prompt: "Sắp xếp các dòng để chương trình in ra `None`."
+      prompt: "Sắp xếp các dòng để chương trình in ra `None`, rồi `2.0`."
       explanation: "Thân `try` đứng trước, `except` theo sau cùng mức thụt lề với `try`, và lời gọi hàm đứng sau phần định nghĩa."
 
   - id: place-q14

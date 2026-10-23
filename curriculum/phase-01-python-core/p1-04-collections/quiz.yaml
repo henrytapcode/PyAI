@@ -248,7 +248,7 @@ questions:
     tags: [dicts, loops]
     difficulty: 3
     lines:
-      - 'rows = [("Lan", 9), ("Minh", 7), ("Hoa", 8)]'
+      - 'rows = [("Minh", 7), ("Lan", 9), ("Hoa", 8)]'
       - 'best_name, best_score = rows[0]'
       - 'for name, score in rows:'
       - '    if score > best_score:'
