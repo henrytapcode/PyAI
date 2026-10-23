@@ -7,10 +7,38 @@ difficulty: 2
 tags: [loops, range, conditions]
 hints:
   en:
-    - "Start with `total = 0`, then use `for number in range(...)` to visit the numbers. Remember `range` stops *before* its second value."
-    - "Inside the loop, use `if number % 2 == 0:` to keep only even numbers, and add them to `total`."
-    - "Shape: `total = 0` / `for number in range(1, n + 1):` / `if number % 2 == 0:` / `total += number` / then `return total` after the loop."
+    - |
+      This is the accumulator pattern from §4. You need a variable that starts at `0` and grows, and a loop that visits every number from 1 to `n`.
+      Check by hand: for `n = 10` the answer must be `2 + 4 + 6 + 8 + 10 = 30`. Careful: `range(1, 10)` stops at 9, so it would miss the 10.
+    - |
+      Plan:
+      1. Before the loop, create `total` and set it to 0.
+      2. Loop over every `number` from 1 up to and including `n`.
+      3. If `number % 2 == 0`, the number is even: add it to `total`.
+      4. After the loop (not inside it), `return total`.
+    - |
+      ```python
+      total = 0
+      for number in range(1, ...):   # the end value must include n
+          if ...:                    # is number even?
+              total += number
+      return total
+      ```
   vi:
-    - "Bắt đầu với `total = 0`, rồi dùng `for number in range(...)` để duyệt các số. Nhớ `range` dừng *trước* giá trị thứ hai."
-    - "Trong vòng lặp, dùng `if number % 2 == 0:` để chỉ giữ số chẵn, rồi cộng vào `total`."
-    - "Hình dạng: `total = 0` / `for number in range(1, n + 1):` / `if number % 2 == 0:` / `total += number` / rồi `return total` sau vòng lặp."
+    - |
+      Đây là mẫu tích lũy ở §4. Bạn cần một biến bắt đầu từ `0` rồi tăng dần, và một vòng lặp đi qua mọi số từ 1 đến `n`.
+      Tự kiểm tra bằng tay: với `n = 10` đáp án phải là `2 + 4 + 6 + 8 + 10 = 30`. Cẩn thận: `range(1, 10)` dừng ở 9, nên sẽ bỏ sót số 10.
+    - |
+      Kế hoạch:
+      1. Trước vòng lặp, tạo `total` và đặt bằng 0.
+      2. Lặp qua từng `number` từ 1 đến hết `n` (tính cả `n`).
+      3. Nếu `number % 2 == 0` thì số đó chẵn: cộng nó vào `total`.
+      4. Sau vòng lặp (không phải bên trong nó), `return total`.
+    - |
+      ```python
+      total = 0
+      for number in range(1, ...):   # giá trị cuối phải bao gồm n
+          if ...:                    # number có chẵn không?
+              total += number
+      return total
+      ```

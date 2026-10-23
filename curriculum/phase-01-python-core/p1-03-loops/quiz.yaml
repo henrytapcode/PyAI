@@ -133,6 +133,150 @@ questions:
       options: ["range(10)", "range(1, 10)", "range(0, 10)", "range(1, 11)"]
       explanation: "Giá trị stop không được tính, nên cần `range(1, 11)` để có cả 10."
 
+  - id: p1-03-q09
+    type: mcq
+    tags: [loops]
+    difficulty: 2
+    answer: 1
+    code: |
+      total = 0
+      for n in range(1, 4):
+          total = 0
+          total += n
+      print(total)
+    en:
+      prompt: "What does this code print?"
+      options: ["6", "3", "0", "1"]
+      explanation: "The `total = 0` line is inside the loop, so it resets every round. The last round starts from 0 and adds 3, so the result is 3, not the sum 6. Set the accumulator before the loop."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["6", "3", "0", "1"]
+      explanation: "Dòng `total = 0` nằm trong vòng lặp nên bị đặt lại mỗi vòng. Vòng cuối bắt đầu từ 0 rồi cộng 3, nên kết quả là 3, không phải tổng 6. Hãy đặt bộ tích lũy trước vòng lặp."
+
+  - id: p1-03-q10
+    type: output
+    tags: [range, loops]
+    difficulty: 2
+    code: |
+      count = 0
+      for n in range(10, 0, -3):
+          count += 1
+      print(count, n)
+    answer: "4 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`range(10, 0, -3)` gives 10, 7, 4, 1 (0 is excluded). That is 4 rounds, and `n` keeps its last value, 1, after the loop."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`range(10, 0, -3)` cho 10, 7, 4, 1 (không có 0). Có 4 vòng, và `n` giữ giá trị cuối là 1 sau khi vòng lặp kết thúc."
+
+  - id: p1-03-q11
+    type: fill
+    tags: [range]
+    difficulty: 1
+    code: |
+      for n in range(___, 0, -1):
+          print(n)  # prints 5, 4, 3, 2, 1
+    answer: ["5"]
+    en:
+      prompt: "Fill in the blank so the loop prints 5 4 3 2 1 (a countdown)."
+      explanation: "The start is the first number printed. `range(5, 0, -1)` steps down by 1 and stops before 0."
+    vi:
+      prompt: "Điền vào chỗ trống để vòng lặp in ra 5 4 3 2 1 (đếm ngược)."
+      explanation: "Điểm bắt đầu là số đầu tiên được in. `range(5, 0, -1)` lùi mỗi bước 1 và dừng trước 0."
+
+  - id: p1-03-q12
+    type: fill
+    tags: [loops, conditions]
+    difficulty: 3
+    code: |
+      for n in range(1, 10):
+          if n % 2 == 0:
+              ___
+          if n > 6:
+              break
+          print(n)  # prints 1, 3, 5
+    answer: ["continue"]
+    en:
+      prompt: "Fill in the blank so the loop skips the even numbers and stops at 7 (it prints 1, 3, 5)."
+      explanation: "`continue` skips the rest of this round, so even numbers never reach `print`. `break` would stop the whole loop at 2, and only `1` would print."
+    vi:
+      prompt: "Điền vào chỗ trống để vòng lặp bỏ qua các số chẵn và dừng ở 7 (in ra 1, 3, 5)."
+      explanation: "`continue` bỏ qua phần còn lại của vòng này, nên số chẵn không tới được `print`. Nếu dùng `break`, vòng lặp dừng ngay ở 2 và chỉ in `1`."
+
+  - id: p1-03-q13
+    type: mcq
+    tags: [loops, range]
+    difficulty: 1
+    answer: 1
+    code: |
+      for n in range(3):
+          print("round")
+      print(n)
+    en:
+      prompt: "The loop prints `round` three times. What does the last `print(n)` show?"
+      options: ["0", "2", "3", "NameError"]
+      explanation: "The loop variable `n` is still there after the loop, holding the last value it got: 2, because `range(3)` stops before 3. It is not 3."
+    vi:
+      prompt: "Vòng lặp in `round` ba lần. Dòng `print(n)` cuối cùng in ra gì?"
+      options: ["0", "2", "3", "NameError"]
+      explanation: "Biến lặp `n` vẫn tồn tại sau vòng lặp và giữ giá trị cuối là 2, vì `range(3)` dừng trước 3. Không phải 3."
+
+  - id: p1-03-q14
+    type: output
+    tags: [loops, conditions]
+    difficulty: 3
+    code: |
+      n = 0
+      while n < 3:
+          n += 1
+          if n == 2:
+              continue
+          print(n)
+    answer: |-
+      1
+      3
+    en:
+      prompt: "What does this code print?"
+      explanation: "`n += 1` runs before the `continue`, so `n` still goes up to 2 and the loop keeps going. `continue` only skips the `print` for that round, so 1 and 3 are printed."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`n += 1` chạy trước `continue`, nên `n` vẫn tăng lên 2 và vòng lặp tiếp tục. `continue` chỉ bỏ qua `print` của vòng đó, nên 1 và 3 được in."
+
+  - id: p1-03-q15
+    type: parsons
+    tags: [loops, conditions]
+    difficulty: 3
+    lines:
+      - "evens = 0"
+      - "for n in range(1, 7):"
+      - "    if n % 2 == 0:"
+      - "        evens += 1"
+      - "print(evens)  # 3"
+    en:
+      prompt: "Put the lines in order so the program counts the even numbers from 1 to 6 and prints `3`."
+      explanation: "The counter is set before the loop (so it is not reset each round), the `if` comes before the indented line it controls, and `print` runs after the loop finishes."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình đếm các số chẵn từ 1 đến 6 và in ra `3`."
+      explanation: "Bộ đếm được gán trước vòng lặp (để không bị đặt lại mỗi vòng), dòng `if` nằm trước dòng thụt lề mà nó điều khiển, và `print` chạy sau khi vòng lặp kết thúc."
+
+  - id: p1-03-q16
+    type: parsons
+    tags: [loops, operators]
+    difficulty: 3
+    lines:
+      - "n = 3"
+      - "while n > 0:"
+      - "    print(n)"
+      - "    n -= 1"
+      - "print(\"liftoff\")"
+    en:
+      prompt: "Put the lines in order so the program prints 3, 2, 1 and then `liftoff`, each on its own line."
+      explanation: "Print first, then decrease `n`. If you decrease first, 3 is never printed and the output starts at 2. `n` must be set before the `while` line because the condition reads it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra 3, 2, 1 rồi `liftoff`, mỗi số một dòng."
+      explanation: "In trước, rồi mới giảm `n`. Nếu giảm trước, 3 sẽ không bao giờ được in và kết quả bắt đầu từ 2. `n` phải được gán trước dòng `while` vì điều kiện cần đọc nó."
+
 flashcards:
   - id: p1-03-f01
     tags: [range]
@@ -159,3 +303,8 @@ flashcards:
     code: "count += 1"
     en: { front: "What does `count += 1` mean?", back: "Shorthand for `count = count + 1`: add 1 to the current value." }
     vi: { front: "`count += 1` nghĩa là gì?", back: "Viết gọn của `count = count + 1`: cộng 1 vào giá trị hiện tại." }
+  - id: p1-03-f06
+    tags: [loops, range]
+    code: "for n in range(3):\n    print(n)\nprint(n)  # 2"
+    en: { front: "Why can you still use the loop variable after the loop ends?", back: "A `for` loop does not delete its variable. After `for n in range(3)` ends, `n` keeps the last value it had: 2." }
+    vi: { front: "Vì sao vẫn dùng được biến lặp sau khi vòng lặp kết thúc?", back: "`for` không xóa biến của nó. Sau `for n in range(3)`, `n` giữ giá trị cuối cùng là 2." }

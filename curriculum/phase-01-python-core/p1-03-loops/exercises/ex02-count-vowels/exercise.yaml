@@ -7,10 +7,28 @@ difficulty: 2
 tags: [loops, strings, debugging]
 hints:
   en:
-    - "Run it on `\"banana\"`. It should say 3 but does not. Look at what happens to `count` each time a vowel is found."
-    - "`count = 1` overwrites the counter instead of adding to it. Which operator adds to an existing variable?"
-    - "Replace `count = 1` with `count += 1` inside the `if`."
+    - |
+      Run it on `"banana"`: the answer should be 3, but you get 1. Trace it on paper: each time a vowel is found, what is `count` afterwards? It should go 1, 2, 3. What does it go through now?
+    - |
+      Plan:
+      1. Find the line that changes `count` (it is inside the `if`).
+      2. Look at what it does to the old value of `count`: does it add to it, or replace it?
+      3. Pick the operator that adds to a variable (§4).
+    - |
+      ```python
+      if letter in "aeiou":
+          count ... 1   # "=" replaces the value; which operator adds 1 to it?
+      ```
   vi:
-    - "Chạy thử với `\"banana\"`. Kết quả phải là 3 nhưng không đúng. Hãy xem `count` thay đổi thế nào mỗi lần gặp nguyên âm."
-    - "`count = 1` ghi đè bộ đếm thay vì cộng thêm. Toán tử nào cộng thêm vào một biến có sẵn?"
-    - "Thay `count = 1` bằng `count += 1` bên trong `if`."
+    - |
+      Chạy thử với `"banana"`: đáp án phải là 3 nhưng bạn nhận được 1. Hãy theo dõi bằng giấy: mỗi lần gặp nguyên âm, `count` sau đó bằng bao nhiêu? Nó phải đi 1, 2, 3. Hiện giờ nó đi qua những giá trị nào?
+    - |
+      Kế hoạch:
+      1. Tìm dòng làm thay đổi `count` (nằm trong `if`).
+      2. Xem nó làm gì với giá trị cũ của `count`: cộng thêm vào, hay thay thế?
+      3. Chọn toán tử cộng thêm vào một biến (§4).
+    - |
+      ```python
+      if letter in "aeiou":
+          count ... 1   # "=" thay thế giá trị; toán tử nào cộng thêm 1 vào nó?
+      ```
