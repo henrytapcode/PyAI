@@ -92,13 +92,13 @@ phases:
           vi: ["Phương thức chuỗi", "Định dạng f-string", "split và join"]
       - id: p1-08-modules
         title: { en: "Modules & imports", vi: "Module & import" }
-        prerequisites: [p1-05-functions]
+        prerequisites: [p1-05-functions, p1-07-strings]
         outcomes:
           en: ["Import from the standard library", "Split code into modules"]
           vi: ["Import từ thư viện chuẩn", "Tách code thành module"]
       - id: p1-09-files
         title: { en: "File I/O", vi: "Đọc ghi file" }
-        prerequisites: [p1-07-strings]
+        prerequisites: [p1-07-strings, p1-08-modules]
         outcomes:
           en: ["Read and write text files with with-open", "Work with CSV and JSON"]
           vi: ["Đọc ghi file text bằng with-open", "Làm việc với CSV và JSON"]

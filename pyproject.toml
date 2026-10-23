@@ -25,4 +25,4 @@ extend-exclude = ["apps"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "B", "UP"]
 # Starters intentionally contain blanks (___) and unused args.
-per-file-ignores = { "**/starter.py" = ["F821", "F841", "ARG001", "B018"], "**/examples/*.py" = ["E501"] }
+per-file-ignores = { "**/starter.py" = ["F821", "F841", "ARG001", "B018", "F401", "F811"], "**/examples/*.py" = ["E501"] }
