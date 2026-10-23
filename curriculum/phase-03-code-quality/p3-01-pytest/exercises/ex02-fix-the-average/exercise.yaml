@@ -1,0 +1,46 @@
+id: p3-01-ex02
+kind: debug
+title:
+  en: "Debug: read the red tests"
+  vi: "Sửa lỗi: đọc các test đỏ"
+difficulty: 2
+tags: [testing, exceptions, loops]
+hints:
+  en:
+    - |
+      Look at the first red test and the message after the comma (§3, reading a failure). For `average([1, 2, 3])` the answer must be `2.0`, but the function gives `1.0`. Ask yourself what the loop does to `total` on each pass: this is the accumulator pattern from the loops lesson.
+    - |
+      The plan:
+      1. In the loop, the line `total = n` replaces the total each time. It should add `n` to the total instead.
+      2. `len(numbers)` is `0` for an empty list, so the division fails with the wrong error. Before the loop, check for an empty list.
+      3. For an empty list, `raise ValueError(...)` with a short message, because the last test expects exactly that (§6).
+    - |
+      The shape:
+      ```python
+      if not numbers:
+          raise ValueError("numbers must not be empty")
+      total = 0
+      for n in numbers:
+          total ... n
+      return total / len(numbers)
+      ```
+      Replace `...` with the operator that adds `n` to `total` in place.
+  vi:
+    - |
+      Hãy nhìn test đỏ đầu tiên và thông báo sau dấu phẩy (§3, đọc một báo cáo thất bại). Với `average([1, 2, 3])` đáp án phải là `2.0`, nhưng hàm trả `1.0`. Hãy tự hỏi vòng lặp làm gì với `total` ở mỗi lượt: đây là mẫu accumulator trong bài về vòng lặp.
+    - |
+      Kế hoạch:
+      1. Trong vòng lặp, dòng `total = n` thay tổng mỗi lượt. Lẽ ra nó phải cộng `n` vào tổng.
+      2. `len(numbers)` bằng `0` với list rỗng, nên phép chia báo sai loại lỗi. Trước vòng lặp, hãy kiểm tra list rỗng.
+      3. Với list rỗng, `raise ValueError(...)` kèm một thông báo ngắn, vì test cuối cùng mong đúng điều đó (§6).
+    - |
+      Hình dạng của lời giải:
+      ```python
+      if not numbers:
+          raise ValueError("numbers must not be empty")
+      total = 0
+      for n in numbers:
+          total ... n
+      return total / len(numbers)
+      ```
+      Thay `...` bằng toán tử cộng `n` vào `total` tại chỗ.

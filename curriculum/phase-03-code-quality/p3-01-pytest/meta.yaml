@@ -1,0 +1,33 @@
+id: p3-01-pytest
+phase: p3
+order: 1
+kind: lesson
+title:
+  en: "Testing with pytest"
+  vi: "Kiểm thử với pytest"
+summary:
+  en: "Write small tests with assert, check errors and floats, run many cases with parametrize and share setup with fixtures."
+  vi: "Viết test nhỏ bằng assert, kiểm tra lỗi và số thực, chạy nhiều case với parametrize và dùng chung phần chuẩn bị bằng fixture."
+level: beginner
+tags: [testing, fixtures, exceptions]
+prerequisites: [p2-05-typing, p1-10-exceptions]
+duration_min: 12
+outcomes:
+  en:
+    - "Write a test file with test_ functions and plain assert"
+    - "Read a failing test report and run pytest with -q, -x and -k"
+    - "Use pytest.raises, pytest.approx and parametrize"
+    - "Share setup with a fixture and use tmp_path and capsys"
+    - "Choose edge cases: empty, boundary and bad input"
+  vi:
+    - "Viết file test với các hàm test_ và assert thuần"
+    - "Đọc báo cáo test thất bại và chạy pytest với -q, -x và -k"
+    - "Dùng pytest.raises, pytest.approx và parametrize"
+    - "Dùng chung phần chuẩn bị bằng fixture, và dùng tmp_path, capsys"
+    - "Chọn edge case: rỗng, biên và đầu vào sai"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "pytest documentation: Get started", vi: "Tài liệu pytest: Get started (EN)" }
+    url: "https://docs.pytest.org/en/stable/getting-started.html"
+  - title: { en: "pytest documentation: How to use fixtures", vi: "Tài liệu pytest: Cách dùng fixture (EN)" }
+    url: "https://docs.pytest.org/en/stable/how-to/fixtures.html"

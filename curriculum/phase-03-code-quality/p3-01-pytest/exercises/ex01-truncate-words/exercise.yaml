@@ -1,0 +1,48 @@
+id: p3-01-ex01
+kind: code
+title:
+  en: "Write: make the tests pass"
+  vi: "Viết hàm: cho các test chạy xanh"
+difficulty: 1
+tags: [testing, strings, exceptions]
+hints:
+  en:
+    - |
+      This is the "split, then slice" idea from the string and list lessons, and the tests in the prompt are your spec (§10). For `truncate_words("one two three four", 2)` you must return `"one two..."`, and for `truncate_words("one two three", 3)` you must return `"one two three"` with no dots.
+    - |
+      The plan:
+      1. If `limit` is below 0, `raise ValueError(...)`.
+      2. Make a list of words with `text.split()`.
+      3. If the list has `limit` words or fewer, return the words joined with one space. No dots.
+      4. Otherwise return the first `limit` words joined with one space, plus `"..."`.
+    - |
+      The shape:
+      ```python
+      if limit < 0:
+          raise ValueError("limit must be 0 or more")
+      words = text.split()
+      if len(words) <= limit:
+          return ...
+      return ... + "..."
+      ```
+      Fill the two gaps with `" ".join(...)`. For the second one, slice the list with `words[:limit]`.
+  vi:
+    - |
+      Đây là ý tưởng "split rồi cắt lát" từ các bài về string và list, và các test trong đề bài chính là bản đặc tả của bạn (§10). Với `truncate_words("one two three four", 2)` bạn phải trả về `"one two..."`, còn với `truncate_words("one two three", 3)` bạn phải trả về `"one two three"` và không có dấu chấm.
+    - |
+      Kế hoạch:
+      1. Nếu `limit` nhỏ hơn 0, `raise ValueError(...)`.
+      2. Tạo list các từ bằng `text.split()`.
+      3. Nếu list có `limit` từ hoặc ít hơn, trả về các từ nối bằng một dấu cách. Không có dấu chấm.
+      4. Nếu không, trả về `limit` từ đầu tiên nối bằng một dấu cách, thêm `"..."`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      if limit < 0:
+          raise ValueError("limit must be 0 or more")
+      words = text.split()
+      if len(words) <= limit:
+          return ...
+      return ... + "..."
+      ```
+      Điền hai chỗ trống bằng `" ".join(...)`. Với chỗ thứ hai, cắt lát list bằng `words[:limit]`.

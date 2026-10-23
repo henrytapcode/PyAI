@@ -1,0 +1,7 @@
+PASS no documents gives just the question
+PASS documents that fit are added
+PASS an exact fit is included
+PASS one word over is left out
+PASS limit smaller than the question keeps the question
+PASS empty question and no documents
+6 passed, 0 failed

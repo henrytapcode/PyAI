@@ -1,0 +1,4 @@
+PASS test_lowercases_text
+PASS test_trims_both_ends
+FAIL test_removes_extra_spaces - got 'a  b'
+2 passed, 1 failed

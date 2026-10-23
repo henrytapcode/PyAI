@@ -1,0 +1,339 @@
+questions:
+  - id: p3-01-q01
+    type: mcq
+    tags: [testing]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which test function will pytest find and run?"
+      options:
+        - "`def test_clean_text_lowercases():`"
+        - "`def check_clean_text():`"
+        - "`def clean_text_test():`"
+        - "`def cleanTextTest():`"
+      explanation: "pytest only collects functions whose name starts with `test_`. The others are silently skipped, which looks like a pass but checks nothing."
+    vi:
+      prompt: "pytest sẽ tìm thấy và chạy hàm test nào?"
+      options:
+        - "`def test_clean_text_lowercases():`"
+        - "`def check_clean_text():`"
+        - "`def clean_text_test():`"
+        - "`def cleanTextTest():`"
+      explanation: "pytest chỉ thu thập các hàm có tên bắt đầu bằng `test_`. Các hàm còn lại bị bỏ qua mà không báo gì, trông như đã qua nhưng thật ra không kiểm tra gì."
+
+  - id: p3-01-q02
+    type: mcq
+    tags: [testing, exceptions]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What happens when the condition in `assert x == 3` is false?"
+      options:
+        - "Nothing, the line is ignored"
+        - "Python prints a warning and continues"
+        - "It raises AssertionError, and pytest marks the test as failed"
+        - "The program restarts"
+      explanation: "`assert` raises `AssertionError` when its condition is false. pytest catches it and reports a failed test, then continues with the next test."
+    vi:
+      prompt: "Điều gì xảy ra khi điều kiện trong `assert x == 3` sai?"
+      options:
+        - "Không có gì, dòng đó bị bỏ qua"
+        - "Python in cảnh báo rồi chạy tiếp"
+        - "Nó raise AssertionError, và pytest đánh dấu test là thất bại"
+        - "Chương trình khởi động lại"
+      explanation: "`assert` raise `AssertionError` khi điều kiện sai. pytest bắt lỗi đó, báo test thất bại rồi chạy tiếp test kế tiếp."
+
+  - id: p3-01-q03
+    type: mcq
+    tags: [testing]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What does the command `pytest -k clean` do?"
+      options:
+        - "Deletes temporary test files"
+        - "Stops at the first failing test"
+        - "Prints a shorter report"
+        - "Runs only the tests whose name contains `clean`"
+      explanation: "`-k` selects tests by name. `-x` stops at the first failure and `-q` makes the output shorter."
+    vi:
+      prompt: "Lệnh `pytest -k clean` làm gì?"
+      options:
+        - "Xóa các file test tạm"
+        - "Dừng ở test thất bại đầu tiên"
+        - "In báo cáo ngắn hơn"
+        - "Chỉ chạy các test có tên chứa `clean`"
+      explanation: "`-k` chọn test theo tên. `-x` dừng ở lần thất bại đầu tiên còn `-q` làm đầu ra ngắn hơn."
+
+  - id: p3-01-q04
+    type: mcq
+    tags: [testing]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Which is the best name for a test that checks what `count_tokens(\"\")` returns?"
+      options:
+        - "`test_1`"
+        - "`test_returns_zero_tokens_for_empty_text`"
+        - "`test_empty`"
+        - "`test_count_tokens`"
+      explanation: "A good name is a sentence that says what should be true. When the test fails, the name is the first thing you read."
+    vi:
+      prompt: "Tên nào tốt nhất cho test kiểm tra kết quả của `count_tokens(\"\")`?"
+      options:
+        - "`test_1`"
+        - "`test_returns_zero_tokens_for_empty_text`"
+        - "`test_empty`"
+        - "`test_count_tokens`"
+      explanation: "Tên tốt là một câu nói điều gì phải đúng. Khi test thất bại, tên là thứ đầu tiên bạn đọc."
+
+  - id: p3-01-q05
+    type: mcq
+    tags: [testing]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "Why is `assert parse_score(\"1/3\") == 0.3333333333333333` a risky test?"
+      options:
+        - "Decimals are stored in binary, so tiny rounding differences can make `==` fail. Compare with `pytest.approx` instead"
+        - "A test may not contain a division"
+        - "`assert` does not work with decimal numbers"
+        - "The number has too many digits for Python"
+      explanation: "Floats are rarely exactly equal after a calculation. `pytest.approx` accepts a tiny gap, so the test checks the idea (about one third) and not the last digit."
+    vi:
+      prompt: "Vì sao `assert parse_score(\"1/3\") == 0.3333333333333333` là một test rủi ro?"
+      options:
+        - "Số thập phân lưu ở dạng nhị phân nên sai lệch làm tròn rất nhỏ có thể làm `==` thất bại. Hãy so sánh bằng `pytest.approx`"
+        - "Test không được chứa phép chia"
+        - "`assert` không dùng được với số thập phân"
+        - "Số này có quá nhiều chữ số với Python"
+      explanation: "Số thực hiếm khi bằng nhau tuyệt đối sau khi tính toán. `pytest.approx` chấp nhận một sai lệch rất nhỏ, nên test kiểm tra ý chính (khoảng một phần ba) chứ không phải chữ số cuối."
+
+  - id: p3-01-q06
+    type: mcq
+    tags: [testing, fixtures]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Two tests use the same global list, and the second one fails because of what the first one left behind. What is the best fix?"
+      options:
+        - "Make the tests run in a fixed order"
+        - "Use one more global list"
+        - "Build the data inside each test, or return it from a fixture, so every test gets a fresh copy"
+        - "Run pytest with `-x`"
+      explanation: "Tests must work in any order. A fixture (or data created inside the test) gives each test its own fresh copy."
+    vi:
+      prompt: "Hai test dùng chung một list toàn cục, và test thứ hai thất bại vì những gì test đầu để lại. Cách sửa tốt nhất là gì?"
+      options:
+        - "Cho các test chạy theo thứ tự cố định"
+        - "Dùng thêm một list toàn cục"
+        - "Tạo dữ liệu bên trong mỗi test, hoặc trả về từ fixture, để mỗi test có một bản mới"
+        - "Chạy pytest với `-x`"
+      explanation: "Test phải chạy đúng ở mọi thứ tự. Fixture (hoặc dữ liệu tạo trong test) cho mỗi test một bản mới riêng."
+
+  - id: p3-01-q07
+    type: output
+    tags: [testing]
+    difficulty: 1
+    code: |
+      def double(x):
+          return x * 2
+
+
+      def test_double():
+          assert double(4) == 8
+
+
+      test_double()
+      print("ok")
+    answer: "ok"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`double(4)` is 8, so the assert is true and does nothing. The test returns normally and `ok` is printed."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`double(4)` là 8 nên assert đúng và không làm gì. Test kết thúc bình thường và `ok` được in ra."
+
+  - id: p3-01-q08
+    type: output
+    tags: [testing, exceptions]
+    difficulty: 2
+    code: |
+      def total(nums):
+          return sum(nums)
+
+
+      try:
+          assert total([1, 2]) == 4, "wrong total"
+      except AssertionError as err:
+          print("failed:", err)
+    answer: "failed: wrong total"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`total([1, 2])` is 3, not 4, so the assert raises `AssertionError`. The text after the comma becomes the error message, which `print` shows."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`total([1, 2])` là 3 chứ không phải 4, nên assert raise `AssertionError`. Đoạn chữ sau dấu phẩy trở thành thông báo lỗi và `print` hiển thị nó."
+
+  - id: p3-01-q09
+    type: output
+    tags: [testing]
+    difficulty: 2
+    code: |
+      print(0.1 + 0.2 == 0.3, abs((0.1 + 0.2) - 0.3) < 1e-9)
+    answer: "False True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`0.1 + 0.2` is `0.30000000000000004`, so `==` gives False. The gap to 0.3 is far smaller than `1e-9`, so the second check gives True. `pytest.approx` does the second kind of check for you."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`0.1 + 0.2` là `0.30000000000000004`, nên `==` cho False. Khoảng cách tới 0.3 nhỏ hơn nhiều so với `1e-9`, nên phép kiểm tra thứ hai cho True. `pytest.approx` làm phép kiểm tra kiểu thứ hai cho bạn."
+
+  - id: p3-01-q10
+    type: output
+    tags: [testing, fixtures]
+    difficulty: 3
+    code: |
+      history = []
+
+
+      def add(text):
+          history.append(text)
+          return len(history)
+
+
+      print(add("a"), add("b"))
+    answer: "1 2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`history` lives outside the function, so the second call still sees the first message. Two tests written like this would affect each other, which is why tests should build their own data."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`history` nằm ngoài hàm nên lần gọi thứ hai vẫn thấy tin nhắn của lần đầu. Hai test viết kiểu này sẽ ảnh hưởng nhau, vì vậy mỗi test nên tự tạo dữ liệu của mình."
+
+  - id: p3-01-q11
+    type: fill
+    tags: [testing]
+    difficulty: 1
+    code: |
+      def clean_text(text):
+          return text.strip().lower()
+
+
+      def ___clean_text_lowercases():
+          assert clean_text("Hi") == "hi"
+
+
+      test_clean_text_lowercases()
+      print("passed")
+    answer: ["test_"]
+    en:
+      prompt: "Fill in the start of the function name so pytest would find this test."
+      explanation: "pytest collects functions whose name starts with `test_`. The call at the bottom already uses the full name, `test_clean_text_lowercases`."
+    vi:
+      prompt: "Điền phần đầu của tên hàm để pytest tìm thấy test này."
+      explanation: "pytest thu thập các hàm có tên bắt đầu bằng `test_`. Lời gọi ở cuối đã dùng tên đầy đủ là `test_clean_text_lowercases`."
+
+  - id: p3-01-q12
+    type: fill
+    tags: [testing, exceptions]
+    difficulty: 2
+    code: |
+      def parse_score(text):
+          a, b = text.split("/")
+          if int(b) == 0:
+              raise ValueError("denominator is zero")
+          return int(a) / int(b)
+
+
+      try:
+          parse_score("1/0")
+      except ___ as err:
+          print(err)  # denominator is zero
+    answer: ["ValueError"]
+    en:
+      prompt: "Fill in the error that the function must raise for `\"1/0\"`."
+      explanation: "The function raises `ValueError`, so the `except` catches that type. In pytest you would write the same idea as `with pytest.raises(ValueError):`."
+    vi:
+      prompt: "Điền loại lỗi mà hàm phải raise với `\"1/0\"`."
+      explanation: "Hàm raise `ValueError`, nên `except` bắt đúng loại đó. Trong pytest bạn viết cùng ý này là `with pytest.raises(ValueError):`."
+
+  - id: p3-01-q13
+    type: fill
+    tags: [testing]
+    difficulty: 2
+    code: |
+      a = 0.1 + 0.2
+      b = 0.3
+      print(___(a - b) < 1e-9)  # True
+    answer: ["abs"]
+    en:
+      prompt: "Fill in the built-in that gives the size of the gap without its sign."
+      explanation: "`abs(a - b)` is the distance between the two numbers. Two floats are \"equal enough\" when this distance is tiny, which is what `pytest.approx` checks."
+    vi:
+      prompt: "Điền hàm có sẵn trả về độ lớn của khoảng cách mà không có dấu."
+      explanation: "`abs(a - b)` là khoảng cách giữa hai số. Hai số thực \"đủ bằng nhau\" khi khoảng cách này rất nhỏ, đúng là điều `pytest.approx` kiểm tra."
+
+  - id: p3-01-q14
+    type: parsons
+    tags: [testing]
+    difficulty: 1
+    lines:
+      - "raw = \"  Hi \""
+      - "cleaned = raw.strip()"
+      - "lowered = cleaned.lower()"
+      - "print(lowered == \"hi\")"
+    en:
+      prompt: "Put the lines in order (Arrange, Act, then check) so the program prints `True`."
+      explanation: "First prepare the input (`raw`). Then run the steps on it, each using the result of the one before. The check comes last, because it needs the final value."
+    vi:
+      prompt: "Sắp xếp các dòng theo thứ tự (Arrange, Act, rồi kiểm tra) để chương trình in ra `True`."
+      explanation: "Trước tiên chuẩn bị đầu vào (`raw`). Sau đó chạy các bước trên nó, mỗi bước dùng kết quả của bước trước. Phép kiểm tra đứng cuối vì cần giá trị cuối cùng."
+
+  - id: p3-01-q15
+    type: parsons
+    tags: [testing, fixtures]
+    difficulty: 2
+    lines:
+      - "def make_docs():"
+      - "    return [\"a\", \"b\"]"
+      - "docs = make_docs()"
+      - "docs.append(\"c\")"
+      - "print(len(docs))"
+    en:
+      prompt: "Put the lines in order so the program prints `3`."
+      explanation: "A function that builds the data (the idea behind a fixture) is defined first. Each caller then gets its own fresh list, changes it, and finally prints the length."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `3`."
+      explanation: "Hàm tạo dữ liệu (ý tưởng đằng sau fixture) được định nghĩa trước. Mỗi nơi gọi nhận một list mới riêng, thay đổi nó, và cuối cùng in độ dài."
+
+flashcards:
+  - id: p3-01-f01
+    tags: [testing]
+    code: "def test_clean_text_lowercases():\n    assert clean_text(\"Hello\") == \"hello\""
+    en: { front: "How does pytest know what is a test?", back: "It runs functions named `test_...` in files named `test_*.py`. A false `assert` raises AssertionError and pytest marks that test as failed." }
+    vi: { front: "pytest biết cái nào là test bằng cách nào?", back: "Nó chạy các hàm tên `test_...` trong file tên `test_*.py`. `assert` sai raise AssertionError và pytest đánh dấu test đó là thất bại." }
+  - id: p3-01-f02
+    tags: [testing]
+    en: { front: "What are Arrange, Act, Assert?", back: "The three steps of a readable test: prepare the input, call your code once, then check the result." }
+    vi: { front: "Arrange, Act, Assert là gì?", back: "Ba bước của một test dễ đọc: chuẩn bị đầu vào, gọi code của bạn một lần, rồi kiểm tra kết quả." }
+  - id: p3-01-f03
+    tags: [testing, exceptions]
+    code: "with pytest.raises(ValueError):\n    parse_score(\"abc\")"
+    en: { front: "How do you test that code refuses bad input?", back: "Use `with pytest.raises(ErrorType):` and put only the one line that should raise inside it. The test fails if no error is raised." }
+    vi: { front: "Làm sao kiểm tra code từ chối đầu vào sai?", back: "Dùng `with pytest.raises(LoạiLỗi):` và chỉ đặt một dòng cần raise bên trong. Test thất bại nếu không có lỗi nào được raise." }
+  - id: p3-01-f04
+    tags: [testing]
+    code: "assert result == pytest.approx(0.3333, abs=1e-3)"
+    en: { front: "Why use `pytest.approx` for floats?", back: "Decimals have tiny rounding errors, so `==` can fail. `approx` accepts a very small gap, like `abs(a - b) < tolerance`." }
+    vi: { front: "Vì sao dùng `pytest.approx` cho số thực?", back: "Số thập phân có sai số làm tròn rất nhỏ nên `==` có thể thất bại. `approx` chấp nhận một khoảng lệch rất nhỏ, giống `abs(a - b) < dung_sai`." }
+  - id: p3-01-f05
+    tags: [testing]
+    code: "@pytest.mark.parametrize(\"text, expected\", [(\"8/10\", 0.8), (\"5/5\", 1.0)])\ndef test_parse_score(text, expected):\n    ..."
+    en: { front: "What does `parametrize` do?", back: "It runs one test function once per row of a table of inputs and expected results. pytest reports each row as its own test." }
+    vi: { front: "`parametrize` làm gì?", back: "Nó chạy một hàm test một lần cho mỗi dòng của bảng đầu vào và kết quả mong đợi. pytest báo mỗi dòng như một test riêng." }
+  - id: p3-01-f06
+    tags: [testing, fixtures]
+    code: "@pytest.fixture\ndef sample_docs():\n    return [\"a\", \"b\"]"
+    en: { front: "What is a fixture?", back: "A function that prepares shared setup. A test asks for it by naming it as a parameter, and every test gets a fresh copy of the data." }
+    vi: { front: "Fixture là gì?", back: "Một hàm chuẩn bị phần dùng chung. Test yêu cầu nó bằng cách ghi tên làm tham số, và mỗi test nhận một bản dữ liệu mới." }
