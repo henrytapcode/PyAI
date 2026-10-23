@@ -1,11 +1,13 @@
 "use client";
 
-import { AlertTriangle, Check, Copy, Info, Lightbulb, Play } from "lucide-react";
+import { AlertTriangle, Check, Copy, Eye, Info, Lightbulb, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useId, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
+import { visualize } from "@/components/visualizer";
 import { cn } from "@/lib/utils";
 
 type HastNode = {
@@ -55,11 +57,13 @@ export function CodeBlock({
   children,
   language,
   onTry,
+  canVisualize,
 }: {
   code: string;
   children?: React.ReactNode;
   language?: string;
   onTry?: (code: string) => void;
+  canVisualize?: boolean;
 }) {
   const t = useTranslations();
   const [copied, setCopied] = useState(false);
@@ -81,6 +85,15 @@ export function CodeBlock({
             {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
             {copied ? t("common.copied") : t("common.copy")}
           </button>
+          {canVisualize && (
+            <button
+              onClick={() => visualize(code)}
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-muted hover:text-foreground"
+            >
+              <Eye className="size-3.5" />
+              {t("lesson.visualize")}
+            </button>
+          )}
           {onTry && (
             <button
               onClick={() => onTry(code)}
@@ -99,6 +112,39 @@ export function CodeBlock({
   );
 }
 
+/** Flow diagrams from ```mermaid fences. Loaded lazily; falls back to the source if it fails to parse. */
+function MermaidDiagram({ chart }: { chart: string }) {
+  const id = "mmd" + useId().replace(/[^a-zA-Z0-9]/g, "");
+  const { resolvedTheme } = useTheme();
+  const [svg, setSvg] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const mermaid = (await import("mermaid")).default;
+        mermaid.initialize({ startOnLoad: false, theme: resolvedTheme === "dark" ? "dark" : "neutral", securityLevel: "strict" });
+        const out = await mermaid.render(id, chart);
+        if (alive) setSvg(out.svg);
+      } catch {
+        if (alive) setFailed(true);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [chart, id, resolvedTheme]);
+  if (failed) return <CodeBlock code={chart} language="mermaid" />;
+  return (
+    <div
+      className="my-4 flex justify-center overflow-x-auto rounded-xl border bg-card p-4 [&_svg]:h-auto [&_svg]:max-w-full"
+      role="img"
+      aria-label="diagram"
+      dangerouslySetInnerHTML={svg ? { __html: svg } : undefined}
+    />
+  );
+}
+
 export function Markdown({ text, onTryCode, className }: { text: string; onTryCode?: (code: string) => void; className?: string }) {
   const components: Components = {
     pre: ({ node, children }) => {
@@ -108,8 +154,9 @@ export function Markdown({ text, onTryCode, className }: { text: string; onTryCo
       const raw = textOf(codeEl).replace(/\n$/, "");
       const inner = (children as React.ReactElement<{ children?: React.ReactNode }>)?.props?.children;
       const isPython = !lang || lang === "python" || lang === "py";
+      if (lang === "mermaid") return <MermaidDiagram chart={raw} />;
       return (
-        <CodeBlock code={raw} language={lang} onTry={isPython ? onTryCode : undefined}>
+        <CodeBlock code={raw} language={lang} onTry={isPython ? onTryCode : undefined} canVisualize={isPython}>
           {inner}
         </CodeBlock>
       );

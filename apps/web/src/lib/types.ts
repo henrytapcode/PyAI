@@ -22,6 +22,8 @@ export interface Question {
   code?: string;
   lines?: string[];
   answer?: number | string | (string | string[])[];
+  /** false: keep mcq options in their written order. */
+  shuffle_options?: boolean;
   en: QuestionText;
   vi?: QuestionText;
   lessonId?: string;
@@ -38,9 +40,18 @@ export interface Flashcard {
 
 export interface Example {
   name: string;
-  title: string;
+  title: I18n;
+  /** Walkthrough markdown per language. */
+  explain: Partial<Record<Locale, string>>;
   code: string;
   output: string;
+}
+
+export interface Alternative {
+  name: string;
+  title: I18n;
+  explain: Partial<Record<Locale, string>>;
+  code: string;
 }
 
 export type ExerciseKind = "code" | "fill" | "debug" | "project";
@@ -57,6 +68,7 @@ export interface Exercise {
   solution: string;
   tests: string;
   solution_unlock_attempts: number;
+  alternatives: Alternative[];
 }
 
 export interface LessonMeta {
@@ -142,15 +154,56 @@ export interface GlossaryTerm {
   en: string;
   vi?: string;
   example?: string;
+  in_practice?: I18n;
+  related?: string[];
 }
+
+export type InterviewKind = "concept" | "coding" | "scenario" | "system";
 
 export interface InterviewQuestion {
   id: string;
   topic: string;
   level: "junior" | "mid";
+  kind?: InterviewKind;
   code?: string;
-  en: { question: string; answer: string };
-  vi?: { question: string; answer: string };
+  en: { question: string; answer: string; tip?: string };
+  vi?: { question: string; answer: string; tip?: string };
+}
+
+export interface PortfolioProject {
+  id: string;
+  lesson?: string;
+  phase?: string;
+  difficulty: number;
+  tags?: string[];
+  title: I18n;
+  pitch: I18n;
+  cv_bullet: I18n;
+  skills: string[];
+  stretch?: I18n<string[]>;
+}
+
+/** Output of tools/pyrunner/tracer.py (the Visualize view). */
+export interface TraceVar {
+  name: string;
+  type: string;
+  repr: string;
+}
+
+export interface TraceStep {
+  line: number;
+  event: "line" | "return" | "exception";
+  stack: { name: string; vars: TraceVar[] }[];
+  out: number;
+  ret?: string;
+}
+
+export interface TraceResult {
+  steps: TraceStep[];
+  stdout: string;
+  error: { type: string; message: string; line: number | null } | null;
+  truncated: boolean;
+  timedOut?: boolean;
 }
 
 export interface TestCaseResult {

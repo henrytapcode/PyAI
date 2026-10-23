@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import en from "../../messages/en.json";
 import vi from "../../messages/vi.json";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { VisualizerHost } from "@/components/visualizer";
 import { useProgress } from "@/lib/progress";
 
 // Compile-time parity check: vi.json must have exactly the same keys as en.json.
@@ -52,6 +53,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <TooltipProvider delayDuration={300}>
           {hydrated && !needsOnboarding ? children : <Splash />}
+          <VisualizerHost />
         </TooltipProvider>
       </NextIntlClientProvider>
     </ThemeProvider>

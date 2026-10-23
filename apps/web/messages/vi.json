@@ -125,7 +125,8 @@
     "projectBadge": "Mini-project",
     "reviewBy": "Nội dung được rà soát tới {date}",
     "editor": "Editor",
-    "content": "Nội dung"
+    "content": "Nội dung",
+    "visualize": "Visualize"
   },
   "exercise": {
     "kind": {
@@ -149,7 +150,8 @@
     "reset": "Khôi phục code",
     "resetConfirm": "Thay code của bạn bằng code ban đầu?",
     "pick": "Chọn một bài tập",
-    "allPassed": "Đã qua hết bài tập. Tuyệt vời!"
+    "allPassed": "Đã qua hết bài tập. Tuyệt vời!",
+    "otherApproaches": "Các cách giải khác"
   },
   "editor": {
     "run": "Chạy",
@@ -343,5 +345,30 @@
   "errors": {
     "notFound": "Không tìm thấy trang",
     "goHome": "Về trang tổng quan"
+  },
+  "visualize": {
+    "title": "Visualize",
+    "subtitle": "Chạy từng bước và xem biến thay đổi.",
+    "step": "Bước {n}/{total}",
+    "tracing": "Đang theo dõi code…",
+    "timedOut": "Code chạy quá lâu để theo dõi (vòng lặp vô hạn?).",
+    "nothing": "Không có gì để theo dõi.",
+    "line": "dòng {line}",
+    "returns": "{name} trả về {value}",
+    "raised": "Lỗi: {error}",
+    "aboutToRun": "Sắp chạy dòng {line}",
+    "globals": "Biến toàn cục",
+    "frame": "Trong {name}()",
+    "noVars": "Chưa có biến nào",
+    "output": "Kết quả in ra",
+    "truncated": "Đã dừng theo dõi sau {count} bước.",
+    "first": "Bước đầu",
+    "back": "Lùi",
+    "play": "Chạy",
+    "pause": "Tạm dừng",
+    "forward": "Tiếp",
+    "last": "Bước cuối",
+    "slider": "Bước",
+    "keys": "← → để chuyển bước, Space để chạy"
   }
 }

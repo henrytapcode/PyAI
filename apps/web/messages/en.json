@@ -125,7 +125,8 @@
     "projectBadge": "Mini-project",
     "reviewBy": "Content reviewed until {date}",
     "editor": "Editor",
-    "content": "Content"
+    "content": "Content",
+    "visualize": "Visualize"
   },
   "exercise": {
     "kind": {
@@ -149,7 +150,8 @@
     "reset": "Reset code",
     "resetConfirm": "Replace your code with the starter code?",
     "pick": "Pick an exercise",
-    "allPassed": "All exercises passed. Great job!"
+    "allPassed": "All exercises passed. Great job!",
+    "otherApproaches": "Other ways to solve it"
   },
   "editor": {
     "run": "Run",
@@ -343,5 +345,30 @@
   "errors": {
     "notFound": "Page not found",
     "goHome": "Go to dashboard"
+  },
+  "visualize": {
+    "title": "Visualize",
+    "subtitle": "Step through the code and watch variables change.",
+    "step": "Step {n} of {total}",
+    "tracing": "Tracing your code…",
+    "timedOut": "The code took too long to trace (infinite loop?).",
+    "nothing": "Nothing to trace.",
+    "line": "line {line}",
+    "returns": "{name} returns {value}",
+    "raised": "Error: {error}",
+    "aboutToRun": "About to run line {line}",
+    "globals": "Global variables",
+    "frame": "Inside {name}()",
+    "noVars": "No variables yet",
+    "output": "Output",
+    "truncated": "Trace stopped after {count} steps.",
+    "first": "First step",
+    "back": "Back",
+    "play": "Play",
+    "pause": "Pause",
+    "forward": "Next",
+    "last": "Last step",
+    "slider": "Step",
+    "keys": "← → to step, Space to play"
   }
 }

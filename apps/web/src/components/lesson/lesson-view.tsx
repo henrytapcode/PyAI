@@ -271,7 +271,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
             <TabsContent value="examples" className="space-y-8 animate-rise">
               {lesson.examples.map((ex) => (
                 <div key={ex.name} className="space-y-2">
-                  <h3 className="font-semibold">{ex.title}</h3>
+                  <h3 className="font-semibold">{loc.t(ex.title)}</h3>
                   <Markdown text={"```python\n" + ex.code.replace(/\n$/, "") + "\n```"} onTryCode={tryCode} />
                   {ex.output && (
                     <div>
@@ -279,6 +279,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                       <pre className="overflow-x-auto rounded-xl border border-dashed bg-muted/40 p-3 font-mono text-[13px]">{ex.output}</pre>
                     </div>
                   )}
+                  {loc.t(ex.explain) && <Markdown text={loc.t(ex.explain)} className="pt-1" />}
                 </div>
               ))}
             </TabsContent>

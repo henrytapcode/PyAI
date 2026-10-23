@@ -115,6 +115,18 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
             <Button variant="outline" size="sm" onClick={() => onLoadCode(exercise.solution)}>
               {t("loadSolution")}
             </Button>
+            {exercise.alternatives?.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <h4 className="text-sm font-semibold">{t("otherApproaches")}</h4>
+                {exercise.alternatives.map((alt) => (
+                  <div key={alt.name} className="space-y-1">
+                    <p className="text-sm font-medium">{loc.t(alt.title)}</p>
+                    <Markdown text={loc.t(alt.explain) ?? ""} />
+                    <StaticCode code={alt.code} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : solutionUnlocked ? (
           <Button variant="outline" size="sm" onClick={() => setConfirmOpen(true)}>

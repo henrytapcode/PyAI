@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import type { TestRunResult } from "./types";
+import type { TestRunResult, TraceResult } from "./types";
 
 export type PyStatus = "idle" | "loading" | "ready" | "running" | "error";
 
@@ -9,7 +9,7 @@ type Pending = {
   resolve: (value: unknown) => void;
   onOutput?: (text: string, stream: "stdout" | "stderr") => void;
   timer?: ReturnType<typeof setTimeout>;
-  kind: "run" | "test";
+  kind: "run" | "test" | "trace";
 };
 
 export interface RunResult {
@@ -98,7 +98,7 @@ class PythonManager {
     if (this.pending.size === 0) this.setStatus("ready");
   }
 
-  private send<T>(kind: "run" | "test", payload: object, timeoutMs: number, onOutput?: Pending["onOutput"]): Promise<T> {
+  private send<T>(kind: Pending["kind"], payload: object, timeoutMs: number, onOutput?: Pending["onOutput"]): Promise<T> {
     const worker = this.ensureWorker();
     const id = this.nextId++;
     return new Promise<T>((resolve) => {
@@ -118,6 +118,11 @@ class PythonManager {
     return this.send<TestRunResult>("test", { type: "test", code, tests }, TEST_TIMEOUT_MS);
   }
 
+  /** Step-by-step execution trace for the Visualize view. */
+  trace(code: string): Promise<TraceResult> {
+    return this.send<TraceResult>("trace", { type: "trace", code }, TEST_TIMEOUT_MS);
+  }
+
   /** Kill the worker (stops infinite loops), resolve pending calls, start a fresh one. */
   restart(reason: { timedOut?: boolean; stopped?: boolean } = { stopped: true }) {
     const pending = [...this.pending.values()];
@@ -128,6 +133,8 @@ class PythonManager {
       if (p.timer) clearTimeout(p.timer);
       if (p.kind === "test") {
         p.resolve({ ok: false, passed: 0, total: 0, tests: [], error: null, stdout: "", timedOut: true } satisfies TestRunResult);
+      } else if (p.kind === "trace") {
+        p.resolve({ steps: [], stdout: "", error: null, truncated: false, timedOut: true } satisfies TraceResult);
       } else {
         p.resolve({ ok: false, error: null, ...reason } satisfies RunResult);
       }
