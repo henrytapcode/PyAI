@@ -1,0 +1,326 @@
+questions:
+  - id: p2-05-q01
+    type: mcq
+    tags: [typing]
+    difficulty: 1
+    answer: 0
+    code: |
+      def greet(name: str) -> str:
+          return "Hello, " + name
+    en:
+      prompt: "What does `-> str` in this function mean?"
+      options: ["The function is supposed to return a str", "Python converts the result into a str", "Python raises an error if the result is not a str", "The function must be called with a str"]
+      explanation: "`-> str` is a label for the reader and for tools: it says the function should give back a `str`. Python does not convert or check the result. The `name: str` part is what describes the input."
+    vi:
+      prompt: "`-> str` trong hàm này có nghĩa là gì?"
+      options: ["Hàm được kỳ vọng trả về một str", "Python chuyển kết quả thành str", "Python báo lỗi nếu kết quả không phải str", "Hàm phải được gọi với một str"]
+      explanation: "`-> str` là một nhãn cho người đọc và cho các công cụ: nó nói hàm nên trả về một `str`. Python không chuyển đổi hay kiểm tra kết quả. Phần `name: str` mới là phần mô tả đầu vào."
+
+  - id: p2-05-q02
+    type: mcq
+    tags: [typing]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Which of these reads your type hints and warns you about a broken one *before* the program runs?"
+      options: ["The Python interpreter, while the program runs", "A type checker such as mypy or pyright", "Python itself, when the module is imported", "Nothing: hints only exist to look nice"]
+      explanation: "A type checker reads the whole project and reports every place where a hint is broken, without running the code. Python itself ignores hints, and hints are far more than decoration."
+    vi:
+      prompt: "Cái nào trong số này đọc type hint và cảnh báo bạn về hint bị vi phạm *trước khi* chương trình chạy?"
+      options: ["Trình thông dịch Python, trong lúc chương trình chạy", "Một type checker như mypy hoặc pyright", "Chính Python, khi module được import", "Không có gì: hint chỉ để cho đẹp"]
+      explanation: "Type checker đọc cả dự án và báo mọi chỗ vi phạm hint mà không cần chạy code. Bản thân Python bỏ qua hint, và hint không chỉ là đồ trang trí."
+
+  - id: p2-05-q03
+    type: mcq
+    tags: [typing, lists]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which hint describes a list where every item is a str?"
+      options: ["`[str]`", "`str[]`", "`list[str]`", "`list(str)`"]
+      explanation: "A container hint is the container name followed by the item type in square brackets: `list[str]`. `[str]` and `str[]` come from other languages, and `list(str)` would try to call `list`."
+    vi:
+      prompt: "Hint nào mô tả một list mà mọi phần tử đều là str?"
+      options: ["`[str]`", "`str[]`", "`list[str]`", "`list(str)`"]
+      explanation: "Hint cho container là tên container rồi đến kiểu phần tử trong ngoặc vuông: `list[str]`. `[str]` và `str[]` đến từ các ngôn ngữ khác, còn `list(str)` sẽ cố gọi `list`."
+
+  - id: p2-05-q04
+    type: fill
+    tags: [typing, functions]
+    difficulty: 1
+    code: |
+      def shout(text: ___) -> ___:
+          return text.upper()
+
+
+      print(shout("hi"))
+    answer: ["str", "str"]
+    en:
+      prompt: "Fill in both blanks with the right hints: the function takes text and returns text."
+      explanation: "`text.upper()` works on text and gives text back, so both the parameter and the return value are `str`."
+    vi:
+      prompt: "Điền cả hai chỗ trống bằng hint đúng: hàm nhận văn bản và trả về văn bản."
+      explanation: "`text.upper()` làm việc trên văn bản và trả về văn bản, nên cả tham số lẫn giá trị trả về đều là `str`."
+
+  - id: p2-05-q05
+    type: output
+    tags: [typing]
+    difficulty: 1
+    code: |
+      age: int = "12"
+      print(age + "1")
+    answer: "121"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The hint `int` does not convert or check anything, so `age` is still the text `\"12\"`. Adding `\"1\"` glues two strings together and gives `121`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Hint `int` không chuyển đổi hay kiểm tra gì cả, nên `age` vẫn là chuỗi `\"12\"`. Cộng với `\"1\"` là nối hai chuỗi và cho ra `121`."
+
+  - id: p2-05-q06
+    type: mcq
+    tags: [typing]
+    difficulty: 1
+    answer: 3
+    en:
+      prompt: "A parameter has the hint `system: str | None`. Which value does NOT match the hint?"
+      options: ["`\"Be brief.\"`", "`None`", "`\"\"` (an empty string)", "`42`"]
+      explanation: "`str | None` allows a text (even an empty one) or `None`. A number such as `42` is neither, so a type checker would flag it. Python itself would still run the call."
+    vi:
+      prompt: "Một tham số có hint `system: str | None`. Giá trị nào KHÔNG khớp với hint?"
+      options: ["`\"Be brief.\"`", "`None`", "`\"\"` (chuỗi rỗng)", "`42`"]
+      explanation: "`str | None` cho phép một văn bản (kể cả rỗng) hoặc `None`. Một số như `42` không thuộc loại nào, nên type checker sẽ báo lỗi. Bản thân Python vẫn chạy lời gọi đó."
+
+  - id: p2-05-q07
+    type: output
+    tags: [typing, functions]
+    difficulty: 2
+    code: |
+      def build_prompt(question: str, system: str | None = None) -> str:
+          if system is None:
+              return question
+          return system + "\n" + question
+
+
+      print(build_prompt("Hi"))
+      print(build_prompt("Hi", "Be kind."))
+    answer: |-
+      Hi
+      Be kind.
+      Hi
+    en:
+      prompt: "What does this code print?"
+      explanation: "The first call has no system prompt, so `system` is `None` and the function returns just `Hi`. The second call returns `Be kind.`, a newline, then `Hi`, so print shows two lines."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Lời gọi đầu không có system prompt, nên `system` là `None` và hàm chỉ trả về `Hi`. Lời gọi thứ hai trả về `Be kind.`, một dòng mới, rồi `Hi`, nên print hiện hai dòng."
+
+  - id: p2-05-q08
+    type: mcq
+    tags: [typing, dicts]
+    difficulty: 2
+    answer: 0
+    code: |
+      counts = {"hi": 2, "hello": 5}
+    en:
+      prompt: "Which hint matches the variable `counts`?"
+      options: ["`dict[str, int]`", "`dict[int, str]`", "`dict[str]`", "`list[str, int]`"]
+      explanation: "A dict hint names the key type first and the value type second. The keys here are texts and the values are whole numbers, so it is `dict[str, int]`. A dict hint always needs both types."
+    vi:
+      prompt: "Hint nào khớp với biến `counts`?"
+      options: ["`dict[str, int]`", "`dict[int, str]`", "`dict[str]`", "`list[str, int]`"]
+      explanation: "Hint của dict nêu kiểu key trước, kiểu value sau. Ở đây key là văn bản và value là số nguyên, nên hint là `dict[str, int]`. Hint của dict luôn cần đủ cả hai kiểu."
+
+  - id: p2-05-q09
+    type: fill
+    tags: [typing, tuples]
+    difficulty: 2
+    code: |
+      def first_and_last(words: list[str]) -> ___[str, str]:
+          return (words[0], words[-1])
+
+
+      print(first_and_last(["a", "b", "c"]))
+    answer: ["tuple"]
+    en:
+      prompt: "Fill in the blank: the function returns a fixed pair of two strings."
+      explanation: "A fixed pair is a `tuple`, and its hint lists the type of each position: `tuple[str, str]`."
+    vi:
+      prompt: "Điền vào chỗ trống: hàm trả về một cặp cố định gồm hai chuỗi."
+      explanation: "Một cặp cố định là `tuple`, và hint của nó liệt kê kiểu của từng vị trí: `tuple[str, str]`."
+
+  - id: p2-05-q10
+    type: fill
+    tags: [typing, functions]
+    difficulty: 2
+    code: |
+      def find_index(items: list[str], target: str) -> ___ | None:
+          for i in range(len(items)):
+              if items[i] == target:
+                  return i
+          return None
+
+
+      print(find_index(["a", "b"], "b"))
+    answer: ["int"]
+    en:
+      prompt: "Fill in the blank. The function returns the position of `target`, or `None` if it is missing."
+      explanation: "A position in a list is a whole number, and the function may also return `None`, so the hint is `int | None`."
+    vi:
+      prompt: "Điền vào chỗ trống. Hàm trả về vị trí của `target`, hoặc `None` nếu không tìm thấy."
+      explanation: "Vị trí trong list là một số nguyên, và hàm cũng có thể trả về `None`, nên hint là `int | None`."
+
+  - id: p2-05-q11
+    type: mcq
+    tags: [typing, functions]
+    difficulty: 1
+    answer: 0
+    code: |
+      def log(line: str) -> None:
+          print(line)
+    en:
+      prompt: "What does the return hint `-> None` tell the reader?"
+      options: ["The function does its work but gives back nothing useful", "The function cannot be called", "The function returns the text \"None\"", "The function is not allowed to contain a `return` statement"]
+      explanation: "`-> None` means \"do not expect an answer\". The function acts (here it prints) but has no useful value to return. It is still perfectly callable."
+    vi:
+      prompt: "Hint trả về `-> None` cho người đọc biết điều gì?"
+      options: ["Hàm làm xong việc nhưng không trả về gì hữu ích", "Hàm không thể được gọi", "Hàm trả về chuỗi \"None\"", "Hàm không được phép chứa câu lệnh `return`"]
+      explanation: "`-> None` nghĩa là \"đừng mong có kết quả\". Hàm thực hiện một việc (ở đây là in) nhưng không có giá trị nào hữu ích để trả về. Nó vẫn hoàn toàn gọi được."
+
+  - id: p2-05-q12
+    type: output
+    tags: [typing, lists]
+    difficulty: 3
+    code: |
+      def embed(texts: list[str]) -> list[list[float]]:
+          vectors = []
+          for t in texts:
+              vectors.append([float(len(t))])
+          return vectors
+
+
+      print(embed("abc"))
+    answer: "[[1.0], [1.0], [1.0]]"
+    en:
+      prompt: "What does this code print? (Look at the argument.)"
+      explanation: "The call breaks the hint: it passes one str, not a list of str. Python does not check, and looping over `\"abc\"` visits the three characters, each of length 1. So you get three vectors, `[[1.0], [1.0], [1.0]]`."
+    vi:
+      prompt: "Đoạn code này in ra gì? (Hãy nhìn đối số.)"
+      explanation: "Lời gọi vi phạm hint: nó truyền một str chứ không phải list các str. Python không kiểm tra, và vòng lặp qua `\"abc\"` đi qua ba ký tự, mỗi ký tự dài 1. Vì vậy bạn nhận ba vector, `[[1.0], [1.0], [1.0]]`."
+
+  - id: p2-05-q13
+    type: mcq
+    tags: [typing, lists]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "A function takes a list of texts and returns one list of floats (a vector) for each text. Which return hint is correct?"
+      options: ["`-> list[float]`", "`-> list[list[float]]`", "`-> float`", "`-> list[str]`"]
+      explanation: "Each text gives a vector, which is a `list[float]`. Many texts give many vectors, so the result is a list of those: `list[list[float]]`."
+    vi:
+      prompt: "Một hàm nhận một list các văn bản và trả về một list số thực (một vector) cho mỗi văn bản. Hint trả về nào là đúng?"
+      options: ["`-> list[float]`", "`-> list[list[float]]`", "`-> float`", "`-> list[str]`"]
+      explanation: "Mỗi văn bản cho ra một vector, tức là một `list[float]`. Nhiều văn bản cho nhiều vector, nên kết quả là một list của chúng: `list[list[float]]`."
+
+  - id: p2-05-q14
+    type: parsons
+    tags: [typing, functions]
+    difficulty: 2
+    lines:
+      - "def count_words(text: str) -> int:"
+      - "    words = text.split()"
+      - "    return len(words)"
+      - 'print(count_words("a b c"))'
+    en:
+      prompt: "Put the lines in order so the program prints `3`."
+      explanation: "The `def` line comes first, then its indented body. Inside the body `words` must be created before `return len(words)` uses it. The call with `print` goes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `3`."
+      explanation: "Dòng `def` đứng đầu, rồi đến phần thân thụt lề. Trong thân hàm, `words` phải được tạo trước khi `return len(words)` dùng nó. Lời gọi với `print` nằm cuối cùng."
+
+  - id: p2-05-q15
+    type: parsons
+    tags: [typing, dataclasses]
+    difficulty: 2
+    lines:
+      - "from dataclasses import dataclass"
+      - "@dataclass"
+      - "class Message:"
+      - "    role: str"
+      - "    text: str"
+      - 'm = Message("user", "hi")'
+      - "print(m.role)"
+    en:
+      prompt: "Put the lines in order so the program prints `user`. Put the `role` field before the `text` field."
+      explanation: "The import must come before `@dataclass` uses it, and the decorator sits directly above `class`. The fields come inside the class, `role` first so that `Message(\"user\", \"hi\")` fills `role` with `user`. Then build the object and print."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `user`. Đặt field `role` trước field `text`."
+      explanation: "Import phải đứng trước chỗ `@dataclass` dùng nó, và decorator nằm ngay trên `class`. Các field nằm trong class, `role` đứng trước để `Message(\"user\", \"hi\")` điền `user` vào `role`. Sau đó tạo object rồi print."
+
+  - id: p2-05-q16
+    type: output
+    tags: [typing, debugging]
+    difficulty: 2
+    code: |
+      def shout(text: str) -> str:
+          text.upper()
+
+
+      result = shout("hi")
+      print(result)
+    answer: "None"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The hint promises a `str`, but the body never uses `return`, so the function gives back `None`. Python does not check the promise. A type checker would flag it."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Hint hứa trả về `str`, nhưng thân hàm không dùng `return`, nên hàm trả về `None`. Python không kiểm tra lời hứa đó. Type checker sẽ báo lỗi."
+
+  - id: p2-05-q17
+    type: mcq
+    tags: [typing, debugging]
+    difficulty: 3
+    answer: 2
+    code: |
+      def average(total: int, count: int) -> int:
+          return total / count
+    en:
+      prompt: "This function returns `1.5` for `average(3, 2)`, but the hint says `int`. The decimals matter. What is the best fix?"
+      options: ["Leave it: Python converts the result to int because of the hint", "Add `: int` after `total / count`", "Change the hint to `-> float`, because `/` always gives a float", "Change `total` and `count` to `float` and keep `-> int`"]
+      explanation: "The code is right and the hint lies. `/` always produces a float, so the honest hint is `-> float`. Hints never convert values, and changing the parameters would not change what `/` returns."
+    vi:
+      prompt: "Hàm này trả về `1.5` cho `average(3, 2)`, nhưng hint nói `int`. Phần thập phân là quan trọng. Cách sửa tốt nhất là gì?"
+      options: ["Để nguyên: Python chuyển kết quả thành int nhờ hint", "Thêm `: int` sau `total / count`", "Đổi hint thành `-> float`, vì `/` luôn cho ra float", "Đổi `total` và `count` thành `float` và giữ `-> int`"]
+      explanation: "Code đúng còn hint nói dối. `/` luôn tạo ra float, nên hint trung thực là `-> float`. Hint không bao giờ chuyển đổi giá trị, và đổi tham số cũng không làm `/` trả về kiểu khác."
+
+flashcards:
+  - id: p2-05-f01
+    tags: [typing, functions]
+    code: |
+      def greet(name: str, loud: bool = False) -> str:
+          ...
+    en: { front: "How do you write a type hint for a parameter and the return value?", back: "`: type` after the parameter (before any default) and `-> type` after the parameter list." }
+    vi: { front: "Viết type hint cho tham số và giá trị trả về như thế nào?", back: "`: type` sau tham số (trước giá trị mặc định nếu có) và `-> type` sau danh sách tham số." }
+  - id: p2-05-f02
+    tags: [typing]
+    en: { front: "Does Python check type hints when it runs your code?", back: "No. It only stores them in `__annotations__`. Editors, type checkers like mypy and pyright, and libraries read them." }
+    vi: { front: "Python có kiểm tra type hint khi chạy code không?", back: "Không. Nó chỉ lưu chúng trong `__annotations__`. Editor, type checker như mypy và pyright, và các thư viện mới đọc chúng." }
+  - id: p2-05-f03
+    tags: [typing, lists, dicts, tuples]
+    en: { front: "Hints for list, dict and tuple?", back: "`list[str]`, `dict[str, int]` (key type, then value type), `tuple[int, str]` (one type per position)." }
+    vi: { front: "Hint cho list, dict và tuple?", back: "`list[str]`, `dict[str, int]` (kiểu key, rồi kiểu value), `tuple[int, str]` (mỗi vị trí một kiểu)." }
+  - id: p2-05-f04
+    tags: [typing]
+    code: |
+      def build_prompt(question: str, system: str | None = None) -> str:
+          ...
+    en: { front: "How do you hint an optional value?", back: "`str | None` means a `str` or `None` (older spelling: `Optional[str]`). Check `is None` before using the value as text." }
+    vi: { front: "Hint cho giá trị tùy chọn viết thế nào?", back: "`str | None` nghĩa là một `str` hoặc `None` (cách viết cũ: `Optional[str]`). Hãy kiểm tra `is None` trước khi dùng giá trị như văn bản." }
+  - id: p2-05-f05
+    tags: [typing, functions]
+    en: { front: "What does `-> None` mean?", back: "The function does something but returns nothing useful. Use it for functions that only print, save or change an object." }
+    vi: { front: "`-> None` nghĩa là gì?", back: "Hàm làm một việc nào đó nhưng không trả về gì hữu ích. Dùng cho hàm chỉ in, lưu hoặc thay đổi một object." }
+  - id: p2-05-f06
+    tags: [typing, debugging]
+    en: { front: "What should you do when a hint and the code disagree?", back: "Decide which one is wrong, then fix it. A wrong hint is worse than none, because readers and tools trust it." }
+    vi: { front: "Khi hint và code mâu thuẫn nhau thì làm gì?", back: "Xác định bên nào sai rồi sửa. Hint sai còn tệ hơn không có, vì người đọc và công cụ tin vào nó." }

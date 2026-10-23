@@ -1,0 +1,46 @@
+id: p2-05-ex02
+kind: debug
+title:
+  en: "Debug: hints that lie"
+  vi: "Debug: hint nói dối"
+difficulty: 2
+tags: [typing, functions, debugging]
+hints:
+  en:
+    - |
+      Run the tests: some of the failing names talk about hints and one talks about the result. This lesson says (§2) that Python never checks hints, so a hint can lie and the program still runs. §5 says a value that can be `None` needs `| None`. For example `find_system([])` returns `None`, so its hint cannot say plain `str`.
+    - |
+      For each function, compare the hint with what the body really does, then fix the part that is wrong:
+      1. `average_length`: what type does `/` always give?
+      2. `find_system`: what does it return when no message has the role "system"?
+      3. `repeat`: what do you multiply by a number to get "abab"?
+      4. `shout`: read the body slowly. Does it give anything back?
+      Three of them have a wrong hint. One has wrong code.
+    - |
+      Shape of two of the fixes:
+      ```python
+      def find_system(messages: list[dict[str, str]]) -> ... | ...:
+          ...
+
+      def shout(text: str) -> str:
+          ...text.upper()
+      ```
+  vi:
+    - |
+      Chạy test: vài test lỗi có tên nói về hint và một test nói về kết quả. Bài này nói (§2) rằng Python không bao giờ kiểm tra hint, nên hint có thể nói dối mà chương trình vẫn chạy. §5 nói giá trị có thể là `None` thì cần `| None`. Ví dụ `find_system([])` trả về `None`, nên hint của nó không thể chỉ là `str`.
+    - |
+      Với mỗi hàm, so sánh hint với những gì phần thân thật sự làm, rồi sửa phần bị sai:
+      1. `average_length`: phép `/` luôn cho ra kiểu gì?
+      2. `find_system`: nó trả về gì khi không message nào có role "system"?
+      3. `repeat`: bạn nhân thứ gì với một số để ra "abab"?
+      4. `shout`: đọc phần thân thật chậm. Nó có trả lại gì không?
+      Ba hàm có hint sai. Một hàm có code sai.
+    - |
+      Khung của hai chỗ sửa:
+      ```python
+      def find_system(messages: list[dict[str, str]]) -> ... | ...:
+          ...
+
+      def shout(text: str) -> str:
+          ...text.upper()
+      ```

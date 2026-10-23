@@ -1,0 +1,33 @@
+id: p2-05-typing
+phase: p2
+order: 5
+kind: lesson
+title:
+  en: "Type hints"
+  vi: "Type hint"
+summary:
+  en: "Say what goes in and what comes out: parameter and return hints, list[str], dict[str, int], X | None, and why Python does not enforce them."
+  vi: "Nói rõ cái gì vào, cái gì ra: hint cho tham số và giá trị trả về, list[str], dict[str, int], X | None, và vì sao Python không ép buộc chúng."
+level: beginner
+tags: [typing, functions]
+prerequisites: [p2-04-dataclasses]
+duration_min: 11
+outcomes:
+  en:
+    - "Annotate parameters and return values"
+    - "Hint lists, dicts and tuples with their contents"
+    - "Write optional values with X | None and either-or values with X | Y"
+    - "Explain that hints are not enforced at runtime"
+    - "Name who reads hints: editors, type checkers and libraries"
+  vi:
+    - "Chú thích kiểu cho tham số và giá trị trả về"
+    - "Gắn hint cho list, dict và tuple kèm nội dung bên trong"
+    - "Viết giá trị tùy chọn bằng X | None và giá trị một-trong-hai bằng X | Y"
+    - "Giải thích rằng hint không bị ép buộc khi chạy"
+    - "Kể tên ai đọc hint: editor, type checker và thư viện"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: typing", vi: "Tài liệu Python: typing (EN)" }
+    url: "https://docs.python.org/3/library/typing.html"
+  - title: { en: "mypy: getting started", vi: "mypy: bắt đầu (EN)" }
+    url: "https://mypy.readthedocs.io/en/stable/getting_started.html"

@@ -1,0 +1,38 @@
+id: p2-05-ex01
+kind: fill
+title:
+  en: "Fill in: annotate the functions"
+  vi: "Điền vào: chú thích kiểu cho các hàm"
+difficulty: 2
+tags: [typing, functions]
+hints:
+  en:
+    - "This uses §1 (`: type` and `-> type`), §4 (list, dict and tuple hints) and §5 (`| None`). There are 5 blanks, all inside hints. The tests read each function's `__annotations__` and also call it: for example `count_tokens([\"a\", \"b\"])` must give `2`, and its `tokens` hint must say \"a list of strings\"."
+    - |
+      Look at each body and ask what comes in and what goes out:
+      1. `count_tokens`: what is `tokens` a list of? It returns a whole number.
+      2. `build_prompt`: `system` may be missing (its default is `None`), so it is "a str or None". What does the function return in both branches?
+      3. `word_lengths`: it returns a dict. What type are the keys (the words) and what type are the values (the lengths)?
+      4. `first_and_count`: it returns two things in a fixed order, so think tuple, and name the type of each position.
+    - |
+      Shape of the answers (the first one is done, the rest follow the same idea):
+      ```python
+      def count_tokens(tokens: list[str]) -> int:
+      def build_prompt(question: str, system: ... | ...) -> ...:
+      def word_lengths(words: list[str]) -> dict[..., ...]:
+      ```
+  vi:
+    - "Bài này dùng §1 (`: type` và `-> type`), §4 (hint cho list, dict và tuple) và §5 (`| None`). Có 5 chỗ trống, đều nằm trong hint. Test đọc `__annotations__` của từng hàm và còn gọi hàm: ví dụ `count_tokens([\"a\", \"b\"])` phải cho `2`, và hint của `tokens` phải nói \"một list các chuỗi\"."
+    - |
+      Nhìn phần thân từng hàm và tự hỏi cái gì vào, cái gì ra:
+      1. `count_tokens`: `tokens` là list của kiểu gì? Hàm trả về một số nguyên.
+      2. `build_prompt`: `system` có thể vắng mặt (mặc định là `None`), nên nó là "một str hoặc None". Hàm trả về gì ở cả hai nhánh?
+      3. `word_lengths`: nó trả về một dict. Key (các từ) có kiểu gì và value (độ dài) có kiểu gì?
+      4. `first_and_count`: nó trả về hai thứ theo thứ tự cố định, nên hãy nghĩ đến tuple, và nêu kiểu của từng vị trí.
+    - |
+      Khung đáp án (câu đầu đã xong, các câu còn lại theo cùng ý):
+      ```python
+      def count_tokens(tokens: list[str]) -> int:
+      def build_prompt(question: str, system: ... | ...) -> ...:
+      def word_lengths(words: list[str]) -> dict[..., ...]:
+      ```
