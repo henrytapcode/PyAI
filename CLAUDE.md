@@ -25,6 +25,6 @@ Template nội dung: @docs/CONTENT_GUIDE.md
 - Web build/typecheck: `pnpm --filter web build` / `pnpm --filter web typecheck`
 
 ## Quy trình
-- Làm theo mốc M0→M5 trong docs/DESIGN.md. Hiện tại: M1 xong (vertical slice phase 1). Kế tiếp: M2.
+- Làm theo mốc M0→M5 trong docs/DESIGN.md. Hiện tại: M2 đang làm. Phase 1 đủ 10 bài (p1-01..p1-10), đã qua reviewer. Kế tiếp: phase 2 (OOP, dataclass, typing, generator, decorator, context manager) rồi phase 3.
 - Trước khi báo xong: chạy validate + pytest + typecheck + build.
 - Commit nhỏ, mỗi commit một việc.
