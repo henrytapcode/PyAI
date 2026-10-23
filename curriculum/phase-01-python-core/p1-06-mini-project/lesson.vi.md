@@ -1,4 +1,4 @@
-Công việc nào về dữ liệu hay AI cũng có những script báo cáo nhỏ: đọc vài con số thô, làm sạch, rồi in ra bản tóm tắt mà một người đọc trong mười giây là hiểu. Trong bài này bạn sẽ tự xây một script như vậy. Đó là **bảng điểm** của một lớp: điểm trung bình của từng học sinh, xếp loại, xếp hạng và vài thống kê cả lớp. Đây là một công cụ nhỏ nhưng có thật, và nó có cùng hình dạng với các script bạn sẽ viết khi đi làm sau này.
+Công việc nào về dữ liệu hay AI cũng có những script báo cáo nhỏ: đọc vài con số thô, làm sạch, rồi in ra bản tóm tắt mà một người đọc trong mười giây là hiểu. Trong bài này bạn sẽ tự xây một script như vậy. Đó là **bảng điểm** của một lớp: điểm trung bình của từng học sinh, xếp loại, xếp hạng và vài thống kê cả lớp. Đây là một công cụ nhỏ nhưng có thật, và nó có cùng cấu trúc với các script bạn sẽ viết khi đi làm sau này.
 
 Bài này không dạy nhiều Python mới. Mục tiêu là luyện kỹ năng quan trọng nhất: **chia một bài toán thành các hàm nhỏ** (function) rồi ghép chúng lại với nhau.
 
@@ -67,7 +67,7 @@ Xếp loại theo thang điểm 10:
 
 ## 4. Hai mẹo nhỏ
 
-Bạn chỉ cần hai thứ mới, và cả hai đều rất nhỏ.
+Bạn cần vài thứ mới, và thứ nào cũng rất nhỏ.
 
 **Mẹo 1: hai chữ số thập phân.** `round(x, 2)` cho ra số đã làm tròn đến 2 chữ số thập phân. F-string với `:.2f` hiển thị số với đúng 2 chữ số thập phân, kể cả khi đó là số 0:
 
@@ -79,6 +79,9 @@ print(f"{9:.2f}")     # 9.00
 ```
 
 Dùng `round` khi bạn cần một số đã làm tròn, và `:.2f` khi bạn chỉ muốn hiển thị. Trong báo cáo, gần như lúc nào bạn cũng muốn dùng `:.2f`.
+
+> [!NOTE]
+> `round(2.5)` ra `2`, không phải `3`. Số nằm đúng giữa sẽ được làm tròn về số chẵn gần nhất (`round(3.5)` ra `4`). Với tiền, hãy dùng `:.2f` khi bạn chỉ cần hiển thị.
 
 **Mẹo 2: `sorted` với `key`.** Bạn đã biết `sorted(items)`. Với `key=some_function`, Python gọi hàm của bạn trên từng phần tử và sắp xếp theo giá trị hàm trả về. Hãy viết hàm phụ (helper) bằng `def` bình thường, và truyền tên hàm **không có dấu ngoặc**:
 
@@ -260,7 +263,7 @@ Còn `class_stats` trả về `{"count": 3, "mean": 7.44, "best": "Binh", "worst
 
 ## 11. Đến lượt bạn
 
-Mở hai bài tập. Bài 1 gồm Bước 1 đến 3, bài 2 là Bước 4. Trong editor đã có sẵn khung hàm với các bước `# TODO`. Viết code bên trong hàm và `return` kết quả. Hãy bấm **Kiểm tra** thường xuyên: cho từng test xanh một là cách tốt để xây dựng chương trình.
+Mở hai bài tập. Bài 1 gồm Bước 1 đến 3, bài 2 là Bước 4. Trong editor đã có sẵn khung hàm với các bước `# TODO`. Viết code bên trong hàm và `return` kết quả. Hãy bấm **Kiểm tra** thường xuyên: làm cho từng test chuyển xanh một là cách tốt để xây dựng chương trình.
 
 ## 12. Lỗi thường gặp
 

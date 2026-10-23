@@ -97,7 +97,7 @@ questions:
 
   - id: p1-05-q07
     type: output
-    tags: [functions, scope]
+    tags: [functions]
     difficulty: 2
     code: |
       def label(n):
@@ -146,11 +146,11 @@ questions:
           return w * h
     en:
       prompt: "What does `area(5)` return?"
-      options: ["10", "25", "An error: `h` is missing", "2"]
+      options: ["10", "25", "An error: `h` is missing", "None"]
       explanation: "`h` has a default of 2, so the call can skip it: 5 * 2 = 10. The error only happens when a parameter has no default."
     vi:
       prompt: "`area(5)` trả về gì?"
-      options: ["10", "25", "Lỗi: thiếu `h`", "2"]
+      options: ["10", "25", "Lỗi: thiếu `h`", "None"]
       explanation: "`h` có giá trị mặc định là 2, nên lời gọi có thể bỏ qua nó: 5 * 2 = 10. Lỗi chỉ xảy ra khi tham số không có mặc định."
 
   - id: p1-05-q10
@@ -204,7 +204,7 @@ questions:
       explanation: "`greeting=\"Hi\"` is a keyword argument: it passes the value by parameter name, so its position in the call does not matter."
     vi:
       prompt: "Điền tên tham số vào chỗ trống để code in ra `Hi, Lan!`."
-      explanation: "`greeting=\"Hi\"` là đối số từ khóa (keyword argument): truyền giá trị theo tên tham số, nên vị trí trong lời gọi không quan trọng."
+      explanation: "`greeting=\"Hi\"` là keyword argument (đối số theo tên): truyền giá trị theo tên tham số, nên vị trí trong lời gọi không quan trọng."
 
   - id: p1-05-q13
     type: output

@@ -10,7 +10,6 @@ errors = []
 for line in log:
     if line.startswith("ERROR"):
         parts = line.split(",")
-        level = parts[0]
         model = parts[1]
         reason = parts[2]
         errors.append(f"{model}: {reason}")

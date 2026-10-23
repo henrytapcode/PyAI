@@ -54,7 +54,7 @@ print(f"[{name}]")        # [Lan]
 |---|---|---|
 | 1 | `name = "  Lan  "` | `"  Lan  "` |
 | 2 | `name.strip()` | `"  Lan  "` (chuỗi mới được tạo ra rồi bị bỏ) |
-| 5 | `name = name.strip()` | `"Lan"` |
+| 4 | `name = name.strip()` | `"Lan"` |
 
 > [!WARNING]
 > Viết `name.strip()` riêng một dòng thì không có tác dụng gì. Hãy luôn viết `name = name.strip()` (hoặc dùng kết quả ngay lập tức).
@@ -85,7 +85,7 @@ print(clean.find("cat"))              # -1
 print("World" in clean)               # True
 ```
 
-Các phương thức có thể **nối chuỗi** (chaining): cái sau làm việc trên kết quả của cái trước.
+Các phương thức có thể **gọi nối tiếp** (chaining): cái sau làm việc trên kết quả của cái trước.
 
 ```python
 print("  Hello There  ".strip().lower())  # hello there
@@ -139,6 +139,7 @@ Bạn đã biết `f"{value}"`. Sau giá trị, bạn có thể thêm dấu hai 
 | `:,` | dấu phẩy ngăn cách hàng nghìn | `1234567` → `1,234,567` |
 | `:>8` | căn phải trong 8 ký tự | `"ai"` → `"      ai"` |
 | `:<10` | căn trái trong 10 ký tự | `"ai"` → `"ai        "` |
+| `:>8.2f` | căn phải, 2 chữ số thập phân | `3.5` → `"    3.50"` |
 | `:>8,` | kết hợp: căn phải, có dấu phẩy | `1234` → `"   1,234"` |
 | `:,.2f` | dấu phẩy và 2 chữ số thập phân | `1234.5` → `1,234.50` |
 
@@ -169,7 +170,7 @@ big            987
 
 ## 7. Làm sạch một prompt
 
-Người dùng gõ đủ kiểu: `"   Summarize THIS   text  "`. Trước khi so sánh hoặc gửi text đi, chương trình **chuẩn hóa** (normalise) nó: mọi người về cùng một kiểu. Công thức quen thuộc là `lower()`, rồi `split()`, rồi `join()`:
+Người dùng gõ đủ kiểu: `"   Summarize THIS   text  "`. Trước khi so sánh hoặc gửi text đi, chương trình **chuẩn hóa** (normalise) nó: đưa mọi cách gõ về cùng một dạng. Công thức quen thuộc là `lower()`, rồi `split()`, rồi `join()`:
 
 ```mermaid
 flowchart LR
@@ -213,14 +214,17 @@ Thay vào đó hãy dựng chuỗi mới: `"J" + word[1:]` cho ra `"Jython"`.
 
 **Vượt quá cuối chuỗi.** `"abc"[3]` gây `IndexError`, vì index hợp lệ chỉ là 0, 1 và 2.
 
-**Dùng `find()` như câu trả lời có/không.** `find()` trả về `-1` khi không tìm thấy, và `-1` được coi là `True`. Với câu hỏi có/không, hãy dùng `in`:
+**Dùng `find()` như câu trả lời có/không.** `find()` trả về *vị trí*, không phải `True`/`False`. Khớp ở index 0 cho ra `0`, mà `0` được coi là `False`; còn "không thấy" cho ra `-1`, mà `-1` được coi là `True`. Cả hai đều ngược:
 
 ```python
 text = "hello"
-if "z" in text:
+if text.find("h"):        # find trả về 0, và 0 được coi là False
     print("found")
 else:
-    print("not found")  # not found
+    print("missing")      # missing  (sai!)
+
+if "h" in text:           # dùng `in` cho câu hỏi có/không
+    print("found")        # found
 ```
 
 **Ghép các số.** `",".join([1, 2])` gây `TypeError` vì `join` cần chuỗi. Hãy đổi bằng `str()` trước.

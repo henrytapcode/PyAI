@@ -67,7 +67,7 @@ Grades use a 10-point scale:
 
 ## 4. Two small tricks
 
-You need only two new things, and both are tiny.
+You need a few new things, and all of them are tiny.
 
 **Trick 1: two decimals.** `round(x, 2)` gives a number rounded to 2 decimals. An f-string with `:.2f` shows a number with exactly 2 decimals, even when they are zeros:
 
@@ -79,6 +79,9 @@ print(f"{9:.2f}")     # 9.00
 ```
 
 Use `round` when you need a rounded number, and `:.2f` when you only want to display it. In a report, you almost always want `:.2f`.
+
+> [!NOTE]
+> `round(2.5)` is `2`, not `3`. An exact half goes to the nearest even number (`round(3.5)` is `4`). For money, prefer `:.2f` when you only need to display.
 
 **Trick 2: `sorted` with a `key`.** You already know `sorted(items)`. With `key=some_function`, Python calls your function on each item and sorts by what it returns. Write the helper with a normal `def`, and pass its name **without parentheses**:
 

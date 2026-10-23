@@ -60,7 +60,7 @@ Hãy bấm **Visualize** cho đoạn này. Khi `add(2, 3)` được gọi, một
 |---|---|---|
 | Làm gì | **hiển thị** `x` lên màn hình | **trả** `x` về cho nơi gọi |
 | Chương trình dùng được sau đó không? | không | có: lưu vào biến, tính tiếp |
-| Nếu thiếu, lời gọi cho ra | không có gì hữu ích (`None`) | không áp dụng |
+| Lời gọi trả về | `None` | `x` |
 
 ```python
 def double_print(n):
@@ -205,7 +205,7 @@ def describe(weight_kg, height_m):
 print(describe(52, 1.60))   # BMI is 20.3
 ```
 
-Trong f-string, `:.1f` nghĩa là "hiện 1 chữ số thập phân". Bấm **Visualize** để thấy một khung cho `describe` và, bên trong nó, một khung nữa cho `bmi`.
+Trong f-string, `:.1f` nghĩa là "hiện 1 chữ số thập phân". Mỗi lời gọi có một khung riêng, nên `describe` và `bmi` mỗi hàm có một khung.
 
 ## 9. Lỗi thường gặp
 
@@ -233,17 +233,6 @@ print(say_hello)     # <function say_hello at 0x...>
 print(say_hello())   # Hello!
 ```
 
-**Code sau `return` không bao giờ chạy.** Lệnh `print` bên dưới là code chết:
-
-```python
-def double(n):
-    return n * 2
-    print("done")   # không bao giờ chạy
-
-
-print(double(5))   # 10
-```
-
 **Dùng list làm giá trị mặc định.** Giá trị mặc định chỉ được tạo một lần, nên list mặc định bị chia sẻ giữa mọi lời gọi. Đây là bản xem trước của một cái bẫy bạn sẽ gặp lại sau:
 
 ```python
@@ -258,14 +247,26 @@ print(add_item("pear"))    # ['apple', 'pear']  bất ngờ chưa!
 
 Tạm thời: chỉ dùng số, chuỗi, `True`/`False` hoặc `None` làm giá trị mặc định, đừng bao giờ dùng `[]` hay `{}`.
 
-**Dùng biến chỉ tồn tại bên trong hàm.** `tax` ở trên được tạo bên trong `add_tax`, nên ở bên ngoài bạn sẽ gặp `NameError: name 'tax' is not defined`. Hãy trả giá trị cần dùng ra bằng `return`.
+**Dùng biến chỉ tồn tại bên trong hàm.** `tax` được tạo bên trong `add_tax`, nên ở bên ngoài nó không tồn tại:
+
+```python
+def add_tax(price):
+    tax = price * 0.1
+    return price + tax
+
+
+add_tax(100)
+print(tax)   # NameError: name 'tax' is not defined
+```
+
+Hãy trả giá trị cần dùng ra bằng `return`.
 
 > [!WARNING]
 > Đặt cùng một tên ở trong và ngoài hàm là hợp lệ nhưng dễ gây rối. Hãy ưu tiên đặt tên khác nhau, hoặc truyền giá trị vào bằng tham số.
 
 ## Tóm tắt
 
-- `def name(parameters):` định nghĩa hàm; `name(arguments)` chạy hàm. Thiếu `()` thì bạn mới chỉ gọi tên.
+- `def name(parameters):` định nghĩa hàm; `name(arguments)` chạy hàm. Thiếu `()` thì bạn chỉ nhắc tới hàm, chưa chạy nó.
 - Hàm là một cái máy: đối số đi vào, thân hàm chạy, `return` gửi giá trị về và kết thúc hàm.
 - `print` hiển thị giá trị; `return` trả giá trị về. Không có `return` nghĩa là `None`.
 - Giá trị mặc định (`greeting="Hello"`) làm tham số thành tùy chọn; keyword argument truyền theo tên.

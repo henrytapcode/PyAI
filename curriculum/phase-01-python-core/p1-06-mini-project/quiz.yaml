@@ -65,7 +65,7 @@ questions:
       for grade in ___:
           counts[grade] ___ 1
       print(counts)
-    answer: ["grades", ["+=", "+= "]]
+    answer: ["grades", ["+="]]
     en:
       prompt: "Fill in the blanks so the code counts each grade and prints `{'A': 1, 'B': 2}`."
       explanation: "Loop over `grades`, and for each one add 1 to its counter with `+=`."
@@ -206,10 +206,10 @@ questions:
     answer: ["key"]
     en:
       prompt: "Fill in the keyword so the code prints `Zoe`."
-      explanation: "`key=` tells `sorted` which value to compare. Without it, Python tries to compare two dicts directly and fails with `TypeError`."
+      explanation: "`key=` tells `sorted` which value to compare. Without it, `sorted(rows)` tries to compare two dicts directly and fails with `TypeError`. Writing `sorted(rows, by_avg)` also fails, because `sorted` takes only one positional argument; the function must be passed by name as `key=`."
     vi:
       prompt: "Điền tên từ khóa để code in ra `Zoe`."
-      explanation: "`key=` cho `sorted` biết giá trị nào dùng để so sánh. Không có nó, Python cố so sánh trực tiếp hai dict và báo `TypeError`."
+      explanation: "`key=` cho `sorted` biết giá trị nào dùng để so sánh. Không có nó, `sorted(rows)` cố so sánh trực tiếp hai dict và báo `TypeError`. Viết `sorted(rows, by_avg)` cũng lỗi, vì `sorted` chỉ nhận một đối số vị trí; hàm phải được truyền theo tên `key=`."
 
   - id: p1-06-q13
     type: output

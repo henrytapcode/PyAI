@@ -91,3 +91,7 @@ def test_report_student_without_scores_gets_f():
 
 def test_report_for_empty_class_is_empty_list():
     assert exercise.build_report([]) == []
+
+
+def test_sort_key_flips_average_and_keeps_name():
+    assert exercise.sort_key({"name": "An", "avg": 8.5}) == (-8.5, "An")

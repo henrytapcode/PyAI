@@ -21,7 +21,7 @@ hints:
       def make_slug(title):
           title = title.strip()
           title = ...
-          words = title.split()
+          words = ...
           return "...".join(words)
       ```
   vi:
@@ -39,6 +39,6 @@ hints:
       def make_slug(title):
           title = title.strip()
           title = ...
-          words = title.split()
+          words = ...
           return "...".join(words)
       ```

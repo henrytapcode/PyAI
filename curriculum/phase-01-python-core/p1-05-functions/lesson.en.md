@@ -60,7 +60,7 @@ This is the most common beginner confusion.
 |---|---|---|
 | What it does | **shows** `x` on the screen | **hands** `x` back to the caller |
 | Can the program use it afterwards? | no | yes: store it, compute with it |
-| Without it, the call gives | nothing useful (`None`) | n/a |
+| What the call gives back | `None` | `x` |
 
 ```python
 def double_print(n):
@@ -205,7 +205,7 @@ def describe(weight_kg, height_m):
 print(describe(52, 1.60))   # BMI is 20.3
 ```
 
-In the f-string, `:.1f` means "show 1 decimal place". Press **Visualize** to see a frame for `describe` and, inside it, another frame for `bmi`.
+In the f-string, `:.1f` means "show 1 decimal place". Each call gets its own frame, so `describe` and `bmi` each have one.
 
 ## 9. Common mistakes
 
@@ -233,17 +233,6 @@ print(say_hello)     # <function say_hello at 0x...>
 print(say_hello())   # Hello!
 ```
 
-**Code after `return` never runs.** The `print` below is dead code:
-
-```python
-def double(n):
-    return n * 2
-    print("done")   # never runs
-
-
-print(double(5))   # 10
-```
-
 **A list as a default argument.** A default value is created only once, so a list default is shared by every call. Preview of a trap you will meet later:
 
 ```python
@@ -258,7 +247,19 @@ print(add_item("pear"))    # ['apple', 'pear']  surprise!
 
 For now: use only numbers, text, `True`/`False` or `None` as defaults, never `[]` or `{}`.
 
-**Using a variable that exists only inside the function.** `tax` below was created inside `add_tax`, so outside it you get `NameError: name 'tax' is not defined`. Return the value you need instead.
+**Using a variable that exists only inside the function.** `tax` is created inside `add_tax`, so outside it does not exist:
+
+```python
+def add_tax(price):
+    tax = price * 0.1
+    return price + tax
+
+
+add_tax(100)
+print(tax)   # NameError: name 'tax' is not defined
+```
+
+Return the value you need instead.
 
 > [!WARNING]
 > Having the same name inside and outside a function is legal but confusing. Prefer different names, or pass values in as parameters.

@@ -54,7 +54,7 @@ Here is what `name` holds as the code runs:
 |---|---|---|
 | 1 | `name = "  Lan  "` | `"  Lan  "` |
 | 2 | `name.strip()` | `"  Lan  "` (a new string was made, then dropped) |
-| 5 | `name = name.strip()` | `"Lan"` |
+| 4 | `name = name.strip()` | `"Lan"` |
 
 > [!WARNING]
 > Writing `name.strip()` on its own line does nothing useful. Always write `name = name.strip()` (or use the result straight away).
@@ -139,6 +139,7 @@ You know `f"{value}"`. After the value you can add a colon and a **format spec**
 | `:,` | commas between thousands | `1234567` → `1,234,567` |
 | `:>8` | right-align in 8 characters | `"ai"` → `"      ai"` |
 | `:<10` | left-align in 10 characters | `"ai"` → `"ai        "` |
+| `:>8.2f` | right-align, 2 decimals | `3.5` → `"    3.50"` |
 | `:>8,` | combine: right-align, with commas | `1234` → `"   1,234"` |
 | `:,.2f` | commas and 2 decimals | `1234.5` → `1,234.50` |
 
@@ -213,14 +214,17 @@ Build a new string instead: `"J" + word[1:]` gives `"Jython"`.
 
 **Going past the end.** `"abc"[3]` raises `IndexError`, because the valid indexes are 0, 1 and 2.
 
-**Using `find()` as a yes/no answer.** `find()` returns `-1` when nothing is found, and `-1` counts as `True`. Use `in` for yes/no questions:
+**Using `find()` as a yes/no answer.** `find()` returns the *position*, not `True`/`False`. A match at index 0 gives `0`, which counts as `False`, and "not found" gives `-1`, which counts as `True`. Both are the wrong way round:
 
 ```python
 text = "hello"
-if "z" in text:
+if text.find("h"):        # find returns 0, and 0 counts as False
     print("found")
 else:
-    print("not found")  # not found
+    print("missing")      # missing  (wrong!)
+
+if "h" in text:           # use `in` for yes/no questions
+    print("found")        # found
 ```
 
 **Joining numbers.** `",".join([1, 2])` raises `TypeError` because `join` needs strings. Convert with `str()` first.

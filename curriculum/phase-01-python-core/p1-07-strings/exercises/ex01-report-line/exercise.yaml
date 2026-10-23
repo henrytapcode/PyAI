@@ -20,9 +20,8 @@ hints:
       Code shape:
       ```python
       def report_line(model, tokens, cost):
-          return f"{model:<12}{tokens:>10...}{cost:>8...}"
+          return f"{model:<12}{tokens:...}{cost:...}"
       ```
-      Fill the `...` with the comma for tokens and `.2f` for cost.
   vi:
     - |
       Bài này dùng §6 (định dạng số trong f-string). Hàm phải `return` một chuỗi, không phải print.
@@ -37,6 +36,5 @@ hints:
       Khung code:
       ```python
       def report_line(model, tokens, cost):
-          return f"{model:<12}{tokens:>10...}{cost:>8...}"
+          return f"{model:<12}{tokens:...}{cost:...}"
       ```
-      Điền vào `...` dấu phẩy cho tokens và `.2f` cho cost.

@@ -34,7 +34,7 @@ hints:
               rows.append({"name": student["name"], "avg": average(...)})
           lines = []
           for row in sorted(rows, key=sort_key):
-              lines.append(f"{row['name']}: {row['avg']:.2f} ({letter_grade(...)})")
+              ...
           return lines
       ```
   vi:
@@ -65,6 +65,6 @@ hints:
               rows.append({"name": student["name"], "avg": average(...)})
           lines = []
           for row in sorted(rows, key=sort_key):
-              lines.append(f"{row['name']}: {row['avg']:.2f} ({letter_grade(...)})")
+              ...
           return lines
       ```

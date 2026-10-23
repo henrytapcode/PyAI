@@ -8,7 +8,7 @@ tags: [functions, conditions]
 hints:
   en:
     - |
-      This uses §4 (return) and §8 (functions with if checks). Both functions must `return` a value, not `print` it: the tests look at the returned value.
+      This uses §4 (return) and the `if` checks from the conditions lesson. Both functions must `return` a value, not `print` it: the tests look at the returned value.
       They expect `bmi(80, 2.0) == 20.0`, `bmi_category(18.5) == "normal"` and `bmi_category(30.0) == "obese"`.
     - |
       Plan:
@@ -31,7 +31,7 @@ hints:
       ```
   vi:
     - |
-      Bài này dùng §4 (return) và §8 (hàm có kiểm tra if). Cả hai hàm phải `return` giá trị, không phải `print`: test kiểm tra giá trị được trả về.
+      Bài này dùng §4 (return) và các phép kiểm tra `if` từ bài điều kiện. Cả hai hàm phải `return` giá trị, không phải `print`: test kiểm tra giá trị được trả về.
       Test cần `bmi(80, 2.0) == 20.0`, `bmi_category(18.5) == "normal"` và `bmi_category(30.0) == "obese"`.
     - |
       Kế hoạch:

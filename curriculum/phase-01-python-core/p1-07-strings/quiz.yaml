@@ -249,7 +249,7 @@ questions:
   - id: p1-07-q17
     type: parsons
     tags: [strings]
-    difficulty: 3
+    difficulty: 1
     lines:
       - "word = \"Python\""
       - "new_word = \"J\" + word[1:]"
