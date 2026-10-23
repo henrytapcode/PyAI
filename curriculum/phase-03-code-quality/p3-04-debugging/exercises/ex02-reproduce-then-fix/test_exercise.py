@@ -11,7 +11,7 @@ def test_reproduce_returns_a_list_and_a_number():
 
 def test_reproduce_uses_the_input_that_triggers_the_bug():
     items, n = reproduce()
-    assert n == 0, "the bug only happens for one value of n: try small values and compare"
+    assert n == 0, "the bug only happens for one non-negative n: try small values and compare"
     assert len(items) == 1, "the smallest input that shows it has just one item"
 
 

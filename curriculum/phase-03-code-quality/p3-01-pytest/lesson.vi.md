@@ -334,7 +334,7 @@ def check_clean_text():
     assert clean_text("A") == "a"
 ```
 
-pytest in `collected 0 items` và "pass" mà chẳng chạy gì. Cách sửa: đổi tên thành `test_clean_text_lowercases`, và đặt tên file là `test_*.py` nữa.
+pytest không chạy nó. Trong một file có test khác, nó bị bỏ qua âm thầm; đứng một mình thì pytest báo `no tests ran` và thoát với mã 5, bị CI tính là thất bại. Cách sửa: đổi tên thành `test_clean_text_lowercases`, và đặt tên file là `test_*.py` nữa.
 
 **Chỉ test trường hợp thuận lợi.** Test này xanh, nhưng hàm lại crash với chuỗi rỗng. Khối này kết thúc bằng lỗi có chủ ý:
 

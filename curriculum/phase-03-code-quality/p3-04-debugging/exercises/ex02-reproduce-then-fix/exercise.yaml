@@ -8,7 +8,7 @@ tags: [debugging, testing, lists]
 hints:
   en:
     - |
-      This is the routine of §3: first **reproduce**, then fix. Try `last_n` by hand with small values of `n` (0, 1, 2) and compare each result with what you expect. Only one value of `n` gives a wrong answer. What does `-n` become when `n` is `0` (§3)? The smallest input that shows the bug has just one item.
+      This is the routine of §3: first **reproduce**, then fix. Try `last_n` by hand with small values of `n` (0, 1, 2) and compare each result with what you expect. Only one non-negative value of `n` gives a wrong answer. What does `-n` become when `n` is `0` (§3)? The smallest input that shows the bug has just one item.
     - |
       The plan:
       1. In `reproduce`, return a tuple `(items, n)` with one item in `items` and the value of `n` that breaks the function.
@@ -31,7 +31,7 @@ hints:
       Replace each `...` with the value that fits.
   vi:
     - |
-      Đây là quy trình ở §3: **tái hiện** trước, sửa sau. Hãy tự thử `last_n` bằng tay với các giá trị `n` nhỏ (0, 1, 2) và so sánh từng kết quả với điều bạn mong đợi. Chỉ một giá trị của `n` cho đáp án sai. `-n` thành gì khi `n` bằng `0` (§3)? Input nhỏ nhất làm lộ bug chỉ có một phần tử.
+      Đây là quy trình ở §3: **tái hiện** trước, sửa sau. Hãy tự thử `last_n` bằng tay với các giá trị `n` nhỏ (0, 1, 2) và so sánh từng kết quả với điều bạn mong đợi. Chỉ một giá trị `n` không âm cho đáp án sai. `-n` thành gì khi `n` bằng `0` (§3)? Input nhỏ nhất làm lộ bug chỉ có một phần tử.
     - |
       Kế hoạch:
       1. Trong `reproduce`, trả về một tuple `(items, n)` với một phần tử trong `items` và giá trị `n` làm hỏng hàm.

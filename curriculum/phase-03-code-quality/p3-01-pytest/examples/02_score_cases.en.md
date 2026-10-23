@@ -10,6 +10,6 @@
 5. Lines 31–37 check that each invalid text raises `ValueError`.
 6. Line 39 prints how many cases were fine.
 
-**Notice:** the last line of the output is `FAIL 8/0`. Dividing by zero raises `ZeroDivisionError`, not `ValueError`. The table found a gap the author did not think about.
+**Notice:** the second-to-last line of the output is `FAIL 8/0`. Dividing by zero raises `ZeroDivisionError`, not `ValueError`. The table found a gap the author did not think about.
 
 **Try it yourself:** fix `parse_score` so `"8/0"` raises `ValueError` (check the second number before dividing), then run again. The table should go all green.

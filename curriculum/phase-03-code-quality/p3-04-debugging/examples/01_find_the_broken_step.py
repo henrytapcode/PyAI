@@ -1,13 +1,11 @@
 # Find the broken step in a text pipeline by printing the value after every step.
-import re
-
 
 def lowercase(text):
     return text.lower()
 
 
 def remove_punctuation(text):
-    return re.sub(r"[^a-z ]", "", text)
+    return "".join(ch for ch in text if ch.isalpha() or ch == " ")
 
 
 def collapse_spaces(text):
@@ -27,7 +25,7 @@ print("---")
 
 
 def remove_punctuation(text):
-    return re.sub(r"[^a-z0-9 -]", "", text)
+    return "".join(ch for ch in text if ch.isalnum() or ch in " -")
 
 
 steps = [lowercase, remove_punctuation, collapse_spaces]

@@ -207,7 +207,7 @@ Có ba ý tưởng đang hoạt động. Một **set** (`seen`) trả lời câu
 
 Bạn viết các hàm để chúng được test. Đây là hình dạng của một file test cho bộ công cụ. Khối này chỉ định nghĩa các test; pytest sẽ chạy chúng.
 
-```python
+```text
 import logging
 
 import pytest

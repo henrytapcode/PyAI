@@ -308,7 +308,7 @@ logger.info("llm_call", extra={"model": "small", "tokens": 120})
 > [!WARNING]
 > With `extra=`, every record that uses this format must carry those fields, or logging prints an error. An extra key also cannot be a name logging already uses, such as `name` or `message`. The `key=value` message is simpler, so start there.
 
-**What never goes in a log.** Logs are copied to files, dashboards and chat messages, and they live for months. Do not log API keys, passwords or tokens. Do not log full prompts or replies when they can contain private data such as names, emails or customer text. Log facts about them instead:
+**What never goes in a log.** Logs are copied to files, dashboards and chat messages, and they live for months. Do not log API keys, passwords or access tokens. Do not log full prompts or replies when they can contain private data such as names, emails or customer text. Log facts about them instead:
 
 ```python
 import logging

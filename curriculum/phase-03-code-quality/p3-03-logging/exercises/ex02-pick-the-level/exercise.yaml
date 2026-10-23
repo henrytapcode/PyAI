@@ -8,39 +8,37 @@ tags: [logging, functions]
 hints:
   en:
     - |
-      Look at the level table in §2: each row says what a level is for. The comment next to each blank describes the situation: "a detail for bug hunting", "odd, but we carry on", "the operation failed". Match each one to a row. For a normal reply with 5 characters, the record must be `DEBUG`.
+      Look at the level table in §2: each row says what a level is for ("use it for"). The comment next to each blank describes a situation: "a detail for bug hunting", "odd, but we carry on", "the operation failed". Your job is to match each situation to one row of that table.
     - |
       The plan:
-      1. The first blank is a detail for finding bugs, which is the `debug` row.
-      2. The second blank is something odd where the program carries on, which is the `warning` row.
-      3. The third blank is an operation that failed, which is the `error` row.
-      4. Write only the method name in place of `___`, for example `logger.info(...)`.
+      1. Read the three comments one by one.
+      2. For each one, find the row in the §2 table whose "use it for" column describes the same kind of event.
+      3. Write only the method name in place of `___` (the method has the same name as the level, in lower case, such as `logger.info(...)`).
     - |
       The shape:
       ```python
       logger.debug("reply has %d characters", len(reply))
       ...
-      logger.warning("empty reply, retrying (attempt %d)", attempt)
+      logger.___("empty reply, retrying (attempt %d)", attempt)
       ...
-      logger.... ("giving up after %d attempts", attempt)
+      logger.___("giving up after %d attempts", attempt)
       ```
-      The first two are shown. For the last one, the operation failed, so use the level just above `warning`.
+      The first line is filled in as an example of a "detail for bug hunting". For the other two, ask: does the program carry on, or did the operation fail?
   vi:
     - |
-      Hãy nhìn bảng level ở §2: mỗi dòng nói level đó dùng để làm gì. Comment bên cạnh mỗi chỗ trống mô tả tình huống: "chi tiết để tìm lỗi", "lạ, nhưng vẫn chạy tiếp", "thao tác thất bại". Ghép từng cái với một dòng trong bảng. Với câu trả lời bình thường có 5 ký tự, record phải là `DEBUG`.
+      Hãy nhìn bảng level ở §2: mỗi dòng nói level đó dùng để làm gì (cột "use it for"). Comment bên cạnh mỗi chỗ trống mô tả một tình huống: "chi tiết để tìm lỗi", "lạ, nhưng vẫn chạy tiếp", "thao tác thất bại". Việc của bạn là ghép từng tình huống với một dòng của bảng đó.
     - |
       Kế hoạch:
-      1. Chỗ trống thứ nhất là chi tiết để tìm lỗi, ứng với dòng `debug`.
-      2. Chỗ trống thứ hai là việc lạ nhưng chương trình vẫn chạy tiếp, ứng với dòng `warning`.
-      3. Chỗ trống thứ ba là một thao tác đã thất bại, ứng với dòng `error`.
-      4. Chỉ viết tên method vào chỗ của `___`, ví dụ `logger.info(...)`.
+      1. Đọc lần lượt ba comment.
+      2. Với mỗi cái, tìm dòng trong bảng §2 mà cột "use it for" mô tả cùng loại sự kiện.
+      3. Chỉ viết tên method vào chỗ của `___` (method có cùng tên với level, viết thường, như `logger.info(...)`).
     - |
       Hình dạng của lời giải:
       ```python
       logger.debug("reply has %d characters", len(reply))
       ...
-      logger.warning("empty reply, retrying (attempt %d)", attempt)
+      logger.___("empty reply, retrying (attempt %d)", attempt)
       ...
-      logger.... ("giving up after %d attempts", attempt)
+      logger.___("giving up after %d attempts", attempt)
       ```
-      Hai dòng đầu đã được viết ra. Với dòng cuối, thao tác đã thất bại, nên dùng level ngay trên `warning`.
+      Dòng đầu được điền sẵn làm ví dụ cho "chi tiết để tìm lỗi". Với hai dòng còn lại, hãy hỏi: chương trình vẫn đi tiếp, hay thao tác đã thất bại?

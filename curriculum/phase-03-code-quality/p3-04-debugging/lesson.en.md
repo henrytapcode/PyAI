@@ -95,18 +95,15 @@ The first call is fine. The second should return `[]`. The smallest input that s
 
 ## 4. Narrow it down with checkpoints
 
-When a pipeline of several steps gives a wrong answer, you do not need to read all the code. Add **checkpoints**: a `print` (or a `logger.debug`) after each step that shows the value. The bug is between the last correct checkpoint and the first wrong one. This is the same idea as binary search: cut the problem in half.
+When a pipeline of several steps gives a wrong answer, you do not need to read all the code. Add **checkpoints**: a `print` (or a `logger.debug`) after each step that shows the value. The bug is between the last correct checkpoint and the first wrong one. You only need to look at the code between those two checkpoints.
 
 ```python
-import re
-
-
 def clean(text):
     return text.strip().lower()
 
 
 def split_words(text):
-    return re.split(r"\s+", text)
+    return text.split(" ")
 
 
 def count_words(words):
@@ -121,17 +118,17 @@ print("after split:", step2)
 step3 = count_words(step2)
 print("after count:", step3)
 # after clean: 'hello   python'
-# after split: ['hello', 'python']
-# after count: 2
+# after split: ['hello', '', '', 'python']
+# after count: 4
 ```
 
-Press **Visualize** on this block and watch each variable appear. If `count` were wrong, you would see at once that `split_words` was fine and `count_words` was the broken step. A trace table of what you see:
+Press **Visualize** on this block and watch each variable appear. The answer is 4 instead of 2. The checkpoints show that `clean` was fine and `split_words` made the empty words, so `count_words` is innocent. A trace table of what you see:
 
 | step | variable | value | correct? |
 |---|---|---|---|
 | 1 | `step1` | `'hello   python'` | yes |
-| 2 | `step2` | `['hello', 'python']` | yes |
-| 3 | `step3` | `2` | yes |
+| 2 | `step2` | `['hello', '', '', 'python']` | no: empty words |
+| 3 | `step3` | `4` | no, because of step 2 |
 
 Use `repr(...)` when you print text: it shows quotes and hidden spaces, which `print` alone would hide. For code that runs for a long time, prefer `logger.debug(...)` from the logging lesson, because you can leave it in the code and turn it off with the level.
 
@@ -159,8 +156,8 @@ python app.py
 ```
 
 ```text
-> app.py(6)average()
--> return total / len(numbers)
+> app.py(5)average()
+-> breakpoint()
 (Pdb) p total
 12
 (Pdb) p numbers
@@ -169,7 +166,7 @@ python app.py
 4.0
 ```
 
-The `>` line shows where you are, and the `->` line is the next line to run. These are the commands to learn first:
+The `>` line shows where you are, and the `->` line is the next line to run. (Python 3.13 and newer stop on the `breakpoint()` line itself; older versions stop on the line after it.) These are the commands to learn first:
 
 | command | name | what it does |
 |---|---|---|
@@ -237,7 +234,7 @@ Which tool should you pick?
 
 ## 8. Common mistakes
 
-**Changing code at random.** The test is red, so you flip a `<` to `<=`, then add `+ 1`, and the test turns green by luck:
+**Changing code at random.** The test is red, so you change one number, then add `+ 1` somewhere, and the test turns green by luck:
 
 ```python
 def last_n(items, n):

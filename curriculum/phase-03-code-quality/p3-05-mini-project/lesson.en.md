@@ -207,7 +207,7 @@ Three ideas are at work. A **set** (`seen`) answers "have I met this text before
 
 You wrote the functions to be tested. Here is the shape of a test file for the toolkit. This block only defines the tests; pytest runs them.
 
-```python
+```text
 import logging
 
 import pytest

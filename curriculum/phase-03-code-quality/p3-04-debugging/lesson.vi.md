@@ -95,18 +95,15 @@ Lời gọi đầu tiên đúng. Lời gọi thứ hai lẽ ra phải trả về
 
 ## 4. Thu hẹp vùng lỗi bằng các điểm kiểm tra
 
-Khi một pipeline gồm nhiều bước cho ra đáp án sai, bạn không cần đọc toàn bộ code. Hãy thêm **checkpoint** (điểm kiểm tra): một lệnh `print` (hoặc `logger.debug`) sau mỗi bước để hiện giá trị. Bug nằm giữa checkpoint đúng cuối cùng và checkpoint sai đầu tiên. Đây là cùng ý tưởng với tìm kiếm nhị phân: cắt đôi vấn đề.
+Khi một pipeline gồm nhiều bước cho ra đáp án sai, bạn không cần đọc toàn bộ code. Hãy thêm **checkpoint** (điểm kiểm tra): một lệnh `print` (hoặc `logger.debug`) sau mỗi bước để hiện giá trị. Bug nằm giữa checkpoint đúng cuối cùng và checkpoint sai đầu tiên. Bạn chỉ cần nhìn phần code nằm giữa hai checkpoint đó.
 
 ```python
-import re
-
-
 def clean(text):
     return text.strip().lower()
 
 
 def split_words(text):
-    return re.split(r"\s+", text)
+    return text.split(" ")
 
 
 def count_words(words):
@@ -121,17 +118,17 @@ print("after split:", step2)
 step3 = count_words(step2)
 print("after count:", step3)
 # after clean: 'hello   python'
-# after split: ['hello', 'python']
-# after count: 2
+# after split: ['hello', '', '', 'python']
+# after count: 4
 ```
 
-Bấm **Visualize** ở khối code này để xem từng biến xuất hiện. Nếu `count` bị sai, bạn sẽ thấy ngay `split_words` vẫn đúng còn `count_words` là bước hỏng. Bảng trace của những gì bạn thấy:
+Bấm **Visualize** ở khối code này để xem từng biến xuất hiện. Đáp án là 4 thay vì 2. Các checkpoint cho thấy `clean` vẫn đúng còn `split_words` tạo ra các từ rỗng, nên `count_words` vô tội. Bảng trace của những gì bạn thấy:
 
 | bước | biến | giá trị | đúng chưa? |
 |---|---|---|---|
 | 1 | `step1` | `'hello   python'` | rồi |
-| 2 | `step2` | `['hello', 'python']` | rồi |
-| 3 | `step3` | `2` | rồi |
+| 2 | `step2` | `['hello', '', '', 'python']` | chưa: có từ rỗng |
+| 3 | `step3` | `4` | chưa, do bước 2 |
 
 Hãy dùng `repr(...)` khi in văn bản: nó hiện dấu nháy và các khoảng trắng ẩn mà `print` thường sẽ giấu đi. Với code chạy lâu, nên dùng `logger.debug(...)` từ bài logging, vì bạn có thể để nó trong code và tắt bằng level.
 
@@ -159,8 +156,8 @@ python app.py
 ```
 
 ```text
-> app.py(6)average()
--> return total / len(numbers)
+> app.py(5)average()
+-> breakpoint()
 (Pdb) p total
 12
 (Pdb) p numbers
@@ -169,7 +166,7 @@ python app.py
 4.0
 ```
 
-Dòng `>` cho biết bạn đang ở đâu, và dòng `->` là dòng sắp chạy tiếp theo. Đây là những lệnh nên học trước:
+Dòng `>` cho biết bạn đang ở đâu, và dòng `->` là dòng sắp chạy tiếp theo. (Python 3.13 trở lên dừng ngay tại dòng `breakpoint()`; các bản cũ hơn dừng ở dòng liền sau nó.) Đây là những lệnh nên học trước:
 
 | lệnh | tên | làm gì |
 |---|---|---|
@@ -237,7 +234,7 @@ Nên chọn công cụ nào?
 
 ## 8. Lỗi thường gặp
 
-**Sửa code ngẫu nhiên.** Test đang đỏ, bạn đổi `<` thành `<=`, rồi thêm `+ 1`, và test chuyển xanh do may mắn:
+**Sửa code ngẫu nhiên.** Test đang đỏ, bạn đổi một con số, rồi thêm `+ 1` ở đâu đó, và test chuyển xanh do may mắn:
 
 ```python
 def last_n(items, n):

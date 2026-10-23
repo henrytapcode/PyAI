@@ -334,7 +334,7 @@ def check_clean_text():
     assert clean_text("A") == "a"
 ```
 
-pytest prints `collected 0 items` and "passes" with nothing run. Fix: rename it `test_clean_text_lowercases`, and name the file `test_*.py` too.
+pytest does not run it. In a file with other tests it is silently left out; on its own, pytest reports `no tests ran` and exits with code 5, which counts as a failure in CI. Fix: rename it `test_clean_text_lowercases`, and name the file `test_*.py` too.
 
 **Only testing the happy path.** This test is green, yet the function crashes on an empty string. This block ends with an error on purpose:
 

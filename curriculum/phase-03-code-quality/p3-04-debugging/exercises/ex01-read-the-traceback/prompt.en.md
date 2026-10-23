@@ -4,9 +4,9 @@ The first crash comes from `parse_line("model=small tokens=120 latency=0.84s")`:
 
 ```text
 Traceback (most recent call last):
-  File "exercise.py", line 21, in summarize
+  File "exercise.py", line 23, in summarize
     records = [parse_line(line) for line in lines]
-  File "exercise.py", line 8, in parse_line
+  File "exercise.py", line 12, in parse_line
     "latency": float(parts["latency"]),
 ValueError: could not convert string to float: '0.84s'
 ```
@@ -15,9 +15,9 @@ The second one comes from a list that contains an empty line:
 
 ```text
 Traceback (most recent call last):
-  File "exercise.py", line 21, in summarize
+  File "exercise.py", line 23, in summarize
     records = [parse_line(line) for line in lines]
-  File "exercise.py", line 7, in parse_line
+  File "exercise.py", line 10, in parse_line
     "model": parts["model"],
 KeyError: 'model'
 ```
