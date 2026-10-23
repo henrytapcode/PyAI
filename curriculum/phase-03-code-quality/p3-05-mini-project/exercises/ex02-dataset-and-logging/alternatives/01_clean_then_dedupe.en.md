@@ -1,0 +1,3 @@
+# Clean first, remove duplicates after
+
+This version splits the job into two passes. The loop only skips, cleans and counts empty texts. Then `dict.fromkeys(cleaned_texts)` builds a dictionary whose keys are the texts, and a dictionary keeps each key once and in the order it first appeared, so `list(...)` of it is the list without duplicates. The number of duplicates is simply how many texts were lost. It is short and clear, but it keeps every cleaned text in memory before removing duplicates. The `seen` set of the main solution decides item by item, which is the better choice for a very large dataset.

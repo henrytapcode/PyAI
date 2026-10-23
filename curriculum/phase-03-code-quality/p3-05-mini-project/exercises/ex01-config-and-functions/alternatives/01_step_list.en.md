@@ -1,0 +1,3 @@
+# A list of steps
+
+Instead of one `if` after another that changes `text`, this version first builds a **list of the steps that apply** (functions are values, so a list can hold them) and then runs the list in a loop. `remove_urls` is also written with a plain loop. The order of the list is the order of the cleaning, which makes it easy to see, reorder or log. It uses a `lambda` and `str.lower`, two things that appear in later lessons, so treat it as a preview. For four steps the straight `if` version is shorter and clearer; the list wins when you have many optional steps or want to loop over them for logging.

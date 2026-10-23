@@ -1,0 +1,3 @@
+# Một list các bước
+
+Thay vì hết `if` này đến `if` khác thay đổi `text`, phiên bản này trước hết dựng một **list các bước được áp dụng** (hàm cũng là một giá trị nên list có thể chứa chúng) rồi chạy list đó trong một vòng lặp. `remove_urls` cũng được viết bằng một vòng lặp đơn giản. Thứ tự của list chính là thứ tự làm sạch, nên dễ nhìn, dễ đổi chỗ hoặc dễ log. Nó dùng `lambda` và `str.lower`, hai thứ sẽ xuất hiện ở các bài sau, nên hãy coi đây là bản xem trước. Với bốn bước thì cách dùng `if` thẳng ngắn gọn và rõ ràng hơn; list thắng khi bạn có nhiều bước tùy chọn hoặc muốn lặp qua chúng để log.

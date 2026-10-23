@@ -1,0 +1,33 @@
+id: p3-05-mini-project
+phase: p3
+order: 5
+kind: project
+title:
+  en: "Mini-project: text-cleaning toolkit"
+  vi: "Mini-project: bộ công cụ làm sạch văn bản"
+summary:
+  en: "Build a small text-cleaning module for AI datasets: pure functions, a frozen dataclass config, logging, and tests with parametrize, fixtures and caplog."
+  vi: "Xây một module làm sạch văn bản nhỏ cho dữ liệu AI: các hàm thuần, config bằng frozen dataclass, logging, và test với parametrize, fixture và caplog."
+level: beginner
+tags: [testing, logging, dataclasses, strings, data-prep]
+prerequisites: [p3-04-debugging, p2-04-dataclasses]
+duration_min: 50
+outcomes:
+  en:
+    - "Split a cleaning job into small pure functions with one job each"
+    - "Keep settings in a frozen dataclass instead of loose arguments"
+    - "Log skipped and dropped items with the right level, and one summary line"
+    - "Test the toolkit with parametrize, a fixture and caplog"
+    - "Use the debugging routine when a test turns red"
+  vi:
+    - "Chia một việc làm sạch thành các hàm thuần nhỏ, mỗi hàm một nhiệm vụ"
+    - "Giữ các thiết lập trong một frozen dataclass thay vì các đối số rời rạc"
+    - "Log các mục bị bỏ qua hoặc bị loại với đúng level, kèm một dòng tổng kết"
+    - "Test bộ công cụ bằng parametrize, fixture và caplog"
+    - "Dùng quy trình debug khi một test chuyển sang đỏ"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: str methods", vi: "Python docs: các method của str (EN)" }
+    url: "https://docs.python.org/3/library/stdtypes.html#string-methods"
+  - title: { en: "pytest docs: parametrize", vi: "pytest docs: parametrize (EN)" }
+    url: "https://docs.pytest.org/en/stable/how-to/parametrize.html"

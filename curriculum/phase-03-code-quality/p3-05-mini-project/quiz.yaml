@@ -1,0 +1,314 @@
+questions:
+  - id: p3-05-q01
+    type: mcq
+    tags: [testing, functions]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why is a pure function like `normalize_spaces(text)` easy to test?"
+      options:
+        - "The same input always gives the same output, and it needs no files, network or global state"
+        - "It never raises an error"
+        - "It runs faster than other functions"
+        - "pytest only works on pure functions"
+      explanation: "A pure function depends only on its arguments and changes nothing else, so a test can call it with one value and compare the result. Files, networks and globals make tests slow and unpredictable."
+    vi:
+      prompt: "Vì sao một hàm thuần như `normalize_spaces(text)` dễ test?"
+      options:
+        - "Cùng một đầu vào luôn cho cùng một đầu ra, và nó không cần file, mạng hay trạng thái global"
+        - "Nó không bao giờ ném lỗi"
+        - "Nó chạy nhanh hơn các hàm khác"
+        - "pytest chỉ chạy được trên hàm thuần"
+      explanation: "Hàm thuần chỉ phụ thuộc vào đối số và không thay đổi gì khác, nên test chỉ cần gọi nó với một giá trị rồi so sánh kết quả. File, mạng và biến global làm test chậm và khó đoán."
+
+  - id: p3-05-q02
+    type: mcq
+    tags: [dataclasses]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Why is `CleanConfig` a **frozen** dataclass?"
+      options:
+        - "So that it runs faster"
+        - "So that it can hold more fields"
+        - "So that nobody can change the settings by accident after they are created"
+        - "Because dataclasses must always be frozen"
+      explanation: "A frozen dataclass raises an error when you assign to a field. A config shared by many calls should not change in the middle of a run."
+    vi:
+      prompt: "Vì sao `CleanConfig` là một dataclass **frozen**?"
+      options:
+        - "Để nó chạy nhanh hơn"
+        - "Để nó chứa được nhiều field hơn"
+        - "Để không ai vô tình thay đổi thiết lập sau khi đã tạo"
+        - "Vì dataclass luôn phải là frozen"
+      explanation: "Một frozen dataclass báo lỗi khi bạn gán vào một field. Một config dùng chung cho nhiều lời gọi không nên thay đổi giữa chừng một lần chạy."
+
+  - id: p3-05-q03
+    type: mcq
+    tags: [testing]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What does `@pytest.mark.parametrize(\"text, expected\", [...])` give you?"
+      options:
+        - "One test that stops at the first failing row"
+        - "The same test body run once for each row, reported separately, so you see which input failed"
+        - "A faster way to write `assert`"
+        - "A way to skip tests"
+      explanation: "Each row becomes its own test case. A failure names the row, so you know exactly which input broke, and the other rows still run."
+    vi:
+      prompt: "`@pytest.mark.parametrize(\"text, expected\", [...])` mang lại điều gì?"
+      options:
+        - "Một test dừng lại ở dòng thất bại đầu tiên"
+        - "Cùng một thân test chạy một lần cho mỗi dòng, báo cáo riêng, nên bạn thấy input nào thất bại"
+        - "Một cách viết `assert` nhanh hơn"
+        - "Một cách bỏ qua test"
+      explanation: "Mỗi dòng trở thành một test case riêng. Một lần thất bại nêu tên dòng đó, nên bạn biết chính xác input nào đã hỏng, và các dòng khác vẫn chạy."
+
+  - id: p3-05-q04
+    type: mcq
+    tags: [fixtures, testing]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "A test function has a parameter named `messy`, and the test file has a `@pytest.fixture` called `messy`. What happens?"
+      options:
+        - "pytest raises an error because the parameter has no value"
+        - "The test runs with `messy` set to `None`"
+        - "The fixture runs once for the whole file and the test never sees it"
+        - "pytest runs the fixture and passes its return value to the test"
+      explanation: "pytest matches parameter names to fixtures, runs the fixture, and hands its return value to the test. This is how tests share setup."
+    vi:
+      prompt: "Một hàm test có tham số tên `messy`, và file test có một `@pytest.fixture` tên `messy`. Điều gì xảy ra?"
+      options:
+        - "pytest báo lỗi vì tham số không có giá trị"
+        - "Test chạy với `messy` bằng `None`"
+        - "Fixture chạy một lần cho cả file và test không bao giờ thấy nó"
+        - "pytest chạy fixture và truyền giá trị trả về của nó cho test"
+      explanation: "pytest khớp tên tham số với fixture, chạy fixture, rồi đưa giá trị trả về cho test. Đây là cách các test dùng chung phần chuẩn bị."
+
+  - id: p3-05-q05
+    type: mcq
+    tags: [logging, data-prep]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "In `clean_dataset`, an item is the number `42` instead of a string. What is the best response?"
+      options:
+        - "Log a `WARNING` with its position, count it as skipped, and carry on"
+        - "Stop the whole program with `CRITICAL`"
+        - "Convert it to text silently and keep it"
+        - "Ignore it without logging anything"
+      explanation: "Odd data is something a human should know about, but one bad item should not stop thousands of good ones. That is exactly what `WARNING` is for."
+    vi:
+      prompt: "Trong `clean_dataset`, một mục là con số `42` thay vì string. Cách xử lý tốt nhất là gì?"
+      options:
+        - "Log một `WARNING` kèm vị trí, đếm nó là skipped, và đi tiếp"
+        - "Dừng cả chương trình với `CRITICAL`"
+        - "Âm thầm chuyển nó thành chữ và giữ lại"
+        - "Bỏ qua mà không log gì"
+      explanation: "Dữ liệu lạ là điều con người nên biết, nhưng một mục xấu không nên dừng hàng nghìn mục tốt. Đó chính xác là việc của `WARNING`."
+
+  - id: p3-05-q06
+    type: mcq
+    tags: [debugging, testing]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "After you change `clean_text`, one test is red: `assert 'read today ' == 'read today'`. What is the best first move?"
+      options:
+        - "Delete the test, because it is probably wrong"
+        - "Add `.strip()` in five random places"
+        - "Compare the expected and actual values, then reproduce with a small input and print the value after each step"
+        - "Rewrite `clean_text` from scratch"
+      explanation: "The failure message already shows the extra space at the end. Reproduce with the smallest input, add checkpoints after each step, and fix the one step that adds the space. The bug could also be in the test, so read both sides."
+    vi:
+      prompt: "Sau khi bạn đổi `clean_text`, một test bị đỏ: `assert 'read today ' == 'read today'`. Việc đầu tiên nên làm là gì?"
+      options:
+        - "Xóa test, vì có lẽ nó sai"
+        - "Thêm `.strip()` ở năm chỗ ngẫu nhiên"
+        - "So sánh giá trị mong đợi và giá trị thực tế, rồi tái hiện bằng một input nhỏ và in giá trị sau mỗi bước"
+        - "Viết lại `clean_text` từ đầu"
+      explanation: "Thông báo thất bại đã cho thấy khoảng trắng thừa ở cuối. Hãy tái hiện bằng input nhỏ nhất, thêm checkpoint sau mỗi bước, và sửa đúng bước gây ra khoảng trắng đó. Bug cũng có thể nằm ở test, nên hãy đọc cả hai vế."
+
+  - id: p3-05-q07
+    type: output
+    tags: [strings]
+    difficulty: 1
+    code: |
+      text = "  a   b "
+      print(" ".join(text.split()))
+    answer: "a b"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`split()` with no argument cuts at any run of spaces and drops the empty pieces, giving `['a', 'b']`. `\" \".join(...)` glues them with one space."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`split()` không có đối số cắt ở mọi chuỗi khoảng trắng và bỏ các mảnh rỗng, cho `['a', 'b']`. `\" \".join(...)` ghép chúng bằng một khoảng trắng."
+
+  - id: p3-05-q08
+    type: output
+    tags: [strings, lists]
+    difficulty: 2
+    code: |
+      words = "see https://x.io now".split()
+      kept = [w for w in words if not w.startswith("https://")]
+      print(" ".join(kept))
+    answer: "see now"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The list comprehension keeps only the words that do not start with `https://`, so the link is dropped. The rest are joined with one space."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "List comprehension chỉ giữ các từ không bắt đầu bằng `https://`, nên đường link bị bỏ. Phần còn lại được nối bằng một khoảng trắng."
+
+  - id: p3-05-q09
+    type: output
+    tags: [dataclasses]
+    difficulty: 2
+    code: |
+      from dataclasses import dataclass
+
+
+      @dataclass(frozen=True)
+      class Config:
+          lowercase: bool = True
+
+
+      config = Config()
+      try:
+          config.lowercase = False
+      except AttributeError:
+          print("locked")
+      print(config.lowercase)
+    answer: "locked\nTrue"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Assigning to a field of a frozen dataclass raises an error (a kind of `AttributeError`), so `locked` is printed. The value is unchanged, so the second line is `True`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Gán vào một field của frozen dataclass sẽ ném lỗi (một loại `AttributeError`), nên `locked` được in ra. Giá trị không đổi, nên dòng thứ hai là `True`."
+
+  - id: p3-05-q10
+    type: output
+    tags: [strings]
+    difficulty: 3
+    code: |
+      text = "hello brave"
+      print(repr(text[:6].rstrip()))
+    answer: "'hello'"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`text[:6]` is `'hello '` with a space at the end. `rstrip()` removes it, and `repr` shows the quotes around `hello`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`text[:6]` là `'hello '` có một khoảng trắng ở cuối. `rstrip()` bỏ nó đi, và `repr` hiện dấu nháy quanh `hello`."
+
+  - id: p3-05-q11
+    type: fill
+    tags: [strings]
+    difficulty: 1
+    code: |
+      print("https://x.io".___("https://"))  # True
+    answer: ["startswith"]
+    en:
+      prompt: "Fill in the string method that checks how a text begins."
+      explanation: "`text.startswith(prefix)` is `True` when the text begins with the prefix. It also accepts a tuple of prefixes, like `(\"http://\", \"https://\")`."
+    vi:
+      prompt: "Điền method của string kiểm tra một văn bản bắt đầu như thế nào."
+      explanation: "`text.startswith(prefix)` là `True` khi văn bản bắt đầu bằng tiền tố đó. Nó cũng nhận một tuple các tiền tố, như `(\"http://\", \"https://\")`."
+
+  - id: p3-05-q12
+    type: fill
+    tags: [sets, loops]
+    difficulty: 2
+    code: |
+      seen = set()
+      for word in ["a", "b", "a"]:
+          if word in seen:
+              print("duplicate:", word)
+          else:
+              seen.___(word)
+    answer: ["add"]
+    en:
+      prompt: "Fill in the set method that puts a new item into the set."
+      explanation: "`seen.add(word)` puts `word` into the set. When `\"a\"` comes the second time it is already in `seen`, so the duplicate is reported."
+    vi:
+      prompt: "Điền method của set đưa một phần tử mới vào set."
+      explanation: "`seen.add(word)` đưa `word` vào set. Khi `\"a\"` đến lần thứ hai thì nó đã có trong `seen`, nên trùng lặp được báo."
+
+  - id: p3-05-q13
+    type: fill
+    tags: [strings]
+    difficulty: 1
+    code: |
+      print("a   b".___())  # ['a', 'b']
+    answer: ["split"]
+    en:
+      prompt: "Fill in the string method that cuts a text into a list of words."
+      explanation: "`split()` with no argument cuts at any run of whitespace and drops empty pieces. It is the first half of `\" \".join(text.split())`."
+    vi:
+      prompt: "Điền method của string cắt một văn bản thành list các từ."
+      explanation: "`split()` không có đối số cắt ở mọi chuỗi khoảng trắng và bỏ các mảnh rỗng. Nó là nửa đầu của `\" \".join(text.split())`."
+
+  - id: p3-05-q14
+    type: parsons
+    tags: [strings]
+    difficulty: 2
+    lines:
+      - "raw = \"  Hello   World  \""
+      - "words = raw.split()"
+      - "joined = \" \".join(words)"
+      - "print(joined.lower())"
+    en:
+      prompt: "Put the lines in order so the program prints `hello world`."
+      explanation: "Each line uses the variable made by the line before it: `raw`, then `words`, then `joined`. The `print` comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `hello world`."
+      explanation: "Mỗi dòng dùng biến do dòng trước tạo ra: `raw`, rồi `words`, rồi `joined`. Lệnh `print` đứng cuối."
+
+  - id: p3-05-q15
+    type: parsons
+    tags: [testing, lists]
+    difficulty: 3
+    lines:
+      - "cases = [\"a  b\", \" c \"]"
+      - "cleaned = [\" \".join(c.split()) for c in cases]"
+      - "ok = cleaned == [\"a b\", \"c\"]"
+      - "print(ok)"
+    en:
+      prompt: "Put the lines in order so the program prints `True`."
+      explanation: "This is a tiny table of cases: build the cases, clean them, compare with the expected list, then print the result. Each step needs the one before it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `True`."
+      explanation: "Đây là một bảng trường hợp nhỏ: tạo các case, làm sạch chúng, so sánh với list kỳ vọng, rồi in kết quả. Mỗi bước cần bước đứng trước nó."
+
+flashcards:
+  - id: p3-05-f01
+    tags: [functions, testing]
+    en: { front: "What is a pure function, and why is it good for a toolkit?", back: "Same input, same output, and it touches nothing else (no file, network or global). It is easy to call, test and debug with one value." }
+    vi: { front: "Hàm thuần là gì, và vì sao tốt cho một bộ công cụ?", back: "Cùng đầu vào cho cùng đầu ra, và không đụng tới thứ gì khác (không file, mạng hay global). Nó dễ gọi, dễ test và dễ debug chỉ với một giá trị." }
+  - id: p3-05-f02
+    tags: [dataclasses]
+    code: "@dataclass(frozen=True)\nclass CleanConfig:\n    lowercase: bool = True\n    max_chars: int | None = None"
+    en: { front: "Why keep settings in a frozen dataclass?", back: "One named bundle instead of loose arguments, with defaults, and it cannot be changed by accident. `None` can mean \"no limit\"." }
+    vi: { front: "Vì sao giữ thiết lập trong một frozen dataclass?", back: "Một gói có tên thay cho các đối số rời rạc, có giá trị mặc định, và không thể bị đổi vô tình. `None` có thể nghĩa là \"không giới hạn\"." }
+  - id: p3-05-f03
+    tags: [strings, data-prep]
+    code: "\" \".join(text.split())"
+    en: { front: "What is the order of the cleaning steps, and why?", back: "Remove links, fix spaces, change case, then cut the length last, so the cut counts the final characters. Clean first, cut last." }
+    vi: { front: "Thứ tự các bước làm sạch là gì, và vì sao?", back: "Bỏ link, sửa khoảng trắng, đổi chữ hoa/thường, rồi cắt độ dài sau cùng, để việc cắt tính theo các ký tự cuối cùng. Làm sạch trước, cắt sau." }
+  - id: p3-05-f04
+    tags: [logging, data-prep]
+    code: "logger.warning(\"skipping item %d: not a string\", index)"
+    en: { front: "What do you log for odd items, and what for expected drops?", back: "Odd items get a `WARNING` with their position. Expected drops (empty, duplicate) are counted, and one `INFO` summary line is logged at the end." }
+    vi: { front: "Log gì cho mục lạ, và log gì cho các mục bị loại đã biết trước?", back: "Mục lạ nhận một `WARNING` kèm vị trí. Mục bị loại đã biết trước (rỗng, trùng) chỉ được đếm, và một dòng tổng kết `INFO` được log ở cuối." }
+  - id: p3-05-f05
+    tags: [testing, fixtures]
+    en: { front: "What are parametrize, fixture and caplog for?", back: "`parametrize` runs one test over many cases. A fixture shares setup, received by naming it as a parameter. `caplog` collects log records so you can check level and message." }
+    vi: { front: "parametrize, fixture và caplog dùng để làm gì?", back: "`parametrize` chạy một test trên nhiều trường hợp. Fixture chia sẻ phần chuẩn bị, nhận được bằng cách gọi tên nó làm tham số. `caplog` thu các log record để bạn kiểm tra level và thông báo." }
+  - id: p3-05-f06
+    tags: [debugging, functions]
+    code: "def clean_text(text, config=None):\n    if config is None:\n        config = CleanConfig()"
+    en: { front: "Why use `config=None` instead of `config=CleanConfig()` or a list default?", back: "A default value is created once, when the function is defined. A mutable default is shared by every call. Use `None` and create the object inside the function." }
+    vi: { front: "Vì sao dùng `config=None` thay vì `config=CleanConfig()` hoặc một list mặc định?", back: "Giá trị mặc định được tạo một lần, khi hàm được định nghĩa. Mặc định có thể thay đổi sẽ bị dùng chung cho mọi lời gọi. Hãy dùng `None` và tạo object bên trong hàm." }

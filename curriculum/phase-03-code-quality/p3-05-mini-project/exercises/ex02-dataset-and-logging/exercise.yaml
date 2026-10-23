@@ -1,0 +1,70 @@
+id: p3-05-ex02
+kind: project
+title:
+  en: "Toolkit part 2: clean a dataset and log it"
+  vi: "Toolkit phần 2: làm sạch dataset và ghi log"
+difficulty: 3
+tags: [logging, testing, loops]
+hints:
+  en:
+    - |
+      This is the loop of §5. For `["Hi  there", "hi there", "", 7]` the report is `kept=["hi there"]`, `skipped=1`, `empty=1`, `duplicates=1`. The item `7` is item number 3, so the warning says `skipping item 3: not a string`, and the summary says `kept 1 of 4 texts`. Think about what the loop needs to remember between items: the texts it has already seen.
+    - |
+      The plan:
+      1. Create `report = CleanReport(kept=[])` and `seen = set()`.
+      2. `for index, item in enumerate(texts):` if `item` is not a string, call `logger.warning("skipping item %d: not a string", index)`, add one to `report.skipped`, and `continue`.
+      3. Otherwise `cleaned = clean_text(item, config)`. If `cleaned` is empty, add one to `report.empty`. Else if it is in `seen`, add one to `report.duplicates`. Else add it to `seen` and to `report.kept`.
+      4. After the loop, log **one** `logger.info("kept %d of %d texts", ...)` and return the report. Do not log inside the loop for empty or duplicate texts.
+    - |
+      The shape:
+      ```python
+      report = CleanReport(kept=[])
+      seen = set()
+      for index, item in enumerate(texts):
+          if not isinstance(item, str):
+              logger.warning("skipping item %d: not a string", index)
+              ...
+              continue
+          cleaned = clean_text(item, config)
+          if not cleaned:
+              ...
+          elif cleaned in seen:
+              ...
+          else:
+              seen.add(cleaned)
+              ...
+      logger.info("kept %d of %d texts", len(report.kept), len(texts))
+      return report
+      ```
+      Replace each `...` with the line that updates the report.
+  vi:
+    - |
+      Đây là vòng lặp ở §5. Với `["Hi  there", "hi there", "", 7]` báo cáo là `kept=["hi there"]`, `skipped=1`, `empty=1`, `duplicates=1`. Mục `7` là mục số 3, nên warning ghi `skipping item 3: not a string`, và dòng tổng kết ghi `kept 1 of 4 texts`. Hãy nghĩ xem vòng lặp cần nhớ điều gì giữa các mục: những văn bản nó đã gặp.
+    - |
+      Kế hoạch:
+      1. Tạo `report = CleanReport(kept=[])` và `seen = set()`.
+      2. `for index, item in enumerate(texts):` nếu `item` không phải string, gọi `logger.warning("skipping item %d: not a string", index)`, cộng một vào `report.skipped`, rồi `continue`.
+      3. Nếu không, `cleaned = clean_text(item, config)`. Nếu `cleaned` rỗng, cộng một vào `report.empty`. Nếu không, nếu nó có trong `seen`, cộng một vào `report.duplicates`. Còn lại thì thêm nó vào `seen` và `report.kept`.
+      4. Sau vòng lặp, log **một** dòng `logger.info("kept %d of %d texts", ...)` rồi trả về báo cáo. Đừng log trong vòng lặp cho văn bản rỗng hay trùng.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      report = CleanReport(kept=[])
+      seen = set()
+      for index, item in enumerate(texts):
+          if not isinstance(item, str):
+              logger.warning("skipping item %d: not a string", index)
+              ...
+              continue
+          cleaned = clean_text(item, config)
+          if not cleaned:
+              ...
+          elif cleaned in seen:
+              ...
+          else:
+              seen.add(cleaned)
+              ...
+      logger.info("kept %d of %d texts", len(report.kept), len(texts))
+      return report
+      ```
+      Thay từng `...` bằng dòng cập nhật báo cáo.

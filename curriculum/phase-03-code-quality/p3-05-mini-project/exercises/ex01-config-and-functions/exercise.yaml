@@ -1,0 +1,62 @@
+id: p3-05-ex01
+kind: project
+title:
+  en: "Toolkit part 1: config and text functions"
+  vi: "Toolkit phần 1: config và các hàm xử lý văn bản"
+difficulty: 3
+tags: [dataclasses, strings, testing]
+hints:
+  en:
+    - |
+      Build the pieces in the order of the plan in §1, and press **Check** after each one. Section 2 shows the config, section 3 shows `normalize_spaces` and `remove_urls`, and section 4 shows `clean_text` and the order of its steps. For `"  Read https://x.io  TODAY "` the answer is `"read today"`: links go first, then spaces, then lowercase.
+    - |
+      The plan:
+      1. `CleanConfig`: three fields, each with a default. `max_chars` is `int | None` and defaults to `None`.
+      2. `normalize_spaces`: `text.split()` with no argument cuts at any spaces, tabs and newlines; join the words with one space.
+      3. `remove_urls`: build a list of the words that do **not** start with `"http://"` or `"https://"` (`startswith` accepts a tuple), then join them.
+      4. `clean_text`: raise `TypeError` when `text` is not a string, use `CleanConfig()` when `config` is `None`, then run the steps in order. Compare `max_chars` with `None` using `is not None`, because `0` is a real limit.
+    - |
+      The shape:
+      ```python
+      def clean_text(text, config=None):
+          if not isinstance(text, str):
+              raise TypeError("text must be a string")
+          if config is None:
+              config = CleanConfig()
+          if config.drop_urls:
+              text = ...
+          text = normalize_spaces(text)
+          if config.lowercase:
+              text = ...
+          if config.max_chars is not None:
+              text = text[: config.max_chars].rstrip()
+          return text
+      ```
+      Replace each `...` with the call that does that step.
+  vi:
+    - |
+      Hãy xây từng phần theo thứ tự của kế hoạch ở §1, và bấm **Check** sau mỗi phần. Phần 2 cho thấy config, phần 3 cho thấy `normalize_spaces` và `remove_urls`, còn phần 4 cho thấy `clean_text` và thứ tự các bước của nó. Với `"  Read https://x.io  TODAY "` đáp án là `"read today"`: link đi trước, rồi khoảng trắng, rồi chữ thường.
+    - |
+      Kế hoạch:
+      1. `CleanConfig`: ba field, mỗi field có giá trị mặc định. `max_chars` là `int | None` và mặc định là `None`.
+      2. `normalize_spaces`: `text.split()` không có đối số cắt ở mọi khoảng trắng, tab và xuống dòng; nối các từ bằng một khoảng trắng.
+      3. `remove_urls`: tạo một list các từ **không** bắt đầu bằng `"http://"` hoặc `"https://"` (`startswith` nhận một tuple), rồi nối chúng lại.
+      4. `clean_text`: ném `TypeError` khi `text` không phải string, dùng `CleanConfig()` khi `config` là `None`, rồi chạy các bước theo thứ tự. So sánh `max_chars` với `None` bằng `is not None`, vì `0` là một giới hạn thật.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      def clean_text(text, config=None):
+          if not isinstance(text, str):
+              raise TypeError("text must be a string")
+          if config is None:
+              config = CleanConfig()
+          if config.drop_urls:
+              text = ...
+          text = normalize_spaces(text)
+          if config.lowercase:
+              text = ...
+          if config.max_chars is not None:
+              text = text[: config.max_chars].rstrip()
+          return text
+      ```
+      Thay từng `...` bằng lời gọi thực hiện bước đó.
