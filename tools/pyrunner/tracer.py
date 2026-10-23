@@ -27,19 +27,34 @@ class _TooManySteps(Exception):
     pass
 
 
+def _repr(value, depth: int = 0) -> str:
+    """repr() that shows object state instead of memory addresses, also inside containers."""
+    if isinstance(value, types.FunctionType):
+        return f"function {value.__name__}()"
+    if isinstance(value, type):
+        return f"class {value.__name__}"
+    if isinstance(value, types.GeneratorType):
+        return f"generator {value.__name__}()"
+    if depth < 3:
+        if type(value) is list:
+            return "[" + ", ".join(_repr(v, depth + 1) for v in value) + "]"
+        if type(value) is tuple and len(value) != 1:
+            return "(" + ", ".join(_repr(v, depth + 1) for v in value) + ")"
+        if type(value) is dict:
+            return "{" + ", ".join(f"{_repr(k, depth + 1)}: {_repr(v, depth + 1)}" for k, v in value.items()) + "}"
+    text = repr(value)
+    if " object at 0x" in text and hasattr(value, "__dict__"):
+        # Default repr hides the state; show the attributes so learners can watch them change.
+        attrs = ", ".join(f"{k}={_repr(v, depth + 1)}" for k, v in vars(value).items())
+        text = f"{type(value).__name__}({attrs})"
+    return text
+
+
 def _short(value) -> str:
     try:
-        if isinstance(value, types.FunctionType):
-            return f"function {value.__name__}()"
-        if isinstance(value, type):
-            return f"class {value.__name__}"
-        if isinstance(value, types.GeneratorType):
-            return f"generator {value.__name__}()"
-        text = repr(value)
-        if " object at 0x" in text and hasattr(value, "__dict__"):
-            # Default repr hides the state; show the attributes so learners can watch them change.
-            attrs = ", ".join(f"{k}={v!r}" for k, v in vars(value).items())
-            text = f"{type(value).__name__}({attrs})"
+        # A learner's __repr__ may print; that must not leak into the program output.
+        with redirect_stdout(io.StringIO()):
+            text = _repr(value)
     except Exception:  # noqa: BLE001 - broken __repr__ in learner code
         text = f"<{type(value).__name__}>"
     return text if len(text) <= MAX_REPR else text[: MAX_REPR - 3] + "..."
@@ -58,7 +73,7 @@ def _stack(frame) -> list[dict]:
     frames = []
     while frame is not None:
         if frame.f_code.co_filename == FILENAME:
-            name = frame.f_code.co_name
+            name = getattr(frame.f_code, "co_qualname", frame.f_code.co_name).replace(".<locals>", "")
             frames.append({"name": "global" if name == "<module>" else name, "vars": _vars(frame)})
         frame = frame.f_back
     return frames[::-1]

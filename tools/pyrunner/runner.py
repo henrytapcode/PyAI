@@ -343,7 +343,7 @@ def _load_module(name: str, source: str, filename: str):
     mod = types.ModuleType(name)
     mod.__file__ = filename
     sys.modules[name] = mod
-    exec(compile(source, filename, "exec"), mod.__dict__)
+    exec(compile(source, filename, "exec", dont_inherit=True), mod.__dict__)
     return mod
 
 
