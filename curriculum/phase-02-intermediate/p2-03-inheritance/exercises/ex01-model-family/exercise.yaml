@@ -1,0 +1,60 @@
+id: p2-03-ex01
+kind: code
+title:
+  en: "Write: Model and CannedModel"
+  vi: "Viết class: Model và CannedModel"
+difficulty: 2
+tags: [inheritance, classes]
+hints:
+  en:
+    - |
+      This uses §2 (`super().__init__`) and §3 (override). `Model` is the parent and `CannedModel` is its child. For `CannedModel("c", ["a", "b"])` the first `generate(...)` must return `"a"`, the second `"b"`, the third `"a"` again.
+    - |
+      Plan:
+      1. `Model.__init__` stores the name. `Model.generate` raises `NotImplementedError`. `Model.describe` returns the text `"model: "` plus the name.
+      2. `CannedModel.__init__` lets the parent store the name, then keeps the replies and a call counter that starts at 0.
+      3. `generate` picks the reply at the position (counter modulo number of replies), adds 1 to the counter, and returns the reply.
+      4. `describe` takes the parent's text and adds the number of replies at the end.
+    - |
+      Code shape:
+      ```python
+      class CannedModel(Model):
+          def __init__(self, name, replies):
+              super().__init__(...)
+              self.replies = replies
+              self.calls = 0
+
+          def generate(self, prompt):
+              reply = self.replies[...]
+              self.calls += 1
+              return reply
+
+          def describe(self):
+              return super().describe() + ...
+      ```
+  vi:
+    - |
+      Bài này dùng §2 (`super().__init__`) và §3 (override). `Model` là class cha, `CannedModel` là class con. Với `CannedModel("c", ["a", "b"])`, lần gọi `generate(...)` đầu tiên phải trả `"a"`, lần hai `"b"`, lần ba lại `"a"`.
+    - |
+      Kế hoạch:
+      1. `Model.__init__` lưu tên. `Model.generate` raise `NotImplementedError`. `Model.describe` trả về chuỗi `"model: "` cộng với tên.
+      2. `CannedModel.__init__` để class cha lưu tên, rồi giữ list replies và một biến đếm bắt đầu từ 0.
+      3. `generate` chọn câu trả lời ở vị trí (biến đếm chia lấy dư cho số câu trả lời), cộng 1 vào biến đếm, rồi trả về câu đó.
+      4. `describe` lấy chuỗi của cha và thêm số lượng replies vào cuối.
+    - |
+      Khung code:
+      ```python
+      class CannedModel(Model):
+          def __init__(self, name, replies):
+              super().__init__(...)
+              self.replies = replies
+              self.calls = 0
+
+          def generate(self, prompt):
+              reply = self.replies[...]
+              self.calls += 1
+              return reply
+
+          def describe(self):
+              return super().describe() + ...
+      ```

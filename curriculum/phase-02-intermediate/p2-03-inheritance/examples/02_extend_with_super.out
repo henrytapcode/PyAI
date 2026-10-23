@@ -1,0 +1,5 @@
+model counter-1, calls so far: 0
+echo: a
+echo: b
+echo: c
+model counter-1, calls so far: 3

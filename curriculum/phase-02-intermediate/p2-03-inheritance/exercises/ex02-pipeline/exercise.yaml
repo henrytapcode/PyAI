@@ -1,0 +1,54 @@
+id: p2-03-ex02
+kind: fill
+title:
+  en: "Fill in: a Pipeline that has models"
+  vi: "Điền chỗ trống: Pipeline chứa các model"
+difficulty: 1
+tags: [inheritance, oop]
+hints:
+  en:
+    - |
+      This is composition from §5: a `Pipeline` does not inherit from `Model`, it keeps models in a list. For `Pipeline([ShoutModel("s"), EchoModel("e")]).run("hi")` the answer is `"echo: HI"`, because `"hi"` becomes `"HI"` and then `"echo: HI"`.
+    - |
+      Plan:
+      1. `__init__` keeps the list it receives in `self.steps`.
+      2. `add` uses a list method to put one more model at the end.
+      3. `run` asks each step to produce its reply from the current text, and the result becomes the new text.
+      4. After the loop, give back the final text. `size` gives back how many steps there are.
+    - |
+      Code shape:
+      ```python
+      def add(self, model):
+          self.steps.___(model)       # a list method that adds at the end
+
+      def run(self, text):
+          for step in self.steps:
+              text = step.generate(text)
+          return ...
+
+      def size(self):
+          return ...
+      ```
+  vi:
+    - |
+      Đây là composition ở §5: `Pipeline` không kế thừa từ `Model`, nó giữ các model trong một list. Với `Pipeline([ShoutModel("s"), EchoModel("e")]).run("hi")` kết quả là `"echo: HI"`, vì `"hi"` thành `"HI"` rồi thành `"echo: HI"`.
+    - |
+      Kế hoạch:
+      1. `__init__` giữ list nhận được trong `self.steps`.
+      2. `add` dùng một method của list để thêm một model vào cuối.
+      3. `run` bảo từng bước tạo câu trả lời từ văn bản hiện tại, và kết quả trở thành văn bản mới.
+      4. Sau vòng lặp, trả về văn bản cuối cùng. `size` trả về số bước đang có.
+    - |
+      Khung code:
+      ```python
+      def add(self, model):
+          self.steps.___(model)       # method của list để thêm vào cuối
+
+      def run(self, text):
+          for step in self.steps:
+              text = step.generate(text)
+          return ...
+
+      def size(self):
+          return ...
+      ```

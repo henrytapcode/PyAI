@@ -1,0 +1,6 @@
+after echo-1: echo: hello
+after shout-1: ECHO: HELLO
+after tag-1: <answer> ECHO: HELLO
+final: <answer> ECHO: HELLO
+steps: 3
+is a Model: False

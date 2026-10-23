@@ -1,0 +1,29 @@
+id: p2-03-inheritance
+phase: p2
+order: 3
+kind: lesson
+title:
+  en: "Inheritance & composition"
+  vi: "Kế thừa & composition"
+summary:
+  en: "Reuse classes with subclasses, super() and overriding, then see why composition is often the better choice."
+  vi: "Dùng lại class bằng lớp con, super() và override, rồi xem vì sao composition thường là lựa chọn tốt hơn."
+level: beginner
+tags: [oop, classes, inheritance]
+prerequisites: [p2-02-classes]
+duration_min: 12
+outcomes:
+  en:
+    - "Create a subclass and call super().__init__"
+    - "Override and extend a parent method"
+    - "Use isinstance on a class tree"
+    - "Choose between is-a and has-a (composition)"
+  vi:
+    - "Tạo lớp con và gọi super().__init__"
+    - "Override và mở rộng method của lớp cha"
+    - "Dùng isinstance trên một cây class"
+    - "Chọn giữa is-a và has-a (composition)"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: Inheritance", vi: "Python tutorial: Kế thừa (EN)" }
+    url: "https://docs.python.org/3/tutorial/classes.html#inheritance"

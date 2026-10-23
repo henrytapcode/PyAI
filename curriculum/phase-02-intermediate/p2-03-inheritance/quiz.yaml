@@ -1,0 +1,452 @@
+questions:
+  - id: p2-03-q01
+    type: mcq
+    tags: [inheritance]
+    difficulty: 1
+    answer: 1
+    code: |
+      class EchoModel(Model):
+          ...
+    en:
+      prompt: "In the class line above, what is `Model`?"
+      options: ["An argument that `EchoModel` receives when it is created", "The parent class that `EchoModel` inherits from", "A variable that stores an `EchoModel` object", "A method of `EchoModel`"]
+      explanation: "The name in parentheses after the class name is the parent (base) class. `EchoModel` gets all attributes and methods of `Model`."
+    vi:
+      prompt: "Trong dòng class ở trên, `Model` là gì?"
+      options: ["Một đối số mà `EchoModel` nhận khi được tạo", "Class cha mà `EchoModel` kế thừa", "Một biến lưu object `EchoModel`", "Một method của `EchoModel`"]
+      explanation: "Tên trong ngoặc sau tên class là class cha (base class). `EchoModel` nhận mọi attribute và method của `Model`."
+
+  - id: p2-03-q02
+    type: output
+    tags: [inheritance, classes]
+    difficulty: 1
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+          def describe(self):
+              return "I am " + self.name
+
+
+      class LoudModel(Model):
+          def shout(self, text):
+              return text.upper()
+
+
+      m = LoudModel("s1")
+      print(m.describe())
+      print(m.shout("ok"))
+    answer: "I am s1\nOK"
+    en:
+      prompt: "What does this code print (two lines)?"
+      explanation: "`LoudModel` has no `__init__` or `describe` of its own, so it uses the ones from `Model`. Its own `shout` method turns the text into capital letters."
+    vi:
+      prompt: "Đoạn code này in ra gì (hai dòng)?"
+      explanation: "`LoudModel` không có `__init__` hay `describe` riêng, nên nó dùng bản của `Model`. Method `shout` của riêng nó đổi chữ thành viết hoa."
+
+  - id: p2-03-q03
+    type: fill
+    tags: [inheritance]
+    difficulty: 1
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+
+      class CannedModel(___):
+          def generate(self, prompt):
+              return "Hello!"
+
+
+      print(CannedModel("c1").name)
+    answer: ["Model"]
+    en:
+      prompt: "Fill in the blank so `CannedModel` inherits from `Model` and the code prints `c1`."
+      explanation: "Put the parent's name in the parentheses. Then `CannedModel` uses the parent's `__init__` and `self.name` is set."
+    vi:
+      prompt: "Điền vào chỗ trống để `CannedModel` kế thừa từ `Model` và code in ra `c1`."
+      explanation: "Đặt tên class cha trong ngoặc. Khi đó `CannedModel` dùng `__init__` của cha và `self.name` được gán."
+
+  - id: p2-03-q04
+    type: fill
+    tags: [inheritance, classes]
+    difficulty: 1
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+
+      class ChatModel(Model):
+          def __init__(self, name, system):
+              ___().__init__(name)
+              self.system = system
+
+
+      bot = ChatModel("chat-1", "polite")
+      print(bot.name)
+    answer: ["super"]
+    en:
+      prompt: "Fill in the blank so the parent's `__init__` runs and the code prints `chat-1`."
+      explanation: "`super()` means \"the parent class\". `super().__init__(name)` runs the parent's setup, which sets `self.name`."
+    vi:
+      prompt: "Điền vào chỗ trống để `__init__` của cha chạy và code in ra `chat-1`."
+      explanation: "`super()` nghĩa là \"class cha\". `super().__init__(name)` chạy phần dựng của cha, tức là gán `self.name`."
+
+  - id: p2-03-q05
+    type: mcq
+    tags: [inheritance]
+    difficulty: 1
+    answer: 0
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+
+      class EchoModel(Model):
+          def generate(self, prompt):
+              return "echo: " + prompt
+
+
+      echo = EchoModel("e1")
+      print(isinstance(echo, Model))
+    en:
+      prompt: "What does this code print?"
+      options: ["True", "False", "EchoModel", "TypeError"]
+      explanation: "`isinstance(obj, Class)` is `True` for that class and for every class above it in the tree. An `EchoModel` is a kind of `Model`, so the answer is `True`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["True", "False", "EchoModel", "TypeError"]
+      explanation: "`isinstance(obj, Class)` là `True` với chính class đó và mọi class nằm trên nó trong cây. `EchoModel` là một loại `Model`, nên kết quả là `True`."
+
+  - id: p2-03-q06
+    type: mcq
+    tags: [inheritance, classes]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "A child class writes its own `__init__`. Why does its first line usually call `super().__init__(...)`?"
+      options: ["It creates a second, separate parent object stored inside the child", "It is required before any method can be overridden", "It runs the parent's setup, so the attributes the parent creates exist", "It makes the child copy every method of the parent, one by one"]
+      explanation: "A child's `__init__` replaces the parent's one. Without `super().__init__(...)` the parent's setup never runs, so its attributes (like `name`) are missing."
+    vi:
+      prompt: "Class con tự viết `__init__`. Vì sao dòng đầu của nó thường gọi `super().__init__(...)`?"
+      options: ["Nó tạo ra một object cha thứ hai, riêng biệt, nằm bên trong con", "Nó bắt buộc phải có trước khi override bất kỳ method nào", "Nó chạy phần dựng của cha, để các attribute mà cha tạo ra tồn tại", "Nó làm con sao chép từng method của cha một"]
+      explanation: "`__init__` của con thay thế `__init__` của cha. Nếu không có `super().__init__(...)`, phần dựng của cha không bao giờ chạy, nên attribute của nó (như `name`) bị thiếu."
+
+  - id: p2-03-q07
+    type: output
+    tags: [inheritance]
+    difficulty: 2
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+          def generate(self, prompt):
+              return "base"
+
+
+      class EchoModel(Model):
+          def generate(self, prompt):
+              return "echo: " + prompt
+
+
+      print(Model("m").generate("hi"))
+      print(EchoModel("e").generate("hi"))
+    answer: "base\necho: hi"
+    en:
+      prompt: "What does this code print (two lines)?"
+      explanation: "A plain `Model` uses its own `generate`. `EchoModel` overrides `generate`, so Python uses the child's version for `EchoModel` objects."
+    vi:
+      prompt: "Đoạn code này in ra gì (hai dòng)?"
+      explanation: "`Model` thường dùng `generate` của chính nó. `EchoModel` override `generate`, nên Python dùng bản của con cho các object `EchoModel`."
+
+  - id: p2-03-q08
+    type: output
+    tags: [inheritance, classes]
+    difficulty: 2
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+          def describe(self):
+              return "model " + self.name
+
+
+      class ChatModel(Model):
+          def __init__(self, name, system):
+              super().__init__(name)
+              self.system = system
+
+          def describe(self):
+              return super().describe() + " (" + self.system + ")"
+
+
+      print(ChatModel("chat-1", "polite").describe())
+    answer: "model chat-1 (polite)"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`super().describe()` runs the parent's version, which gives `model chat-1`. The child then adds ` (polite)` at the end."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`super().describe()` chạy bản của cha, cho ra `model chat-1`. Sau đó class con thêm ` (polite)` vào cuối."
+
+  - id: p2-03-q09
+    type: mcq
+    tags: [inheritance, oop]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Which sentence describes a relationship that fits inheritance?"
+      options: ["A Pipeline has a list of steps", "A Chatbot uses a Tokenizer to split text", "A Logger keeps a list of messages", "A ChatModel is a kind of Model"]
+      explanation: "Inheritance models \"is a kind of\". The other three sentences say \"has\" or \"uses\", which is composition: store the other object in an attribute."
+    vi:
+      prompt: "Câu nào mô tả một quan hệ phù hợp với kế thừa?"
+      options: ["Pipeline có một list các bước", "Chatbot dùng Tokenizer để tách văn bản", "Logger giữ một list thông điệp", "ChatModel là một loại Model"]
+      explanation: "Kế thừa mô hình hóa \"là một loại\". Ba câu còn lại nói \"có\" hoặc \"dùng\", đó là composition: lưu object kia trong một attribute."
+
+  - id: p2-03-q10
+    type: mcq
+    tags: [inheritance, oop]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "A `Pipeline` keeps its models in `self.steps` instead of inheriting from `Model`. What is a real benefit?"
+      options: ["`Pipeline` automatically gets every method of the models in the list", "You can add, remove or reorder the steps without writing a new class", "`isinstance(pipe, Model)` becomes `True`", "The code always runs faster"]
+      explanation: "With composition the parts are just items in a list, so changing the list changes the behavior. A pipeline does not get its steps' methods and is not a `Model`; it calls their methods itself."
+    vi:
+      prompt: "`Pipeline` giữ các model trong `self.steps` thay vì kế thừa từ `Model`. Lợi ích thật sự là gì?"
+      options: ["`Pipeline` tự động có mọi method của các model trong list", "Bạn có thể thêm, bớt hoặc đổi thứ tự các bước mà không cần viết class mới", "`isinstance(pipe, Model)` trở thành `True`", "Code luôn chạy nhanh hơn"]
+      explanation: "Với composition, các phần chỉ là phần tử trong list, nên đổi list là đổi hành vi. Pipeline không nhận method của các bước và không phải là `Model`; nó tự gọi các method đó."
+
+  - id: p2-03-q11
+    type: output
+    tags: [inheritance]
+    difficulty: 2
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+
+      class EchoModel(Model):
+          def generate(self, prompt):
+              return "echo: " + prompt
+
+
+      class CannedModel(Model):
+          def generate(self, prompt):
+              return "canned"
+
+
+      echo = EchoModel("e")
+      print(isinstance(echo, EchoModel), isinstance(echo, CannedModel), isinstance(echo, Model))
+    answer: "True False True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`echo` is an `EchoModel` (True), is not on the `CannedModel` branch (False), and every `EchoModel` is also a `Model` (True)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`echo` là một `EchoModel` (True), không nằm trên nhánh `CannedModel` (False), và mọi `EchoModel` cũng là một `Model` (True)."
+
+  - id: p2-03-q12
+    type: parsons
+    tags: [inheritance, classes]
+    difficulty: 2
+    lines:
+      - "class Model:"
+      - "    def __init__(self, name):"
+      - "        self.name = name"
+      - "class EchoModel(Model):"
+      - "    def generate(self, prompt):"
+      - "        return \"echo: \" + prompt"
+      - "print(Model(\"m\").name, EchoModel(\"e\").generate(\"hi\"))"
+    en:
+      prompt: "Put the lines in order so the program prints `m echo: hi`."
+      explanation: "The parent `Model` must exist before `EchoModel(Model)` is written. Each method header comes before its indented body, and `print` comes last, after both classes exist."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `m echo: hi`."
+      explanation: "Class cha `Model` phải có trước khi viết `EchoModel(Model)`. Dòng header của mỗi method đứng trước phần thân thụt lề, và `print` đứng cuối, sau khi cả hai class đã tồn tại."
+
+  - id: p2-03-q13
+    type: mcq
+    tags: [inheritance, classes]
+    difficulty: 2
+    answer: 0
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+
+      class ChatModel(Model):
+          def __init__(self, name, system):
+              self.system = system
+
+
+      bot = ChatModel("chat-1", "polite")
+      print(bot.name)
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["`AttributeError`: the object has no attribute `name`", "It prints `chat-1`, because `name` is inherited automatically", "`TypeError`: wrong number of arguments", "It prints `None`"]
+      explanation: "The child's `__init__` replaces the parent's one, and it never calls `super().__init__(name)`. So `self.name` is never created and reading `bot.name` raises `AttributeError`."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["`AttributeError`: object không có attribute `name`", "In ra `chat-1`, vì `name` được kế thừa tự động", "`TypeError`: sai số lượng đối số", "In ra `None`"]
+      explanation: "`__init__` của con thay thế `__init__` của cha, và nó không hề gọi `super().__init__(name)`. Vì vậy `self.name` không bao giờ được tạo và đọc `bot.name` gây `AttributeError`."
+
+  - id: p2-03-q14
+    type: output
+    tags: [oop, inheritance]
+    difficulty: 3
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+          def generate(self, prompt):
+              raise NotImplementedError("write generate in a subclass")
+
+
+      class EchoModel(Model):
+          def generate(self, prompt):
+              return "echo: " + prompt
+
+
+      class ShoutModel(Model):
+          def generate(self, prompt):
+              return prompt.upper()
+
+
+      class Pipeline:
+          def __init__(self, steps):
+              self.steps = steps
+
+          def run(self, text):
+              for step in self.steps:
+                  text = step.generate(text)
+              return text
+
+
+      print(Pipeline([ShoutModel("s"), EchoModel("e")]).run("hi"))
+    answer: "echo: HI"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The steps run in list order. `ShoutModel` turns `hi` into `HI`, then `EchoModel` adds the prefix to that result. With the steps swapped, the answer would be `ECHO: HI`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Các bước chạy theo thứ tự trong list. `ShoutModel` đổi `hi` thành `HI`, rồi `EchoModel` thêm tiền tố vào kết quả đó. Nếu đổi chỗ hai bước, kết quả sẽ là `ECHO: HI`."
+
+  - id: p2-03-q15
+    type: output
+    tags: [inheritance, classes]
+    difficulty: 3
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+              print("model init", name)
+
+
+      class ChatModel(Model):
+          def __init__(self, name, system):
+              print("chat init")
+              super().__init__(name)
+              self.system = system
+
+
+      bot = ChatModel("c1", "polite")
+      print(bot.system)
+    answer: "chat init\nmodel init c1\npolite"
+    en:
+      prompt: "What does this code print (three lines)?"
+      explanation: "Creating `ChatModel` runs the child's `__init__`. It prints `chat init` first, then `super().__init__(name)` jumps into the parent's `__init__`, which prints `model init c1`. Only after that does the child set `system`."
+    vi:
+      prompt: "Đoạn code này in ra gì (ba dòng)?"
+      explanation: "Tạo `ChatModel` chạy `__init__` của con. Nó in `chat init` trước, rồi `super().__init__(name)` nhảy vào `__init__` của cha, nơi in `model init c1`. Chỉ sau đó class con mới gán `system`."
+
+  - id: p2-03-q16
+    type: output
+    tags: [inheritance]
+    difficulty: 3
+    code: |
+      class Model:
+          def __init__(self, name):
+              self.name = name
+
+          def generate(self, prompt):
+              return prompt
+
+
+      class ChatModel(Model):
+          def generate(self, prompt):
+              return "chat: " + super().generate(prompt)
+
+
+      class PirateModel(ChatModel):
+          def generate(self, prompt):
+              return super().generate(prompt) + " arr"
+
+
+      print(PirateModel("p1").generate("hi"))
+    answer: "chat: hi arr"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`PirateModel.generate` calls `super()`, which is `ChatModel.generate`. That calls its own `super()`, `Model.generate`, which returns `hi`. Then `chat: ` is put in front, and finally ` arr` is added at the end."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`PirateModel.generate` gọi `super()`, tức là `ChatModel.generate`. Hàm đó lại gọi `super()` của nó, tức `Model.generate`, trả về `hi`. Sau đó `chat: ` được thêm ở đầu, và cuối cùng ` arr` được thêm vào đuôi."
+
+  - id: p2-03-q17
+    type: parsons
+    tags: [inheritance, classes]
+    difficulty: 3
+    lines:
+      - "class Model:"
+      - "    def __init__(self, name):"
+      - "        self.name = name"
+      - "class ChatModel(Model):"
+      - "    def __init__(self, name, system):"
+      - "        super().__init__(name)"
+      - "        self.system = system + \" for \" + self.name"
+      - "bot = ChatModel(\"c1\", \"polite\")"
+      - "print(Model(\"m\").name, bot.system)"
+    en:
+      prompt: "Put the lines in order so the program prints `m polite for c1`."
+      explanation: "The parent class comes first. In the child's `__init__`, `super().__init__(name)` must run before the line that reads `self.name`, otherwise `self.name` does not exist yet. The object is created before it is printed."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `m polite for c1`."
+      explanation: "Class cha đứng đầu. Trong `__init__` của con, `super().__init__(name)` phải chạy trước dòng đọc `self.name`, nếu không `self.name` chưa tồn tại. Object được tạo trước khi in."
+
+flashcards:
+  - id: p2-03-f01
+    tags: [inheritance]
+    code: "class EchoModel(Model): ..."
+    en: { front: "What does `class EchoModel(Model):` mean?", back: "`EchoModel` is a child (subclass) of `Model`. It inherits all of the parent's attributes and methods." }
+    vi: { front: "`class EchoModel(Model):` nghĩa là gì?", back: "`EchoModel` là class con (subclass) của `Model`. Nó kế thừa mọi attribute và method của class cha." }
+  - id: p2-03-f02
+    tags: [inheritance, classes]
+    code: "super().__init__(name)"
+    en: { front: "When do you call `super().__init__(...)`?", back: "When a child writes its own `__init__`. Call it first so the parent's setup runs. Do not pass `self`." }
+    vi: { front: "Khi nào gọi `super().__init__(...)`?", back: "Khi class con tự viết `__init__`. Gọi nó đầu tiên để phần dựng của cha chạy. Đừng truyền `self`." }
+  - id: p2-03-f03
+    tags: [inheritance]
+    en: { front: "What is overriding?", back: "Writing a method in the child with the same name as the parent's. Python uses the child's version for child objects." }
+    vi: { front: "Override là gì?", back: "Viết trong class con một method trùng tên với method của cha. Python dùng bản của con cho các object con." }
+  - id: p2-03-f04
+    tags: [inheritance]
+    code: "isinstance(obj, Model)"
+    en: { front: "What does `isinstance(obj, Model)` check?", back: "Whether `obj` is a `Model` or an object of any class below `Model` in the tree. It returns `True` or `False`." }
+    vi: { front: "`isinstance(obj, Model)` kiểm tra điều gì?", back: "Xem `obj` có phải là `Model` hoặc object của class nào nằm dưới `Model` trong cây không. Trả về `True` hoặc `False`." }
+  - id: p2-03-f05
+    tags: [inheritance, oop]
+    en: { front: "Inheritance vs composition?", back: "Inheritance is \"is a kind of\" (`class Child(Parent)`). Composition is \"has a\": store other objects in an attribute, like `self.steps`." }
+    vi: { front: "Kế thừa khác composition thế nào?", back: "Kế thừa là \"là một loại\" (`class Child(Parent)`). Composition là \"có một\": lưu các object khác trong attribute, như `self.steps`." }
+  - id: p2-03-f06
+    tags: [oop, inheritance]
+    en: { front: "Why prefer composition when both work?", back: "Inheritance ties a child to its parent, so a change in the parent can break every child. Composition keeps parts separate and easy to swap." }
+    vi: { front: "Vì sao ưu tiên composition khi cả hai đều dùng được?", back: "Kế thừa gắn con với cha, nên đổi cha có thể làm hỏng mọi con. Composition giữ các phần tách biệt và dễ thay thế." }

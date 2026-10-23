@@ -1,0 +1,9 @@
+model echo-1
+  reply: echo: What is Python?
+  is a Model: True
+model canned-1
+  reply: I can only say this.
+  is a Model: True
+model chat-1
+  reply: [polite] What is Python?
+  is a Model: True
