@@ -1,0 +1,8 @@
+WARNING text 2 is long and may be cut
+INFO embedded 3 texts
+--- file ---
+DEBUG embed_batch embedding text 1 (5 characters)
+DEBUG embed_batch embedding text 2 (43 characters)
+WARNING embed_batch text 2 is long and may be cut
+DEBUG embed_batch embedding text 3 (3 characters)
+INFO embed_batch embedded 3 texts

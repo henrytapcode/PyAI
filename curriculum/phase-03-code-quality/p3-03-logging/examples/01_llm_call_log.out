@@ -1,0 +1,3 @@
+WARNING app.llm llm_retry model=small attempt=1 reason=no answer in time
+INFO app.llm llm_call model=small attempt=2 latency=0.80s chars=31
+Paris is the capital of France.

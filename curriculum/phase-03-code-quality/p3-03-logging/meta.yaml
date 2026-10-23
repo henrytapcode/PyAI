@@ -1,0 +1,33 @@
+id: p3-03-logging
+phase: p3
+order: 3
+kind: lesson
+title:
+  en: "Logging"
+  vi: "Logging"
+summary:
+  en: "Replace print with the logging module: levels, loggers, formats, handlers, and safe structured logs for AI pipelines."
+  vi: "Thay print bằng module logging: các mức log, logger, format, handler, và log có cấu trúc, an toàn cho pipeline AI."
+level: beginner
+tags: [logging, debugging, exceptions]
+prerequisites: [p3-01-pytest, p2-08-context-managers]
+duration_min: 12
+outcomes:
+  en:
+    - "Choose the right log level and explain the default WARNING threshold"
+    - "Set up logging with basicConfig and a format, and create a logger with getLogger(__name__)"
+    - "Use lazy %s arguments and logger.exception inside except"
+    - "Send logs to the screen and to a file with handlers"
+    - "Log LLM calls as key=value fields without leaking secrets or private text, and test logs with caplog"
+  vi:
+    - "Chọn đúng mức log và giải thích ngưỡng WARNING mặc định"
+    - "Thiết lập logging bằng basicConfig và format, và tạo logger bằng getLogger(__name__)"
+    - "Dùng đối số %s lười (lazy) và logger.exception trong except"
+    - "Gửi log ra màn hình và ra file bằng handler"
+    - "Ghi log các lần gọi LLM dạng key=value mà không làm lộ secret hay văn bản riêng tư, và test log bằng caplog"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: Logging HOWTO", vi: "Python docs: Logging HOWTO (EN)" }
+    url: "https://docs.python.org/3/howto/logging.html"
+  - title: { en: "Python docs: logging module", vi: "Python docs: module logging (EN)" }
+    url: "https://docs.python.org/3/library/logging.html"

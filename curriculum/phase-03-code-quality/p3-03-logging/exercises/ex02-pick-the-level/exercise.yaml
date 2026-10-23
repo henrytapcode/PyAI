@@ -1,0 +1,46 @@
+id: p3-03-ex02
+kind: fill
+title:
+  en: "Fill: pick the right level"
+  vi: "Điền chỗ trống: chọn đúng level"
+difficulty: 1
+tags: [logging, functions]
+hints:
+  en:
+    - |
+      Look at the level table in §2: each row says what a level is for. The comment next to each blank describes the situation: "a detail for bug hunting", "odd, but we carry on", "the operation failed". Match each one to a row. For a normal reply with 5 characters, the record must be `DEBUG`.
+    - |
+      The plan:
+      1. The first blank is a detail for finding bugs, which is the `debug` row.
+      2. The second blank is something odd where the program carries on, which is the `warning` row.
+      3. The third blank is an operation that failed, which is the `error` row.
+      4. Write only the method name in place of `___`, for example `logger.info(...)`.
+    - |
+      The shape:
+      ```python
+      logger.debug("reply has %d characters", len(reply))
+      ...
+      logger.warning("empty reply, retrying (attempt %d)", attempt)
+      ...
+      logger.... ("giving up after %d attempts", attempt)
+      ```
+      The first two are shown. For the last one, the operation failed, so use the level just above `warning`.
+  vi:
+    - |
+      Hãy nhìn bảng level ở §2: mỗi dòng nói level đó dùng để làm gì. Comment bên cạnh mỗi chỗ trống mô tả tình huống: "chi tiết để tìm lỗi", "lạ, nhưng vẫn chạy tiếp", "thao tác thất bại". Ghép từng cái với một dòng trong bảng. Với câu trả lời bình thường có 5 ký tự, record phải là `DEBUG`.
+    - |
+      Kế hoạch:
+      1. Chỗ trống thứ nhất là chi tiết để tìm lỗi, ứng với dòng `debug`.
+      2. Chỗ trống thứ hai là việc lạ nhưng chương trình vẫn chạy tiếp, ứng với dòng `warning`.
+      3. Chỗ trống thứ ba là một thao tác đã thất bại, ứng với dòng `error`.
+      4. Chỉ viết tên method vào chỗ của `___`, ví dụ `logger.info(...)`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      logger.debug("reply has %d characters", len(reply))
+      ...
+      logger.warning("empty reply, retrying (attempt %d)", attempt)
+      ...
+      logger.... ("giving up after %d attempts", attempt)
+      ```
+      Hai dòng đầu đã được viết ra. Với dòng cuối, thao tác đã thất bại, nên dùng level ngay trên `warning`.

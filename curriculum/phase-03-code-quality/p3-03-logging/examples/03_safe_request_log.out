@@ -1,0 +1,2 @@
+INFO request sent key=...7890 prompt_chars=34 | model=small tokens=12
+ERROR request failed status=429 | model=small tokens=0

@@ -1,0 +1,54 @@
+id: p3-03-ex01
+kind: code
+title:
+  en: "Write: log while loading scores"
+  vi: "Viết hàm: ghi log khi nạp điểm"
+difficulty: 2
+tags: [logging, exceptions, functions]
+hints:
+  en:
+    - |
+      This combines the `try/except` you know with the log levels of §2 and the lazy `%s` arguments of §5. For `["10", "abc", "7"]` you return `[10, 7]`, log one `WARNING` for `"abc"`, and then log one `INFO` message saying `loaded 2 of 3 scores`.
+    - |
+      The plan:
+      1. Start with an empty list for the good scores.
+      2. Loop over `raw_scores`. Inside `try:`, convert the text with `int(...)` and add the number to the list.
+      3. In `except ValueError:`, call `logger.warning(...)` with the bad text. Nothing else is needed: the loop simply goes on to the next text.
+      4. After the loop, call `logger.info(...)` once with the number of good scores and the total.
+      5. Return the list.
+    - |
+      The shape:
+      ```python
+      scores = []
+      for text in raw_scores:
+          try:
+              scores.append(...)
+          except ValueError:
+              logger.warning("skipping bad score: %s", text)
+      logger.info("loaded %d of %d scores", ..., len(raw_scores))
+      return scores
+      ```
+      Fill the two gaps: how to convert `text` to a number, and which value is the number of good scores.
+  vi:
+    - |
+      Bài này kết hợp `try/except` bạn đã biết với các mức log ở §2 và đối số `%s` lười ở §5. Với `["10", "abc", "7"]` bạn trả về `[10, 7]`, ghi một `WARNING` cho `"abc"`, rồi ghi một thông điệp `INFO` nói `loaded 2 of 3 scores`.
+    - |
+      Kế hoạch:
+      1. Bắt đầu với một list rỗng cho các điểm hợp lệ.
+      2. Lặp qua `raw_scores`. Trong `try:`, đổi chuỗi bằng `int(...)` và thêm số vào list.
+      3. Trong `except ValueError:`, gọi `logger.warning(...)` với chuỗi sai. Không cần gì thêm: vòng lặp tự đi tiếp sang chuỗi kế tiếp.
+      4. Sau vòng lặp, gọi `logger.info(...)` đúng một lần với số điểm hợp lệ và tổng số.
+      5. Trả về list.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      scores = []
+      for text in raw_scores:
+          try:
+              scores.append(...)
+          except ValueError:
+              logger.warning("skipping bad score: %s", text)
+      logger.info("loaded %d of %d scores", ..., len(raw_scores))
+      return scores
+      ```
+      Hãy điền hai chỗ trống: cách đổi `text` thành số, và giá trị nào là số điểm hợp lệ.

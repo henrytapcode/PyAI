@@ -1,0 +1,335 @@
+questions:
+  - id: p3-03-q01
+    type: mcq
+    tags: [logging]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "You call `logging.info(\"model call finished\")` without any setup. What is shown?"
+      options:
+        - "The message, because `INFO` is a normal level"
+        - "Nothing, because the default threshold is `WARNING`"
+        - "An error, because logging must be configured first"
+        - "The message, but only in a file"
+      explanation: "Without setup the threshold is `WARNING`, so `DEBUG` and `INFO` messages are dropped silently. Call `logging.basicConfig(level=logging.INFO)` first."
+    vi:
+      prompt: "Bạn gọi `logging.info(\"model call finished\")` mà chưa cài đặt gì. Điều gì được hiển thị?"
+      options:
+        - "Thông báo, vì `INFO` là một level bình thường"
+        - "Không có gì, vì ngưỡng mặc định là `WARNING`"
+        - "Một lỗi, vì phải cấu hình logging trước"
+        - "Thông báo, nhưng chỉ ghi vào file"
+      explanation: "Khi chưa cài đặt, ngưỡng là `WARNING` nên thông báo `DEBUG` và `INFO` bị bỏ mà không báo gì. Hãy gọi `logging.basicConfig(level=logging.INFO)` trước."
+
+  - id: p3-03-q02
+    type: mcq
+    tags: [logging]
+    difficulty: 1
+    answer: 3
+    en:
+      prompt: "Which level fits the message `document 7 could not be parsed`?"
+      options:
+        - "`DEBUG`"
+        - "`INFO`"
+        - "`CRITICAL`"
+        - "`ERROR`"
+      explanation: "An operation failed, but the whole program can go on with the next document, so it is `ERROR`. `CRITICAL` is for when the program cannot continue at all."
+    vi:
+      prompt: "Level nào phù hợp với thông báo `document 7 could not be parsed`?"
+      options:
+        - "`DEBUG`"
+        - "`INFO`"
+        - "`CRITICAL`"
+        - "`ERROR`"
+      explanation: "Một thao tác đã thất bại, nhưng cả chương trình vẫn có thể đi tiếp với tài liệu kế tiếp, nên đó là `ERROR`. `CRITICAL` dành cho lúc chương trình hoàn toàn không thể tiếp tục."
+
+  - id: p3-03-q03
+    type: mcq
+    tags: [logging]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why do most modules start with `logger = logging.getLogger(__name__)`?"
+      options:
+        - "Each module gets its own logger named after itself, so you can see which part wrote a line"
+        - "It makes logging faster"
+        - "It turns on the `DEBUG` level"
+        - "It sends the log to a file"
+      explanation: "`__name__` is the module's own name, such as `app.llm`. The name appears in `%(name)s`, and the dots build a tree of loggers."
+    vi:
+      prompt: "Vì sao hầu hết các module bắt đầu bằng `logger = logging.getLogger(__name__)`?"
+      options:
+        - "Mỗi module có logger riêng đặt theo tên của nó, nên bạn biết phần nào đã viết từng dòng"
+        - "Nó làm logging chạy nhanh hơn"
+        - "Nó bật level `DEBUG`"
+        - "Nó gửi log vào một file"
+      explanation: "`__name__` là tên của chính module, như `app.llm`. Tên này hiện trong `%(name)s`, và các dấu chấm tạo thành một cây logger."
+
+  - id: p3-03-q04
+    type: mcq
+    tags: [logging, exceptions]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "What does `logger.exception(\"could not parse score\")` do inside an `except` block?"
+      options:
+        - "It stops the program"
+        - "It logs at `INFO` level only"
+        - "It logs at `ERROR` level and adds the traceback"
+        - "It hides the error"
+      explanation: "`logger.exception` writes an `ERROR` record plus the full traceback. The program is not stopped, and it only makes sense inside `except`."
+    vi:
+      prompt: "`logger.exception(\"could not parse score\")` làm gì bên trong khối `except`?"
+      options:
+        - "Nó dừng chương trình"
+        - "Nó chỉ log ở mức `INFO`"
+        - "Nó log ở mức `ERROR` và thêm traceback"
+        - "Nó giấu lỗi đi"
+      explanation: "`logger.exception` ghi một record `ERROR` kèm traceback đầy đủ. Chương trình không bị dừng, và nó chỉ có ý nghĩa bên trong `except`."
+
+  - id: p3-03-q05
+    type: mcq
+    tags: [logging, performance]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Why write `logger.info(\"tokens=%d\", n)` instead of `logger.info(f\"tokens={n}\")`?"
+      options:
+        - "The f-string form is a syntax error"
+        - "The text is only built if the message passes the level check, so dropped messages cost almost nothing"
+        - "Only the first form can show numbers"
+        - "The first form adds a timestamp"
+      explanation: "An f-string builds its text before the call, even when the message is dropped. The `%d` form hands logging the pieces, and logging builds the text only when it is needed."
+    vi:
+      prompt: "Vì sao nên viết `logger.info(\"tokens=%d\", n)` thay vì `logger.info(f\"tokens={n}\")`?"
+      options:
+        - "Dạng f-string là lỗi cú pháp"
+        - "Chuỗi chỉ được dựng khi thông báo qua bước kiểm tra level, nên thông báo bị bỏ gần như không tốn gì"
+        - "Chỉ dạng đầu mới hiển thị được số"
+        - "Dạng đầu thêm dấu thời gian"
+      explanation: "F-string dựng chuỗi trước khi gọi, kể cả khi thông báo bị bỏ. Dạng `%d` trao các mảnh cho logging, và logging chỉ dựng chuỗi khi cần."
+
+  - id: p3-03-q06
+    type: mcq
+    tags: [logging, apis]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "Which log message is the safest for an LLM call?"
+      options:
+        - "`calling model key_tail=7890 prompt_chars=34`"
+        - "`calling model with key sk-demo-1234567890`"
+        - "`calling model prompt=Hello, my email is ana@example.com`"
+        - "`calling model with password hunter2`"
+      explanation: "Logs are copied to files and dashboards and live for months. Log facts about the data (length, last 4 characters) and never the key, password or private text itself."
+    vi:
+      prompt: "Thông báo log nào an toàn nhất cho một lần gọi LLM?"
+      options:
+        - "`calling model key_tail=7890 prompt_chars=34`"
+        - "`calling model with key sk-demo-1234567890`"
+        - "`calling model prompt=Hello, my email is ana@example.com`"
+        - "`calling model with password hunter2`"
+      explanation: "Log được sao chép sang file, dashboard và tồn tại hàng tháng. Hãy log các dữ kiện về dữ liệu (độ dài, 4 ký tự cuối) và không bao giờ log chính key, mật khẩu hay nội dung riêng tư."
+
+  - id: p3-03-q07
+    type: output
+    tags: [logging]
+    difficulty: 1
+    code: |
+      import logging
+      import sys
+
+      logging.basicConfig(stream=sys.stdout, level=logging.WARNING, format="%(levelname)s %(message)s", force=True)
+
+      logging.info("a")
+      logging.warning("b")
+      logging.debug("c")
+    answer: "WARNING b"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The threshold is `WARNING`. Only the `warning` call reaches it, so one line is printed, with the level name in front."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Ngưỡng là `WARNING`. Chỉ lời gọi `warning` đạt tới nó, nên một dòng được in ra, với tên level đứng đầu."
+
+  - id: p3-03-q08
+    type: output
+    tags: [logging]
+    difficulty: 2
+    code: |
+      import logging
+      import sys
+
+      logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(name)s | %(message)s", force=True)
+
+      logging.getLogger("app.llm").info("hi")
+    answer: "app.llm | hi"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`%(name)s` is the name of the logger that was called, here `app.llm`. The record travels up to the root handler that `basicConfig` created."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`%(name)s` là tên của logger được gọi, ở đây là `app.llm`. Record đi lên handler của root mà `basicConfig` đã tạo."
+
+  - id: p3-03-q09
+    type: output
+    tags: [logging]
+    difficulty: 2
+    code: |
+      import logging
+      import sys
+
+      logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s", force=True)
+
+      logger = logging.getLogger("app")
+      logger.info("latency=%.2fs tokens=%d", 0.5, 120)
+    answer: "latency=0.50s tokens=120"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`%.2f` writes a decimal with two digits, so `0.5` becomes `0.50`. `%d` writes the whole number 120."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`%.2f` ghi số thập phân hai chữ số nên `0.5` thành `0.50`. `%d` ghi số nguyên 120."
+
+  - id: p3-03-q10
+    type: output
+    tags: [logging]
+    difficulty: 3
+    code: |
+      import logging
+      import sys
+
+      logging.basicConfig(level=logging.WARNING, stream=sys.stdout, format="%(message)s", force=True)
+      logging.basicConfig(level=logging.DEBUG)
+
+      logging.debug("x")
+      logging.warning("y")
+    answer: "y"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Once logging has a handler, the second `basicConfig` without `force=True` changes nothing. The threshold stays `WARNING`, so `debug` is dropped and only `y` is printed."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Khi logging đã có handler, lần `basicConfig` thứ hai không có `force=True` không đổi gì. Ngưỡng vẫn là `WARNING`, nên `debug` bị bỏ và chỉ in `y`."
+
+  - id: p3-03-q11
+    type: fill
+    tags: [logging]
+    difficulty: 1
+    code: |
+      import logging
+      import sys
+
+      logging.basicConfig(stream=sys.stdout, level=logging.___, format="%(message)s", force=True)
+
+      logging.debug("a")
+      logging.info("b")  # b
+    answer: ["INFO"]
+    en:
+      prompt: "Fill in the level so that `info` messages are shown but `debug` messages are not."
+      explanation: "With the threshold at `INFO`, messages at `INFO` and above are shown. `DEBUG` is below it, so `a` is dropped."
+    vi:
+      prompt: "Điền level để thông báo `info` được hiển thị còn thông báo `debug` thì không."
+      explanation: "Khi ngưỡng là `INFO`, thông báo từ `INFO` trở lên được hiển thị. `DEBUG` thấp hơn nên `a` bị bỏ."
+
+  - id: p3-03-q12
+    type: fill
+    tags: [logging]
+    difficulty: 2
+    code: |
+      import logging
+
+      logger = logging.getLogger(___)
+      print(logger.name)  # __main__
+    answer: ["__name__"]
+    en:
+      prompt: "Fill in the variable that holds the current module's own name."
+      explanation: "`__name__` is set by Python for every file. When this file runs directly it is `\"__main__\"`, and in an imported module it is the module's name."
+    vi:
+      prompt: "Điền biến chứa tên của chính module hiện tại."
+      explanation: "`__name__` do Python đặt cho mỗi file. Khi file này chạy trực tiếp nó là `\"__main__\"`, còn trong một module được import nó là tên của module."
+
+  - id: p3-03-q13
+    type: fill
+    tags: [logging, exceptions]
+    difficulty: 2
+    code: |
+      import logging
+      import sys
+
+      logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s %(message)s", force=True)
+      logger = logging.getLogger("app")
+
+      try:
+          int("abc")
+      except ValueError:
+          logger.___("could not parse score")  # logs ERROR and the traceback
+    answer: ["exception"]
+    en:
+      prompt: "Fill in the logger method that records the error together with its traceback."
+      explanation: "`logger.exception(...)` logs at `ERROR` level and adds the traceback. Use it only inside an `except` block."
+    vi:
+      prompt: "Điền method của logger ghi lại lỗi cùng với traceback của nó."
+      explanation: "`logger.exception(...)` log ở mức `ERROR` và thêm traceback. Chỉ dùng nó bên trong khối `except`."
+
+  - id: p3-03-q14
+    type: parsons
+    tags: [logging]
+    difficulty: 2
+    lines:
+      - "import logging"
+      - "levels = [logging.INFO, logging.DEBUG, logging.ERROR]"
+      - "levels.sort()"
+      - "print(levels)"
+    en:
+      prompt: "Put the lines in order so the program prints `[10, 20, 40]`."
+      explanation: "Levels are plain numbers (`DEBUG` is 10, `INFO` 20, `ERROR` 40). Import first, build the list, sort it, and print it last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `[10, 20, 40]`."
+      explanation: "Các level chỉ là số (`DEBUG` là 10, `INFO` là 20, `ERROR` là 40). Import trước, tạo list, sắp xếp nó, và in ở cuối."
+
+  - id: p3-03-q15
+    type: parsons
+    tags: [logging]
+    difficulty: 2
+    lines:
+      - "import logging"
+      - "level = logging.INFO"
+      - "shown = level >= logging.WARNING"
+      - "print(shown)"
+    en:
+      prompt: "Put the lines in order so the program prints `False`."
+      explanation: "A message is shown when its level is at or above the threshold. `INFO` (20) is below `WARNING` (30), so `shown` is `False`. Each line needs the one before it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `False`."
+      explanation: "Thông báo được hiển thị khi level của nó bằng hoặc cao hơn ngưỡng. `INFO` (20) thấp hơn `WARNING` (30), nên `shown` là `False`. Mỗi dòng cần dòng đứng trước nó."
+
+flashcards:
+  - id: p3-03-f01
+    tags: [logging]
+    en: { front: "What are the five log levels, from lowest to highest?", back: "`DEBUG` (10), `INFO` (20), `WARNING` (30), `ERROR` (40), `CRITICAL` (50). Messages at or above the threshold are shown. The default threshold is `WARNING`." }
+    vi: { front: "Năm level log từ thấp đến cao là gì?", back: "`DEBUG` (10), `INFO` (20), `WARNING` (30), `ERROR` (40), `CRITICAL` (50). Thông báo từ ngưỡng trở lên được hiển thị. Ngưỡng mặc định là `WARNING`." }
+  - id: p3-03-f02
+    tags: [logging]
+    code: "logging.basicConfig(\n    level=logging.INFO,\n    format=\"%(asctime)s %(levelname)s %(name)s %(message)s\",\n)"
+    en: { front: "What does `basicConfig` do and how often do you call it?", back: "It sets up logging for the whole program: the threshold, the format and where to write. Call it once at the start. Later calls are ignored unless you pass `force=True`." }
+    vi: { front: "`basicConfig` làm gì và gọi bao nhiêu lần?", back: "Nó cài đặt logging cho cả chương trình: ngưỡng, format và nơi ghi ra. Gọi một lần ở đầu. Các lần gọi sau bị bỏ qua trừ khi bạn truyền `force=True`." }
+  - id: p3-03-f03
+    tags: [logging]
+    code: "logger = logging.getLogger(__name__)"
+    en: { front: "Why use `getLogger(__name__)`?", back: "Each module gets a logger named after itself, such as `app.llm`. The name shows up in `%(name)s`, and dots in the name build a tree of loggers." }
+    vi: { front: "Vì sao dùng `getLogger(__name__)`?", back: "Mỗi module có một logger đặt theo tên của nó, như `app.llm`. Tên hiện trong `%(name)s`, và các dấu chấm trong tên tạo thành một cây logger." }
+  - id: p3-03-f04
+    tags: [logging]
+    code: "logger.info(\"tokens=%d latency=%.2fs\", n, secs)"
+    en: { front: "Why pass values as arguments instead of an f-string?", back: "Logging builds the text only if the message passes the level check. An f-string builds it every time, even for dropped messages." }
+    vi: { front: "Vì sao truyền giá trị dưới dạng đối số thay vì f-string?", back: "Logging chỉ dựng chuỗi khi thông báo qua bước kiểm tra level. F-string dựng mỗi lần, kể cả với thông báo bị bỏ." }
+  - id: p3-03-f05
+    tags: [logging, exceptions]
+    code: "except ValueError:\n    logger.exception(\"could not parse score\")"
+    en: { front: "How do you log an error and keep the traceback?", back: "Use `logger.exception(...)` inside `except`. It logs at `ERROR` level with the full traceback and does not stop the program." }
+    vi: { front: "Làm sao log một lỗi mà vẫn giữ traceback?", back: "Dùng `logger.exception(...)` bên trong `except`. Nó log ở mức `ERROR` kèm traceback đầy đủ và không làm chương trình dừng." }
+  - id: p3-03-f06
+    tags: [logging, apis]
+    en: { front: "What should you log for an LLM call, and what never?", back: "Log model, tokens, latency and attempt as `key=value`. Never log API keys, passwords or private text. Log facts about them instead, like the length." }
+    vi: { front: "Nên log gì cho một lần gọi LLM, và không bao giờ log gì?", back: "Log model, token, latency và attempt dưới dạng `key=value`. Không bao giờ log API key, mật khẩu hay nội dung riêng tư. Hãy log các dữ kiện về chúng, như độ dài." }
