@@ -1,0 +1,36 @@
+id: p2-01-ex02
+kind: fill
+title:
+  en: "Fill in: word lengths"
+  vi: "Điền vào: độ dài của từ"
+difficulty: 1
+tags: [comprehensions, dicts]
+hints:
+  en:
+    - "This uses §5 (dict comprehensions). There are 3 blanks. The tests expect `lengths == {\"token\": 5, \"prompt\": 6, \"model\": 5, \"ai\": 2}` and `long_lengths == {\"token\": 5, \"prompt\": 6, \"model\": 5}`."
+    - |
+      Work through the two lines in order:
+      1. In the first dict, the key is the word itself. The value is how many characters it has, so call the built-in that counts items.
+      2. The second dict loops over a dict that already exists, so look at how §5 loops over key and value together.
+      3. Compare the numbers in the expected result with the filter to see what the last blank must be.
+    - |
+      The shape of a dict comprehension:
+      ```python
+      {thing: <function>(thing) for thing in collection}
+      {k: v for k, v in some_dict.<method>() if v >= <number>}
+      ```
+      Match the names in your starter to this shape.
+  vi:
+    - "Bài này dùng §5 (dict comprehension). Có 3 chỗ trống. Test cần `lengths == {\"token\": 5, \"prompt\": 6, \"model\": 5, \"ai\": 2}` và `long_lengths == {\"token\": 5, \"prompt\": 6, \"model\": 5}`."
+    - |
+      Làm lần lượt hai dòng:
+      1. Ở dict đầu tiên, key chính là từ đó. Value là số ký tự của nó, nên hãy gọi hàm có sẵn dùng để đếm số phần tử.
+      2. Dict thứ hai lặp qua một dict đã có sẵn, nên hãy xem §5 lặp qua key và value cùng lúc như thế nào.
+      3. So các con số trong kết quả mong đợi với bộ lọc để biết chỗ trống cuối cùng phải là gì.
+    - |
+      Hình dạng của dict comprehension:
+      ```python
+      {thing: <function>(thing) for thing in collection}
+      {k: v for k, v in some_dict.<method>() if v >= <number>}
+      ```
+      Hãy ghép các tên trong starter vào hình dạng này.

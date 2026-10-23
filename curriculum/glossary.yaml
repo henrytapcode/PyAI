@@ -582,7 +582,7 @@ terms:
     vi_term: class
     tags: [classes]
     en: "A blueprint that defines the data and behaviour of a kind of object."
-    vi: "Bản thiết kế định nghĩa dữ liệu và hành vi của một loại đối tượng."
+    vi: "Bản thiết kế định nghĩa dữ liệu và hành vi của một loại object."
     example: "class Dog:\n    pass"
     in_practice:
       en: "Libraries expose their features as classes, like OpenAI(), Path() or LinearRegression(), and you write your own to group related data and functions."
@@ -590,7 +590,7 @@ terms:
     related: [object, instance, constructor (__init__)]
 
   - term: object
-    vi_term: đối tượng
+    vi_term: object (đối tượng)
     tags: [classes]
     en: "A value in memory with a type, such as a number, a list or an instance of a class."
     vi: "Một giá trị trong bộ nhớ có kiểu xác định, như số, list hoặc một instance của class."
@@ -604,7 +604,7 @@ terms:
     vi_term: instance (thể hiện)
     tags: [classes]
     en: "One concrete object created from a class; each instance keeps its own data."
-    vi: "Một đối tượng cụ thể được tạo từ class; mỗi instance giữ dữ liệu riêng của nó."
+    vi: "Một object cụ thể được tạo từ class; mỗi instance giữ dữ liệu riêng của nó."
     example: "class Dog:\n    pass\n\nrex = Dog()  # rex is an instance of Dog"
     in_practice:
       en: "You create one client instance with your API key and reuse it for all requests instead of building a new one each time."
@@ -615,7 +615,7 @@ terms:
     vi_term: attribute (thuộc tính)
     tags: [classes]
     en: "A piece of data stored on an object and read with dot notation, like response.status_code."
-    vi: "Mẩu dữ liệu lưu trên một đối tượng và đọc bằng dấu chấm, như response.status_code."
+    vi: "Mẩu dữ liệu lưu trên một object và đọc bằng dấu chấm, như response.status_code."
     example: "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nDog(\"Rex\").name  # \"Rex\""
     in_practice:
       en: "Result objects from SDKs are read by attributes, for example reply.usage.total_tokens; \"has no attribute\" errors usually mean a typo or a None value."
@@ -623,10 +623,10 @@ terms:
     related: [object, method, None]
 
   - term: method
-    vi_term: phương thức
+    vi_term: method (phương thức)
     tags: [classes]
     en: "A function that belongs to an object or class and is called with dot notation."
-    vi: "Hàm thuộc về một đối tượng hoặc class và được gọi bằng dấu chấm."
+    vi: "Hàm thuộc về một object hoặc class và được gọi bằng dấu chấm."
     example: "\"hello\".upper()  # \"HELLO\""
     in_practice:
       en: "Most of the API you use daily is methods: text.split(), df.groupby(), model.fit(), client.chat.create()."
@@ -670,7 +670,7 @@ terms:
     vi_term: composition (kết hợp đối tượng)
     tags: [inheritance]
     en: "Building a class by giving it other objects as parts (a \"has-a\" relationship) instead of inheriting from them."
-    vi: "Xây một class bằng cách cho nó chứa các đối tượng khác làm thành phần (quan hệ \"có một\") thay vì kế thừa."
+    vi: "Xây một class bằng cách cho nó chứa các object khác làm thành phần (quan hệ \"có một\") thay vì kế thừa."
     example: "class Pipeline:\n    def __init__(self, retriever, llm):\n        self.retriever = retriever\n        self.llm = llm"
     in_practice:
       en: "A RAG app holds a retriever and a model as parts, so in a test you can swap the real LLM for a fake one."

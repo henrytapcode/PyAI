@@ -1,0 +1,295 @@
+questions:
+  - id: p2-01-q01
+    type: mcq
+    tags: [comprehensions, lists]
+    difficulty: 1
+    answer: 0
+    code: |
+      nums = [1, 2, 3]
+    en:
+      prompt: "Which line builds the list `[1, 4, 9]` from `nums`?"
+      options: ["`[n * n for n in nums]`", "`[for n in nums: n * n]`", "`[n * n, for n in nums]`", "`{n * n for n in nums}`"]
+      explanation: "A list comprehension is `[expression for item in items]`. The expression comes first, then `for`. The last option uses curly braces, which build a set, not a list."
+    vi:
+      prompt: "Dòng nào tạo list `[1, 4, 9]` từ `nums`?"
+      options: ["`[n * n for n in nums]`", "`[for n in nums: n * n]`", "`[n * n, for n in nums]`", "`{n * n for n in nums}`"]
+      explanation: "List comprehension có dạng `[expression for item in items]`. Biểu thức đứng trước, rồi đến `for`. Lựa chọn cuối dùng ngoặc nhọn, nên tạo ra set chứ không phải list."
+
+  - id: p2-01-q02
+    type: output
+    tags: [comprehensions, loops]
+    difficulty: 1
+    code: |
+      print([c.upper() for c in "abc"])
+    answer: "['A', 'B', 'C']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Looping over a string gives one character at a time. Each one is made uppercase and collected in a list."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Lặp qua một chuỗi cho từng ký tự một. Mỗi ký tự được đổi sang chữ hoa và gom vào một list."
+
+  - id: p2-01-q03
+    type: mcq
+    tags: [comprehensions, conditions]
+    difficulty: 1
+    answer: 2
+    code: |
+      nums = [1, 2, 3, 4]
+    en:
+      prompt: "Which line keeps only the even numbers of `nums`?"
+      options: ["`[n if n % 2 == 0 for n in nums]`", "`[n for n in nums] if n % 2 == 0`", "`[n for n in nums if n % 2 == 0]`", "`[if n % 2 == 0: n for n in nums]`"]
+      explanation: "A filter is `if condition` placed at the end, after the `for` part. The other lines put the `if` in places Python does not accept."
+    vi:
+      prompt: "Dòng nào chỉ giữ lại các số chẵn của `nums`?"
+      options: ["`[n if n % 2 == 0 for n in nums]`", "`[n for n in nums] if n % 2 == 0`", "`[n for n in nums if n % 2 == 0]`", "`[if n % 2 == 0: n for n in nums]`"]
+      explanation: "Bộ lọc là `if condition` đặt ở cuối, sau phần `for`. Các dòng còn lại đặt `if` ở những chỗ Python không chấp nhận."
+
+  - id: p2-01-q04
+    type: fill
+    tags: [comprehensions, dicts]
+    difficulty: 1
+    code: |
+      words = ["hi", "model"]
+      lengths = {w: ___(w) for w in words}
+      print(lengths)  # {'hi': 2, 'model': 5}
+    answer: ["len"]
+    en:
+      prompt: "Fill in the blank so the dict maps each word to its length."
+      explanation: "`len(w)` counts the characters of each word. The dict comprehension has the form `{key: value for item in items}`."
+    vi:
+      prompt: "Điền vào chỗ trống để dict ánh xạ mỗi từ sang độ dài của nó."
+      explanation: "`len(w)` đếm số ký tự của mỗi từ. Dict comprehension có dạng `{key: value for item in items}`."
+
+  - id: p2-01-q05
+    type: mcq
+    tags: [comprehensions, lists]
+    difficulty: 1
+    answer: 0
+    code: |
+      nums = [1, 2, 3]
+      doubled = [n * 2 for n in nums]
+    en:
+      prompt: "After this code runs, what is `nums`?"
+      options: ["`[1, 2, 3]`, unchanged", "`[2, 4, 6]`", "`[]`", "`None`"]
+      explanation: "A comprehension builds a brand new list and leaves the original alone. Only `doubled` holds `[2, 4, 6]`."
+    vi:
+      prompt: "Sau khi chạy đoạn code này, `nums` là gì?"
+      options: ["`[1, 2, 3]`, không thay đổi", "`[2, 4, 6]`", "`[]`", "`None`"]
+      explanation: "Comprehension tạo ra một list hoàn toàn mới và để nguyên list gốc. Chỉ `doubled` chứa `[2, 4, 6]`."
+
+  - id: p2-01-q06
+    type: output
+    tags: [comprehensions, conditions]
+    difficulty: 2
+    code: |
+      words = ["a", "bb", "ccc", "dd"]
+      print([w.upper() for w in words if len(w) == 2])
+    answer: "['BB', 'DD']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The `if` keeps only words with exactly 2 characters (`bb` and `dd`). Then each kept word is made uppercase."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`if` chỉ giữ các từ có đúng 2 ký tự (`bb` và `dd`). Sau đó mỗi từ được giữ lại được đổi sang chữ hoa."
+
+  - id: p2-01-q07
+    type: output
+    tags: [comprehensions, conditions]
+    difficulty: 2
+    code: |
+      scores = [0.9, 0.4, 0.7]
+      print(["pass" if s >= 0.5 else "fail" for s in scores])
+    answer: "['pass', 'fail', 'pass']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`if ... else` at the front chooses a value for every item, so the result has 3 items: 0.9 and 0.7 pass, 0.4 fails."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`if ... else` ở đầu chọn giá trị cho mọi phần tử, nên kết quả có 3 phần tử: 0.9 và 0.7 là pass, 0.4 là fail."
+
+  - id: p2-01-q08
+    type: mcq
+    tags: [comprehensions, conditions]
+    difficulty: 2
+    answer: 2
+    code: |
+      nums = [3, -1, 4]
+    en:
+      prompt: "Which line is a syntax error?"
+      options: ["`[n for n in nums if n > 0]`", "`[n if n > 0 else 0 for n in nums]`", "`[n for n in nums if n > 0 else 0]`", "`[0 if n < 0 else n for n in nums]`"]
+      explanation: "A filter `if` at the end cannot have an `else`. To choose between two values, put `value if condition else other` at the front."
+    vi:
+      prompt: "Dòng nào bị lỗi cú pháp?"
+      options: ["`[n for n in nums if n > 0]`", "`[n if n > 0 else 0 for n in nums]`", "`[n for n in nums if n > 0 else 0]`", "`[0 if n < 0 else n for n in nums]`"]
+      explanation: "`if` dùng để lọc ở cuối không được có `else`. Để chọn giữa hai giá trị, hãy đặt `value if condition else other` ở đầu."
+
+  - id: p2-01-q09
+    type: output
+    tags: [comprehensions, dicts]
+    difficulty: 2
+    code: |
+      names = ["Lan", "Minh", "An"]
+      print({n: len(n) for n in names if len(n) > 2})
+    answer: "{'Lan': 3, 'Minh': 4}"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`An` has only 2 characters, so the filter drops it. The other names become keys with their length as the value."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`An` chỉ có 2 ký tự nên bộ lọc loại nó. Các tên còn lại trở thành key và độ dài của chúng là value."
+
+  - id: p2-01-q10
+    type: output
+    tags: [comprehensions, sets]
+    difficulty: 2
+    code: |
+      labels = ["a", "b", "a", "c", "b"]
+      print(len({x for x in labels}))
+    answer: "3"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Curly braces with no colon make a set, and a set keeps each value once. There are three different labels: a, b and c."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Ngoặc nhọn không có dấu hai chấm tạo ra một set, và set chỉ giữ mỗi giá trị một lần. Có ba label khác nhau: a, b và c."
+
+  - id: p2-01-q11
+    type: fill
+    tags: [comprehensions, lists]
+    difficulty: 2
+    code: |
+      chats = [["hi", "hello"], ["bye"]]
+      flat = [msg for chat in chats for msg in ___]
+      print(flat)  # ['hi', 'hello', 'bye']
+    answer: ["chat"]
+    en:
+      prompt: "Fill in the blank to flatten the list of lists."
+      explanation: "The second `for` is the inner loop: it walks through the messages inside the current `chat`. The outer `for chat in chats` comes first."
+    vi:
+      prompt: "Điền vào chỗ trống để làm phẳng list của các list."
+      explanation: "`for` thứ hai là vòng lặp trong: nó duyệt các tin nhắn nằm bên trong `chat` hiện tại. `for chat in chats` ở vòng ngoài đứng trước."
+
+  - id: p2-01-q12
+    type: mcq
+    tags: [comprehensions, loops]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "When is a plain `for` loop a better choice than a comprehension?"
+      options: ["When you only want a side effect, such as printing each item", "When you want to build a new list", "When you want to filter with `if`", "When the loop has only one line"]
+      explanation: "A comprehension is for building a new collection. A comprehension used only to print builds a useless list of `None` values. Building and filtering are exactly what comprehensions are good at."
+    vi:
+      prompt: "Khi nào vòng `for` thường là lựa chọn tốt hơn comprehension?"
+      options: ["Khi bạn chỉ cần tác dụng phụ, ví dụ in từng phần tử", "Khi bạn muốn tạo một list mới", "Khi bạn muốn lọc bằng `if`", "Khi vòng lặp chỉ có một dòng"]
+      explanation: "Comprehension dùng để tạo collection mới. Dùng comprehension chỉ để in sẽ tạo ra một list vô ích toàn `None`. Tạo mới và lọc chính là việc comprehension làm tốt."
+
+  - id: p2-01-q13
+    type: output
+    tags: [comprehensions, loops]
+    difficulty: 3
+    code: |
+      pairs = [(a, b) for a in [1, 2] for b in ["x", "y"]]
+      print(pairs)
+    answer: "[(1, 'x'), (1, 'y'), (2, 'x'), (2, 'y')]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The first `for` is the outer loop. For each `a`, the inner loop runs through all of `x` and `y` before `a` moves on to 2."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`for` đầu tiên là vòng ngoài. Với mỗi `a`, vòng trong chạy hết `x` và `y` rồi `a` mới chuyển sang 2."
+
+  - id: p2-01-q14
+    type: output
+    tags: [comprehensions, dicts]
+    difficulty: 3
+    code: |
+      words = ["apple", "avocado", "banana"]
+      print({w[0]: w for w in words})
+    answer: "{'a': 'avocado', 'b': 'banana'}"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A dict keeps one value per key. `apple` and `avocado` both give the key `a`, and the later one overwrites the earlier one."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Dict chỉ giữ một value cho mỗi key. `apple` và `avocado` đều cho key `a`, và giá trị đến sau ghi đè giá trị đến trước."
+
+  - id: p2-01-q15
+    type: parsons
+    tags: [comprehensions, sets]
+    difficulty: 2
+    lines:
+      - 'raw = ["  Yes", "no ", "YES", " No"]'
+      - "stripped = [x.strip() for x in raw]"
+      - "lowered = [x.lower() for x in stripped]"
+      - "labels = {x for x in lowered}"
+      - "print(sorted(labels))"
+    en:
+      prompt: "Put the lines in order so the program prints `['no', 'yes']`."
+      explanation: "Each line uses the name made by the line before it: `raw`, then `stripped`, then `lowered`, then the set `labels`. Printing comes last, because `labels` must exist first."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `['no', 'yes']`."
+      explanation: "Mỗi dòng dùng tên do dòng trước tạo ra: `raw`, rồi `stripped`, rồi `lowered`, rồi set `labels`. Dòng in đứng cuối, vì `labels` phải tồn tại trước."
+
+  - id: p2-01-q16
+    type: parsons
+    tags: [comprehensions, dicts, functions]
+    difficulty: 2
+    lines:
+      - "def lengths(words):"
+      - "    return {w: len(w) for w in words}"
+      - 'result = lengths(["ai", "llm"])'
+      - 'result["rag"] = 3'
+      - "print(result)"
+    en:
+      prompt: "Put the lines in order so the program prints `{'ai': 2, 'llm': 3, 'rag': 3}`."
+      explanation: "The function header comes first, then its indented body with the dict comprehension. The call creates `result`, the next line adds a key to it, and `print` comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `{'ai': 2, 'llm': 3, 'rag': 3}`."
+      explanation: "Dòng khai báo hàm đứng đầu, rồi đến phần thân thụt lề chứa dict comprehension. Lời gọi hàm tạo ra `result`, dòng kế tiếp thêm một key vào đó, và `print` đứng cuối."
+
+  - id: p2-01-q17
+    type: fill
+    tags: [comprehensions, conditions]
+    difficulty: 2
+    code: |
+      scores = [0.9, 0.4]
+      grades = ["pass" ___ s >= 0.5 ___ "fail" for s in scores]
+      print(grades)  # ['pass', 'fail']
+    answer: ["if", "else"]
+    en:
+      prompt: "Fill in the two blanks so each score becomes `pass` or `fail`."
+      explanation: "The one-line choice is `value_if_true if condition else value_if_false`. It sits at the front of the comprehension because every score must produce a value."
+    vi:
+      prompt: "Điền vào hai chỗ trống để mỗi điểm trở thành `pass` hoặc `fail`."
+      explanation: "Cách chọn trong một dòng là `value_if_true if condition else value_if_false`. Nó nằm ở đầu comprehension vì mọi điểm đều phải cho ra một giá trị."
+
+flashcards:
+  - id: p2-01-f01
+    tags: [comprehensions]
+    code: "[n * 2 for n in nums]"
+    en: { front: "What does a list comprehension do?", back: "It builds a new list from another collection in one line: `[expression for item in items]`. The original is not changed." }
+    vi: { front: "List comprehension làm gì?", back: "Nó tạo một list mới từ collection khác trong một dòng: `[expression for item in items]`. Collection gốc không bị thay đổi." }
+  - id: p2-01-f02
+    tags: [comprehensions, conditions]
+    code: "[n for n in nums if n > 0]"
+    en: { front: "How do you filter inside a comprehension?", back: "Put `if condition` at the end. Items that fail the test are skipped." }
+    vi: { front: "Làm sao để lọc bên trong comprehension?", back: "Đặt `if condition` ở cuối. Các phần tử không thỏa điều kiện sẽ bị bỏ qua." }
+  - id: p2-01-f03
+    tags: [comprehensions, conditions]
+    code: '["pass" if s >= 0.5 else "fail" for s in scores]'
+    en: { front: "Where does `if ... else` go in a comprehension?", back: "At the front, to choose a value for every item. A filter `if` (no `else`) goes at the end." }
+    vi: { front: "`if ... else` đặt ở đâu trong comprehension?", back: "Ở đầu, để chọn giá trị cho mọi phần tử. `if` dùng để lọc (không có `else`) thì đặt ở cuối." }
+  - id: p2-01-f04
+    tags: [comprehensions, dicts, sets]
+    en: { front: "Which brackets make a dict and which make a set comprehension?", back: "Both use curly braces. `{k: v for ...}` (with a colon) is a dict. `{x for ...}` (no colon) is a set." }
+    vi: { front: "Ngoặc nào tạo dict comprehension, ngoặc nào tạo set comprehension?", back: "Cả hai đều dùng ngoặc nhọn. `{k: v for ...}` (có dấu hai chấm) là dict. `{x for ...}` (không có dấu hai chấm) là set." }
+  - id: p2-01-f05
+    tags: [comprehensions, loops]
+    code: "[m for chat in chats for m in chat]"
+    en: { front: "In a comprehension with two `for` parts, which loop is the outer one?", back: "The first one. They run like nested loops, left to right: outer first, inner second." }
+    vi: { front: "Trong comprehension có hai phần `for`, vòng nào là vòng ngoài?", back: "Vòng đầu tiên. Chúng chạy như các vòng lặp lồng nhau, từ trái sang phải: ngoài trước, trong sau." }
+  - id: p2-01-f06
+    tags: [comprehensions, loops]
+    en: { front: "When should you use a plain `for` loop instead of a comprehension?", back: "For side effects such as printing, when the body needs several steps, or when you need `break` or `continue`." }
+    vi: { front: "Khi nào nên dùng vòng `for` thường thay cho comprehension?", back: "Khi cần tác dụng phụ như in ra, khi phần thân cần nhiều bước, hoặc khi cần `break` hay `continue`." }

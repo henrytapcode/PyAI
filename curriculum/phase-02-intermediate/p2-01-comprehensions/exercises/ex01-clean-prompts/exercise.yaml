@@ -1,0 +1,36 @@
+id: p2-01-ex01
+kind: code
+title:
+  en: "Write: clean a batch of prompts"
+  vi: "Viết hàm: làm sạch một loạt prompt"
+difficulty: 2
+tags: [comprehensions, strings, lists]
+hints:
+  en:
+    - |
+      This is the "change and filter" pattern from §3, with the string methods you know. For `clean_prompts(["  Hi   THERE ", "   "])` you must return `["hi there"]`: the first prompt is cleaned, the blank one is dropped.
+    - |
+      The plan:
+      1. Decide which prompts to keep: a prompt with only spaces is empty after `strip()`, and an empty string counts as `False`.
+      2. Clean each kept prompt: split it into words, join the words with one space, and make it lowercase.
+      3. Wrap both ideas in one list comprehension and `return` it.
+    - |
+      The shape:
+      ```python
+      return [" ".join(...).lower() for p in prompts if ...]
+      ```
+      What goes inside `join(...)` to get the words of `p`? What condition is `True` only for prompts that have real text?
+  vi:
+    - |
+      Đây là mẫu "biến đổi và lọc" ở §3, cùng các method của string mà bạn đã biết. Với `clean_prompts(["  Hi   THERE ", "   "])` bạn phải trả về `["hi there"]`: prompt đầu được làm sạch, prompt toàn dấu cách bị bỏ.
+    - |
+      Kế hoạch:
+      1. Quyết định prompt nào được giữ: prompt chỉ có dấu cách sẽ rỗng sau `strip()`, và chuỗi rỗng được coi là `False`.
+      2. Làm sạch từng prompt được giữ: cắt thành các từ, ghép các từ lại bằng một dấu cách, rồi đổi sang chữ thường.
+      3. Gộp cả hai ý tưởng vào một list comprehension và `return` nó.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      return [" ".join(...).lower() for p in prompts if ...]
+      ```
+      Cái gì nằm trong `join(...)` để lấy các từ của `p`? Điều kiện nào chỉ `True` với prompt có chữ thật sự?

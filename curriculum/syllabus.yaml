@@ -120,13 +120,13 @@ phases:
     lessons:
       - id: p2-01-comprehensions
         title: { en: "Comprehensions", vi: "Comprehension" }
-        prerequisites: [p1-04-collections, p1-05-functions]
+        prerequisites: [p1-04-collections, p1-05-functions, p1-07-strings]
         outcomes:
           en: ["List, dict and set comprehensions"]
           vi: ["List, dict và set comprehension"]
       - id: p2-02-classes
         title: { en: "Classes & objects", vi: "Class & object" }
-        prerequisites: [p1-04-collections, p1-05-functions]
+        prerequisites: [p1-04-collections, p1-05-functions, p1-07-strings]
         outcomes:
           en: ["Define classes", "Attributes and methods", "__init__ and __repr__"]
           vi: ["Định nghĩa class", "Thuộc tính và phương thức", "__init__ và __repr__"]

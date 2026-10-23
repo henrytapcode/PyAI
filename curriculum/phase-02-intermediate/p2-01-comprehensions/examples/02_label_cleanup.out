@@ -1,0 +1,4 @@
+['positive', 'negative', 'positive', 'neutral', 'negative', 'positive']
+['negative', 'neutral', 'positive']
+{'negative': 2, 'neutral': 1, 'positive': 3}
+['ok', 'rare', 'ok']
