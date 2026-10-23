@@ -1,0 +1,313 @@
+id: p3-phase-test
+kind: phase_test
+phase: p3
+title:
+  en: "Phase 3 test: Code quality"
+  vi: "Bài kiểm tra Phase 3: Chất lượng code"
+description:
+  en: "15 questions covering pytest, ruff, logging and debugging."
+  vi: "15 câu hỏi về pytest, ruff, logging và debug."
+duration_min: 20
+pass_score: 0.7
+questions:
+  # ---- pytest
+  - id: p3-test-q01
+    type: mcq
+    tags: [testing]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "By default, which file will pytest look inside for tests?"
+      options:
+        - "`cleaning.py`"
+        - "`test_cleaning.py`"
+        - "`tests.txt`"
+        - "`run_tests`"
+      explanation: "pytest collects files named `test_*.py` (or `*_test.py`) and, inside them, functions whose names start with `test_`. A plain `cleaning.py` is treated as ordinary code."
+    vi:
+      prompt: "Mặc định, pytest sẽ tìm test trong file nào?"
+      options:
+        - "`cleaning.py`"
+        - "`test_cleaning.py`"
+        - "`tests.txt`"
+        - "`run_tests`"
+      explanation: "pytest thu thập các file tên `test_*.py` (hoặc `*_test.py`) và bên trong đó là các hàm có tên bắt đầu bằng `test_`. File `cleaning.py` bình thường chỉ được coi là code thường."
+
+  - id: p3-test-q02
+    type: output
+    tags: [testing, exceptions]
+    difficulty: 1
+    code: |
+      x = 2
+      try:
+          assert x > 5, "too small"
+      except AssertionError as err:
+          print(err)
+    answer: "too small"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`x > 5` is false, so `assert` raises `AssertionError` with the message after the comma. The `except` block catches it and prints that message. pytest shows the same message when a test fails."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`x > 5` sai, nên `assert` ném `AssertionError` kèm thông báo sau dấu phẩy. Khối `except` bắt lỗi và in thông báo đó. pytest cũng hiện đúng thông báo này khi một test thất bại."
+
+  - id: p3-test-q03
+    type: fill
+    tags: [testing, exceptions]
+    difficulty: 2
+    code: |
+      def to_int(text):
+          try:
+              return int(text)
+          except ___:
+              return -1
+
+
+      print(to_int("abc"))  # -1
+    answer: ["ValueError"]
+    en:
+      prompt: "Fill in the blank so a bad string gives `-1` instead of crashing."
+      explanation: "`int(\"abc\")` raises `ValueError`. Naming that exact error in `except` handles the case you expect without hiding other bugs. A test for this uses `pytest.raises(ValueError)` on the version that does not catch it."
+    vi:
+      prompt: "Điền vào chỗ trống để chuỗi sai trả về `-1` thay vì làm chương trình sập."
+      explanation: "`int(\"abc\")` ném `ValueError`. Nêu đúng tên lỗi trong `except` xử lý được trường hợp bạn dự đoán mà không che các bug khác. Test cho việc này dùng `pytest.raises(ValueError)` trên phiên bản không bắt lỗi."
+
+  - id: p3-test-q04
+    type: mcq
+    tags: [testing, fixtures]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Several tests need the same sample list, and each test should get a fresh copy. What fits best?"
+      options:
+        - "A global variable at the top of the test file"
+        - "Copy and paste the list into every test"
+        - "Put the list inside the code being tested"
+        - "A fixture that returns the list"
+      explanation: "A `@pytest.fixture` function builds the data and pytest passes it to every test that asks for it by name, creating it fresh each time. A shared global can be changed by one test and break another."
+    vi:
+      prompt: "Nhiều test cần cùng một list mẫu và mỗi test nên nhận một bản mới. Cách nào hợp nhất?"
+      options:
+        - "Một biến global ở đầu file test"
+        - "Sao chép list vào từng test"
+        - "Đặt list vào trong code đang được test"
+        - "Một fixture trả về list"
+      explanation: "Hàm `@pytest.fixture` tạo dữ liệu và pytest đưa nó cho mọi test yêu cầu theo tên, tạo mới mỗi lần. Biến global dùng chung có thể bị một test sửa và làm hỏng test khác."
+
+  # ---- ruff
+  - id: p3-test-q05
+    type: mcq
+    tags: [linting]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "What is the difference between checking with a linter and formatting?"
+      options:
+        - "A linter finds likely mistakes, a formatter only changes layout such as spacing and line breaks"
+        - "A linter changes layout, a formatter finds mistakes"
+        - "They do exactly the same thing"
+        - "A linter runs your program, a formatter does not"
+      explanation: "A linter reads the code and reports problems such as unused imports or undefined names. A formatter rewrites the layout so the style is consistent and never changes what the code does."
+    vi:
+      prompt: "Kiểm tra bằng linter khác với format ở điểm nào?"
+      options:
+        - "Linter tìm lỗi có thể xảy ra, formatter chỉ đổi cách trình bày như khoảng trắng và xuống dòng"
+        - "Linter đổi cách trình bày, formatter tìm lỗi"
+        - "Hai thứ làm y hệt nhau"
+        - "Linter chạy chương trình của bạn, formatter thì không"
+      explanation: "Linter đọc code và báo vấn đề như import không dùng hay tên chưa định nghĩa. Formatter viết lại cách trình bày cho nhất quán và không bao giờ đổi việc code làm."
+
+  - id: p3-test-q06
+    type: parsons
+    tags: [dataclasses, linting]
+    difficulty: 2
+    lines:
+      - "from dataclasses import dataclass"
+      - "@dataclass(frozen=True)"
+      - "class CleanConfig:"
+      - "    lowercase: bool = True"
+      - "print(CleanConfig().lowercase)"
+    en:
+      prompt: "Put the lines in order so the program prints `True`."
+      explanation: "Import `dataclass` first, then the decorator sits directly above the class, the field goes inside the class, and the `print` that uses the class comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `True`."
+      explanation: "Import `dataclass` trước, rồi decorator nằm ngay trên class, field nằm trong class, và lệnh `print` dùng class đó nằm cuối."
+
+  - id: p3-test-q07
+    type: output
+    tags: [linting, lists]
+    difficulty: 3
+    code: |
+      def add(item, bucket=[]):
+          bucket.append(item)
+          return bucket
+
+
+      add(1)
+      print(add(2))
+    answer: "[1, 2]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The default `[]` is created once, when the function is defined, and shared by every call. The second call appends to the same list, so you see `[1, 2]`. Ruff flags this pattern; the usual fix is `bucket=None` and creating a new list inside."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Giá trị mặc định `[]` được tạo một lần, khi hàm được định nghĩa, và dùng chung cho mọi lần gọi. Lần gọi thứ hai thêm vào cùng một list, nên bạn thấy `[1, 2]`. Ruff cảnh báo mẫu này; cách sửa thường là `bucket=None` và tạo list mới bên trong."
+
+  # ---- logging
+  - id: p3-test-q08
+    type: mcq
+    tags: [logging]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "A config file is missing, so the program carries on with default settings. Which level fits best?"
+      options:
+        - "`DEBUG`"
+        - "`WARNING`"
+        - "`CRITICAL`"
+        - "`INFO`, because nothing broke"
+      explanation: "Something unexpected happened, but the program can continue: that is a `WARNING`. `DEBUG` is for details only developers need, and `CRITICAL` is for failures that stop the program."
+    vi:
+      prompt: "File config bị thiếu nên chương trình chạy tiếp với cài đặt mặc định. Level nào hợp nhất?"
+      options:
+        - "`DEBUG`"
+        - "`WARNING`"
+        - "`CRITICAL`"
+        - "`INFO`, vì không có gì hỏng"
+      explanation: "Có điều bất ngờ xảy ra nhưng chương trình vẫn chạy tiếp: đó là `WARNING`. `DEBUG` dành cho chi tiết chỉ lập trình viên cần, còn `CRITICAL` dành cho lỗi làm chương trình dừng."
+
+  - id: p3-test-q09
+    type: mcq
+    tags: [logging]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why is logging usually better than `print` for a real program?"
+      options:
+        - "You can filter by level, add time and source, and send it to a file without editing every call"
+        - "Logging is faster than print in every case"
+        - "`print` cannot show numbers"
+        - "Logging fixes bugs automatically"
+      explanation: "Log records carry a level and a name, and one configuration decides what is shown and where it goes. With `print` you would have to find and edit every call."
+    vi:
+      prompt: "Vì sao logging thường tốt hơn `print` trong một chương trình thật?"
+      options:
+        - "Bạn lọc được theo level, thêm thời gian và nguồn, và ghi ra file mà không phải sửa từng lệnh gọi"
+        - "Logging luôn nhanh hơn print"
+        - "`print` không in được số"
+        - "Logging tự sửa bug"
+      explanation: "Log record mang theo level và tên, và một cấu hình quyết định cái gì được hiện và đi đâu. Với `print` bạn phải tìm và sửa từng lệnh."
+
+  - id: p3-test-q10
+    type: fill
+    tags: [logging]
+    difficulty: 2
+    code: |
+      import logging
+
+      logger = logging.getLogger("app")
+      logger.___("loaded %d rows", 3)
+    answer: ["info"]
+    en:
+      prompt: "Fill in the method that records the message at the INFO level."
+      explanation: "A logger has one method per level: `debug`, `info`, `warning`, `error`, `critical`. The `%d` is filled in by logging only when the message is actually shown."
+    vi:
+      prompt: "Điền tên phương thức ghi thông báo ở level INFO."
+      explanation: "Logger có một phương thức cho mỗi level: `debug`, `info`, `warning`, `error`, `critical`. `%d` được logging điền vào chỉ khi thông báo thật sự được hiển thị."
+
+  # ---- debugging
+  - id: p3-test-q11
+    type: mcq
+    tags: [debugging, exceptions]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Where in a traceback do you start reading?"
+      options:
+        - "At the very first line"
+        - "At the longest line"
+        - "At the last line, which names the error and its message"
+        - "At the file name"
+      explanation: "Read a traceback bottom-up. The last line tells you the error type and message. The lines above it show the path of calls that led there, with the closest call to the error just above."
+    vi:
+      prompt: "Bạn bắt đầu đọc traceback từ đâu?"
+      options:
+        - "Từ dòng đầu tiên"
+        - "Từ dòng dài nhất"
+        - "Từ dòng cuối, nơi nêu tên lỗi và thông báo"
+        - "Từ tên file"
+      explanation: "Hãy đọc traceback từ dưới lên. Dòng cuối cho biết loại lỗi và thông báo. Các dòng phía trên cho thấy chuỗi lời gọi dẫn tới đó, lời gọi gần lỗi nhất nằm ngay trên."
+
+  - id: p3-test-q12
+    type: output
+    tags: [debugging, strings]
+    difficulty: 2
+    code: |
+      text = "a  b"
+      print(text.split(" "))
+    answer: "['a', '', 'b']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Splitting on a single space cuts at each space, so two spaces in a row leave an empty string between them. `text.split()` with no argument treats any run of spaces as one separator. Printing a checkpoint like this is how you find the step that goes wrong."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Tách theo đúng một dấu cách sẽ cắt ở mỗi dấu cách, nên hai dấu cách liền nhau để lại một chuỗi rỗng ở giữa. `text.split()` không đối số coi cả dãy dấu cách là một dấu phân cách. In một checkpoint như thế này là cách tìm bước bị sai."
+
+  - id: p3-test-q13
+    type: mcq
+    tags: [debugging]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "You stopped at a `breakpoint()` in the pdb prompt. Which command runs the current line and stops at the next line of the same function?"
+      options:
+        - "`c`"
+        - "`n`"
+        - "`q`"
+        - "`p`"
+      explanation: "`n` (next) runs the current line and stops at the next one. `c` continues until the next breakpoint or the end, `q` quits the debugger, and `p expr` prints the value of an expression."
+    vi:
+      prompt: "Bạn đang dừng ở `breakpoint()` trong prompt pdb. Lệnh nào chạy dòng hiện tại và dừng ở dòng kế tiếp của cùng hàm?"
+      options:
+        - "`c`"
+        - "`n`"
+        - "`q`"
+        - "`p`"
+      explanation: "`n` (next) chạy dòng hiện tại và dừng ở dòng sau. `c` chạy tiếp đến breakpoint kế hoặc hết chương trình, `q` thoát debugger, và `p expr` in giá trị của một biểu thức."
+
+  # ---- Mini-project skills (pure functions, dataclass config)
+  - id: p3-test-q14
+    type: parsons
+    tags: [debugging, strings]
+    difficulty: 2
+    lines:
+      - "text = \"a  b   c\""
+      - "words = text.split()"
+      - "joined = \"-\".join(words)"
+      - "print(joined)"
+    en:
+      prompt: "Put the lines in order so the program prints `a-b-c`."
+      explanation: "Each line uses the name made by the line before it: `text`, then `words`, then `joined`. Printing comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `a-b-c`."
+      explanation: "Mỗi dòng dùng tên do dòng trước tạo ra: `text`, rồi `words`, rồi `joined`. Lệnh in nằm cuối cùng."
+
+  - id: p3-test-q15
+    type: output
+    tags: [testing, strings]
+    difficulty: 3
+    code: |
+      def clean(text, lowercase=True):
+          text = " ".join(text.split())
+          return text.lower() if lowercase else text
+
+
+      print(clean("  Hi   AI "), clean("  Hi   AI ", lowercase=False))
+    answer: "hi ai Hi AI"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`split()` and `join` collapse the spaces to `Hi AI`. The first call keeps the default `lowercase=True`, giving `hi ai`. The second call passes `False`, so the text is returned as is. A flag like this is what a config object replaces in the mini-project."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`split()` và `join` gộp các dấu cách thành `Hi AI`. Lần gọi đầu giữ mặc định `lowercase=True` nên cho `hi ai`. Lần gọi thứ hai truyền `False` nên văn bản được trả về nguyên. Một cờ như vậy là thứ mà object config thay thế trong mini-project."
