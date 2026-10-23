@@ -48,7 +48,7 @@ class PythonManager {
 
   private ensureWorker(): Worker {
     if (this.worker) return this.worker;
-    const worker = new Worker("/pyodide-worker.js");
+    const worker = new Worker(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/pyodide-worker.js`);
     worker.onmessage = (e: MessageEvent) => this.onMessage(e.data);
     worker.onerror = (e) => {
       this.lastError = e.message || "worker error";

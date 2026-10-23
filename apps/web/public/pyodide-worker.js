@@ -25,7 +25,7 @@ async function init() {
     pyodide.setStdout({ batched: (text) => post({ type: "stdout", id: currentId, text: text + "\n" }) });
     pyodide.setStderr({ batched: (text) => post({ type: "stderr", id: currentId, text: text + "\n" }) });
     for (const name of ["runner", "tracer"]) {
-      const src = await (await fetch(new URL(`/pyrunner/${name}.py`, self.location.origin))).text();
+      const src = await (await fetch(new URL(`pyrunner/${name}.py`, self.location.href))).text();
       pyodide.FS.writeFile(`/home/pyodide/pyai_${name}.py`, src);
     }
     await pyodide.runPythonAsync(`
