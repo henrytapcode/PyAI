@@ -1,0 +1,33 @@
+id: p1-07-strings
+phase: p1
+order: 7
+kind: lesson
+title:
+  en: "Working with strings"
+  vi: "Làm việc với chuỗi"
+summary:
+  en: "Slice, clean, split, join and format text: the everyday tools for handling prompts and model output."
+  vi: "Cắt, làm sạch, tách, ghép và định dạng văn bản: bộ công cụ hằng ngày để xử lý prompt và output của model."
+level: beginner
+tags: [strings, conversion, debugging]
+prerequisites: [p1-05-functions]
+duration_min: 15
+outcomes:
+  en:
+    - "Index and slice a string, and loop over its characters"
+    - "Explain why string methods return a new string instead of changing the old one"
+    - "Clean text with lower(), strip(), replace() and test it with in, startswith() and endswith()"
+    - "Turn text into a list of words with split() and back with join()"
+    - "Format numbers inside f-strings with :.2f, :>8, :<10 and :,"
+  vi:
+    - "Lấy phần tử và cắt (slice) chuỗi, và duyệt qua từng ký tự"
+    - "Giải thích vì sao phương thức của chuỗi trả về chuỗi mới thay vì sửa chuỗi cũ"
+    - "Làm sạch text với lower(), strip(), replace() và kiểm tra bằng in, startswith(), endswith()"
+    - "Biến text thành list các từ bằng split() và ghép lại bằng join()"
+    - "Định dạng số trong f-string với :.2f, :>8, :<10 và :,"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: String methods", vi: "Tài liệu Python: Phương thức của chuỗi (EN)" }
+    url: "https://docs.python.org/3/library/stdtypes.html#string-methods"
+  - title: { en: "Python docs: Format specification mini-language", vi: "Tài liệu Python: Ngôn ngữ định dạng (EN)" }
+    url: "https://docs.python.org/3/library/string.html#formatspec"

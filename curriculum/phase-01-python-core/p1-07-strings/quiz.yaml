@@ -1,0 +1,290 @@
+questions:
+  - id: p1-07-q01
+    type: mcq
+    tags: [strings]
+    difficulty: 1
+    answer: 0
+    code: |
+      word = "Python"
+      print(word[1:4])
+    en:
+      prompt: "What does this code print?"
+      options: ["yth", "Pyt", "ytho", "thon"]
+      explanation: "A slice starts at index 1 (`y`) and stops before index 4, so it takes indexes 1, 2 and 3: `yth`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      options: ["yth", "Pyt", "ytho", "thon"]
+      explanation: "Slice bắt đầu từ index 1 (`y`) và dừng trước index 4, nên lấy các index 1, 2, 3: `yth`."
+
+  - id: p1-07-q02
+    type: mcq
+    tags: [strings]
+    difficulty: 1
+    answer: 1
+    code: |
+      name = "  Lan  "
+      name.strip()
+      print(f"[{name}]")
+    en:
+      prompt: "This prints `[  Lan  ]`. Why are the spaces still there?"
+      options: ["The string was changed, but print shows the old copy", "`strip()` returned a new string and the result was not kept", "`strip()` only works inside `print()`", "Strings cannot have spaces removed"]
+      explanation: "Strings are immutable. `strip()` builds a new string, and the code threw it away. Write `name = name.strip()` to keep it."
+    vi:
+      prompt: "Đoạn code in ra `[  Lan  ]`. Vì sao khoảng trắng vẫn còn?"
+      options: ["Chuỗi đã bị đổi, nhưng print hiện bản cũ", "`strip()` trả về chuỗi mới và kết quả không được giữ lại", "`strip()` chỉ chạy bên trong `print()`", "Không thể xóa khoảng trắng khỏi chuỗi"]
+      explanation: "Chuỗi là bất biến (immutable). `strip()` tạo chuỗi mới, còn code đã vứt nó đi. Hãy viết `name = name.strip()` để giữ lại."
+
+  - id: p1-07-q03
+    type: mcq
+    tags: [strings, conversion]
+    difficulty: 2
+    answer: 2
+    code: |
+      print(",".join([1, 2, 3]))
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["It prints `1,2,3`", "It prints `123`", "It raises a `TypeError`", "It prints `[1, 2, 3]`"]
+      explanation: "`join` only accepts strings. The list holds numbers, so Python raises `TypeError`. Convert each number with `str()` first."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["In ra `1,2,3`", "In ra `123`", "Báo lỗi `TypeError`", "In ra `[1, 2, 3]`"]
+      explanation: "`join` chỉ nhận chuỗi. List này chứa số nên Python báo `TypeError`. Hãy đổi từng số bằng `str()` trước."
+
+  - id: p1-07-q04
+    type: mcq
+    tags: [strings]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Which is the best way to ask 'does the text contain the word cat?'"
+      options: ["`if text.find(\"cat\"):`", "`if \"cat\" in text:`", "`if text.startswith(\"cat\"):`", "`if text[\"cat\"]:`"]
+      explanation: "`in` gives a clear True/False. `find()` returns `-1` when nothing is found, and `-1` counts as True; it also returns `0` when the word is at the start, which counts as False."
+    vi:
+      prompt: "Cách nào tốt nhất để hỏi 'text có chứa từ cat không?'"
+      options: ["`if text.find(\"cat\"):`", "`if \"cat\" in text:`", "`if text.startswith(\"cat\"):`", "`if text[\"cat\"]:`"]
+      explanation: "`in` cho kết quả True/False rõ ràng. `find()` trả về `-1` khi không tìm thấy, mà `-1` được tính là True; nó còn trả về `0` khi từ nằm ở đầu, và `0` được tính là False."
+
+  - id: p1-07-q05
+    type: mcq
+    tags: [strings, conversion]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which f-string shows `n = 1234567` as `1,234,567`?"
+      options: ["`f\"{n:.2f}\"`", "`f\"{n:,}\"`", "`f\"{n:>7}\"`", "`f\"{n:<7}\"`"]
+      explanation: "The comma spec `:,` puts a comma between thousands. `:.2f` sets decimals, and `:>7` / `:<7` only align."
+    vi:
+      prompt: "f-string nào hiển thị `n = 1234567` thành `1,234,567`?"
+      options: ["`f\"{n:.2f}\"`", "`f\"{n:,}\"`", "`f\"{n:>7}\"`", "`f\"{n:<7}\"`"]
+      explanation: "Spec `:,` đặt dấu phẩy giữa các hàng nghìn. `:.2f` chỉnh số chữ số thập phân, còn `:>7` / `:<7` chỉ căn lề."
+
+  - id: p1-07-q06
+    type: output
+    tags: [strings]
+    difficulty: 1
+    code: |
+      print(len("a b"))
+    answer: "3"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Spaces are characters too: `a`, a space and `b` make 3."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Khoảng trắng cũng là một ký tự: `a`, khoảng trắng và `b` là 3 ký tự."
+
+  - id: p1-07-q07
+    type: output
+    tags: [strings]
+    difficulty: 2
+    code: |
+      s = "Hi"
+      s.upper()
+      print(s)
+    answer: "Hi"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`s.upper()` makes a new string `HI`, but it is not stored anywhere. `s` is unchanged."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`s.upper()` tạo chuỗi mới `HI` nhưng không lưu vào đâu cả. `s` vẫn như cũ."
+
+  - id: p1-07-q08
+    type: output
+    tags: [strings, conversion]
+    difficulty: 2
+    code: |
+      print(f"[{'ai':>5}]")
+    answer: "[   ai]"
+    en:
+      prompt: "What does this code print? (Count the spaces.)"
+      explanation: "`:>5` right-aligns in a column of 5 characters. `ai` is 2 characters, so 3 spaces are added on the left."
+    vi:
+      prompt: "Đoạn code này in ra gì? (Đếm kỹ khoảng trắng.)"
+      explanation: "`:>5` căn phải trong cột rộng 5 ký tự. `ai` có 2 ký tự nên thêm 3 khoảng trắng bên trái."
+
+  - id: p1-07-q09
+    type: output
+    tags: [strings]
+    difficulty: 3
+    code: |
+      print("a,b,,c".split(","))
+    answer: "['a', 'b', '', 'c']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "There is nothing between the two commas, so `split(\",\")` gives an empty string `''` in that place. Only `split()` with no argument skips empty pieces."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Giữa hai dấu phẩy không có gì, nên `split(\",\")` cho chuỗi rỗng `''` ở vị trí đó. Chỉ `split()` không đối số mới bỏ qua các mảnh rỗng."
+
+  - id: p1-07-q10
+    type: output
+    tags: [strings, debugging]
+    difficulty: 3
+    code: |
+      text = "hello"
+      if text.find("h"):
+          print("found")
+      else:
+          print("missing")
+    answer: "missing"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`\"h\"` is at index 0, so `find` returns `0`, and `0` counts as False. This is why you should use `\"h\" in text` for yes/no questions."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`\"h\"` nằm ở index 0 nên `find` trả về `0`, mà `0` được tính là False. Vì vậy nên dùng `\"h\" in text` cho câu hỏi có/không."
+
+  - id: p1-07-q11
+    type: fill
+    tags: [strings]
+    difficulty: 1
+    code: |
+      word = "Python"
+      print(word[___])  # n
+    answer: [["-1", "5"]]
+    en:
+      prompt: "Fill in the blank so the code prints the last letter."
+      explanation: "Index `-1` counts from the end, so it is always the last character. Index `5` also works for this word."
+    vi:
+      prompt: "Điền vào chỗ trống để in ra chữ cái cuối cùng."
+      explanation: "Index `-1` đếm từ cuối nên luôn là ký tự cuối. Với từ này, index `5` cũng đúng."
+
+  - id: p1-07-q12
+    type: fill
+    tags: [strings]
+    difficulty: 2
+    code: |
+      text = "  Hi  "
+      text = text.___()
+      print(f"[{text}]")  # [Hi]
+    answer: ["strip"]
+    en:
+      prompt: "Fill in the blank to remove the spaces at both ends."
+      explanation: "`strip()` removes spaces from both ends. Note the assignment: the new string is stored back in `text`."
+    vi:
+      prompt: "Điền vào chỗ trống để xóa khoảng trắng ở hai đầu."
+      explanation: "`strip()` xóa khoảng trắng ở cả hai đầu. Chú ý phép gán: chuỗi mới được lưu lại vào `text`."
+
+  - id: p1-07-q13
+    type: fill
+    tags: [strings]
+    difficulty: 2
+    code: |
+      print("-".___(["a", "b", "c"]))  # a-b-c
+    answer: ["join"]
+    en:
+      prompt: "Fill in the blank to glue the list into one string."
+      explanation: "`separator.join(list)` puts the separator between the items. The separator comes first, before the dot."
+    vi:
+      prompt: "Điền vào chỗ trống để ghép list thành một chuỗi."
+      explanation: "`separator.join(list)` đặt dấu phân cách giữa các phần tử. Dấu phân cách nằm trước dấu chấm."
+
+  - id: p1-07-q14
+    type: fill
+    tags: [strings, conversion]
+    difficulty: 2
+    code: |
+      print(f"{3.14159:___}")  # 3.14
+    answer: [".2f"]
+    en:
+      prompt: "Fill in the format spec so the number shows 2 decimals."
+      explanation: "`.2f` means 'fixed-point with 2 digits after the decimal point', so 3.14159 becomes 3.14."
+    vi:
+      prompt: "Điền format spec để số hiển thị 2 chữ số thập phân."
+      explanation: "`.2f` nghĩa là 'số thực với 2 chữ số sau dấu thập phân', nên 3.14159 thành 3.14."
+
+  - id: p1-07-q15
+    type: parsons
+    tags: [strings]
+    difficulty: 2
+    lines:
+      - "text = \"  Hello World  \""
+      - "clean = text.strip()"
+      - "words = clean.lower().split()"
+      - "print(\"-\".join(words))"
+    en:
+      prompt: "Put the lines in order so the program prints `hello-world`."
+      explanation: "Create the text first, then clean it, then split it into words, and print the joined result last. Each line needs the variable made on the line before."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `hello-world`."
+      explanation: "Tạo text trước, rồi làm sạch, rồi tách thành các từ, và in kết quả đã ghép ở cuối. Mỗi dòng cần biến được tạo ở dòng trước nó."
+
+  - id: p1-07-q16
+    type: parsons
+    tags: [strings]
+    difficulty: 2
+    lines:
+      - "total = 0"
+      - "for ch in \"banana\":"
+      - "    if ch == \"a\":"
+      - "        total = total + 1"
+      - "print(total)"
+    en:
+      prompt: "Put the lines in order so the program counts the letter a and prints `3`."
+      explanation: "Start the counter, then loop, then test each character inside the loop, add 1 inside the `if`, and print after the loop ends."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình đếm chữ a và in ra `3`."
+      explanation: "Khởi tạo biến đếm, rồi lặp, rồi kiểm tra từng ký tự trong vòng lặp, cộng 1 bên trong `if`, và in sau khi vòng lặp kết thúc."
+
+  - id: p1-07-q17
+    type: parsons
+    tags: [strings]
+    difficulty: 3
+    lines:
+      - "word = \"Python\""
+      - "new_word = \"J\" + word[1:]"
+      - "print(new_word)"
+    en:
+      prompt: "Put the lines in order so the program prints `Jython`."
+      explanation: "Strings cannot be changed in place, so we build a new one: `\"J\"` plus everything from index 1 onward. The variable must exist before it is sliced, and printing comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `Jython`."
+      explanation: "Chuỗi không sửa tại chỗ được, nên ta tạo chuỗi mới: `\"J\"` cộng phần từ index 1 trở đi. Biến phải có trước khi cắt, và in ra ở cuối."
+
+flashcards:
+  - id: p1-07-f01
+    tags: [strings]
+    en: { front: "Why does `name.strip()` alone change nothing?", back: "Strings are immutable. Methods return a new string, so keep it: `name = name.strip()`." }
+    vi: { front: "Vì sao `name.strip()` đứng một mình không đổi gì?", back: "Chuỗi là bất biến. Phương thức trả về chuỗi mới, nên hãy giữ lại: `name = name.strip()`." }
+  - id: p1-07-f02
+    tags: [strings]
+    en: { front: "`split()` vs `join()`?", back: "`split()` cuts a string into a list. `separator.join(list)` glues a list of strings into one string." }
+    vi: { front: "`split()` khác `join()` thế nào?", back: "`split()` cắt chuỗi thành list. `separator.join(list)` ghép list các chuỗi thành một chuỗi." }
+  - id: p1-07-f03
+    tags: [strings]
+    code: '"cat" in text'
+    en: { front: "How to check that a word is inside a text?", back: "Use `in`." }
+    vi: { front: "Kiểm tra một từ có nằm trong text thế nào?", back: "Dùng `in`." }
+  - id: p1-07-f04
+    tags: [strings, conversion]
+    code: 'f"{1234.5:,.2f}"  # 1,234.50'
+    en: { front: "Format a number with commas and 2 decimals", back: "Use the spec `:,.2f` inside an f-string." }
+    vi: { front: "Định dạng số có dấu phẩy và 2 chữ số thập phân", back: "Dùng spec `:,.2f` trong f-string." }
+  - id: p1-07-f05
+    tags: [strings, conversion]
+    en: { front: "`:<10` vs `:>10`?", back: "`:<10` left-aligns in a column 10 wide. `:>10` right-aligns." }
+    vi: { front: "`:<10` khác `:>10` thế nào?", back: "`:<10` căn trái trong cột rộng 10. `:>10` căn phải." }
+  - id: p1-07-f06
+    tags: [strings]
+    en: { front: "What does `find()` return when nothing matches?", back: "`-1`. Use `in` for yes/no questions, because `-1` counts as True." }
+    vi: { front: "`find()` trả về gì khi không tìm thấy?", back: "`-1`. Hãy dùng `in` cho câu hỏi có/không, vì `-1` được tính là True." }

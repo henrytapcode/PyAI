@@ -1,0 +1,44 @@
+id: p1-07-ex02
+kind: debug
+title:
+  en: "Debug: make a URL slug"
+  vi: "Sửa lỗi: tạo slug cho URL"
+difficulty: 2
+tags: [strings, debugging]
+hints:
+  en:
+    - |
+      This is §3 (strings never change) and §5 (split and join). The function has three bugs. Run it on `"  Hello World  "`: you should get `"hello-world"`.
+      Look at which lines throw their result away, and at what is put between the words.
+    - |
+      Plan:
+      1. `title.strip()` and `title.lower()` build new strings but nobody keeps them. Assign the results back to `title`.
+      2. `split(" ")` makes empty pieces when there are several spaces. Use `split()` with nothing inside.
+      3. The words must be glued with a hyphen `-`, not an underscore.
+    - |
+      Code shape:
+      ```python
+      def make_slug(title):
+          title = title.strip()
+          title = ...
+          words = title.split()
+          return "...".join(words)
+      ```
+  vi:
+    - |
+      Bài này dùng §3 (chuỗi không bao giờ thay đổi) và §5 (split và join). Hàm có ba lỗi. Chạy thử với `"  Hello World  "`: kết quả đúng phải là `"hello-world"`.
+      Hãy xem dòng nào vứt kết quả đi, và thứ gì được đặt giữa các từ.
+    - |
+      Kế hoạch:
+      1. `title.strip()` và `title.lower()` tạo chuỗi mới nhưng không ai giữ lại. Gán kết quả về lại `title`.
+      2. `split(" ")` tạo ra mảnh rỗng khi có nhiều khoảng trắng. Hãy dùng `split()` không có gì bên trong.
+      3. Các từ phải được nối bằng dấu gạch ngang `-`, không phải gạch dưới.
+    - |
+      Khung code:
+      ```python
+      def make_slug(title):
+          title = title.strip()
+          title = ...
+          words = title.split()
+          return "...".join(words)
+      ```

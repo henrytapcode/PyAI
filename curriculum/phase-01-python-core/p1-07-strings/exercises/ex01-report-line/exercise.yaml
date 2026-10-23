@@ -1,0 +1,42 @@
+id: p1-07-ex01
+kind: code
+title:
+  en: "Write: a usage report line"
+  vi: "Viết hàm: một dòng báo cáo usage"
+difficulty: 2
+tags: [strings, conversion]
+hints:
+  en:
+    - |
+      This uses §6 (formatting numbers in f-strings). The function must `return` one string, not print it.
+      For `report_line("small", 12345, 3.5)` the result must be `"small           12,345    3.50"`.
+    - |
+      Plan:
+      1. Start an f-string and put `model` first with a left-align spec of width 12.
+      2. Next put `tokens` with width 10, right-aligned, with commas.
+      3. Last put `cost` with width 8, right-aligned, with 2 decimals.
+      4. `return` the f-string. The spec order is: align and width first, then `,`, then `.2f`.
+    - |
+      Code shape:
+      ```python
+      def report_line(model, tokens, cost):
+          return f"{model:<12}{tokens:>10...}{cost:>8...}"
+      ```
+      Fill the `...` with the comma for tokens and `.2f` for cost.
+  vi:
+    - |
+      Bài này dùng §6 (định dạng số trong f-string). Hàm phải `return` một chuỗi, không phải print.
+      Với `report_line("small", 12345, 3.5)` kết quả phải là `"small           12,345    3.50"`.
+    - |
+      Kế hoạch:
+      1. Bắt đầu một f-string và đặt `model` trước, căn trái với độ rộng 12.
+      2. Tiếp theo đặt `tokens` với độ rộng 10, căn phải, có dấu phẩy ngăn cách.
+      3. Cuối cùng đặt `cost` với độ rộng 8, căn phải, 2 chữ số thập phân.
+      4. `return` f-string đó. Thứ tự trong spec: căn lề và độ rộng trước, rồi `,`, rồi `.2f`.
+    - |
+      Khung code:
+      ```python
+      def report_line(model, tokens, cost):
+          return f"{model:<12}{tokens:>10...}{cost:>8...}"
+      ```
+      Điền vào `...` dấu phẩy cho tokens và `.2f` cho cost.
