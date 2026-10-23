@@ -33,7 +33,13 @@ def _short(value) -> str:
             return f"function {value.__name__}()"
         if isinstance(value, type):
             return f"class {value.__name__}"
+        if isinstance(value, types.GeneratorType):
+            return f"generator {value.__name__}()"
         text = repr(value)
+        if " object at 0x" in text and hasattr(value, "__dict__"):
+            # Default repr hides the state; show the attributes so learners can watch them change.
+            attrs = ", ".join(f"{k}={v!r}" for k, v in vars(value).items())
+            text = f"{type(value).__name__}({attrs})"
     except Exception:  # noqa: BLE001 - broken __repr__ in learner code
         text = f"<{type(value).__name__}>"
     return text if len(text) <= MAX_REPR else text[: MAX_REPR - 3] + "..."
