@@ -1,0 +1,327 @@
+questions:
+  - id: p1-09-q01
+    type: mcq
+    tags: [files]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which `open` mode erases the old content of an existing file before writing?"
+      options: ["\"r\"", "\"w\"", "\"a\"", "\"rb\""]
+      explanation: "`\"w\"` (write) starts from an empty file, so old content is gone the moment you open it. `\"a\"` adds to the end, and `\"r\"` only reads."
+    vi:
+      prompt: "Chế độ `open` nào xóa nội dung cũ của file đang có trước khi ghi?"
+      options: ["\"r\"", "\"w\"", "\"a\"", "\"rb\""]
+      explanation: "`\"w\"` (write) bắt đầu từ file rỗng, nên nội dung cũ mất ngay khi bạn mở file. `\"a\"` ghi nối vào cuối, còn `\"r\"` chỉ đọc."
+
+  - id: p1-09-q02
+    type: mcq
+    tags: [files]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why do we write `with open(...) as f:` instead of a plain `open(...)`?"
+      options:
+        - "The file is closed automatically when the block ends, even if an error happens"
+        - "It makes the file load faster"
+        - "It lets Python read binary files only"
+        - "It stops other programs from ever reading the file"
+      explanation: "`with` guarantees the file is closed at the end of the block. Closing saves unsaved data and frees the file for other programs."
+    vi:
+      prompt: "Vì sao ta viết `with open(...) as f:` thay vì `open(...)` trơn?"
+      options:
+        - "File tự động đóng khi hết khối, kể cả khi có lỗi"
+        - "Nó giúp file được nạp nhanh hơn"
+        - "Nó chỉ cho Python đọc file nhị phân"
+        - "Nó ngăn mọi chương trình khác đọc file"
+      explanation: "`with` đảm bảo file được đóng ở cuối khối. Đóng file giúp lưu dữ liệu chưa lưu và giải phóng file cho chương trình khác."
+
+  - id: p1-09-q03
+    type: mcq
+    tags: [json]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "What does `json.loads(...)` expect as its argument?"
+      options: ["A string containing JSON text", "An open file object", "A file path", "A Python dictionary"]
+      explanation: "The trailing `s` means *string*: `loads` turns a JSON string into Python data. To read from an open file, use `json.load(f)` without the `s`."
+    vi:
+      prompt: "`json.loads(...)` nhận đối số gì?"
+      options: ["Một chuỗi chứa văn bản JSON", "Một file object đang mở", "Một đường dẫn file", "Một dict Python"]
+      explanation: "Chữ `s` ở cuối nghĩa là *string*: `loads` biến chuỗi JSON thành dữ liệu Python. Muốn đọc từ file đang mở, dùng `json.load(f)` không có chữ `s`."
+
+  - id: p1-09-q04
+    type: mcq
+    tags: [files, json]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "A CSV file has the line `Lan,9.5`. What type is `row[\"score\"]` after `csv.DictReader` reads it?"
+      options: ["str", "float", "int", "It depends on what the text looks like"]
+      explanation: "A CSV file only stores text. `DictReader` never guesses types, so `\"9.5\"` stays a string until you call `float()` on it."
+    vi:
+      prompt: "File CSV có dòng `Lan,9.5`. Sau khi `csv.DictReader` đọc, `row[\"score\"]` có kiểu gì?"
+      options: ["str", "float", "int", "Tùy vào chữ trông như thế nào"]
+      explanation: "File CSV chỉ lưu chữ. `DictReader` không bao giờ đoán kiểu, nên `\"9.5\"` vẫn là chuỗi cho tới khi bạn gọi `float()` lên nó."
+
+  - id: p1-09-q05
+    type: mcq
+    tags: [files, loops]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "You must process a log file with 50 million lines. Which approach is the safest for memory?"
+      options:
+        - "`text = f.read()` and then `text.splitlines()`"
+        - "`lines = f.readlines()` and then loop over `lines`"
+        - "`for line in f:` and handle each line inside the loop"
+        - "They all use the same amount of memory"
+      explanation: "`read()` and `readlines()` load the whole file at once. A `for line in f:` loop only keeps one line in memory at a time, so it works for files of any size."
+    vi:
+      prompt: "Bạn phải xử lý một file log 50 triệu dòng. Cách nào tiết kiệm bộ nhớ an toàn nhất?"
+      options:
+        - "`text = f.read()` rồi `text.splitlines()`"
+        - "`lines = f.readlines()` rồi lặp qua `lines`"
+        - "`for line in f:` và xử lý từng dòng trong vòng lặp"
+        - "Cả ba dùng bộ nhớ như nhau"
+      explanation: "`read()` và `readlines()` nạp cả file một lượt. Vòng lặp `for line in f:` chỉ giữ một dòng trong bộ nhớ tại mỗi thời điểm, nên chạy được với file kích thước bất kỳ."
+
+  - id: p1-09-q06
+    type: output
+    tags: [files]
+    difficulty: 1
+    code: |
+      import tempfile
+
+      with tempfile.TemporaryDirectory() as tmp:
+          path = f"{tmp}/a.txt"
+          with open(path, "w", encoding="utf-8") as f:
+              f.write("a\n")
+              f.write("b\n")
+          with open(path, encoding="utf-8") as f:
+              print(f.read().splitlines())
+    answer: "['a', 'b']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The file holds the text `a\\nb\\n`. `splitlines()` cuts it into a list of lines and drops the `\\n` characters."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "File chứa chuỗi `a\\nb\\n`. `splitlines()` cắt nó thành list các dòng và bỏ ký tự `\\n`."
+
+  - id: p1-09-q07
+    type: output
+    tags: [files]
+    difficulty: 2
+    code: |
+      import tempfile
+
+      with tempfile.TemporaryDirectory() as tmp:
+          path = f"{tmp}/a.txt"
+          with open(path, "w", encoding="utf-8") as f:
+              f.write("x")
+          with open(path, "a", encoding="utf-8") as f:
+              f.write("y")
+          with open(path, encoding="utf-8") as f:
+              print(f.read())
+    answer: "xy"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The `\"a\"` mode keeps `x` and adds `y` after it. There is no newline in either write, so both letters share one line."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Chế độ `\"a\"` giữ lại `x` và thêm `y` vào sau. Cả hai lần ghi đều không có ký tự xuống dòng nên hai chữ nằm chung một dòng."
+
+  - id: p1-09-q08
+    type: output
+    tags: [files]
+    difficulty: 2
+    code: |
+      from pathlib import Path
+
+      p = Path("data") / "train.jsonl"
+      print(p.stem, p.suffix)
+    answer: "train .jsonl"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`stem` is the file name without its ending (`train`), and `suffix` is the ending with the dot (`.jsonl`). The file does not need to exist for these two."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`stem` là tên file không có đuôi (`train`), còn `suffix` là đuôi file kèm dấu chấm (`.jsonl`). Hai thuộc tính này không cần file thật sự tồn tại."
+
+  - id: p1-09-q09
+    type: output
+    tags: [json]
+    difficulty: 3
+    code: |
+      import json
+
+      print(json.dumps({"ok": True, "answer": None}))
+    answer: '{"ok": true, "answer": null}'
+    en:
+      prompt: "What does this code print?"
+      explanation: "JSON has its own spelling: Python `True` becomes `true` and `None` becomes `null`. `dumps` gives a string, so the quotes around the keys are part of the text."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "JSON có cách viết riêng: `True` của Python thành `true` và `None` thành `null`. `dumps` cho ra một chuỗi, nên dấu nháy quanh các key là một phần của văn bản."
+
+  - id: p1-09-q10
+    type: fill
+    tags: [files]
+    difficulty: 1
+    code: |
+      import tempfile
+
+      with tempfile.TemporaryDirectory() as tmp:
+          path = f"{tmp}/a.txt"
+          with open(path, ___, encoding="utf-8") as f:
+              f.write("hi\n")
+          with open(path, encoding="utf-8") as f:
+              print(f.read().strip())
+    answer: [['"w"', "'w'"]]
+    en:
+      prompt: "Fill in the blank so the file is opened for writing and the code prints `hi`."
+      explanation: "To create a file and write to it, the mode is `\"w\"`. Put it in quotes, because the mode is a string."
+    vi:
+      prompt: "Điền vào chỗ trống để file được mở để ghi và code in ra `hi`."
+      explanation: "Muốn tạo file và ghi vào, chế độ là `\"w\"`. Nhớ để trong dấu nháy vì chế độ là một chuỗi."
+
+  - id: p1-09-q11
+    type: fill
+    tags: [files, strings]
+    difficulty: 2
+    code: |
+      line = "Hello\n"
+      print(line.___() == "Hello")
+    answer: ["strip"]
+    en:
+      prompt: "Fill in the blank so the code prints `True`."
+      explanation: "A line read from a file ends with `\\n`. `strip()` removes the newline (and spaces at both ends), so the result equals `\"Hello\"`."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra `True`."
+      explanation: "Một dòng đọc từ file kết thúc bằng `\\n`. `strip()` bỏ ký tự xuống dòng (và khoảng trắng hai đầu), nên kết quả bằng `\"Hello\"`."
+
+  - id: p1-09-q12
+    type: fill
+    tags: [files]
+    difficulty: 2
+    code: |
+      import csv
+      import tempfile
+
+      with tempfile.TemporaryDirectory() as tmp:
+          path = f"{tmp}/scores.csv"
+          with open(path, "w", newline="", encoding="utf-8") as f:
+              writer = csv.___(f, fieldnames=["name", "score"])
+              writer.writeheader()
+              writer.writerow({"name": "Lan", "score": 9.5})
+          with open(path, newline="", encoding="utf-8") as f:
+              print(f.read().splitlines())
+    answer: ["DictWriter"]
+    en:
+      prompt: "Fill in the blank with the class that writes dictionaries as CSV rows."
+      explanation: "`csv.DictWriter` takes a file and the column names (`fieldnames`) and writes dicts as rows. Its reading twin is `csv.DictReader`."
+    vi:
+      prompt: "Điền vào chỗ trống tên class ghi dict thành các dòng CSV."
+      explanation: "`csv.DictWriter` nhận một file và tên các cột (`fieldnames`) rồi ghi dict thành dòng. Bản đọc tương ứng là `csv.DictReader`."
+
+  - id: p1-09-q13
+    type: fill
+    tags: [json]
+    difficulty: 3
+    code: |
+      import json
+      import tempfile
+
+      data = {"a": 1}
+      with tempfile.TemporaryDirectory() as tmp:
+          path = f"{tmp}/data.json"
+          with open(path, "w", encoding="utf-8") as f:
+              json.___(data, f)
+          with open(path, encoding="utf-8") as f:
+              back = json.___(f)
+      print(back == data)
+    answer: ["dump", "load"]
+    en:
+      prompt: "Fill in both blanks so the dictionary is saved to the file and then loaded back (the code prints `True`)."
+      explanation: "Functions that work with a **file** have no `s`: `dump` writes to it and `load` reads from it. The `s` versions (`dumps`, `loads`) work with strings."
+    vi:
+      prompt: "Điền vào cả hai chỗ trống để dict được lưu vào file rồi nạp lại (code in ra `True`)."
+      explanation: "Hàm làm việc với **file** không có chữ `s`: `dump` ghi vào file và `load` đọc từ file. Các bản có `s` (`dumps`, `loads`) làm việc với chuỗi."
+
+  - id: p1-09-q14
+    type: parsons
+    tags: [json]
+    difficulty: 1
+    lines:
+      - "import json"
+      - "data = json.loads('{\"a\": 1}')"
+      - "text = json.dumps(data)"
+      - "print(text)"
+    en:
+      prompt: "Put the lines in order to parse a JSON string and print it back as JSON text: `{\"a\": 1}`."
+      explanation: "`import json` must come first because the next line uses it. Then `loads` creates `data`, `dumps` turns it into a string, and `print` shows the result last."
+    vi:
+      prompt: "Sắp xếp các dòng để phân tích một chuỗi JSON rồi in lại thành văn bản JSON: `{\"a\": 1}`."
+      explanation: "`import json` phải đứng đầu vì dòng sau dùng tới nó. Sau đó `loads` tạo `data`, `dumps` đổi nó thành chuỗi, và `print` hiện kết quả ở cuối."
+
+  - id: p1-09-q15
+    type: parsons
+    tags: [files]
+    difficulty: 2
+    lines:
+      - "import tempfile"
+      - "with tempfile.TemporaryDirectory() as tmp:"
+      - "    path = f\"{tmp}/a.txt\""
+      - "    with open(path, \"w\", encoding=\"utf-8\") as f:"
+      - "        f.write(\"hello\")"
+      - "    with open(path, encoding=\"utf-8\") as f:"
+      - "        print(f.read())"
+    en:
+      prompt: "Put the lines in order so the program writes a file and then reads it back, printing `hello`."
+      explanation: "Import first, then open the temporary folder, build the path inside it, write the file, and only then read it. Each file gets its own `with` block, indented inside the folder block."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình ghi một file rồi đọc lại, in ra `hello`."
+      explanation: "Import trước, rồi mở thư mục tạm, tạo đường dẫn bên trong nó, ghi file, và chỉ sau đó mới đọc. Mỗi file có khối `with` riêng, thụt vào trong khối thư mục."
+
+  - id: p1-09-q16
+    type: parsons
+    tags: [json, loops]
+    difficulty: 3
+    lines:
+      - "import json"
+      - "total = json.loads('{\"x\": 1}')[\"x\"]"
+      - "total += json.loads('{\"x\": 2}')[\"x\"]"
+      - "print(total)"
+    en:
+      prompt: "Put the lines in order to add the `x` values of two JSON Lines records and print `3`."
+      explanation: "The import comes first. `total =` must run before `total +=`, because `+=` needs an existing value to add to. `print` shows the final total last."
+    vi:
+      prompt: "Sắp xếp các dòng để cộng giá trị `x` của hai bản ghi JSON Lines và in ra `3`."
+      explanation: "Import đứng đầu. `total =` phải chạy trước `total +=`, vì `+=` cần một giá trị có sẵn để cộng thêm. `print` hiện tổng cuối cùng ở cuối."
+
+flashcards:
+  - id: p1-09-f01
+    tags: [files]
+    code: 'with open(path, "w", encoding="utf-8") as f:'
+    en: { front: "What are the three common `open` modes?", back: "`\"r\"` read (default), `\"w\"` write (erases the file first), `\"a\"` append (adds to the end)." }
+    vi: { front: "Ba chế độ `open` thường dùng là gì?", back: "`\"r\"` đọc (mặc định), `\"w\"` ghi (xóa file cũ trước), `\"a\"` ghi nối vào cuối." }
+  - id: p1-09-f02
+    tags: [files]
+    en: { front: "Why use `with open(...)`?", back: "The file is closed automatically at the end of the block, even if an error happens. Always add `encoding=\"utf-8\"`." }
+    vi: { front: "Vì sao dùng `with open(...)`?", back: "File tự đóng ở cuối khối, kể cả khi có lỗi. Luôn thêm `encoding=\"utf-8\"`." }
+  - id: p1-09-f03
+    tags: [files, strings]
+    en: { front: "How do you read a huge file safely, and clean each line?", back: "`for line in f:` keeps one line in memory at a time. `line.strip()` removes the `\\n` and extra spaces." }
+    vi: { front: "Đọc file rất lớn an toàn và làm sạch từng dòng thế nào?", back: "`for line in f:` chỉ giữ một dòng trong bộ nhớ. `line.strip()` bỏ `\\n` và khoảng trắng thừa." }
+  - id: p1-09-f04
+    tags: [files]
+    code: 'path = Path("data") / "train.jsonl"'
+    en: { front: "Name four things a `Path` can do.", back: "Join with `/`, check `path.exists()`, get parts with `path.name` / `path.stem` / `path.suffix`, and read or write whole files with `read_text()` / `write_text()`." }
+    vi: { front: "Kể bốn việc một `Path` làm được.", back: "Ghép bằng `/`, kiểm tra `path.exists()`, lấy các phần bằng `path.name` / `path.stem` / `path.suffix`, và đọc hoặc ghi cả file bằng `read_text()` / `write_text()`." }
+  - id: p1-09-f05
+    tags: [files]
+    en: { front: "What must you remember about CSV values?", back: "They are always text. Convert with `float()` or `int()`. Open CSV files with `newline=\"\"`." }
+    vi: { front: "Cần nhớ gì về giá trị trong CSV?", back: "Chúng luôn là chữ. Đổi bằng `float()` hoặc `int()`. Mở file CSV với `newline=\"\"`." }
+  - id: p1-09-f06
+    tags: [json]
+    en: { front: "`load` vs `loads`, `dump` vs `dumps`?", back: "No `s`: work with a file (`json.load(f)`, `json.dump(data, f)`). With `s`: work with a string. JSON Lines is one `json.loads(line)` per line." }
+    vi: { front: "`load` khác `loads`, `dump` khác `dumps` thế nào?", back: "Không có `s`: làm việc với file (`json.load(f)`, `json.dump(data, f)`). Có `s`: làm việc với chuỗi. JSON Lines là mỗi dòng một `json.loads(line)`." }

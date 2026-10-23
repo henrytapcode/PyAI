@@ -1,0 +1,54 @@
+id: p1-09-ex01
+kind: code
+title:
+  en: "Read the clean lines of a file"
+  vi: "Đọc các dòng sạch của một file"
+difficulty: 2
+tags: [files, strings, loops]
+hints:
+  en:
+    - |
+      This is the line-by-line reading from section 3, plus `strip()` to clean each line. For a file that contains `"  hello \n\nworld\n"` you must return `["hello", "world"]`: the spaces and the newline are gone, and the empty line is skipped.
+    - |
+      Plan:
+      1. Make an empty list `lines`.
+      2. Open the file with `with open(path, encoding="utf-8") as f:`.
+      3. Loop `for line in f:`.
+      4. Make `clean = line.strip()`.
+      5. If `clean` is not empty, append it to `lines`.
+      6. After the `with` block, `return lines`.
+    - |
+      The shape:
+      ```python
+      def read_clean_lines(path):
+          lines = []
+          with open(path, encoding="utf-8") as f:
+              for line in f:
+                  clean = line.strip()
+                  if clean:
+                      ...
+          return lines
+      ```
+  vi:
+    - |
+      Đây là cách đọc từng dòng ở phần 3, cộng thêm `strip()` để làm sạch mỗi dòng. Với file chứa `"  hello \n\nworld\n"` bạn phải trả về `["hello", "world"]`: khoảng trắng và ký tự xuống dòng bị bỏ, dòng trống bị bỏ qua.
+    - |
+      Kế hoạch:
+      1. Tạo một list rỗng `lines`.
+      2. Mở file bằng `with open(path, encoding="utf-8") as f:`.
+      3. Lặp `for line in f:`.
+      4. Tạo `clean = line.strip()`.
+      5. Nếu `clean` không rỗng thì thêm nó vào `lines`.
+      6. Sau khối `with`, `return lines`.
+    - |
+      Khung:
+      ```python
+      def read_clean_lines(path):
+          lines = []
+          with open(path, encoding="utf-8") as f:
+              for line in f:
+                  clean = line.strip()
+                  if clean:
+                      ...
+          return lines
+      ```

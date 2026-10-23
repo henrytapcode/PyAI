@@ -1,0 +1,30 @@
+id: p1-09-ex02
+kind: fill
+title:
+  en: "Convert a CSV file to JSON Lines"
+  vi: "Chuyển file CSV sang JSON Lines"
+difficulty: 2
+tags: [files, json]
+hints:
+  en:
+    - |
+      This combines sections 6 and 8: read rows with `csv.DictReader`, then write one JSON object per line. The four blanks are a write mode, the reader class, the number converter and the string version of `json.dump`. For a row `{"name": "Lan", "score": "9.5"}` the line you write is `{"name": "Lan", "score": 9.5}`.
+    - |
+      Which word goes where:
+      1. The destination file must be created and written: which mode of `open` is that?
+      2. The class that turns CSV rows into dicts starts with `Dict`, and it reads (not writes).
+      3. CSV values are text, and the score has decimals, so convert it with a built-in that makes decimal numbers.
+      4. We need a *string* for each line (then add `"\n"`), so use the function whose name ends with `s`.
+    - |
+      Read the blanks like this: mode `"w"`, `csv.DictReader(src)`, `float(row["score"])`, and `json.dumps(record, ensure_ascii=False)`. Type those four words into the four `___` and press Check.
+  vi:
+    - |
+      Bài này kết hợp phần 6 và phần 8: đọc các dòng bằng `csv.DictReader`, rồi ghi mỗi đối tượng JSON một dòng. Bốn chỗ trống là: chế độ ghi, tên class đọc CSV, hàm đổi sang số, và phiên bản dạng chuỗi của `json.dump`. Với dòng `{"name": "Lan", "score": "9.5"}` thì dòng bạn ghi ra là `{"name": "Lan", "score": 9.5}`.
+    - |
+      Từ nào vào chỗ nào:
+      1. File đích phải được tạo và ghi: đó là chế độ nào của `open`?
+      2. Class biến các dòng CSV thành dict bắt đầu bằng `Dict`, và nó dùng để đọc (không phải ghi).
+      3. Giá trị CSV là chữ, còn điểm có phần thập phân, nên hãy đổi bằng hàm có sẵn tạo số thập phân.
+      4. Mỗi dòng cần một *chuỗi* (rồi thêm `"\n"`), nên dùng hàm có tên kết thúc bằng `s`.
+    - |
+      Bốn chỗ trống là: chế độ `"w"`, `csv.DictReader(src)`, `float(row["score"])`, và `json.dumps(record, ensure_ascii=False)`. Gõ bốn từ đó vào bốn chỗ `___` rồi bấm Check.

@@ -1,0 +1,33 @@
+id: p1-09-files
+phase: p1
+order: 9
+kind: lesson
+title:
+  en: "File I/O"
+  vi: "Đọc ghi file"
+summary:
+  en: "Read and write text, CSV, JSON and JSON Lines files safely with with-open and pathlib."
+  vi: "Đọc và ghi file text, CSV, JSON và JSON Lines an toàn bằng with-open và pathlib."
+level: beginner
+tags: [files, json, stdlib]
+prerequisites: [p1-07-strings]
+duration_min: 12
+outcomes:
+  en:
+    - "Open files with `with open(path, encoding=\"utf-8\")` in r, w and a modes"
+    - "Read a file all at once or line by line, and strip the newline"
+    - "Build and inspect paths with pathlib.Path"
+    - "Read and write CSV with csv.DictReader / DictWriter"
+    - "Read and write JSON and JSON Lines with the json module"
+  vi:
+    - "Mở file bằng `with open(path, encoding=\"utf-8\")` ở chế độ r, w và a"
+    - "Đọc file một lần hoặc từng dòng, và bỏ ký tự xuống dòng"
+    - "Tạo và kiểm tra đường dẫn bằng pathlib.Path"
+    - "Đọc và ghi CSV bằng csv.DictReader / DictWriter"
+    - "Đọc và ghi JSON và JSON Lines bằng module json"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: Reading and writing files", vi: "Python tutorial: Đọc và ghi file (EN)" }
+    url: "https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files"
+  - title: { en: "pathlib: object-oriented filesystem paths", vi: "pathlib: đường dẫn file kiểu đối tượng (EN)" }
+    url: "https://docs.python.org/3/library/pathlib.html"
