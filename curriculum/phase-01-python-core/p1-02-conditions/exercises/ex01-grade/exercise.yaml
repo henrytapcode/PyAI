@@ -7,10 +7,44 @@ difficulty: 1
 tags: [conditions, operators]
 hints:
   en:
-    - "You need one `if` and several `elif`s, ending with an `else`. Which score is the highest threshold?"
-    - "Start with the highest grade: `if score >= 90: return \"A\"`, then `elif score >= 80:` and so on. Order matters."
-    - "Shape: `if score >= 90:` return A / `elif score >= 80:` return B / `elif score >= 70:` / `elif score >= 60:` / `else:` return F."
+    - |
+      This is §5 (`elif`): one question, several possible answers. Python stops at the first condition that is `True`, so ask the *strictest* question first. For `score = 85`, which of the thresholds 90, 80, 70, 60 is the first one that `85 >= threshold` passes?
+    - |
+      Plan:
+      1. Check `score >= 90` first. If true, return `"A"`.
+      2. Otherwise check `score >= 80` and return `"B"`.
+      3. Do the same for 70 (`"C"`) and 60 (`"D"`).
+      4. If nothing matched, the score is below 60: return `"F"`.
+      Because each `elif` only runs when the ones above it failed, you never need to write an upper limit like `score < 90`.
+    - |
+      Code shape:
+      ```python
+      if score >= 90:
+          return "A"
+      elif score >= ...:
+          return "B"
+      # ... two more elif branches ...
+      else:
+          return ...
+      ```
   vi:
-    - "Bạn cần một `if`, vài `elif`, và kết thúc bằng `else`. Mốc điểm nào cao nhất?"
-    - "Bắt đầu từ hạng cao nhất: `if score >= 90: return \"A\"`, rồi `elif score >= 80:` và tiếp tục. Thứ tự rất quan trọng."
-    - "Khung: `if score >= 90:` return A / `elif score >= 80:` return B / `elif score >= 70:` / `elif score >= 60:` / `else:` return F."
+    - |
+      Đây là §5 (`elif`): một câu hỏi, nhiều đáp án có thể. Python dừng ở điều kiện `True` đầu tiên, nên hãy hỏi câu *khắt khe nhất* trước. Với `score = 85`, trong các mốc 90, 80, 70, 60 thì mốc nào là mốc đầu tiên mà `85 >= mốc` đúng?
+    - |
+      Kế hoạch:
+      1. Kiểm tra `score >= 90` trước. Nếu đúng, return `"A"`.
+      2. Nếu không, kiểm tra `score >= 80` và return `"B"`.
+      3. Làm tương tự cho 70 (`"C"`) và 60 (`"D"`).
+      4. Nếu không nhánh nào khớp, điểm dưới 60: return `"F"`.
+      Vì mỗi `elif` chỉ chạy khi các nhánh phía trên đã sai, bạn không cần viết cận trên như `score < 90`.
+    - |
+      Khung code:
+      ```python
+      if score >= 90:
+          return "A"
+      elif score >= ...:
+          return "B"
+      # ... thêm hai nhánh elif nữa ...
+      else:
+          return ...
+      ```

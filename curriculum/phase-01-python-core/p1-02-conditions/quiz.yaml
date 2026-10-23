@@ -138,6 +138,156 @@ questions:
       options: ["1 <= x <= 10", "x >= 1 or x <= 10", "x > 1 and x < 10", "not (x >= 1 and x <= 10)"]
       explanation: "`1 <= x <= 10` chính là 'x >= 1 and x <= 10'. Dùng `or` sẽ chấp nhận mọi số, còn `>`/`<` sẽ loại 1 và 10."
 
+  - id: p1-02-q09
+    type: mcq
+    tags: [conditions]
+    difficulty: 1
+    answer: 2
+    code: |
+      age = 18
+      if age = 18:
+          print("adult")
+    en:
+      prompt: "What happens when you run this code?"
+      options: ["It prints \"adult\"", "It prints nothing", "A SyntaxError, so nothing runs", "A NameError"]
+      explanation: "`=` assigns a value, but an `if` needs a condition that gives True or False. `if age = 18:` is not valid Python, so Python refuses to run the file at all. Use `==` to compare."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["In ra \"adult\"", "Không in gì", "SyntaxError, nên không có gì chạy", "NameError"]
+      explanation: "`=` dùng để gán giá trị, còn `if` cần một điều kiện cho ra True hoặc False. `if age = 18:` không hợp lệ trong Python, nên Python từ chối chạy cả file. Dùng `==` để so sánh."
+
+  - id: p1-02-q10
+    type: output
+    tags: [booleans]
+    difficulty: 1
+    code: |
+      a = True
+      b = False
+      print(not a or b, a and not b)
+    answer: "False True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`not` is applied before `and` and `or`. So `not a or b` is `(not a) or b`, which is `False or False` = False. And `a and not b` is `True and True` = True."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`not` được áp dụng trước `and` và `or`. Nên `not a or b` là `(not a) or b`, tức `False or False` = False. Còn `a and not b` là `True and True` = True."
+
+  - id: p1-02-q11
+    type: fill
+    tags: [booleans, conditions]
+    difficulty: 1
+    code: |
+      is_raining = False
+      if ___ is_raining:
+          print("Go outside")  # Go outside
+    answer: ["not"]
+    en:
+      prompt: "Fill in the blank so the code prints `Go outside`."
+      explanation: "`not` flips False to True, so `not is_raining` is True when it is not raining."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra `Go outside`."
+      explanation: "`not` đảo False thành True, nên `not is_raining` là True khi trời không mưa."
+
+  - id: p1-02-q12
+    type: fill
+    tags: [conditions]
+    difficulty: 2
+    code: |
+      n = -3
+      if n > 0:
+          sign = "positive"
+      ___ n == 0:
+          sign = "zero"
+      ___:
+          sign = "negative"
+      print(sign)  # negative
+    answer: ["elif", "else"]
+    en:
+      prompt: "Fill in both blanks so the chain of checks prints `negative`."
+      explanation: "`elif` continues the same chain, so only one branch runs. `else` has no condition: it catches everything that did not match above."
+    vi:
+      prompt: "Điền vào hai chỗ trống để chuỗi kiểm tra in ra `negative`."
+      explanation: "`elif` tiếp tục cùng một chuỗi kiểm tra, nên chỉ một nhánh chạy. `else` không có điều kiện: nó bắt mọi trường hợp chưa khớp ở trên."
+
+  - id: p1-02-q13
+    type: parsons
+    tags: [conditions]
+    difficulty: 2
+    lines:
+      - 'score = 72'
+      - 'if score >= 90:'
+      - '    grade = "A"'
+      - 'elif score >= 70:'
+      - '    grade = "C"'
+      - 'else:'
+      - '    grade = "F"'
+      - 'print(grade)  # C'
+    en:
+      prompt: "Put the lines in order so the program prints `C`."
+      explanation: "The chain must go `if`, then `elif`, then `else`, with each block directly under its line. 72 fails the `>= 90` check but passes `>= 70`, so the `elif` block runs. `print` comes after the whole chain."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `C`."
+      explanation: "Chuỗi phải đi theo thứ tự `if`, rồi `elif`, rồi `else`, mỗi khối nằm ngay dưới dòng của nó. 72 không thỏa `>= 90` nhưng thỏa `>= 70`, nên khối `elif` chạy. `print` đặt sau toàn bộ chuỗi."
+
+  - id: p1-02-q14
+    type: parsons
+    tags: [operators, conditions]
+    difficulty: 3
+    lines:
+      - 'points = 4'
+      - 'points = points * 3'
+      - 'points = points - 5'
+      - 'print(points > 5 and points < 10)'
+    en:
+      prompt: "Put the lines in order so the program prints `True`."
+      explanation: "Each line changes `points` using the value the line above left behind. Subtracting 5 before multiplying gives 4 → -1 → -3, which prints False. Multiply first: 4 → 12 → 7, and 7 is between 5 and 10."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `True`."
+      explanation: "Mỗi dòng đổi `points` dựa trên giá trị mà dòng phía trên để lại. Nếu trừ 5 trước khi nhân 3 thì 4 → -1 → -3, và kết quả là False. Nhân trước: 4 → 12 → 7, và 7 nằm giữa 5 và 10."
+
+  - id: p1-02-q15
+    type: output
+    tags: [conditions]
+    difficulty: 3
+    code: |
+      n = 15
+      if n % 3 == 0:
+          print("Fizz")
+      if n % 5 == 0:
+          print("Buzz")
+      if n % 3 == 0 and n % 5 == 0:
+          print("FizzBuzz")
+    answer: |-
+      Fizz
+      Buzz
+      FizzBuzz
+    en:
+      prompt: "What does this code print?"
+      explanation: "These are three separate `if` lines, not one chain, so every condition that is True runs. With `elif` instead, only `Fizz` would print."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Đây là ba câu `if` riêng, không phải một chuỗi, nên mọi điều kiện đúng đều chạy. Nếu dùng `elif`, chỉ có `Fizz` được in."
+
+  - id: p1-02-q16
+    type: mcq
+    tags: [booleans, conditions]
+    difficulty: 3
+    answer: 1
+    code: |
+      x = 0
+      if x == 0 or x == 1 and False:
+          print("reached")
+      else:
+          print("skipped")
+    en:
+      prompt: "What does this code do?"
+      options: ["It prints \"skipped\"", "It prints \"reached\"", "It crashes with an error", "It prints nothing"]
+      explanation: "`and` binds tighter than `or`, so the condition is `(x == 0) or ((x == 1) and False)`. The left side is True and `or` needs only one True, so the `if` block runs."
+    vi:
+      prompt: "Đoạn code này làm gì?"
+      options: ["In ra \"skipped\"", "In ra \"reached\"", "Chương trình bị lỗi", "Không in gì"]
+      explanation: "`and` có độ ưu tiên cao hơn `or`, nên điều kiện là `(x == 0) or ((x == 1) and False)`. Vế trái là True và `or` chỉ cần một vế True, nên khối `if` chạy."
+
 flashcards:
   - id: p1-02-f01
     tags: [conditions]
@@ -162,3 +312,8 @@ flashcards:
     tags: [operators, conditions]
     en: { front: "`=` vs `==`?", back: "`=` assigns a value to a variable. `==` compares two values and gives True/False." }
     vi: { front: "`=` khác `==` thế nào?", back: "`=` gán giá trị cho biến. `==` so sánh hai giá trị và cho ra True/False." }
+  - id: p1-02-f06
+    tags: [conditions, booleans]
+    code: "if x == 1 or x == 2:"
+    en: { front: "Why must `or` have a full comparison on both sides?", back: "`x == 1 or 2` means `(x == 1) or 2`. Since `2` is truthy, the whole test is always True. Write `x == 1 or x == 2`." }
+    vi: { front: "Vì sao `or` phải có so sánh đầy đủ ở cả hai vế?", back: "`x == 1 or 2` nghĩa là `(x == 1) or 2`. Vì `2` là giá trị truthy nên cả điều kiện luôn True. Hãy viết `x == 1 or x == 2`." }

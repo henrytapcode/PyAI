@@ -7,10 +7,44 @@ difficulty: 2
 tags: [conditions, booleans]
 hints:
   en:
-    - "Try ages 4, 5, 12, 65 and a 30-year-old student in your head. Which results differ from the rules?"
-    - "Three bugs: a boundary (`<=` vs `<`), `and` where `or` is needed, and a missing age limit for students."
-    - "Fix: `age < 5`; `age < 12 or age >= 65` (one person cannot be both); `is_student and age <= 25`."
+    - |
+      Run the tests and read the first failure. For example `ticket_price(5, False)` should be `6` (a 5-year-old is not free), but the starter returns `0`. Compare the rule "under 5" with the code on the first `if`. Then try `ticket_price(8, False)`, which should also be `6`: look at §6 (`and` vs `or`).
+    - |
+      There are 3 bugs, one per condition:
+      1. The free-ticket line: the rule says *under* 5. Does `age <= 5` match that for `age = 5`?
+      2. The `6` line: can one person be under 12 **and** at least 65 at the same time? Which word do you need instead?
+      3. The student line: the rule says a student aged 25 *or less*. What is missing for a 30-year-old student?
+      Fix one, run the tests, then fix the next.
+    - |
+      Code shape (fill in the `...`):
+      ```python
+      if age < 5:
+          return 0
+      elif age < 12 ... age >= 65:
+          return 6
+      elif is_student ... age <= 25:
+          return 9
+      else:
+          return 12
+      ```
   vi:
-    - "Thử trong đầu với tuổi 4, 5, 12, 65 và một sinh viên 30 tuổi. Kết quả nào khác với quy tắc?"
-    - "Ba lỗi: một mốc biên (`<=` so với `<`), dùng `and` ở chỗ cần `or`, và thiếu giới hạn tuổi cho sinh viên."
-    - "Sửa: `age < 5`; `age < 12 or age >= 65` (một người không thể vừa nhỏ vừa lớn); `is_student and age <= 25`."
+    - |
+      Chạy test và đọc lỗi đầu tiên. Ví dụ `ticket_price(5, False)` phải trả về `6` (trẻ 5 tuổi không được miễn phí), nhưng starter trả về `0`. Hãy so quy tắc "dưới 5" với code ở dòng `if` đầu tiên. Sau đó thử `ticket_price(8, False)`, cũng phải là `6`: xem lại §6 (`and` so với `or`).
+    - |
+      Có 3 lỗi, mỗi điều kiện một lỗi:
+      1. Dòng vé miễn phí: quy tắc nói *dưới* 5. Với `age = 5`, `age <= 5` có khớp không?
+      2. Dòng trả về `6`: một người có thể vừa dưới 12 tuổi **vừa** từ 65 tuổi trở lên không? Bạn cần từ nào thay vào?
+      3. Dòng sinh viên: quy tắc là sinh viên từ 25 tuổi trở *xuống*. Với sinh viên 30 tuổi thì còn thiếu gì?
+      Sửa một lỗi, chạy test, rồi sửa lỗi tiếp theo.
+    - |
+      Khung code (điền vào chỗ `...`):
+      ```python
+      if age < 5:
+          return 0
+      elif age < 12 ... age >= 65:
+          return 6
+      elif is_student ... age <= 25:
+          return 9
+      else:
+          return 12
+      ```
