@@ -1,6 +1,7 @@
 "use client";
 
-import { Download, Info, RotateCcw, Trash2, Upload } from "lucide-react";
+import { Download, Info, LogIn, LogOut, RefreshCw, RotateCcw, Trash2, Upload } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
@@ -8,6 +9,7 @@ import { LanguageSwitch, ThemeSelect } from "@/components/controls";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { authEnabled, useAuth } from "@/lib/auth";
 import { exportProgress, parseImport, useProgress } from "@/lib/progress";
 import { cn, todayKey } from "@/lib/utils";
 
@@ -42,6 +44,8 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-2xl">
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
       <div className="space-y-6">
+        <AccountCard />
+
         <Card>
           <CardHeader>
             <CardTitle>{t("appearance")}</CardTitle>
@@ -133,6 +137,45 @@ export default function SettingsPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function AccountCard() {
+  const t = useTranslations("auth");
+  const user = useAuth((s) => s.user);
+  const sync = useAuth((s) => s.sync);
+  if (!authEnabled) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("account")}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {user ? (
+          <>
+            <p className="text-sm">{t("signedInAs", { email: user.email ?? "" })}</p>
+            <p className="text-xs text-muted-foreground">{t(`sync.${sync}`)}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => void useAuth.getState().syncNow()}>
+                <RefreshCw /> {t("syncNow")}
+              </Button>
+              <Button variant="ghost" onClick={() => void useAuth.getState().signOut()}>
+                <LogOut /> {t("signOut")}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">{t("guestBody")}</p>
+            <Button asChild>
+              <Link href="/login/">
+                <LogIn /> {t("signIn")}
+              </Link>
+            </Button>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

@@ -8,6 +8,7 @@ import en from "../../messages/en.json";
 import vi from "../../messages/vi.json";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { VisualizerHost } from "@/components/visualizer";
+import { useAuth } from "@/lib/auth";
 import { useProgress } from "@/lib/progress";
 
 // Compile-time parity check: vi.json must have exactly the same keys as en.json.
@@ -24,7 +25,7 @@ function useHydrated() {
   return hydrated;
 }
 
-const OPEN_ROUTES = ["/onboarding", "/placement"];
+const OPEN_ROUTES = ["/onboarding", "/placement", "/login"];
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const hydrated = useHydrated();
@@ -36,6 +37,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
+
+  useEffect(() => {
+    if (hydrated) useAuth.getState().init();
+  }, [hydrated]);
 
   const needsOnboarding = hydrated && !onboarded && !OPEN_ROUTES.some((r) => pathname.startsWith(r));
   useEffect(() => {

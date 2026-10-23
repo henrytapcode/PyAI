@@ -88,6 +88,17 @@ apps/web/                   Next.js (static export), Tailwind v4, next-intl, Mon
 
 Pushes to `main` run `.github/workflows/pages.yml`: validate content, build the static site with the repository name as base path, deploy to GitHub Pages. In **Settings → Pages**, set the source to **GitHub Actions**.
 
+### Optional accounts (Supabase + Google OAuth)
+
+Without configuration the app runs in guest mode and keeps progress in the browser. To enable sign-in with Google or email and cross-device sync:
+
+1. Create a [Supabase](https://supabase.com) project and run [`supabase/schema.sql`](supabase/schema.sql) in the SQL editor (one table, row level security so users only see their own row).
+2. In **Authentication → Providers**, enable **Google** with an OAuth 2.0 client created in Google Cloud Console (Credentials → OAuth client ID → Web application). Add the redirect URI shown by Supabase (`https://<project>.supabase.co/auth/v1/callback`).
+3. In **Authentication → URL Configuration**, set the Site URL to `https://henrytapcode.github.io/PyAI/` (and `http://localhost:3000/` for local dev).
+4. Add the project URL and anon key as repository **variables** (Settings → Secrets and variables → Actions → Variables): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. For local dev, copy `apps/web/.env.example` to `apps/web/.env.local`.
+
+The anon key is public by design; data is protected by row level security. On sign-in the copy with more XP wins, and later changes upload automatically.
+
 ### Contributing a lesson
 
 Follow the lesson template (folder layout, tone, quiz rules), then run the quality gates above. All three must be green before a lesson is considered done.
@@ -164,6 +175,17 @@ apps/web/                   Next.js (static export), Tailwind v4, next-intl, Mon
 ### Triển khai
 
 Mỗi lần push lên `main`, `.github/workflows/pages.yml` sẽ validate nội dung, build site tĩnh với tên repo làm base path, rồi deploy lên GitHub Pages. Trong **Settings → Pages**, đặt Source là **GitHub Actions**.
+
+### Tài khoản tùy chọn (Supabase + Google OAuth)
+
+Nếu không cấu hình, app chạy ở chế độ khách và lưu tiến độ trong trình duyệt. Để bật đăng nhập bằng Google hoặc email và đồng bộ giữa các thiết bị:
+
+1. Tạo project [Supabase](https://supabase.com) và chạy [`supabase/schema.sql`](supabase/schema.sql) trong SQL editor (một bảng, bật row level security để mỗi người chỉ thấy dữ liệu của mình).
+2. Trong **Authentication → Providers**, bật **Google** với OAuth 2.0 client tạo ở Google Cloud Console (Credentials → OAuth client ID → Web application). Thêm redirect URI mà Supabase hiển thị (`https://<project>.supabase.co/auth/v1/callback`).
+3. Trong **Authentication → URL Configuration**, đặt Site URL là `https://henrytapcode.github.io/PyAI/` (thêm `http://localhost:3000/` cho môi trường dev).
+4. Thêm URL và anon key của project vào **variables** của repo (Settings → Secrets and variables → Actions → Variables): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Khi dev local, chép `apps/web/.env.example` thành `apps/web/.env.local`.
+
+Anon key vốn là public; dữ liệu được bảo vệ bằng row level security. Khi đăng nhập, bản có nhiều XP hơn sẽ thắng, các thay đổi sau đó tự động tải lên.
 
 ### Đóng góp bài học
 

@@ -342,6 +342,33 @@
     "storage": "Storage: {adapter}",
     "redoOnboarding": "Show onboarding again"
   },
+  "auth": {
+    "signInTitle": "Sign in to PyAI Path",
+    "signUpTitle": "Create your account",
+    "subtitle": "Sync your progress across devices. Accounts are optional.",
+    "google": "Continue with Google",
+    "or": "or",
+    "email": "Email",
+    "password": "Password (8+ characters)",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "switchToSignUp": "No account yet? Sign up",
+    "switchToSignIn": "Already have an account? Sign in",
+    "checkEmail": "Check your inbox and confirm your email, then sign in.",
+    "guest": "Continue without an account",
+    "notConfigured": "Accounts are not set up on this deployment. You can keep learning without one: progress is saved in this browser.",
+    "account": "Account",
+    "signedInAs": "Signed in as {email}",
+    "guestBody": "You are using a guest profile stored in this browser. Sign in to sync it across devices.",
+    "signOut": "Sign out",
+    "syncNow": "Sync now",
+    "sync": {
+      "idle": "Not synced yet",
+      "syncing": "Syncing…",
+      "synced": "Progress synced",
+      "error": "Sync failed, will retry on the next change"
+    }
+  },
   "errors": {
     "notFound": "Page not found",
     "goHome": "Go to dashboard"

@@ -342,6 +342,33 @@
     "storage": "Lưu trữ: {adapter}",
     "redoOnboarding": "Xem lại màn hình chào"
   },
+  "auth": {
+    "signInTitle": "Đăng nhập PyAI Path",
+    "signUpTitle": "Tạo tài khoản",
+    "subtitle": "Đồng bộ tiến độ giữa các thiết bị. Tài khoản là tùy chọn.",
+    "google": "Tiếp tục với Google",
+    "or": "hoặc",
+    "email": "Email",
+    "password": "Mật khẩu (từ 8 ký tự)",
+    "signIn": "Đăng nhập",
+    "signUp": "Đăng ký",
+    "switchToSignUp": "Chưa có tài khoản? Đăng ký",
+    "switchToSignIn": "Đã có tài khoản? Đăng nhập",
+    "checkEmail": "Hãy kiểm tra hộp thư và xác nhận email, sau đó đăng nhập.",
+    "guest": "Tiếp tục không cần tài khoản",
+    "notConfigured": "Bản triển khai này chưa bật tài khoản. Bạn vẫn học bình thường: tiến độ được lưu trong trình duyệt.",
+    "account": "Tài khoản",
+    "signedInAs": "Đang đăng nhập: {email}",
+    "guestBody": "Bạn đang dùng hồ sơ khách lưu trong trình duyệt này. Đăng nhập để đồng bộ giữa các thiết bị.",
+    "signOut": "Đăng xuất",
+    "syncNow": "Đồng bộ ngay",
+    "sync": {
+      "idle": "Chưa đồng bộ",
+      "syncing": "Đang đồng bộ…",
+      "synced": "Đã đồng bộ tiến độ",
+      "error": "Đồng bộ lỗi, sẽ thử lại ở lần thay đổi sau"
+    }
+  },
   "errors": {
     "notFound": "Không tìm thấy trang",
     "goHome": "Về trang tổng quan"
