@@ -1,0 +1,381 @@
+questions:
+  - id: p1-10-q01
+    type: mcq
+    tags: [exceptions]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "A line inside a `try` block raises an exception. What happens to the remaining lines of that `try` block?"
+      options:
+        - "They are skipped and Python looks for a matching `except`"
+        - "They still run, then the `except` block runs"
+        - "Python runs the failing line again"
+        - "The program always stops at once"
+      explanation: "As soon as an exception is raised, the rest of the `try` block is skipped and Python jumps to the matching `except` block. The program stops only if no `except` matches."
+    vi:
+      prompt: "Một dòng bên trong khối `try` gây ra exception. Những dòng còn lại của khối `try` đó sẽ ra sao?"
+      options:
+        - "Chúng bị bỏ qua và Python tìm khối `except` khớp"
+        - "Chúng vẫn chạy, rồi khối `except` chạy"
+        - "Python chạy lại dòng bị lỗi"
+        - "Chương trình luôn dừng ngay lập tức"
+      explanation: "Ngay khi exception được raise, phần còn lại của khối `try` bị bỏ qua và Python nhảy tới khối `except` khớp. Chương trình chỉ dừng khi không có `except` nào khớp."
+
+  - id: p1-10-q02
+    type: mcq
+    tags: [exceptions]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which exception does `int(\"abc\")` raise?"
+      options: ["TypeError", "ValueError", "KeyError", "NameError"]
+      explanation: "`int` accepts text, so the type is fine, but `\"abc\"` is not a valid number. Right type and wrong value is a `ValueError`."
+    vi:
+      prompt: "`int(\"abc\")` gây ra exception nào?"
+      options: ["TypeError", "ValueError", "KeyError", "NameError"]
+      explanation: "`int` nhận được văn bản nên kiểu không sai, nhưng `\"abc\"` không phải số hợp lệ. Đúng kiểu mà sai giá trị là `ValueError`."
+
+  - id: p1-10-q03
+    type: mcq
+    tags: [exceptions]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "When does the `else` block of a `try` statement run?"
+      options:
+        - "Only when an exception was raised"
+        - "Every time, after the `try` block"
+        - "Only when the `try` block finished without raising an exception"
+        - "Only when `finally` is missing"
+      explanation: "`else` is the \"nothing went wrong\" branch. `finally` is the one that runs every time."
+    vi:
+      prompt: "Khối `else` của câu lệnh `try` chạy khi nào?"
+      options:
+        - "Chỉ khi có exception được raise"
+        - "Mọi lần, sau khối `try`"
+        - "Chỉ khi khối `try` kết thúc mà không raise exception"
+        - "Chỉ khi không có `finally`"
+      explanation: "`else` là nhánh \"không có gì sai\". Khối chạy mọi lần là `finally`."
+
+  - id: p1-10-q04
+    type: mcq
+    tags: [exceptions]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Your function `set_volume(level)` receives `-5`, which makes no sense. What is the best way to report this?"
+      options:
+        - "`print(\"bad level\")` and keep running"
+        - "`raise ValueError(\"level must be 0 or more, got -5\")`"
+        - "`return \"error\"` and hope the caller checks it"
+        - "Wrap the whole function in a bare `except:`"
+      explanation: "Raising an error with a clear message stops the problem at the source. A printed message or a special return value is easy to miss, and a bare `except` would hide the problem."
+    vi:
+      prompt: "Hàm `set_volume(level)` của bạn nhận `-5`, một giá trị vô nghĩa. Cách báo lỗi tốt nhất là gì?"
+      options:
+        - "`print(\"bad level\")` rồi chạy tiếp"
+        - "`raise ValueError(\"level must be 0 or more, got -5\")`"
+        - "`return \"error\"` và hy vọng nơi gọi sẽ kiểm tra"
+        - "Bọc cả hàm trong một `except:` trần"
+      explanation: "Raise lỗi kèm thông báo rõ ràng chặn vấn đề ngay từ gốc. Thông báo in ra hoặc giá trị trả về đặc biệt rất dễ bị bỏ sót, còn `except` trần sẽ che mất vấn đề."
+
+  - id: p1-10-q05
+    type: mcq
+    tags: [exceptions, debugging]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "Why is a bare `except:` risky?"
+      options:
+        - "It is a syntax error"
+        - "It only catches `ValueError`"
+        - "It makes the program slower"
+        - "It also catches your own bugs, like a typo in a variable name, so you never see them"
+      explanation: "A bare `except:` catches everything, including `NameError` from a typo. The program carries on and the real bug stays hidden. Name the specific types you expect."
+    vi:
+      prompt: "Tại sao `except:` trần lại rủi ro?"
+      options:
+        - "Nó là lỗi cú pháp"
+        - "Nó chỉ bắt `ValueError`"
+        - "Nó làm chương trình chậm hơn"
+        - "Nó bắt luôn cả bug của chính bạn, như gõ sai tên biến, nên bạn không bao giờ thấy chúng"
+      explanation: "`except:` trần bắt mọi thứ, kể cả `NameError` do gõ nhầm. Chương trình vẫn chạy tiếp và bug thật bị che giấu. Hãy nêu đúng các loại lỗi bạn chờ đợi."
+
+  - id: p1-10-q06
+    type: output
+    tags: [exceptions]
+    difficulty: 1
+    code: |
+      try:
+          print("A")
+          x = 1 / 0
+          print("B")
+      except ZeroDivisionError:
+          print("C")
+      print("D")
+    answer: "A\nC\nD"
+    en:
+      prompt: "What does this code print (three lines)?"
+      explanation: "`A` prints, then `1 / 0` raises `ZeroDivisionError`, so `B` is skipped. The `except` block prints `C`, and the program continues with `D`."
+    vi:
+      prompt: "Đoạn code này in ra gì (ba dòng)?"
+      explanation: "`A` được in, rồi `1 / 0` gây `ZeroDivisionError` nên `B` bị bỏ qua. Khối `except` in `C`, và chương trình chạy tiếp với `D`."
+
+  - id: p1-10-q07
+    type: output
+    tags: [exceptions]
+    difficulty: 2
+    code: |
+      data = {"name": "Lan"}
+      try:
+          print(data["age"])
+      except KeyError as err:
+          print("missing", err)
+      else:
+          print("ok")
+    answer: "missing 'age'"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The key `\"age\"` does not exist, so a `KeyError` is raised. Printing a `KeyError` shows the missing key with quotes: `'age'`. The `else` block is skipped."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Key `\"age\"` không tồn tại nên `KeyError` được raise. In một `KeyError` sẽ hiện key bị thiếu kèm dấu nháy: `'age'`. Khối `else` bị bỏ qua."
+
+  - id: p1-10-q08
+    type: output
+    tags: [exceptions]
+    difficulty: 2
+    code: |
+      def check(n):
+          if n < 0:
+              raise ValueError("negative")
+          return n
+
+
+      for n in [3, -1, 7]:
+          try:
+              print(check(n))
+          except ValueError as err:
+              print("error:", err)
+    answer: "3\nerror: negative\n7"
+    en:
+      prompt: "What does this code print (three lines)?"
+      explanation: "For `-1`, `check` raises `ValueError(\"negative\")`, which the `except` block catches and prints. The loop then continues with `7`."
+    vi:
+      prompt: "Đoạn code này in ra gì (ba dòng)?"
+      explanation: "Với `-1`, `check` raise `ValueError(\"negative\")`, khối `except` bắt và in ra. Vòng lặp sau đó tiếp tục với `7`."
+
+  - id: p1-10-q09
+    type: output
+    tags: [exceptions]
+    difficulty: 2
+    code: |
+      def g(v):
+          try:
+              return 10 / v
+          except TypeError:
+              return "type"
+          except ZeroDivisionError:
+              return "zero"
+
+
+      print(g(5))
+      print(g(0))
+      print(g("a"))
+    answer: "2.0\nzero\ntype"
+    en:
+      prompt: "What does this code print (three lines)?"
+      explanation: "`10 / 5` is `2.0`. `10 / 0` raises `ZeroDivisionError`, and `10 / \"a\"` raises `TypeError`. Each one is caught by its own `except` block."
+    vi:
+      prompt: "Đoạn code này in ra gì (ba dòng)?"
+      explanation: "`10 / 5` là `2.0`. `10 / 0` gây `ZeroDivisionError`, còn `10 / \"a\"` gây `TypeError`. Mỗi lỗi được khối `except` riêng của nó bắt."
+
+  - id: p1-10-q10
+    type: output
+    tags: [exceptions]
+    difficulty: 3
+    code: |
+      def f(text):
+          try:
+              return int(text)
+          except ValueError:
+              return -1
+          finally:
+              print("done")
+
+
+      print(f("5"))
+      print(f("x"))
+    answer: "done\n5\ndone\n-1"
+    en:
+      prompt: "What does this code print (four lines)?"
+      explanation: "`finally` runs even when the function is about to `return`. So `done` is printed first, then the returned value is printed by the outer `print`. The same happens for `\"x\"`, which returns `-1`."
+    vi:
+      prompt: "Đoạn code này in ra gì (bốn dòng)?"
+      explanation: "`finally` vẫn chạy ngay cả khi hàm sắp `return`. Vì vậy `done` được in trước, rồi giá trị trả về mới được `print` bên ngoài in ra. Với `\"x\"` cũng vậy, và kết quả trả về là `-1`."
+
+  - id: p1-10-q11
+    type: fill
+    tags: [exceptions]
+    difficulty: 1
+    code: |
+      try:
+          number = int("42")
+      ___ ValueError:
+          number = 0
+      print(number)
+    answer: ["except"]
+    en:
+      prompt: "Fill in the blank so the code prints 42."
+      explanation: "`except` is the keyword that names the error to catch. Since `int(\"42\")` works, the `except` block is skipped and `42` is printed."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra 42."
+      explanation: "`except` là từ khóa nêu tên lỗi cần bắt. Vì `int(\"42\")` chạy tốt nên khối `except` bị bỏ qua và `42` được in ra."
+
+  - id: p1-10-q12
+    type: fill
+    tags: [exceptions]
+    difficulty: 1
+    code: |
+      prices = {"apple": 3}
+      try:
+          print(prices["pear"])
+      except ___:
+          print("no such item")
+    answer: ["KeyError"]
+    en:
+      prompt: "Fill in the exception type so the code prints `no such item`."
+      explanation: "Looking up a dictionary key that does not exist raises a `KeyError`."
+    vi:
+      prompt: "Điền loại exception vào chỗ trống để code in ra `no such item`."
+      explanation: "Tra cứu một key không tồn tại trong dictionary sẽ gây `KeyError`."
+
+  - id: p1-10-q13
+    type: fill
+    tags: [exceptions]
+    difficulty: 2
+    code: |
+      def check_age(age):
+          if age < 0:
+              ___ ValueError("age cannot be negative")
+          return age
+
+
+      try:
+          check_age(-5)
+      except ValueError as err:
+          print(err)
+    answer: ["raise"]
+    en:
+      prompt: "Fill in the blank so the code prints `age cannot be negative`."
+      explanation: "`raise` creates an exception on purpose. The `except ValueError as err` block catches it, and `print(err)` shows its message."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra `age cannot be negative`."
+      explanation: "`raise` chủ động tạo ra một exception. Khối `except ValueError as err` bắt nó, và `print(err)` hiện thông báo của nó."
+
+  - id: p1-10-q14
+    type: fill
+    tags: [exceptions]
+    difficulty: 2
+    code: |
+      try:
+          value = int("7")
+      except ValueError:
+          print("bad number")
+      ___:
+          print("good number", value)
+    answer: ["else"]
+    en:
+      prompt: "Fill in the blank so the code prints `good number 7`."
+      explanation: "`else` runs only when the `try` block did not raise. Here `int(\"7\")` works, so the `else` block prints the message."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra `good number 7`."
+      explanation: "`else` chỉ chạy khi khối `try` không raise. Ở đây `int(\"7\")` chạy tốt, nên khối `else` in thông báo."
+
+  - id: p1-10-q15
+    type: parsons
+    tags: [exceptions]
+    difficulty: 1
+    lines:
+      - "try:"
+      - '    number = int("x")'
+      - "except ValueError:"
+      - "    number = 0"
+      - "print(number)"
+    en:
+      prompt: "Put the lines in order so the program prints `0`."
+      explanation: "`try:` comes first with the risky line indented under it. Then `except ValueError:` with its fallback. The final `print` is not indented, because it runs after the whole block."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `0`."
+      explanation: "`try:` đứng đầu, dòng rủi ro thụt lề bên dưới. Sau đó là `except ValueError:` cùng giá trị dự phòng. Lệnh `print` cuối không thụt lề, vì nó chạy sau cả khối."
+
+  - id: p1-10-q16
+    type: parsons
+    tags: [exceptions]
+    difficulty: 2
+    lines:
+      - "def check_score(score):"
+      - "    if score > 100:"
+      - '        raise ValueError("too high")'
+      - "    return score"
+      - "try:"
+      - "    check_score(120)"
+      - "except ValueError as err:"
+      - "    print(err)"
+    en:
+      prompt: "Put the lines in order so the program prints `too high`."
+      explanation: "Define the function first: the `if` with its `raise` must come before `return score`, or the check would never run. Then call it inside `try`, and handle the error in `except`."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `too high`."
+      explanation: "Định nghĩa hàm trước: `if` cùng `raise` phải đứng trước `return score`, nếu không việc kiểm tra sẽ không bao giờ chạy. Sau đó gọi hàm trong `try`, và xử lý lỗi trong `except`."
+
+  - id: p1-10-q17
+    type: parsons
+    tags: [exceptions, loops]
+    difficulty: 3
+    lines:
+      - "total = 0"
+      - 'for text in ["4", "x", "6"]:'
+      - "    try:"
+      - "        total += int(text)"
+      - "    except ValueError:"
+      - '        print("skip", text)'
+      - "print(total)"
+    en:
+      prompt: "Put the lines in order so the program prints `skip x` and then `10`."
+      explanation: "`total` must exist before the loop. The `try` sits inside the loop, so one bad value does not stop the others. The last `print` is outside the loop and shows the total after all texts are handled."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `skip x` rồi `10`."
+      explanation: "`total` phải tồn tại trước vòng lặp. `try` nằm trong vòng lặp, nên một giá trị xấu không làm dừng các giá trị còn lại. Lệnh `print` cuối nằm ngoài vòng lặp và hiện tổng sau khi xử lý hết các văn bản."
+
+flashcards:
+  - id: p1-10-f01
+    tags: [exceptions]
+    en: { front: "How do you read a traceback?", back: "From the bottom up. The last line gives the exception type and message; the line above shows the code that failed." }
+    vi: { front: "Đọc traceback thế nào?", back: "Từ dưới lên. Dòng cuối cho loại exception và thông báo; dòng ngay trên cho biết đoạn code bị lỗi." }
+  - id: p1-10-f02
+    tags: [exceptions]
+    code: |
+      try:
+          n = int(text)
+      except ValueError:
+          n = 0
+    en: { front: "What does this pattern do?", back: "It runs the risky line. If `int(text)` raises `ValueError`, the rest of `try` is skipped and `n` gets the fallback `0`." }
+    vi: { front: "Mẫu này làm gì?", back: "Nó chạy dòng rủi ro. Nếu `int(text)` gây `ValueError`, phần còn lại của `try` bị bỏ qua và `n` nhận giá trị dự phòng `0`." }
+  - id: p1-10-f03
+    tags: [exceptions]
+    en: { front: "`else` vs `finally` in a try statement?", back: "`else` runs only when no exception happened. `finally` runs every time, for clean-up." }
+    vi: { front: "`else` khác `finally` trong câu lệnh try thế nào?", back: "`else` chỉ chạy khi không có exception. `finally` chạy mọi lần, dùng để dọn dẹp." }
+  - id: p1-10-f04
+    tags: [exceptions]
+    code: 'raise ValueError("temperature must be 0 to 2, got 5")'
+    en: { front: "When should you `raise` an error yourself?", back: "When a function gets input that makes no sense. Say what was expected and what was received." }
+    vi: { front: "Khi nào nên tự `raise` lỗi?", back: "Khi hàm nhận được dữ liệu vô nghĩa. Hãy nói rõ điều gì được chờ đợi và điều gì đã nhận được." }
+  - id: p1-10-f05
+    tags: [exceptions, debugging]
+    en: { front: "Why avoid a bare `except:`?", back: "It catches everything, including your own bugs such as a typo in a name, so real problems stay hidden. Name the specific type instead." }
+    vi: { front: "Tại sao nên tránh `except:` trần?", back: "Nó bắt mọi thứ, kể cả bug của bạn như gõ sai tên, nên vấn đề thật bị che giấu. Hãy nêu rõ loại lỗi cụ thể." }
+  - id: p1-10-f06
+    tags: [exceptions]
+    en: { front: "Which exception do `[1, 2][5]` and `{\"a\": 1}[\"b\"]` raise?", back: "`IndexError` for the list position, `KeyError` for the missing dictionary key." }
+    vi: { front: "`[1, 2][5]` và `{\"a\": 1}[\"b\"]` gây exception nào?", back: "`IndexError` cho vị trí trong list, `KeyError` cho key dictionary bị thiếu." }

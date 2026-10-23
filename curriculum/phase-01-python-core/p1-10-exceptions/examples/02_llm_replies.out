@@ -1,0 +1,10 @@
+reply: {"label": "spam", "score": 0.9
+  -> {'label': 'spam', 'score': 0.97}
+reply: Sure! Here is the JSON you ask
+  not valid JSON: Expecting value
+  -> {'label': 'unknown', 'score': 0.0}
+reply: {"label": "ham"}
+  JSON is missing a field
+  -> {'label': 'unknown', 'score': 0.0}
+reply: {"label": "ham", "score": 0.88
+  -> {'label': 'ham', 'score': 0.88}

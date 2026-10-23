@@ -1,0 +1,58 @@
+id: p1-10-ex02
+kind: code
+title:
+  en: "Write: parse a model reply safely"
+  vi: "Viết hàm: đọc reply của model an toàn"
+difficulty: 2
+tags: [exceptions, json]
+hints:
+  en:
+    - |
+      This is the try / except pattern from §3 plus `raise` from §5. Everything risky goes inside one `try`, and one `except` returns the fallback dict.
+      For `'{"label": "spam", "score": 0.9}'` you must return `{"label": "spam", "score": 0.9}`. For `"hello"` or a score of `1.5` you must return `{"label": "unknown", "score": 0.0}`.
+    - |
+      Plan:
+      1. Inside `try`: `data = json.loads(text)`, then read `data["label"]` and `data["score"]` into two variables.
+      2. Still inside `try`: if the score is below 0 or above 1, `raise ValueError("score out of range")`.
+      3. `except (ValueError, KeyError, TypeError):` return the unknown dict. (Invalid JSON raises `json.JSONDecodeError`, which is a kind of `ValueError`.)
+      4. After the block, return the good dict.
+      5. `count_unknown`: loop over the replies, call `parse_reply`, and add 1 when the label is `"unknown"`.
+    - |
+      Code shape:
+      ```python
+      def parse_reply(text):
+          try:
+              data = json.loads(text)
+              label = data["label"]
+              score = ...
+              if ...:
+                  raise ValueError("score out of range")
+          except (ValueError, KeyError, TypeError):
+              return {"label": "unknown", "score": 0.0}
+          return {"label": label, "score": score}
+      ```
+  vi:
+    - |
+      Đây là mẫu try / except ở §3 cộng với `raise` ở §5. Mọi thứ rủi ro nằm trong một `try`, và một `except` trả về dict dự phòng.
+      Với `'{"label": "spam", "score": 0.9}'` bạn phải trả về `{"label": "spam", "score": 0.9}`. Với `"hello"` hoặc score `1.5` bạn phải trả về `{"label": "unknown", "score": 0.0}`.
+    - |
+      Kế hoạch:
+      1. Trong `try`: `data = json.loads(text)`, rồi đọc `data["label"]` và `data["score"]` vào hai biến.
+      2. Vẫn trong `try`: nếu score nhỏ hơn 0 hoặc lớn hơn 1, `raise ValueError("score out of range")`.
+      3. `except (ValueError, KeyError, TypeError):` trả về dict unknown. (JSON không hợp lệ gây `json.JSONDecodeError`, là một loại `ValueError`.)
+      4. Sau khối đó, trả về dict tốt.
+      5. `count_unknown`: lặp qua các reply, gọi `parse_reply`, và cộng 1 khi label là `"unknown"`.
+    - |
+      Khung code:
+      ```python
+      def parse_reply(text):
+          try:
+              data = json.loads(text)
+              label = data["label"]
+              score = ...
+              if ...:
+                  raise ValueError("score out of range")
+          except (ValueError, KeyError, TypeError):
+              return {"label": "unknown", "score": 0.0}
+          return {"label": label, "score": score}
+      ```
