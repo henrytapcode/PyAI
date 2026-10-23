@@ -1,0 +1,48 @@
+id: p2-06-ex02
+kind: fill
+title:
+  en: "Fill in: a lazy filter for log lines"
+  vi: "Điền chỗ trống: bộ lọc lười cho các dòng log"
+difficulty: 1
+tags: [iterators, files, conditions]
+hints:
+  en:
+    - |
+      This combines the generator function from §3 with the generator expression idea from §5. For the lines `["ok\n", "ERROR disk full\n"]`, `error_lines` must hand out only `"ERROR disk full"`, and `count_errors` must return `1`. There are three blanks.
+    - |
+      Which word goes where:
+      1. The `for` loop must walk over the input of the function. Look at the function's parameters.
+      2. A matching line must lose the spaces and the new line at both ends. Use the string method that trims both ends, called with empty brackets.
+      3. `count_errors` makes a `1` for every error line, so you need a built-in that adds numbers up.
+    - |
+      Here is the same shape on a different job: yield the comment lines of a script (they start with `#`) and count them. The condition and the names here are different from yours, and the gaps are for you:
+      ```python
+      def comment_lines(lines):
+          for line in ...:
+              if line.startswith("#"):
+                  yield line.lower()
+
+      def count_comments(lines):
+          return ...(1 for line in comment_lines(lines))
+      ```
+      Use the same pattern, but with your own test for `ERROR`.
+  vi:
+    - |
+      Bài này kết hợp hàm generator ở §3 với ý tưởng generator expression ở §5. Với các dòng `["ok\n", "ERROR disk full\n"]`, `error_lines` phải đưa ra đúng `"ERROR disk full"`, và `count_errors` phải trả về `1`. Có ba chỗ trống.
+    - |
+      Từ nào vào chỗ nào:
+      1. Vòng `for` phải duyệt qua đầu vào của hàm. Hãy nhìn các tham số của hàm.
+      2. Dòng khớp phải được bỏ dấu cách và ký tự xuống dòng ở hai đầu. Dùng method của string cắt bỏ hai đầu, gọi với cặp ngoặc rỗng.
+      3. `count_errors` tạo một số `1` cho mỗi dòng lỗi, nên bạn cần một hàm có sẵn dùng để cộng các số lại.
+    - |
+      Đây là cùng một khung nhưng cho việc khác: yield các dòng chú thích của một script (bắt đầu bằng `#`) và đếm chúng. Điều kiện và tên gọi ở đây khác với bài của bạn, còn các chỗ trống là để bạn tự điền:
+      ```python
+      def comment_lines(lines):
+          for line in ...:
+              if line.startswith("#"):
+                  yield line.lower()
+
+      def count_comments(lines):
+          return ...(1 for line in comment_lines(lines))
+      ```
+      Dùng cùng mẫu này, nhưng với phép kiểm tra `ERROR` của riêng bạn.

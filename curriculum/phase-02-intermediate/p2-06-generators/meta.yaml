@@ -1,0 +1,29 @@
+id: p2-06-generators
+phase: p2
+order: 6
+kind: lesson
+title:
+  en: "Iterators & generators"
+  vi: "Iterator & generator"
+summary:
+  en: "Understand how for loops work, write generators with yield, and process big data lazily in pipelines."
+  vi: "Hiểu vòng for hoạt động ra sao, viết generator bằng yield, và xử lý dữ liệu lớn theo kiểu lười bằng pipeline."
+level: beginner
+tags: [iterators, comprehensions, loops]
+prerequisites: [p2-01-comprehensions, p1-03-loops, p1-09-files, p1-10-exceptions]
+duration_min: 12
+outcomes:
+  en:
+    - "Explain iterable, iterator, next and StopIteration"
+    - "Write a generator function with yield"
+    - "Use a generator expression with sum, max and any"
+    - "Avoid the one-shot trap and build a lazy pipeline"
+  vi:
+    - "Giải thích iterable, iterator, next và StopIteration"
+    - "Viết hàm generator bằng yield"
+    - "Dùng generator expression với sum, max và any"
+    - "Tránh bẫy dùng một lần và dựng pipeline lười"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python docs: Generators", vi: "Python docs: Generator (EN)" }
+    url: "https://docs.python.org/3/tutorial/classes.html#generators"

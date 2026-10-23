@@ -1,0 +1,52 @@
+id: p2-06-ex01
+kind: code
+title:
+  en: "Write: batch items for an embedding model"
+  vi: "Viết hàm: chia lô dữ liệu cho embedding model"
+difficulty: 2
+tags: [iterators, lists, loops]
+hints:
+  en:
+    - |
+      This is a generator function from §3 combined with the batching idea at the end of §7. For `batched([1, 2, 3, 4, 5], 2)` it must hand out `[1, 2]`, then `[3, 4]`, then `[5]`, one list at a time.
+    - |
+      The plan:
+      1. Start with an empty list called `batch`.
+      2. Loop over `items`. Put each item into `batch`.
+      3. As soon as `batch` holds `n` items, `yield` it and start over with a new empty list.
+      4. When the loop ends, `batch` may still hold a few items. Yield them too, but only if there are any.
+    - |
+      The shape:
+      ```python
+      batch = []
+      for item in items:
+          ...                # put the item into batch
+          if len(batch) == n:
+              ...            # hand the batch out
+              batch = ...    # start a fresh list
+      if ...:                # is anything left over?
+          ...
+      ```
+      Fill the gaps. Remember that a new empty list is `[]`.
+  vi:
+    - |
+      Đây là hàm generator ở §3 kết hợp với ý tưởng chia lô ở cuối §7. Với `batched([1, 2, 3, 4, 5], 2)` hàm phải đưa ra `[1, 2]`, rồi `[3, 4]`, rồi `[5]`, mỗi lần một list.
+    - |
+      Kế hoạch:
+      1. Bắt đầu với một list rỗng tên `batch`.
+      2. Lặp qua `items`. Bỏ từng phần tử vào `batch`.
+      3. Ngay khi `batch` có đủ `n` phần tử, `yield` nó và bắt đầu lại với một list rỗng mới.
+      4. Khi vòng lặp kết thúc, `batch` có thể còn vài phần tử. Hãy yield nốt, nhưng chỉ khi có phần tử nào đó.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      batch = []
+      for item in items:
+          ...                # bỏ item vào batch
+          if len(batch) == n:
+              ...            # đưa batch ra
+              batch = ...    # bắt đầu một list mới
+      if ...:                # còn phần dư không?
+          ...
+      ```
+      Hãy điền vào các chỗ trống. Nhớ rằng list rỗng mới là `[]`.

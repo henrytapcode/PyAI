@@ -1,0 +1,340 @@
+questions:
+  - id: p2-06-q01
+    type: mcq
+    tags: [iterators]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "What does `yield value` do inside a function?"
+      options: ["It hands `value` to the caller and pauses the function, which can continue later", "It ends the function at once, like `return`", "It prints `value` on the screen", "It saves `value` in a list that the function returns at the end"]
+      explanation: "`yield` pauses the function and keeps its variables. The next `next(...)` resumes it from the same line. `return` is the one that ends a function for good."
+    vi:
+      prompt: "`yield value` làm gì bên trong một hàm?"
+      options: ["Nó đưa `value` cho nơi gọi và tạm dừng hàm, hàm có thể chạy tiếp sau đó", "Nó kết thúc hàm ngay lập tức, giống `return`", "Nó in `value` ra màn hình", "Nó lưu `value` vào một list mà hàm trả về ở cuối"]
+      explanation: "`yield` tạm dừng hàm và giữ nguyên các biến của nó. Lần `next(...)` kế tiếp chạy tiếp từ đúng dòng đó. `return` mới là thứ kết thúc hàm hẳn."
+
+  - id: p2-06-q02
+    type: output
+    tags: [iterators]
+    difficulty: 1
+    code: |
+      it = iter([10, 20, 30])
+      print(next(it))
+      print(next(it))
+    answer: "10\n20"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`iter(...)` makes an iterator, and each `next` gives the following item. Two calls give the first two items, 10 and 20."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`iter(...)` tạo một iterator, và mỗi lần `next` cho phần tử kế tiếp. Hai lần gọi cho hai phần tử đầu tiên, là 10 và 20."
+
+  - id: p2-06-q03
+    type: mcq
+    tags: [iterators, comprehensions]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which one is a generator expression?"
+      options: ["`(x for x in items)`", "`[x for x in items]`", "`{x for x in items}`", "`{x: x for x in items}`"]
+      explanation: "Round brackets make a generator expression. Square brackets make a list, and curly braces make a set or a dict."
+    vi:
+      prompt: "Cái nào là generator expression?"
+      options: ["`(x for x in items)`", "`[x for x in items]`", "`{x for x in items}`", "`{x: x for x in items}`"]
+      explanation: "Ngoặc tròn tạo generator expression. Ngoặc vuông tạo list, còn ngoặc nhọn tạo set hoặc dict."
+
+  - id: p2-06-q04
+    type: mcq
+    tags: [iterators, exceptions]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What happens when you call `next(it)` and the iterator has no items left?"
+      options: ["It returns `None`", "It raises `StopIteration`", "It starts again from the first item", "It returns the last item again"]
+      explanation: "`StopIteration` is how an iterator says it is finished. A `for` loop catches it for you and ends quietly. An iterator never rewinds by itself."
+    vi:
+      prompt: "Điều gì xảy ra khi bạn gọi `next(it)` mà iterator đã hết phần tử?"
+      options: ["Nó trả về `None`", "Nó raise `StopIteration`", "Nó bắt đầu lại từ phần tử đầu", "Nó trả về phần tử cuối thêm lần nữa"]
+      explanation: "`StopIteration` là cách iterator báo rằng nó đã hết. Vòng `for` tự bắt nó và kết thúc êm. Iterator không bao giờ tự tua lại."
+
+  - id: p2-06-q05
+    type: fill
+    tags: [iterators, functions]
+    difficulty: 1
+    code: |
+      def count_down(n):
+          while n > 0:
+              ___ n
+              n -= 1
+
+
+      print(list(count_down(3)))  # [3, 2, 1]
+    answer: ["yield"]
+    en:
+      prompt: "Fill in the blank so `count_down` hands out the numbers one at a time."
+      explanation: "`yield n` hands out `n` and pauses. After the next `next`, the function continues with `n -= 1`. With `return` it would stop after the first number."
+    vi:
+      prompt: "Điền vào chỗ trống để `count_down` đưa ra từng số một."
+      explanation: "`yield n` đưa `n` ra và tạm dừng. Sau lần `next` kế tiếp, hàm chạy tiếp với `n -= 1`. Nếu dùng `return` thì hàm dừng ngay sau số đầu tiên."
+
+  - id: p2-06-q06
+    type: output
+    tags: [iterators, comprehensions]
+    difficulty: 2
+    code: |
+      gen = (n * 2 for n in [1, 2, 3])
+      print(sum(gen))
+      print(sum(gen))
+    answer: "12\n0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The first `sum` uses up the generator and gets 2 + 4 + 6 = 12. The generator is now exhausted, so the second `sum` sees no items and gives 0."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`sum` đầu tiên dùng hết generator và được 2 + 4 + 6 = 12. Lúc này generator đã cạn, nên `sum` thứ hai không thấy phần tử nào và cho kết quả 0."
+
+  - id: p2-06-q07
+    type: output
+    tags: [iterators]
+    difficulty: 2
+    code: |
+      def numbers():
+          print("a")
+          yield 1
+          print("b")
+          yield 2
+
+
+      gen = numbers()
+      print("start")
+      print(next(gen))
+    answer: "start\na\n1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Calling `numbers()` runs nothing. `start` is printed first. Then `next(gen)` runs the body up to the first `yield`, which prints `a` and hands back 1. The `b` line is never reached."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Gọi `numbers()` không chạy gì cả. `start` được in trước. Sau đó `next(gen)` chạy phần thân đến `yield` đầu tiên, in `a` và trả về 1. Dòng `b` không bao giờ được chạy tới."
+
+  - id: p2-06-q08
+    type: mcq
+    tags: [iterators, comprehensions]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "What is the main difference between `[n for n in range(3)]` and `(n for n in range(3))`?"
+      options: ["The generator can be read many times, the list only once", "They keep the same items in memory, only the printed text differs", "The list builds all items now, the generator makes one item each time it is asked", "The list is lazy and the generator builds everything right now"]
+      explanation: "A list comprehension builds everything right away and keeps it. A generator expression is lazy: it makes one item per request and can be used only once."
+    vi:
+      prompt: "Khác biệt chính giữa `[n for n in range(3)]` và `(n for n in range(3))` là gì?"
+      options: ["Generator đọc được nhiều lần, list chỉ đọc được một lần", "Chúng giữ các phần tử giống nhau trong bộ nhớ, chỉ khác chữ khi in ra", "List tạo mọi phần tử ngay, generator tạo từng phần tử mỗi khi được hỏi", "List thì lười còn generator tạo mọi thứ ngay bây giờ"]
+      explanation: "List comprehension tạo mọi thứ ngay lập tức và giữ lại. Generator expression thì lười: mỗi lần được hỏi nó tạo một phần tử, và chỉ dùng được một lần."
+
+  - id: p2-06-q09
+    type: mcq
+    tags: [iterators, files]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Why is a generator a good fit for reading a log file that is bigger than your memory?"
+      options: ["It reads the whole file into memory first, then hands out the lines", "It reads the whole file faster by loading it in one go", "It lets you read the same file again and again without reopening it", "It keeps only the line it is working on in memory"]
+      explanation: "A generator produces one line at a time, so memory use stays small however large the file is. It does not read everything first, and a generator can be used only once, so it cannot be re-read."
+    vi:
+      prompt: "Vì sao generator phù hợp để đọc file log lớn hơn bộ nhớ?"
+      options: ["Nó nạp cả file vào bộ nhớ trước, rồi mới đưa ra từng dòng", "Nó đọc cả file nhanh hơn bằng cách nạp một lần", "Nó cho phép đọc lại cùng một file nhiều lần mà không cần mở lại", "Nó chỉ giữ dòng đang xử lý trong bộ nhớ"]
+      explanation: "Generator tạo từng dòng một, nên lượng bộ nhớ dùng luôn nhỏ dù file lớn đến đâu. Nó không đọc hết trước, và generator chỉ dùng được một lần nên không đọc lại được."
+
+  - id: p2-06-q10
+    type: output
+    tags: [iterators, functions]
+    difficulty: 2
+    code: |
+      def tag(lines):
+          for line in lines:
+              yield "doc: " + line
+
+
+      print(list(tag(["a", "b"])))
+    answer: "['doc: a', 'doc: b']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`tag(...)` is a generator. `list(...)` asks it for every item, so each line gets the prefix and the results are collected in a list."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`tag(...)` là một generator. `list(...)` xin nó mọi phần tử, nên mỗi dòng được thêm tiền tố và các kết quả được gom vào một list."
+
+  - id: p2-06-q11
+    type: parsons
+    tags: [iterators, functions]
+    difficulty: 2
+    lines:
+      - "def squares(limit):"
+      - "    for n in range(limit):"
+      - "        yield n * n"
+      - "print(list(squares(4)))"
+    en:
+      prompt: "Put the lines in order so the program prints `[0, 1, 4, 9]`."
+      explanation: "The function header comes first, then the loop inside it, then the `yield` inside the loop. The call is last, because the function must exist before you use it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `[0, 1, 4, 9]`."
+      explanation: "Dòng khai báo hàm đứng đầu, rồi đến vòng lặp bên trong, rồi `yield` bên trong vòng lặp. Lời gọi nằm cuối, vì hàm phải tồn tại trước khi bạn dùng."
+
+  - id: p2-06-q12
+    type: fill
+    tags: [iterators, comprehensions]
+    difficulty: 2
+    code: |
+      logs = ["ok", "ERROR disk", "ok", "ERROR gpu"]
+      errors = ___(1 for line in logs if "ERROR" in line)
+      print(errors)  # 2
+    answer: ["sum"]
+    en:
+      prompt: "Fill in the blank so the code counts the error lines."
+      explanation: "The generator expression makes a `1` for each error line, and `sum` adds them up. It never builds a list of those ones."
+    vi:
+      prompt: "Điền vào chỗ trống để đoạn code đếm số dòng lỗi."
+      explanation: "Generator expression tạo một số `1` cho mỗi dòng lỗi, và `sum` cộng chúng lại. Nó không bao giờ tạo ra một list chứa các số 1 đó."
+
+  - id: p2-06-q13
+    type: mcq
+    tags: [iterators]
+    difficulty: 2
+    answer: 0
+    code: |
+      gen = (n for n in range(3))
+    en:
+      prompt: "Which line raises a `TypeError`?"
+      options: ["`len(gen)`", "`sum(gen)`", "`list(gen)`", "`next(gen)`"]
+      explanation: "A generator does not know in advance how many items it will make, so `len(gen)` fails. `sum`, `list` and `next` all just ask it for items."
+    vi:
+      prompt: "Dòng nào gây ra `TypeError`?"
+      options: ["`len(gen)`", "`sum(gen)`", "`list(gen)`", "`next(gen)`"]
+      explanation: "Generator không biết trước nó sẽ tạo ra bao nhiêu phần tử, nên `len(gen)` bị lỗi. `sum`, `list` và `next` chỉ đơn giản xin nó các phần tử."
+
+  - id: p2-06-q14
+    type: output
+    tags: [iterators, conditions]
+    difficulty: 3
+    code: |
+      def check(n):
+          print("check", n)
+          return n > 1
+
+
+      print(any(check(n) for n in [1, 2, 3]))
+    answer: "check 1\ncheck 2\nTrue"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`any` asks the generator for one item at a time and stops at the first true result. `check(1)` is false, `check(2)` is true, so `check(3)` is never called."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`any` xin generator từng phần tử một và dừng ở kết quả đúng đầu tiên. `check(1)` sai, `check(2)` đúng, nên `check(3)` không bao giờ được gọi."
+
+  - id: p2-06-q15
+    type: output
+    tags: [iterators, loops]
+    difficulty: 3
+    code: |
+      def source():
+          for n in [1, 2, 3]:
+              print("read", n)
+              yield n
+
+
+      doubled = (n * 2 for n in source())
+      print(next(doubled))
+      print(next(doubled))
+    answer: "read 1\n2\nread 2\n4"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Each `next(doubled)` pulls exactly one item through the pipeline. So `read 1` appears right before the first result `2`, and `read 2` right before `4`. Item 3 is never read."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mỗi `next(doubled)` kéo đúng một phần tử đi qua pipeline. Vì vậy `read 1` xuất hiện ngay trước kết quả đầu `2`, và `read 2` ngay trước `4`. Phần tử 3 không bao giờ được đọc."
+
+  - id: p2-06-q16
+    type: parsons
+    tags: [iterators, comprehensions]
+    difficulty: 2
+    lines:
+      - 'raw = ["  A ", "", "b"]'
+      - "cleaned = (x.strip() for x in raw)"
+      - "non_empty = (x for x in cleaned if x)"
+      - "print(list(non_empty))"
+    en:
+      prompt: "Put the lines in order so the program prints `['A', 'b']`."
+      explanation: "Each stage is built from the one before it, so `raw` comes first, then `cleaned`, then `non_empty`. The generator expression needs its source to exist when it is created. Nothing runs until `list(...)` at the end asks for the items."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `['A', 'b']`."
+      explanation: "Mỗi công đoạn được dựng từ công đoạn trước nó, nên `raw` đứng đầu, rồi `cleaned`, rồi `non_empty`. Generator expression cần nguồn của nó đã tồn tại lúc được tạo. Không có gì chạy cho đến khi `list(...)` ở cuối xin các phần tử."
+
+  - id: p2-06-q17
+    type: output
+    tags: [iterators]
+    difficulty: 2
+    code: |
+      words = (w.upper() for w in ["a", "b"])
+      first = list(words)
+      second = list(words)
+      print(len(first), len(second))
+    answer: "2 0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The first `list(words)` uses up the generator and collects 2 items. The second call finds it exhausted and gets an empty list."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`list(words)` đầu tiên dùng hết generator và gom được 2 phần tử. Lần gọi thứ hai thấy nó đã cạn và nhận về một list rỗng."
+
+  - id: p2-06-q18
+    type: output
+    tags: [iterators, functions]
+    difficulty: 3
+    code: |
+      def count_up(limit):
+          n = 1
+          while n <= limit:
+              yield n
+              n += 1
+
+
+      gen = count_up(4)
+      print(next(gen))
+      print(list(gen))
+      print(list(gen))
+    answer: "1\n[2, 3, 4]\n[]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The first `next` takes the item 1. The generator keeps its place, so `list(gen)` collects the rest, `[2, 3, 4]`, and uses the generator up. The last `list(gen)` finds nothing left and gives an empty list."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`next` đầu tiên lấy phần tử 1. Generator giữ nguyên vị trí, nên `list(gen)` gom phần còn lại, `[2, 3, 4]`, và dùng cạn generator. `list(gen)` cuối cùng không còn gì nên cho một list rỗng."
+
+flashcards:
+  - id: p2-06-f01
+    tags: [iterators]
+    code: "it = iter(items)\nnext(it)"
+    en: { front: "What is the difference between an iterable and an iterator?", back: "An iterable (list, string, file ...) can be looped over. An iterator remembers its position and gives one item per `next(...)`. `iter(x)` turns an iterable into an iterator." }
+    vi: { front: "Iterable và iterator khác nhau thế nào?", back: "Iterable (list, chuỗi, file ...) có thể lặp qua. Iterator nhớ vị trí của nó và đưa một phần tử mỗi lần `next(...)`. `iter(x)` biến một iterable thành iterator." }
+  - id: p2-06-f02
+    tags: [iterators]
+    code: "def count_up(limit):\n    n = 1\n    while n <= limit:\n        yield n\n        n += 1"
+    en: { front: "What does `yield` do?", back: "It hands a value to the caller and pauses the function, keeping its variables. The next `next(...)` continues from the same place. A function with `yield` is a generator function." }
+    vi: { front: "`yield` làm gì?", back: "Nó đưa một giá trị cho nơi gọi và tạm dừng hàm, giữ nguyên các biến. Lần `next(...)` kế tiếp chạy tiếp từ đúng chỗ đó. Hàm có `yield` là hàm generator." }
+  - id: p2-06-f03
+    tags: [iterators]
+    en: { front: "What does it mean that a generator is lazy?", back: "It does no work until someone asks for the next item, and it keeps only one item in memory instead of the whole collection." }
+    vi: { front: "Generator \"lười\" nghĩa là gì?", back: "Nó không làm gì cho đến khi có người xin phần tử kế tiếp, và chỉ giữ một phần tử trong bộ nhớ thay vì cả tập dữ liệu." }
+  - id: p2-06-f04
+    tags: [iterators, comprehensions]
+    code: "total = sum(n * n for n in range(1000000))"
+    en: { front: "When should you use a generator expression instead of a list comprehension?", back: "When you only need one answer (a sum, a maximum, \"is there any ...?\") or the data is big. Build a list when you need to keep the items, loop twice, or use `len`." }
+    vi: { front: "Khi nào dùng generator expression thay cho list comprehension?", back: "Khi bạn chỉ cần một câu trả lời (một tổng, một giá trị lớn nhất, \"có cái nào ... không?\") hoặc dữ liệu lớn. Hãy tạo list khi cần giữ các phần tử, lặp hai lần, hoặc dùng `len`." }
+  - id: p2-06-f05
+    tags: [iterators]
+    code: "gen = (n for n in [1, 2])\nlist(gen)  # [1, 2]\nlist(gen)  # []"
+    en: { front: "What is the one-shot trap of generators?", back: "A generator can be read only once. After it is exhausted, a second pass is empty and does not raise an error. Create a new generator, or keep the items in a list." }
+    vi: { front: "\"Cái bẫy dùng một lần\" của generator là gì?", back: "Generator chỉ đọc được một lần. Sau khi cạn, lượt đọc thứ hai rỗng và không báo lỗi. Hãy tạo generator mới, hoặc giữ các phần tử trong một list." }
+  - id: p2-06-f06
+    tags: [iterators]
+    en: { front: "How does a `for` loop know when to stop?", back: "It calls `iter` on the iterable, then calls `next` again and again. When `next` raises `StopIteration`, the loop ends quietly." }
+    vi: { front: "Vòng `for` biết dừng khi nào?", back: "Nó gọi `iter` trên iterable, rồi gọi `next` liên tục. Khi `next` raise `StopIteration`, vòng lặp kết thúc êm." }
