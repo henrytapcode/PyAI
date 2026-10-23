@@ -1,0 +1,300 @@
+questions:
+  - id: p1-08-q01
+    type: mcq
+    tags: [modules]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is a module in Python?"
+      options: ["A kind of loop", "A `.py` file with reusable functions and values", "A variable that never changes", "A comment at the top of a file"]
+      explanation: "A module is just a file of code you can borrow with `import`. The standard library is the set of modules that ship with Python."
+    vi:
+      prompt: "Module trong Python là gì?"
+      options: ["Một loại vòng lặp", "Một file `.py` chứa hàm và giá trị dùng lại được", "Một biến không bao giờ đổi", "Một dòng comment ở đầu file"]
+      explanation: "Module chỉ là một file code mà bạn mượn bằng `import`. Thư viện chuẩn là tập các module đi kèm sẵn với Python."
+
+  - id: p1-08-q02
+    type: mcq
+    tags: [modules]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "After `from math import sqrt`, what happens when you run `math.sqrt(9)`?"
+      options: ["It prints `3.0`", "It prints `3`", "It returns `None`", "`NameError`: the name `math` was never imported"]
+      explanation: "`from math import sqrt` brings only the name `sqrt`. The name `math` does not exist, so you must write `sqrt(9)`."
+    vi:
+      prompt: "Sau `from math import sqrt`, chuyện gì xảy ra khi chạy `math.sqrt(9)`?"
+      options: ["In ra `3.0`", "In ra `3`", "Trả về `None`", "`NameError`: tên `math` chưa được import"]
+      explanation: "`from math import sqrt` chỉ mang vào tên `sqrt`. Tên `math` không tồn tại, nên bạn phải viết `sqrt(9)`."
+
+  - id: p1-08-q03
+    type: mcq
+    tags: [modules, stdlib]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why do AI engineers call `random.seed(42)` before shuffling data?"
+      options: ["So every run gives the same shuffle and experiments are reproducible", "So the shuffle is faster", "So the numbers are truly unpredictable", "So Python downloads the random module"]
+      explanation: "The same seed gives the same sequence of 'random' numbers. That lets you compare two runs fairly instead of wondering whether luck changed the result."
+    vi:
+      prompt: "Vì sao AI engineer gọi `random.seed(42)` trước khi xáo trộn dữ liệu?"
+      options: ["Để mỗi lần chạy cho cùng kết quả xáo, giúp thí nghiệm lặp lại được", "Để việc xáo chạy nhanh hơn", "Để các số thật sự không đoán trước được", "Để Python tải module random về"]
+      explanation: "Cùng một seed cho cùng một dãy số 'ngẫu nhiên'. Nhờ vậy bạn so sánh hai lần chạy công bằng, không phải đoán xem may rủi có đổi kết quả không."
+
+  - id: p1-08-q04
+    type: mcq
+    tags: [stdlib]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Which is the safest way to check that two float results are 'the same'?"
+      options: ["`a == b`", "`a is b`", "`math.isclose(a, b)`", "`str(a) == b`"]
+      explanation: "Floats carry tiny rounding errors (`0.1 + 0.2 == 0.3` is `False`). `math.isclose` asks whether the numbers are close enough."
+    vi:
+      prompt: "Cách an toàn nhất để kiểm tra hai kết quả float có 'bằng nhau' là gì?"
+      options: ["`a == b`", "`a is b`", "`math.isclose(a, b)`", "`str(a) == b`"]
+      explanation: "Float có sai số làm tròn rất nhỏ (`0.1 + 0.2 == 0.3` là `False`). `math.isclose` hỏi xem hai số có đủ gần nhau không."
+
+  - id: p1-08-q05
+    type: mcq
+    tags: [modules]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "You save your own file as `random.py` in your project folder. What is the likely problem?"
+      options: ["Nothing: Python always prefers its own module", "`import random` may load your file instead of the standard one, causing strange errors", "Python deletes your file", "Only `random.seed` stops working"]
+      explanation: "Python searches your project folder before the standard library, so your file can hide the real module. Pick names like `text_tools.py` instead."
+    vi:
+      prompt: "Bạn lưu file của mình thành `random.py` trong thư mục project. Vấn đề có thể gặp là gì?"
+      options: ["Không sao: Python luôn ưu tiên module của nó", "`import random` có thể tải file của bạn thay vì module chuẩn, gây lỗi lạ", "Python xóa file của bạn", "Chỉ riêng `random.seed` bị hỏng"]
+      explanation: "Python tìm trong thư mục project trước thư viện chuẩn, nên file của bạn có thể che mất module thật. Hãy đặt tên như `text_tools.py`."
+
+  - id: p1-08-q06
+    type: mcq
+    tags: [modules]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What is `if __name__ == \"__main__\":` used for?"
+      options: ["To make the file run faster", "To stop other files from importing it", "To define a function named `main`", "To run some code only when the file is run directly, not when it is imported"]
+      explanation: "When a file is run directly, `__name__` is `\"__main__\"`. When it is imported, `__name__` is the module's name, so the guarded code is skipped."
+    vi:
+      prompt: "`if __name__ == \"__main__\":` dùng để làm gì?"
+      options: ["Để file chạy nhanh hơn", "Để ngăn file khác import nó", "Để định nghĩa hàm tên `main`", "Để chạy một đoạn code chỉ khi file được chạy trực tiếp, không phải khi bị import"]
+      explanation: "Khi file được chạy trực tiếp, `__name__` là `\"__main__\"`. Khi bị import, `__name__` là tên module, nên đoạn code trong guard bị bỏ qua."
+
+  - id: p1-08-q07
+    type: output
+    tags: [stdlib]
+    difficulty: 1
+    code: |
+      import math
+
+      print(math.floor(-2.5), math.ceil(2.1))
+    answer: "-3 3"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`floor` rounds down to the next smaller integer, which for `-2.5` is `-3` (not `-2`). `ceil` rounds up, so `2.1` becomes `3`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`floor` làm tròn xuống số nguyên nhỏ hơn kế tiếp, với `-2.5` là `-3` (không phải `-2`). `ceil` làm tròn lên nên `2.1` thành `3`."
+
+  - id: p1-08-q08
+    type: output
+    tags: [stdlib]
+    difficulty: 2
+    code: |
+      from collections import Counter
+
+      counts = Counter("banana")
+      print(counts.most_common(1))
+      print(counts["z"])
+    answer: "[('a', 3)]\n0"
+    en:
+      prompt: "What does this code print (two lines)?"
+      explanation: "`banana` has three `a` letters, so the most common pair is `('a', 3)`. A letter that is not in the counter, like `z`, counts as `0` instead of raising an error."
+    vi:
+      prompt: "Đoạn code này in ra gì (hai dòng)?"
+      explanation: "`banana` có ba chữ `a`, nên cặp phổ biến nhất là `('a', 3)`. Ký tự không có trong counter, như `z`, được tính là `0` thay vì báo lỗi."
+
+  - id: p1-08-q09
+    type: output
+    tags: [stdlib]
+    difficulty: 2
+    code: |
+      from datetime import date
+
+      start = date(2025, 2, 1)
+      end = date(2025, 3, 1)
+      print((end - start).days)
+    answer: "28"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Subtracting two dates gives a `timedelta`, and `.days` is its length. February 2025 has 28 days."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Trừ hai ngày cho ra một `timedelta`, và `.days` là độ dài của nó. Tháng 2 năm 2025 có 28 ngày."
+
+  - id: p1-08-q10
+    type: output
+    tags: [stdlib]
+    difficulty: 2
+    code: |
+      import random
+
+      a = random.Random(1)
+      b = random.Random(1)
+      print(a.randint(1, 100) == b.randint(1, 100))
+    answer: "True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Two generators created with the same seed produce the same numbers in the same order, so the first values are equal."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Hai bộ sinh số tạo với cùng seed cho ra cùng các số theo cùng thứ tự, nên hai giá trị đầu bằng nhau."
+
+  - id: p1-08-q11
+    type: fill
+    tags: [modules]
+    difficulty: 1
+    code: |
+      import ___
+
+      print(math.sqrt(49))  # 7.0
+    answer: ["math"]
+    en:
+      prompt: "Fill in the blank so the program prints `7.0`."
+      explanation: "`sqrt` lives in the `math` module, and the code uses the name `math`, so you import `math`."
+    vi:
+      prompt: "Điền vào chỗ trống để chương trình in ra `7.0`."
+      explanation: "`sqrt` nằm trong module `math`, và code dùng tên `math`, nên bạn import `math`."
+
+  - id: p1-08-q12
+    type: fill
+    tags: [stdlib]
+    difficulty: 1
+    code: |
+      from collections import ___
+
+      print(Counter("aab")["a"])  # 2
+    answer: ["Counter"]
+    en:
+      prompt: "Fill in the blank so the program prints `2`."
+      explanation: "The class is named `Counter` (capital C). It counts how many times each item appears."
+    vi:
+      prompt: "Điền vào chỗ trống để chương trình in ra `2`."
+      explanation: "Class tên là `Counter` (chữ C viết hoa). Nó đếm mỗi phần tử xuất hiện bao nhiêu lần."
+
+  - id: p1-08-q13
+    type: fill
+    tags: [modules]
+    difficulty: 2
+    code: |
+      import statistics as ___
+
+      print(st.mean([2, 4]))  # 3
+    answer: ["st"]
+    en:
+      prompt: "Fill in the nickname so the program prints `3`."
+      explanation: "`import module as nickname` lets you use the short name afterwards. The code calls `st.mean`, so the nickname is `st`."
+    vi:
+      prompt: "Điền tên viết tắt để chương trình in ra `3`."
+      explanation: "`import module as nickname` cho phép dùng tên ngắn sau đó. Code gọi `st.mean`, nên tên viết tắt là `st`."
+
+  - id: p1-08-q14
+    type: fill
+    tags: [modules]
+    difficulty: 2
+    code: |
+      def main():
+          print("hello")
+
+
+      if __name__ == "___":
+          main()
+    answer: ["__main__"]
+    en:
+      prompt: "Fill in the blank so `main()` runs when the file is run directly."
+      explanation: "When a file is run directly, Python sets `__name__` to the string `\"__main__\"`."
+    vi:
+      prompt: "Điền vào chỗ trống để `main()` chạy khi file được chạy trực tiếp."
+      explanation: "Khi file được chạy trực tiếp, Python đặt `__name__` thành chuỗi `\"__main__\"`."
+
+  - id: p1-08-q15
+    type: parsons
+    tags: [stdlib]
+    difficulty: 2
+    lines:
+      - "from datetime import date, timedelta"
+      - "start = date(2025, 1, 1)"
+      - "deadline = start + timedelta(days=30)"
+      - "print(deadline)"
+    en:
+      prompt: "Put the lines in order so the program prints `2025-01-31`."
+      explanation: "Import first, because `date` is used on the next line. Then create `start`, then use it to build `deadline`, and print last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `2025-01-31`."
+      explanation: "Import trước, vì `date` được dùng ở dòng kế tiếp. Rồi tạo `start`, dùng nó để tạo `deadline`, và in ra cuối cùng."
+
+  - id: p1-08-q16
+    type: parsons
+    tags: [stdlib]
+    difficulty: 3
+    lines:
+      - "import random"
+      - "rng = random.Random(5)"
+      - "first = rng.randint(1, 6)"
+      - "print(first == random.Random(5).randint(1, 6))"
+    en:
+      prompt: "Put the lines in order so the program prints `True`."
+      explanation: "`random` must be imported before use, `rng` must exist before you draw from it, and `first` must exist before the final comparison that uses it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `True`."
+      explanation: "Phải import `random` trước khi dùng, `rng` phải có trước khi lấy số từ nó, và `first` phải có trước phép so sánh cuối cùng dùng đến nó."
+
+  - id: p1-08-q17
+    type: parsons
+    tags: [modules]
+    difficulty: 2
+    lines:
+      - "def main():"
+      - "    print(\"start\")"
+      - "if __name__ == \"__main__\":"
+      - "    main()"
+    en:
+      prompt: "Put the lines in order so the program prints `start` when run directly."
+      explanation: "Define `main` (header, then its indented body) first. The `__main__` guard comes after, because it calls `main()`."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `start` khi chạy trực tiếp."
+      explanation: "Định nghĩa `main` (dòng header rồi phần thân thụt lề) trước. Đoạn guard `__main__` đứng sau, vì nó gọi `main()`."
+
+flashcards:
+  - id: p1-08-f01
+    tags: [modules]
+    en: { front: "What is a module?", back: "A `.py` file of reusable code. A folder of modules is a package." }
+    vi: { front: "Module là gì?", back: "Một file `.py` chứa code dùng lại được. Một thư mục các module gọi là package." }
+  - id: p1-08-f02
+    tags: [modules]
+    code: |
+      import math
+      from math import sqrt
+      import statistics as st
+    en: { front: "Three ways to import?", back: "Whole module (`math.sqrt`), one name (`sqrt`), or a nickname (`st.mean`). Put imports at the top." }
+    vi: { front: "Ba cách import?", back: "Cả module (`math.sqrt`), một tên (`sqrt`), hoặc tên viết tắt (`st.mean`). Đặt import ở đầu file." }
+  - id: p1-08-f03
+    tags: [stdlib]
+    en: { front: "Why seed `random`?", back: "The same seed gives the same random numbers, so experiments are reproducible. `random.Random(seed)` makes a private generator." }
+    vi: { front: "Vì sao cần seed cho `random`?", back: "Cùng seed cho cùng dãy số ngẫu nhiên nên thí nghiệm lặp lại được. `random.Random(seed)` tạo bộ sinh số riêng." }
+  - id: p1-08-f04
+    tags: [stdlib]
+    code: "math.isclose(0.1 + 0.2, 0.3)"
+    en: { front: "How to compare floats safely?", back: "Use `math.isclose(a, b)`. Plain `==` can fail because of tiny rounding errors." }
+    vi: { front: "So sánh float an toàn thế nào?", back: "Dùng `math.isclose(a, b)`. `==` thường có thể sai vì sai số làm tròn rất nhỏ." }
+  - id: p1-08-f05
+    tags: [modules]
+    en: { front: "What does `if __name__ == \"__main__\":` do?", back: "Runs its block only when the file is run directly, not when it is imported." }
+    vi: { front: "`if __name__ == \"__main__\":` làm gì?", back: "Chạy khối code bên trong chỉ khi file được chạy trực tiếp, không chạy khi bị import." }
+  - id: p1-08-f06
+    tags: [stdlib]
+    en: { front: "How do you look up a function?", back: "`help(math.sqrt)`, `dir(math)`, or the docs at docs.python.org." }
+    vi: { front: "Tra cứu một hàm bằng cách nào?", back: "`help(math.sqrt)`, `dir(math)`, hoặc tài liệu ở docs.python.org." }

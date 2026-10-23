@@ -1,0 +1,62 @@
+id: p1-08-ex01
+kind: code
+title:
+  en: "Write: summarize a list of scores"
+  vi: "Viết hàm: tóm tắt danh sách điểm"
+difficulty: 2
+tags: [modules, stdlib]
+hints:
+  en:
+    - |
+      This uses §2 (import) and §3 (`statistics` and `math.isclose`). Import the modules at the top of the file, then call their functions.
+      For `[70, 80, 90, 100]` the summary must be `{"count": 4, "mean": 85, "median": 85.0, "stdev": 12.91}`.
+    - |
+      Plan:
+      1. Put `import statistics` and `import math` at the top.
+      2. `summarize`: build a dict with `len(values)`, `statistics.mean(values)`, `statistics.median(values)` and `statistics.stdev(values)`.
+      3. Wrap the stdev in `round(..., 2)` so the number is short.
+      4. `same_average`: compare the two means with `math.isclose`, not `==`, and `return` the answer.
+    - |
+      Code shape:
+      ```python
+      import math
+      import statistics
+
+      def summarize(values):
+          return {
+              "count": len(values),
+              "mean": statistics.mean(values),
+              "median": ...,
+              "stdev": round(..., 2),
+          }
+
+      def same_average(a, b):
+          return math.isclose(..., ...)
+      ```
+  vi:
+    - |
+      Bài này dùng §2 (import) và §3 (`statistics` và `math.isclose`). Hãy import module ở đầu file rồi gọi hàm của chúng.
+      Với `[70, 80, 90, 100]`, kết quả phải là `{"count": 4, "mean": 85, "median": 85.0, "stdev": 12.91}`.
+    - |
+      Kế hoạch:
+      1. Viết `import statistics` và `import math` ở đầu file.
+      2. `summarize`: tạo dict gồm `len(values)`, `statistics.mean(values)`, `statistics.median(values)` và `statistics.stdev(values)`.
+      3. Bọc stdev trong `round(..., 2)` cho số gọn lại.
+      4. `same_average`: so sánh hai giá trị trung bình bằng `math.isclose`, không dùng `==`, rồi `return` kết quả.
+    - |
+      Khung code:
+      ```python
+      import math
+      import statistics
+
+      def summarize(values):
+          return {
+              "count": len(values),
+              "mean": statistics.mean(values),
+              "median": ...,
+              "stdev": round(..., 2),
+          }
+
+      def same_average(a, b):
+          return math.isclose(..., ...)
+      ```

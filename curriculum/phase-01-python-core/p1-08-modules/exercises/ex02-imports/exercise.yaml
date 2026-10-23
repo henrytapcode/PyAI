@@ -1,0 +1,72 @@
+id: p1-08-ex02
+kind: fill
+title:
+  en: "Fill in: imports and standard-library calls"
+  vi: "Điền chỗ trống: import và hàm thư viện chuẩn"
+difficulty: 1
+tags: [modules, stdlib]
+hints:
+  en:
+    - |
+      This uses §2 (three ways to import) and §3 (the tour of modules). Every `___` is either a module name, a name to import, or a function/attribute inside a module.
+      For example `top_words("a b a", 1)` must return `[("a", 2)]`, and `days_until` must return a plain number of days.
+    - |
+      Plan:
+      1. The first three lines import `random`, `Counter` (from `collections`) and `timedelta` (from `datetime`).
+      2. `top_words`: build a `Counter` of the words, then ask it for the `most_common`.
+      3. `days_until`: subtracting two dates gives a `timedelta`; its `.days` is the number.
+      4. `deadline_after`: `timedelta(days=...)` là một khoảng thời gian bạn cộng được vào một ngày.
+      5. `pick`: `random.Random(seed)` makes a private generator, and `.choice(items)` picks from the list.
+    - |
+      Code shape:
+      ```python
+      import random
+      from collections import Counter
+      from datetime import timedelta
+
+      def top_words(text, n):
+          counts = Counter(text.lower().split())
+          return counts.most_common(...)
+
+      def days_until(today, deadline):
+          return (deadline - today)....
+
+      def deadline_after(start, days):
+          return start + ...(days=days)
+
+      def pick(items, seed):
+          rng = random.Random(...)
+          return rng....(items)
+      ```
+  vi:
+    - |
+      Bài này dùng §2 (ba cách import) và §3 (tour các module). Mỗi `___` là tên module, tên cần import, hoặc hàm/thuộc tính bên trong một module.
+      Ví dụ `top_words("a b a", 1)` phải trả về `[("a", 2)]`, và `days_until` phải trả về một số ngày thông thường.
+    - |
+      Kế hoạch:
+      1. Ba dòng đầu import `random`, `Counter` (từ `collections`) và `timedelta` (từ `datetime`).
+      2. `top_words`: tạo một `Counter` từ các từ, rồi hỏi nó `most_common`.
+      3. `days_until`: trừ hai ngày cho ra một `timedelta`; `.days` của nó là con số cần lấy.
+      4. `deadline_after`: `timedelta(days=...)` là một khoảng thời gian bạn cộng được vào một ngày.
+      5. `pick`: `random.Random(seed)` tạo bộ sinh số riêng, và `.choice(items)` chọn một phần tử trong list.
+    - |
+      Khung code:
+      ```python
+      import random
+      from collections import Counter
+      from datetime import timedelta
+
+      def top_words(text, n):
+          counts = Counter(text.lower().split())
+          return counts.most_common(...)
+
+      def days_until(today, deadline):
+          return (deadline - today)....
+
+      def deadline_after(start, days):
+          return start + ...(days=days)
+
+      def pick(items, seed):
+          rng = random.Random(...)
+          return rng....(items)
+      ```

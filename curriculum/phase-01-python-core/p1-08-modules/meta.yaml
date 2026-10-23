@@ -1,0 +1,31 @@
+id: p1-08-modules
+phase: p1
+order: 8
+kind: lesson
+title:
+  en: "Modules & imports"
+  vi: "Module & import"
+summary:
+  en: "Borrow tested tools from the standard library (math, statistics, random, datetime, Counter, pathlib) and learn how real projects split code into modules."
+  vi: "Mượn các công cụ đã được kiểm thử trong thư viện chuẩn (math, statistics, random, datetime, Counter, pathlib) và biết cách project thật tách code thành module."
+level: beginner
+tags: [modules, stdlib]
+prerequisites: [p1-05-functions]
+duration_min: 15
+outcomes:
+  en:
+    - "Import from the standard library in three ways"
+    - "Use math, statistics, random, datetime and Counter"
+    - "Make random results reproducible with a seed"
+    - "Explain modules, packages and the __main__ guard"
+  vi:
+    - "Import từ thư viện chuẩn theo ba cách"
+    - "Dùng math, statistics, random, datetime và Counter"
+    - "Làm kết quả ngẫu nhiên lặp lại được bằng seed"
+    - "Giải thích module, package và đoạn kiểm tra __main__"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: Modules", vi: "Python tutorial: Module (EN)" }
+    url: "https://docs.python.org/3/tutorial/modules.html"
+  - title: { en: "The Python standard library", vi: "Thư viện chuẩn của Python (EN)" }
+    url: "https://docs.python.org/3/library/index.html"

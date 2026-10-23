@@ -1,0 +1,7 @@
+Counter({'the': 4, 'sat': 2, 'on': 2, 'cat': 1, 'mat': 1, 'dog': 1, 'log': 1})
+4
+0
+[('the', 4), ('sat', 2)]
+the  4
+sat  2
+on   2

@@ -1,0 +1,6 @@
+train: [81, 95, 88, 60, 78, 72, 85]
+test:  [70, 66, 90]
+same split twice: True
+train mean: 79.86
+test mean:  75.33
+stdev of all: 11.34
