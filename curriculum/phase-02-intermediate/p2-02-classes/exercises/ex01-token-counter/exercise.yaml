@@ -1,0 +1,66 @@
+id: p2-02-ex01
+kind: code
+title:
+  en: "Write: TokenCounter class"
+  vi: "Viết class: TokenCounter"
+difficulty: 2
+tags: [oop, classes]
+hints:
+  en:
+    - |
+      This uses §2 (`__init__` and attributes), §3 (methods with `self`) and §5 (`__repr__`). Every object needs its own `total` and `calls`. For `counter.add(10)` then `counter.add(20)` you must end with `counter.total == 30`, `counter.calls == 2` and `counter.average() == 15.0`.
+    - |
+      Plan:
+      1. In `__init__`, create `self.total` and `self.calls`, both starting at 0.
+      2. In `add(self, n)`, add `n` to `self.total` and add 1 to `self.calls`. Do not return anything.
+      3. In `average`, if no call was made yet, `return 0`. Otherwise `return` the total divided by the number of calls.
+      4. In `__repr__`, `return` (do not print) an f-string with the current total and calls.
+    - |
+      Code shape:
+      ```python
+      class TokenCounter:
+          def __init__(self):
+              self.total = 0
+              ...
+
+          def add(self, n):
+              self.total += n
+              ...
+
+          def average(self):
+              if ...:
+                  return 0
+              return ...
+
+          def __repr__(self):
+              return f"TokenCounter(total={...}, calls={...})"
+      ```
+  vi:
+    - |
+      Bài này dùng §2 (`__init__` và attribute), §3 (method với `self`) và §5 (`__repr__`). Mỗi object cần `total` và `calls` riêng. Với `counter.add(10)` rồi `counter.add(20)`, kết quả phải là `counter.total == 30`, `counter.calls == 2` và `counter.average() == 15.0`.
+    - |
+      Kế hoạch:
+      1. Trong `__init__`, tạo `self.total` và `self.calls`, cả hai bắt đầu từ 0.
+      2. Trong `add(self, n)`, cộng `n` vào `self.total` và cộng 1 vào `self.calls`. Không cần return gì.
+      3. Trong `average`, nếu chưa có lần gọi nào thì `return 0`. Nếu không thì `return` tổng chia cho số lần gọi.
+      4. Trong `__repr__`, `return` (đừng print) một f-string chứa total và calls hiện tại.
+    - |
+      Khung code:
+      ```python
+      class TokenCounter:
+          def __init__(self):
+              self.total = 0
+              ...
+
+          def add(self, n):
+              self.total += n
+              ...
+
+          def average(self):
+              if ...:
+                  return 0
+              return ...
+
+          def __repr__(self):
+              return f"TokenCounter(total={...}, calls={...})"
+      ```

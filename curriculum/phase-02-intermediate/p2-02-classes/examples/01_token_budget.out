@@ -1,0 +1,4 @@
+TokenCounter(name='chat', total=870/1000)
+TokenCounter(name='search', total=220/200)
+chat has 130 tokens left
+search is over budget by 20

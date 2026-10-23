@@ -1,0 +1,372 @@
+questions:
+  - id: p2-02-q01
+    type: mcq
+    tags: [classes]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Inside a method, what is `self`?"
+      options: ["The object the method was called on", "The class itself", "The value the method returns", "An extra argument you type by hand in every call"]
+      explanation: "In `chat.add(12)`, Python passes `chat` as `self` automatically. So `self` is the object you called the method on, and `self.total` is that object's own attribute."
+    vi:
+      prompt: "Bên trong một method, `self` là gì?"
+      options: ["Object mà method được gọi trên đó", "Chính class", "Giá trị mà method trả về", "Một đối số thừa mà bạn tự gõ trong mỗi lời gọi"]
+      explanation: "Trong `chat.add(12)`, Python tự truyền `chat` vào `self`. Vì vậy `self` là object bạn gọi method trên đó, và `self.total` là attribute riêng của object ấy."
+
+  - id: p2-02-q02
+    type: mcq
+    tags: [classes, oop]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which line builds a new object from the class `TokenCounter`?"
+      options: ["`class TokenCounter:`", "`counter = TokenCounter()`", "`def TokenCounter():`", "`counter.TokenCounter`"]
+      explanation: "Calling the class like a function, `TokenCounter()`, builds an object. The `class` line only describes the blueprint; it builds nothing."
+    vi:
+      prompt: "Dòng nào tạo ra một object mới từ class `TokenCounter`?"
+      options: ["`class TokenCounter:`", "`counter = TokenCounter()`", "`def TokenCounter():`", "`counter.TokenCounter`"]
+      explanation: "Gọi class như một hàm, `TokenCounter()`, sẽ tạo ra một object. Dòng `class` chỉ mô tả bản thiết kế, không tạo gì cả."
+
+  - id: p2-02-q03
+    type: fill
+    tags: [classes]
+    difficulty: 1
+    code: |
+      class Box:
+          def __init__(self, size):
+              ___.size = size
+
+
+      b = Box(3)
+      print(b.size)  # 3
+    answer: ["self"]
+    en:
+      prompt: "Fill in the blank so the object stores `size` and the code prints 3."
+      explanation: "`self.size = size` creates an attribute on the new object. Without `self.` it would only be a local variable that disappears when `__init__` ends."
+    vi:
+      prompt: "Điền vào chỗ trống để object lưu `size` và code in ra 3."
+      explanation: "`self.size = size` tạo một attribute trên object mới. Không có `self.` thì nó chỉ là biến cục bộ và biến mất khi `__init__` kết thúc."
+
+  - id: p2-02-q04
+    type: output
+    tags: [classes]
+    difficulty: 1
+    code: |
+      class Counter:
+          def __init__(self):
+              self.n = 0
+
+          def hit(self):
+              self.n += 1
+
+
+      c = Counter()
+      c.hit()
+      c.hit()
+      print(c.n)
+    answer: "2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`n` starts at 0 in `__init__`. Each `c.hit()` adds 1 to the attribute of the same object `c`, so after two calls it is 2."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`n` bắt đầu từ 0 trong `__init__`. Mỗi lần `c.hit()` cộng 1 vào attribute của cùng object `c`, nên sau hai lần nó bằng 2."
+
+  - id: p2-02-q05
+    type: mcq
+    tags: [classes]
+    difficulty: 1
+    answer: 0
+    code: |
+      chat = TokenCounter("chat")
+      chat.add(12)
+      print(chat.total)
+    en:
+      prompt: "Which statement about this code is true?"
+      options: ["`add` is a method and `total` is an attribute", "`add` is an attribute and `total` is a method", "Both `add` and `total` are methods", "Both `add` and `total` are attributes"]
+      explanation: "`chat.add(12)` has parentheses and an argument: it calls a method. `chat.total` has no parentheses: it just reads a value stored in the object, which is an attribute."
+    vi:
+      prompt: "Phát biểu nào về đoạn code này là đúng?"
+      options: ["`add` là method còn `total` là attribute", "`add` là attribute còn `total` là method", "Cả `add` và `total` đều là method", "Cả `add` và `total` đều là attribute"]
+      explanation: "`chat.add(12)` có ngoặc và đối số: đó là lời gọi method. `chat.total` không có ngoặc: nó chỉ đọc một giá trị lưu trong object, tức là attribute."
+
+  - id: p2-02-q06
+    type: output
+    tags: [classes]
+    difficulty: 2
+    code: |
+      class Counter:
+          def __init__(self):
+              self.n = 0
+
+          def hit(self):
+              self.n += 1
+
+
+      a = Counter()
+      b = Counter()
+      a.hit()
+      a.hit()
+      b.hit()
+      print(a.n, b.n)
+    answer: "2 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`a` and `b` are two separate objects, each with its own `n`. `a` was hit twice and `b` once, so the result is `2 1`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`a` và `b` là hai object riêng biệt, mỗi object có `n` riêng. `a` được gọi hit hai lần và `b` một lần, nên kết quả là `2 1`."
+
+  - id: p2-02-q07
+    type: mcq
+    tags: [classes, debugging]
+    difficulty: 2
+    answer: 0
+    code: |
+      class Greeter:
+          def hello(name):
+              return "Hi " + name
+
+
+      g = Greeter()
+      print(g.hello("Lan"))
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["A `TypeError`: the method takes 1 argument but 2 were given", "It prints `Hi Lan`", "A `NameError`: `name` is not defined", "An `AttributeError`: the object has no `hello`"]
+      explanation: "`g.hello(\"Lan\")` passes two things: the object `g` and `\"Lan\"`. But `hello` has only one parameter because `self` is missing, so Python raises `TypeError`."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["`TypeError`: method nhận 1 đối số nhưng được truyền 2", "In ra `Hi Lan`", "`NameError`: `name` chưa được định nghĩa", "`AttributeError`: object không có `hello`"]
+      explanation: "`g.hello(\"Lan\")` truyền hai thứ: object `g` và `\"Lan\"`. Nhưng `hello` chỉ có một tham số vì thiếu `self`, nên Python báo `TypeError`."
+
+  - id: p2-02-q08
+    type: fill
+    tags: [classes]
+    difficulty: 2
+    code: |
+      class Tag:
+          def __init__(self, name):
+              self.name = name
+
+          def __repr__(self):
+              ___ f"Tag({self.name})"
+
+
+      print(Tag("ai"))  # Tag(ai)
+    answer: ["return"]
+    en:
+      prompt: "Fill in the blank so the code prints `Tag(ai)`."
+      explanation: "`__repr__` must give the text back with `return`. If it used `print` it would return `None` and `print(Tag(\"ai\"))` would raise a `TypeError`."
+    vi:
+      prompt: "Điền vào chỗ trống để code in ra `Tag(ai)`."
+      explanation: "`__repr__` phải trả chuỗi về bằng `return`. Nếu dùng `print` thì nó trả về `None` và `print(Tag(\"ai\"))` sẽ gây `TypeError`."
+
+  - id: p2-02-q09
+    type: output
+    tags: [classes]
+    difficulty: 2
+    code: |
+      class Tag:
+          def __init__(self, name):
+              self.name = name
+
+          def __repr__(self):
+              return f"Tag({self.name})"
+
+
+      tags = [Tag("ai"), Tag("ml")]
+      print(tags)
+    answer: "[Tag(ai), Tag(ml)]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A list shows each of its items with their `__repr__`. So you see `Tag(ai)` and `Tag(ml)` inside the square brackets instead of memory addresses."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "List hiển thị từng phần tử bằng `__repr__` của chúng. Vì vậy bên trong dấu ngoặc vuông bạn thấy `Tag(ai)` và `Tag(ml)` thay vì địa chỉ bộ nhớ."
+
+  - id: p2-02-q10
+    type: mcq
+    tags: [oop, dicts]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "In which situation is a class a better fit than a dict?"
+      options: ["Many token counters, each with its own total and an `add` action", "Reading one number from a list and printing it", "Holding a single city name for a moment", "Storing one user's settings that you only read once"]
+      explanation: "A class pays off when data and actions belong together and you need many objects, each with its own state. For one quick value, a plain variable or dict is simpler."
+    vi:
+      prompt: "Trong tình huống nào class phù hợp hơn dict?"
+      options: ["Nhiều bộ đếm token, mỗi bộ có tổng riêng và một hành động `add`", "Đọc một con số từ list rồi in ra", "Giữ tạm một tên thành phố", "Lưu cài đặt của một người dùng mà bạn chỉ đọc một lần"]
+      explanation: "Class đáng dùng khi dữ liệu và hành động đi cùng nhau và bạn cần nhiều object, mỗi object có trạng thái riêng. Với một giá trị nhanh, biến thường hoặc dict đơn giản hơn."
+
+  - id: p2-02-q11
+    type: parsons
+    tags: [classes]
+    difficulty: 2
+    lines:
+      - "class Score:"
+      - "    def __init__(self, points):"
+      - "        self.points = points"
+      - "s = Score(5)"
+      - "print(s.points)"
+    en:
+      prompt: "Put the lines in order so the program prints `5`."
+      explanation: "The class must exist before you use it. Inside it, the `def` line comes first and its indented body right after. Only then can you build the object `s` and print its attribute."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `5`."
+      explanation: "Class phải tồn tại trước khi dùng. Bên trong nó, dòng `def` đứng trước và phần thân thụt lề ngay sau. Chỉ khi đó bạn mới tạo được object `s` và in attribute của nó."
+
+  - id: p2-02-q12
+    type: fill
+    tags: [classes]
+    difficulty: 2
+    code: |
+      class Tally:
+          def __init__(self):
+              self.count = 0
+
+          def hit(self):
+              self.count ___ 1
+
+          def report(self):
+              return ___.count
+
+
+      t = Tally()
+      t.hit()
+      t.hit()
+      print(t.report())  # 2
+    answer: [["+="], ["self"]]
+    en:
+      prompt: "Fill in both blanks so the code prints 2."
+      explanation: "`self.count += 1` adds 1 to the object's own attribute each time `hit` runs. `report` then reads that attribute through `self.count`."
+    vi:
+      prompt: "Điền cả hai chỗ trống để code in ra 2."
+      explanation: "`self.count += 1` cộng 1 vào attribute của chính object mỗi khi `hit` chạy. Sau đó `report` đọc attribute đó qua `self.count`."
+
+  - id: p2-02-q13
+    type: mcq
+    tags: [classes, debugging]
+    difficulty: 3
+    answer: 0
+    code: |
+      class Counter:
+          def __init__(self):
+              total = 0
+
+          def add(self, n):
+              self.total += n
+
+
+      c = Counter()
+      c.add(5)
+    en:
+      prompt: "What happens when this code runs?"
+      options: ["`AttributeError`: the object has no attribute `total`", "It works and `c.total` becomes 5", "A `NameError` inside `__init__`", "A `TypeError`: `add` takes 1 argument but 2 were given"]
+      explanation: "`total = 0` without `self.` makes a local variable that vanishes when `__init__` ends. The object never gets a `total` attribute, so `self.total += n` fails when it tries to read it."
+    vi:
+      prompt: "Chuyện gì xảy ra khi chạy đoạn code này?"
+      options: ["`AttributeError`: object không có attribute `total`", "Chạy được và `c.total` thành 5", "`NameError` bên trong `__init__`", "`TypeError`: `add` nhận 1 đối số nhưng được truyền 2"]
+      explanation: "`total = 0` không có `self.` chỉ tạo biến cục bộ và nó biến mất khi `__init__` kết thúc. Object không bao giờ có attribute `total`, nên `self.total += n` lỗi khi cố đọc nó."
+
+  - id: p2-02-q14
+    type: output
+    tags: [classes]
+    difficulty: 3
+    code: |
+      class Box:
+          def __init__(self):
+              self.items = []
+
+          def put(self, x):
+              self.items.append(x)
+
+
+      a = Box()
+      b = a
+      b.put(1)
+      a.put(2)
+      print(a.items, len(b.items))
+    answer: "[1, 2] 2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`b = a` does not build a new object; it gives the same object a second name. Both `put` calls change that one object, so its list is `[1, 2]` whichever name you read it from."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`b = a` không tạo object mới mà chỉ đặt thêm tên thứ hai cho cùng một object. Cả hai lời gọi `put` đều thay đổi object duy nhất đó, nên list của nó là `[1, 2]` dù bạn đọc qua tên nào."
+
+  - id: p2-02-q15
+    type: output
+    tags: [classes, functions]
+    difficulty: 3
+    code: |
+      class Counter:
+          def __init__(self):
+              self.n = 0
+
+          def hit(self):
+              self.n += 1
+
+
+      c = Counter()
+      result = c.hit()
+      print(result, c.n)
+    answer: "None 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`hit` changes the object but has no `return`, so the call gives back `None`. The change is still real: `c.n` is now 1."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`hit` thay đổi object nhưng không có `return`, nên lời gọi trả về `None`. Thay đổi vẫn có thật: `c.n` giờ là 1."
+
+  - id: p2-02-q16
+    type: parsons
+    tags: [classes, lists]
+    difficulty: 3
+    lines:
+      - "class Basket:"
+      - "    def __init__(self):"
+      - "        self.items = []"
+      - "    def add(self, item):"
+      - "        self.items.append(item)"
+      - "b = Basket()"
+      - 'b.add("pen")'
+      - 'b.add("cup")'
+      - "print(b.items)"
+    en:
+      prompt: "Put the lines in order so the program prints `['pen', 'cup']`. Put `__init__` before `add`."
+      explanation: "Each `def` line is followed by its own indented body. The class comes first, then the object `b` is built, then the items are added in the order that gives `['pen', 'cup']`, and the print comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `['pen', 'cup']`. Đặt `__init__` trước `add`."
+      explanation: "Mỗi dòng `def` được theo sau bởi phần thân thụt lề của nó. Class đứng đầu, rồi tạo object `b`, rồi thêm các phần tử theo thứ tự cho ra `['pen', 'cup']`, và dòng print ở cuối cùng."
+
+flashcards:
+  - id: p2-02-f01
+    tags: [classes, oop]
+    en: { front: "Class vs object?", back: "A class is the blueprint. An object (instance) is one thing built from it: `TokenCounter(\"chat\")`." }
+    vi: { front: "Class khác object thế nào?", back: "Class là bản thiết kế. Object (instance) là một thứ được tạo từ nó: `TokenCounter(\"chat\")`." }
+  - id: p2-02-f02
+    tags: [classes]
+    code: |
+      def __init__(self, name):
+          self.name = name
+    en: { front: "What does `__init__` do?", back: "It runs automatically when you build an object. Use it to create the attributes with `self.name = ...`." }
+    vi: { front: "`__init__` làm gì?", back: "Nó tự chạy khi bạn tạo một object. Dùng nó để tạo các attribute bằng `self.name = ...`." }
+  - id: p2-02-f03
+    tags: [classes]
+    en: { front: "What is `self`?", back: "The object a method was called on. Python passes it in as the first parameter, so every method starts with `self`." }
+    vi: { front: "`self` là gì?", back: "Object mà method được gọi trên đó. Python truyền nó vào làm tham số đầu tiên, nên mọi method đều bắt đầu bằng `self`." }
+  - id: p2-02-f04
+    tags: [classes]
+    en: { front: "Attribute vs method?", back: "An attribute is a value stored in an object (`chat.total`). A method is a function inside the class that you call with parentheses (`chat.add(12)`)." }
+    vi: { front: "Attribute khác method thế nào?", back: "Attribute là giá trị lưu trong object (`chat.total`). Method là hàm trong class mà bạn gọi bằng ngoặc (`chat.add(12)`)." }
+  - id: p2-02-f05
+    tags: [classes, debugging]
+    code: |
+      def __repr__(self):
+          return f"Tag({self.name})"
+    en: { front: "What is `__repr__` for?", back: "It returns the text that `print` and lists show for your object. It must `return` a string, not print one." }
+    vi: { front: "`__repr__` dùng để làm gì?", back: "Nó trả về chuỗi mà `print` và list hiển thị cho object của bạn. Nó phải `return` một chuỗi, không phải print." }
+  - id: p2-02-f06
+    tags: [oop, dicts]
+    en: { front: "When is a class worth it instead of a dict?", back: "When data and actions belong together and you need many objects, each with its own state." }
+    vi: { front: "Khi nào nên dùng class thay vì dict?", back: "Khi dữ liệu và hành động đi cùng nhau và bạn cần nhiều object, mỗi object có trạng thái riêng." }

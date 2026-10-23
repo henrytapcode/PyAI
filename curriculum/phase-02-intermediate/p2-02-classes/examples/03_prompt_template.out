@@ -1,0 +1,5 @@
+Explain classes to a beginner in two sentences.
+Explain dicts to a teacher in two sentences.
+Write a quiz question about loops for a beginner.
+PromptTemplate(name='explain', uses=2)
+PromptTemplate(name='quiz', uses=1)

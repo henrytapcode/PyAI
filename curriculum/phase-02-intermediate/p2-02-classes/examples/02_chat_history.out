@@ -1,0 +1,4 @@
+[ChatMessage(role='user', words=4), ChatMessage(role='assistant', words=5), ChatMessage(role='user', words=3)]
+words: 12
+last user message: And an object?
+last system message: None

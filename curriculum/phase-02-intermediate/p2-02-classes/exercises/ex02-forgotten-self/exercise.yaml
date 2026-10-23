@@ -1,0 +1,50 @@
+id: p2-02-ex02
+kind: debug
+title:
+  en: "Debug: the forgotten self"
+  vi: "Debug: quên self"
+difficulty: 2
+tags: [oop, classes, debugging]
+hints:
+  en:
+    - |
+      Run the tests and read the errors. The first one is `NameError: name 'messages' is not defined`: a plain `messages` is a loose variable, not part of the object. That points to §2 (an attribute must be written as `self.name`). Most of the others say `MessageLog.add() takes 1 positional argument but 2 were given`, which points to §3 (every method needs `self` as its first parameter). For example, after `log.add("hi")` the call `log.count()` must give `1`.
+    - |
+      There are 3 bugs, and all of them are a forgotten `self`:
+      1. In `__init__`: a list is created, but is it stored inside the object?
+      2. In `add`: look at the parameter list. Where is the slot for the object?
+      3. In `count`: the list lives in the object, so how do you reach it?
+      Fix one, run the tests, then fix the next.
+    - |
+      Code shape (fill in the `...`):
+      ```python
+      def __init__(self):
+          ... = []        # store the list inside the object
+
+      def add(..., text):
+          self.messages.append(text)
+
+      def count(self):
+          ...             # return the length of the stored list
+      ```
+  vi:
+    - |
+      Chạy test và đọc các lỗi. Lỗi đầu tiên là `NameError: name 'messages' is not defined`: `messages` trần chỉ là biến rời, không thuộc về object. Điều đó trỏ về §2 (attribute phải viết là `self.name`). Hầu hết các lỗi còn lại nói `MessageLog.add() takes 1 positional argument but 2 were given`, trỏ về §3 (mọi method đều cần `self` làm tham số đầu tiên). Ví dụ, sau `log.add("hi")` thì lời gọi `log.count()` phải cho `1`.
+    - |
+      Có 3 lỗi, và cả ba đều là quên `self`:
+      1. Trong `__init__`: một list được tạo ra, nhưng nó có được lưu vào trong object không?
+      2. Trong `add`: nhìn danh sách tham số. Chỗ nhận object nằm ở đâu?
+      3. Trong `count`: list nằm trong object, vậy bạn truy cập nó bằng cách nào?
+      Sửa một lỗi, chạy test, rồi sửa lỗi tiếp theo.
+    - |
+      Khung code (điền vào chỗ `...`):
+      ```python
+      def __init__(self):
+          ... = []        # lưu list vào bên trong object
+
+      def add(..., text):
+          self.messages.append(text)
+
+      def count(self):
+          ...             # trả về độ dài của list đã lưu
+      ```

@@ -1,0 +1,31 @@
+id: p2-02-classes
+phase: p2
+order: 2
+kind: lesson
+title:
+  en: "Classes & objects"
+  vi: "Class & object"
+summary:
+  en: "Bundle data and actions into your own types: classes, __init__, attributes, methods, self and __repr__."
+  vi: "Gói dữ liệu và hành động thành kiểu của riêng bạn: class, __init__, attribute, method, self và __repr__."
+level: beginner
+tags: [oop, classes]
+prerequisites: [p1-04-collections, p1-05-functions, p1-07-strings]
+duration_min: 12
+outcomes:
+  en:
+    - "Define a class with __init__ and attributes"
+    - "Write methods that use self"
+    - "Show that each object keeps its own state"
+    - "Add a readable __repr__"
+    - "Decide when a class is worth it instead of a dict"
+  vi:
+    - "Định nghĩa class với __init__ và attribute"
+    - "Viết method dùng self"
+    - "Thấy rằng mỗi object giữ trạng thái riêng"
+    - "Thêm __repr__ dễ đọc"
+    - "Quyết định khi nào nên dùng class thay vì dict"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Python tutorial: Classes", vi: "Python tutorial: Class (EN)" }
+    url: "https://docs.python.org/3/tutorial/classes.html"
