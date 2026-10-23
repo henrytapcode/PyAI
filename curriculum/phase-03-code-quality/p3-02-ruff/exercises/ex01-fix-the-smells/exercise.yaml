@@ -1,0 +1,46 @@
+id: p3-02-ex01
+kind: debug
+title:
+  en: "Debug: fix what ruff would report"
+  vi: "Sửa lỗi: sửa những gì ruff sẽ báo"
+difficulty: 2
+tags: [linting, functions, exceptions]
+hints:
+  en:
+    - |
+      Three functions, three smells from the lesson: a list as a default argument (`B006`, §6), a bare `except:` (`E722`, §6) and a name that is assigned but never used (`F841`, §5). The unused `import os` is `F401`. Read the failing tests: `collect("b")` must return `["b"]`, and `total_length(["ab", "c"])` must return `3`.
+    - |
+      The plan:
+      1. Delete `import os`.
+      2. In `collect`, change the default to `None`. Inside, if `items` is `None`, make it an empty list. Then append.
+      3. In `parse_count`, write `except ValueError:` instead of a bare `except:`.
+      4. In `total_length`, look at the loop body: it writes to `totl` but the function returns `total`. Use the same name on both sides.
+    - |
+      The shape for `collect`:
+      ```python
+      def collect(item, items=None):
+          if items is None:
+              ...
+          items.append(item)
+          return items
+      ```
+      The gap is one line that gives `items` a new empty list. The other two fixes are a single word each.
+  vi:
+    - |
+      Ba hàm, ba lỗi trong bài: list làm đối số mặc định (`B006`, §6), `except:` trần (`E722`, §6) và một tên được gán nhưng không bao giờ dùng (`F841`, §5). `import os` không dùng là `F401`. Hãy đọc các test thất bại: `collect("b")` phải trả `["b"]`, và `total_length(["ab", "c"])` phải trả `3`.
+    - |
+      Kế hoạch:
+      1. Xóa `import os`.
+      2. Trong `collect`, đổi giá trị mặc định thành `None`. Bên trong, nếu `items` là `None` thì gán cho nó một list rỗng. Sau đó append.
+      3. Trong `parse_count`, viết `except ValueError:` thay cho `except:` trần.
+      4. Trong `total_length`, nhìn thân vòng lặp: nó ghi vào `totl` nhưng hàm lại trả `total`. Hãy dùng cùng một tên ở cả hai vế.
+    - |
+      Hình dạng của `collect`:
+      ```python
+      def collect(item, items=None):
+          if items is None:
+              ...
+          items.append(item)
+          return items
+      ```
+      Chỗ trống là một dòng gán cho `items` một list rỗng mới. Hai chỗ sửa còn lại mỗi chỗ chỉ là một từ.

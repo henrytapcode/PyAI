@@ -1,0 +1,335 @@
+questions:
+  - id: p3-02-q01
+    type: mcq
+    tags: [linting]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which ruff command only changes the layout of your code (spaces, quotes, blank lines) and never its meaning?"
+      options:
+        - "`ruff check`"
+        - "`ruff check --fix`"
+        - "`ruff format`"
+        - "`ruff rule`"
+      explanation: "`ruff format` is the formatter. `ruff check` is the linter: it looks for problems, and with `--fix` it also repairs the safe ones."
+    vi:
+      prompt: "Lệnh ruff nào chỉ đổi cách trình bày code (khoảng trắng, dấu nháy, dòng trống) mà không bao giờ đổi ý nghĩa?"
+      options:
+        - "`ruff check`"
+        - "`ruff check --fix`"
+        - "`ruff format`"
+        - "`ruff rule`"
+      explanation: "`ruff format` là formatter. `ruff check` là linter: nó tìm vấn đề, và với `--fix` nó còn sửa những lỗi an toàn."
+
+  - id: p3-02-q02
+    type: mcq
+    tags: [linting]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "A ruff message contains `[*]`. What does it mean?"
+      options:
+        - "Ruff can repair this problem by itself with `--fix`, and the fix is safe"
+        - "The problem is critical"
+        - "The rule is turned off"
+        - "The line was silenced with `noqa`"
+      explanation: "`[*]` marks a safe automatic fix. Messages without it, such as `B006`, need your own judgement because the fix could change how the program behaves."
+    vi:
+      prompt: "Một thông báo của ruff có `[*]`. Nó nghĩa là gì?"
+      options:
+        - "Ruff tự sửa được lỗi này bằng `--fix`, và cách sửa là an toàn"
+        - "Vấn đề này rất nghiêm trọng"
+        - "Rule này đã bị tắt"
+        - "Dòng này đã bị tắt bằng `noqa`"
+      explanation: "`[*]` đánh dấu một cách sửa tự động an toàn. Thông báo không có nó, như `B006`, cần bạn tự cân nhắc vì cách sửa có thể đổi hành vi của chương trình."
+
+  - id: p3-02-q03
+    type: mcq
+    tags: [linting]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Ruff reports `F841 Local variable totl is assigned to but never used` in a loop that should add to `total`. What is the most likely cause?"
+      options:
+        - "The variable is too long"
+        - "Ruff has a bug"
+        - "The loop is empty"
+        - "A typo: the loop wrote to `totl` and the function returns `total`"
+      explanation: "A value that is written and never read is what a typo looks like. Ask what you meant to use before you delete the line."
+    vi:
+      prompt: "Ruff báo `F841 Local variable totl is assigned to but never used` trong một vòng lặp lẽ ra phải cộng vào `total`. Nguyên nhân khả dĩ nhất là gì?"
+      options:
+        - "Tên biến quá dài"
+        - "Ruff bị lỗi"
+        - "Vòng lặp rỗng"
+        - "Gõ sai: vòng lặp ghi vào `totl` còn hàm lại trả `total`"
+      explanation: "Một giá trị được ghi mà không bao giờ được đọc chính là dấu hiệu của lỗi gõ sai. Hãy hỏi mình định dùng cái gì trước khi xóa dòng đó."
+
+  - id: p3-02-q04
+    type: mcq
+    tags: [linting, functions]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Why is `def add_item(item, items=[])` flagged as `B006`?"
+      options:
+        - "Lists cannot be default values"
+        - "The default list is created once, so every call without its own list shares it"
+        - "The parameter name is too short"
+        - "A default value must come before the other parameters"
+      explanation: "Python builds the default when the `def` line runs, only once. Appending to it changes the same list on every call. Default to `None` and build the list inside the function."
+    vi:
+      prompt: "Vì sao `def add_item(item, items=[])` bị báo là `B006`?"
+      options:
+        - "List không thể làm giá trị mặc định"
+        - "List mặc định chỉ được tạo một lần, nên mọi lời gọi không truyền list riêng đều dùng chung nó"
+        - "Tên tham số quá ngắn"
+        - "Giá trị mặc định phải đứng trước các tham số khác"
+      explanation: "Python tạo giá trị mặc định khi dòng `def` chạy, chỉ một lần. Append vào nó thay đổi cùng một list ở mọi lời gọi. Hãy để mặc định là `None` và tạo list bên trong hàm."
+
+  - id: p3-02-q05
+    type: mcq
+    tags: [linting, exceptions]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "What is wrong with a bare `except:` (rule `E722`)?"
+      options:
+        - "It is slower than `except ValueError:`"
+        - "It is not valid Python"
+        - "It catches every error, including mistakes in your own code, and hides them"
+        - "It can only be used once per file"
+      explanation: "A bare `except:` swallows everything, even a `TypeError` that means the caller has a bug. Name the error you expect, for example `except ValueError:`."
+    vi:
+      prompt: "`except:` trần (rule `E722`) có vấn đề gì?"
+      options:
+        - "Nó chậm hơn `except ValueError:`"
+        - "Nó không phải Python hợp lệ"
+        - "Nó bắt mọi lỗi, kể cả lỗi sai trong code của bạn, và che giấu chúng"
+        - "Chỉ dùng được một lần trong mỗi file"
+      explanation: "`except:` trần nuốt tất cả, kể cả `TypeError` cho thấy nơi gọi đang có lỗi. Hãy nêu rõ lỗi bạn mong đợi, ví dụ `except ValueError:`."
+
+  - id: p3-02-q06
+    type: mcq
+    tags: [linting]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "What is the difference between `# noqa` and `# noqa: E501`?"
+      options:
+        - "The bare `# noqa` silences every rule on that line, including bugs you add later. `# noqa: E501` silences only one rule"
+        - "There is no difference"
+        - "`# noqa: E501` silences the whole file"
+        - "The bare `# noqa` only works in `pyproject.toml`"
+      explanation: "Always write the code after `noqa`, and a reason when it is not obvious. A bare `# noqa` can hide a real typo on the same line."
+    vi:
+      prompt: "`# noqa` và `# noqa: E501` khác nhau thế nào?"
+      options:
+        - "`# noqa` trần tắt mọi rule trên dòng đó, kể cả lỗi bạn thêm vào sau này. `# noqa: E501` chỉ tắt một rule"
+        - "Không khác nhau"
+        - "`# noqa: E501` tắt cho cả file"
+        - "`# noqa` trần chỉ có tác dụng trong `pyproject.toml`"
+      explanation: "Luôn viết mã rule sau `noqa`, và thêm lý do khi nó không hiển nhiên. `# noqa` trần có thể che một lỗi gõ sai thật trên cùng dòng."
+
+  - id: p3-02-q07
+    type: output
+    tags: [linting, functions]
+    difficulty: 1
+    code: |
+      def add_item(item, items=[]):
+          items.append(item)
+          return items
+
+
+      add_item("a")
+      print(add_item("b"))
+    answer: "['a', 'b']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Both calls use the same default list, so the second call still holds `\"a\"`. This is the bug that ruff reports as `B006`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Cả hai lời gọi dùng cùng một list mặc định, nên lời gọi thứ hai vẫn còn `\"a\"`. Đây là lỗi mà ruff báo là `B006`."
+
+  - id: p3-02-q08
+    type: output
+    tags: [linting, functions]
+    difficulty: 2
+    code: |
+      def add_item(item, items=None):
+          if items is None:
+              items = []
+          items.append(item)
+          return items
+
+
+      add_item("a")
+      print(add_item("b"))
+    answer: "['b']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Each call without a list builds a new empty one inside the function, so the second call does not see `\"a\"`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mỗi lời gọi không truyền list sẽ tạo một list rỗng mới bên trong hàm, nên lời gọi thứ hai không thấy `\"a\"`."
+
+  - id: p3-02-q09
+    type: output
+    tags: [linting, exceptions]
+    difficulty: 2
+    code: |
+      def to_int(text):
+          try:
+              return int(text)
+          except ValueError:
+              return -1
+
+
+      print(to_int("12"), to_int("abc"))
+    answer: "12 -1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`int(\"12\")` works and returns 12. `int(\"abc\")` raises `ValueError`, which the `except` catches, so the function returns -1."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`int(\"12\")` chạy được và trả 12. `int(\"abc\")` raise `ValueError`, `except` bắt lại nên hàm trả -1."
+
+  - id: p3-02-q10
+    type: output
+    tags: [linting]
+    difficulty: 3
+    code: |
+      class Anything:
+          def __eq__(self, other):
+              return True
+
+
+      thing = Anything()
+      print(thing == None, thing is None)
+    answer: "True False"
+    en:
+      prompt: "What does this code print?"
+      explanation: "A class decides what `==` means, and this one says `True` to anything. `is None` asks whether the object is the one real `None`, so it is honest. That is why ruff wants `is None` (`E711`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Class tự quyết định `==` nghĩa là gì, và class này trả `True` với mọi thứ. `is None` hỏi object có phải đúng `None` thật không, nên luôn trung thực. Vì vậy ruff muốn `is None` (`E711`)."
+
+  - id: p3-02-q11
+    type: fill
+    tags: [linting, conditions]
+    difficulty: 1
+    code: |
+      known = {"spam", "ham"}
+      label = "eggs"
+      if label ___ ___ known:
+          print("unknown label")  # unknown label
+    answer: ["not", "in"]
+    en:
+      prompt: "Fill in the two blanks with the form ruff wants (`E713`)."
+      explanation: "`label not in known` is the preferred spelling. `not label in known` works, but it reads backwards and ruff flags it."
+    vi:
+      prompt: "Điền hai chỗ trống bằng dạng viết mà ruff muốn (`E713`)."
+      explanation: "`label not in known` là cách viết được ưu tiên. `not label in known` vẫn chạy nhưng đọc ngược và ruff sẽ báo."
+
+  - id: p3-02-q12
+    type: fill
+    tags: [linting]
+    difficulty: 2
+    code: |
+      URL = "https://example.com/a/very/long/path"  # noqa: ___
+      print(URL.split("/")[2])  # example.com
+    answer: ["E501"]
+    en:
+      prompt: "Fill in the rule code for \"line too long\", so the comment silences only that rule."
+      explanation: "`E501` is the line-too-long rule. Writing the code keeps every other rule active on that line."
+    vi:
+      prompt: "Điền mã rule cho \"dòng quá dài\", để comment chỉ tắt đúng rule đó."
+      explanation: "`E501` là rule dòng quá dài. Viết rõ mã giúp mọi rule khác vẫn hoạt động trên dòng đó."
+
+  - id: p3-02-q13
+    type: fill
+    tags: [linting, loops]
+    difficulty: 2
+    code: |
+      def count_words(texts):
+          total = 0
+          for text in texts:
+              total = ___ + len(text.split())
+          return total
+
+
+      print(count_words(["a b", "c"]))  # 3
+    answer: ["total"]
+    en:
+      prompt: "Fill in the name that fixes the bug ruff would warn about."
+      explanation: "The loop must add to the running `total`. Writing to a differently spelled name leaves `total` at 0 and ruff reports an unused variable."
+    vi:
+      prompt: "Điền tên sửa được lỗi mà ruff sẽ cảnh báo."
+      explanation: "Vòng lặp phải cộng vào `total` đang chạy. Ghi vào một tên viết khác sẽ để `total` ở 0 và ruff báo biến không dùng."
+
+  - id: p3-02-q14
+    type: parsons
+    tags: [linting, exceptions]
+    difficulty: 2
+    lines:
+      - "def to_int(text):"
+      - "    try:"
+      - "        return int(text)"
+      - "    except ValueError:"
+      - "        return -1"
+      - "print(to_int(\"12\"))"
+    en:
+      prompt: "Put the lines in order so the program prints `12`."
+      explanation: "Define the function, then `try` with the risky `int` call, then the `except ValueError:` handler. The call that prints comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `12`."
+      explanation: "Định nghĩa hàm, rồi `try` với lời gọi `int` rủi ro, rồi phần xử lý `except ValueError:`. Lời gọi để in nằm cuối."
+
+  - id: p3-02-q15
+    type: parsons
+    tags: [linting, functions]
+    difficulty: 2
+    lines:
+      - "def add_item(item, items=None):"
+      - "    if items is None:"
+      - "        items = []"
+      - "    items.append(item)"
+      - "    return items"
+      - "print(add_item(\"a\"))"
+    en:
+      prompt: "Put the lines in order so the program prints `['a']`."
+      explanation: "The `None` check must come before `append`, because you cannot append to `None`. `return` ends the function, and the call comes last."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `['a']`."
+      explanation: "Phép kiểm tra `None` phải đứng trước `append`, vì không thể append vào `None`. `return` kết thúc hàm, và lời gọi nằm cuối."
+
+flashcards:
+  - id: p3-02-f01
+    tags: [linting]
+    en: { front: "Linter vs formatter?", back: "A linter (`ruff check`) finds suspicious code without running it. A formatter (`ruff format`) only changes layout, never meaning." }
+    vi: { front: "Linter khác formatter thế nào?", back: "Linter (`ruff check`) tìm code đáng ngờ mà không chạy nó. Formatter (`ruff format`) chỉ đổi cách trình bày, không bao giờ đổi ý nghĩa." }
+  - id: p3-02-f02
+    tags: [linting]
+    code: "F401 [*] `os` imported but unused\n --> clean.py:1:8"
+    en: { front: "How do you read a ruff message?", back: "A rule code (letters = family, digits = rule), an optional `[*]` for a safe auto-fix, a sentence about the problem, the file, line and column, and a suggested fix." }
+    vi: { front: "Đọc một thông báo của ruff như thế nào?", back: "Một mã rule (chữ = nhóm, số = rule), `[*]` tùy chọn cho cách sửa tự động an toàn, một câu mô tả vấn đề, file, dòng và cột, và gợi ý cách sửa." }
+  - id: p3-02-f03
+    tags: [linting, functions]
+    code: "def add_item(item, items=None):\n    if items is None:\n        items = []"
+    en: { front: "How do you fix B006, a mutable default argument?", back: "Default to `None`, then build a fresh list inside the function with `if items is None: items = []`. The default is created only once, so a list there would be shared." }
+    vi: { front: "Sửa B006, đối số mặc định mutable, như thế nào?", back: "Để mặc định là `None`, rồi tạo list mới bên trong hàm bằng `if items is None: items = []`. Giá trị mặc định chỉ được tạo một lần, nên một list ở đó sẽ bị dùng chung." }
+  - id: p3-02-f04
+    tags: [linting, exceptions]
+    code: "except ValueError:\n    return -1"
+    en: { front: "Why avoid a bare `except:` (E722)?", back: "It catches every error and hides real bugs. Name the error you expect." }
+    vi: { front: "Vì sao tránh `except:` trần (E722)?", back: "Nó bắt mọi lỗi và che giấu lỗi thật. Hãy nêu rõ lỗi bạn mong đợi." }
+  - id: p3-02-f05
+    tags: [linting]
+    code: "[tool.ruff.lint]\nselect = [\"E\", \"F\", \"W\", \"B\", \"UP\"]\nignore = [\"E731\"]"
+    en: { front: "Where do you configure ruff?", back: "In `pyproject.toml`, under `[tool.ruff]` and `[tool.ruff.lint]`: `line-length`, `select`, `ignore` and `per-file-ignores`." }
+    vi: { front: "Cấu hình ruff ở đâu?", back: "Trong `pyproject.toml`, dưới `[tool.ruff]` và `[tool.ruff.lint]`: `line-length`, `select`, `ignore` và `per-file-ignores`." }
+  - id: p3-02-f06
+    tags: [linting]
+    code: "x = 1  # noqa: E501"
+    en: { front: "How do you silence one ruff message safely?", back: "Add `# noqa: CODE` with the rule code and a short reason at the end of that line. Never use a bare `# noqa`, which silences everything on the line." }
+    vi: { front: "Tắt một thông báo của ruff an toàn như thế nào?", back: "Thêm `# noqa: MÃ` với mã rule và một lý do ngắn ở cuối dòng đó. Đừng bao giờ dùng `# noqa` trần, vì nó tắt mọi thứ trên dòng." }

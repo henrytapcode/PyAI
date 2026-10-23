@@ -1,0 +1,4 @@
+creative: {'model': 'small', 'temperature': 0.9, 'max_tokens': 256}
+plain: {'model': 'small', 'temperature': 0.2, 'max_tokens': 256}
+defaults untouched: True
+separate dicts: True

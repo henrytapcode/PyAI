@@ -1,0 +1,33 @@
+id: p3-02-ruff
+phase: p3
+order: 2
+kind: lesson
+title:
+  en: "Linting and formatting with ruff"
+  vi: "Lint và định dạng code với ruff"
+summary:
+  en: "Find suspicious code without running it, read a ruff message, fix the common smells, and configure ruff in pyproject.toml."
+  vi: "Tìm code đáng ngờ mà không cần chạy, đọc một thông báo của ruff, sửa các lỗi thường gặp và cấu hình ruff trong pyproject.toml."
+level: beginner
+tags: [linting, functions, exceptions]
+prerequisites: [p2-05-typing]
+duration_min: 12
+outcomes:
+  en:
+    - "Explain the difference between a linter and a formatter"
+    - "Run ruff check, ruff check --fix and ruff format"
+    - "Read a ruff message: rule code, location and fix"
+    - "Fix F401, F841, B006, E722 and E711"
+    - "Configure ruff in pyproject.toml and silence one line with noqa"
+  vi:
+    - "Giải thích sự khác nhau giữa linter và formatter"
+    - "Chạy ruff check, ruff check --fix và ruff format"
+    - "Đọc một thông báo của ruff: mã rule, vị trí và cách sửa"
+    - "Sửa F401, F841, B006, E722 và E711"
+    - "Cấu hình ruff trong pyproject.toml và tắt một dòng bằng noqa"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Ruff documentation", vi: "Tài liệu Ruff (EN)" }
+    url: "https://docs.astral.sh/ruff/"
+  - title: { en: "Ruff rules reference", vi: "Danh sách rule của Ruff (EN)" }
+    url: "https://docs.astral.sh/ruff/rules/"

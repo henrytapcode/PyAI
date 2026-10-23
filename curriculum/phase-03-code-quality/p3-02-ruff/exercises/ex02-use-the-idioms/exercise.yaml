@@ -1,0 +1,52 @@
+id: p3-02-ex02
+kind: fill
+title:
+  en: "Fill: write the form ruff wants"
+  vi: "Điền chỗ trống: viết dạng mà ruff muốn"
+difficulty: 1
+tags: [linting, conditions]
+hints:
+  en:
+    - |
+      Section 7 lists the three idioms. A test passes a strange object whose `==` always says `True`, so `describe` must use `is`, not `==` (`E711`). `is_unknown` is the `not in` form (`E713`). `switch_state("yes")` must return `"on"`, which a plain truth test does (`E712`).
+    - |
+      The plan:
+      1. In `describe`, the condition asks "is this the one and only `None`?" and uses the word `is`.
+      2. In `is_unknown`, return the check "label is not in known", written with `not in`.
+      3. In `switch_state`, the condition is just the name `flag`, with nothing to compare it to.
+    - |
+      The shape:
+      ```python
+      if data ... None:
+          return "no data"
+      ```
+      ```python
+      return label ... known
+      ```
+      ```python
+      if ...:
+          return "on"
+      ```
+      The first gap is one keyword, the second gap is two keywords, and the third gap is one name.
+  vi:
+    - |
+      Phần 7 liệt kê ba cách viết. Một test truyền vào một object lạ có `==` luôn trả `True`, nên `describe` phải dùng `is` chứ không phải `==` (`E711`). `is_unknown` là dạng `not in` (`E713`). `switch_state("yes")` phải trả `"on"`, điều mà một phép kiểm tra đúng/sai thông thường làm được (`E712`).
+    - |
+      Kế hoạch:
+      1. Trong `describe`, điều kiện hỏi "đây có phải đúng một đối tượng `None` duy nhất không?" và dùng từ `is`.
+      2. Trong `is_unknown`, trả về phép kiểm tra "label không nằm trong known", viết bằng `not in`.
+      3. Trong `switch_state`, điều kiện chỉ là tên `flag`, không so sánh với gì cả.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      if data ... None:
+          return "no data"
+      ```
+      ```python
+      return label ... known
+      ```
+      ```python
+      if ...:
+          return "on"
+      ```
+      Chỗ trống đầu là một từ khóa, chỗ trống thứ hai là hai từ khóa, và chỗ trống thứ ba là một cái tên.
