@@ -1999,3 +1999,190 @@ questions:
         Chất lượng: phản hồi của người dùng (thích hoặc không thích), một mẫu nhỏ được người duyệt mỗi tuần, và bộ eval chạy lại theo lịch để bắt drift khi nhà cung cấp đổi model.
         Cảnh báo khi chi phí hoặc lỗi tăng đột biến, không cảnh báo từng lỗi riêng lẻ.
       tip: "Tách riêng log, metric và tín hiệu chất lượng. Quyền riêng tư (che dữ liệu, thời hạn lưu) và theo dõi chi phí là điểm làm khác biệt câu trả lời cấp production."
+
+  # ============================================================ Python intermediate (more)
+  - id: iv-78
+    topic: comprehensions
+    level: junior
+    kind: concept
+    en:
+      question: "When should you use a list comprehension, and when a normal for loop?"
+      answer: |
+        Use a comprehension when you build one new collection from another with a simple transform and an optional filter, for example `[clean(t) for t in texts if t]`. It is short and reads as one idea.
+        Use a normal loop when the body does several things (logging, updating counters, early `break`), needs several statements, or becomes hard to read on one line. If a comprehension needs a second nested `for` and an `if`, a loop is usually clearer.
+      tip: "Give the rule (one new collection, simple expression) and name the readability limit. Do not claim comprehensions are always faster."
+    vi:
+      question: "Khi nào dùng list comprehension, khi nào dùng vòng lặp for thường?"
+      answer: |
+        Dùng comprehension khi bạn tạo một collection mới từ collection khác với một phép biến đổi đơn giản và có thể có bộ lọc, ví dụ `[clean(t) for t in texts if t]`. Nó ngắn và đọc như một ý duy nhất.
+        Dùng vòng lặp thường khi thân vòng lặp làm nhiều việc (ghi log, cập nhật bộ đếm, `break` sớm), cần nhiều câu lệnh, hoặc khó đọc khi nhồi vào một dòng. Nếu comprehension cần thêm một `for` lồng và một `if`, vòng lặp thường rõ ràng hơn.
+      tip: "Nêu quy tắc (một collection mới, biểu thức đơn giản) và giới hạn về độ dễ đọc. Đừng khẳng định comprehension luôn nhanh hơn."
+
+  - id: iv-79
+    topic: classes
+    level: junior
+    kind: concept
+    en:
+      question: "Why define `__repr__` on your class?"
+      answer: |
+        `__repr__` controls how an object is shown in the console, in logs and in error messages. Without it you see `<Model object at 0x7f...>`, which tells you nothing. A good `__repr__` shows the class name and the important fields, such as `Model(name='gpt', temperature=0.2)`.
+        It is mainly for developers. Dataclasses write a useful `__repr__` for you.
+      tip: "Mention debugging and logs, not just 'it prints nicely'. Bonus: say that dataclasses generate it."
+    vi:
+      question: "Vì sao nên định nghĩa `__repr__` cho class của bạn?"
+      answer: |
+        `__repr__` quyết định cách object hiển thị trong console, log và thông báo lỗi. Nếu không có, bạn chỉ thấy `<Model object at 0x7f...>` và không biết gì thêm. `__repr__` tốt cho thấy tên class và các trường quan trọng, như `Model(name='gpt', temperature=0.2)`.
+        Nó chủ yếu dành cho lập trình viên. Dataclass tự viết sẵn một `__repr__` hữu ích.
+      tip: "Nhắc đến debug và log, đừng chỉ nói 'in cho đẹp'. Điểm cộng: nói rằng dataclass tự sinh nó."
+
+  - id: iv-80
+    topic: inheritance
+    level: mid
+    kind: concept
+    en:
+      question: "Inheritance or composition: how do you choose?"
+      answer: |
+        Use inheritance for an "is a" relationship where the child really can replace the parent, for example `ChatModel` is a `Model`. Use composition for a "has a" relationship: a `Pipeline` holds a list of steps, a `Bot` holds a `Retriever`.
+        Prefer composition by default. Deep inheritance trees couple classes tightly, so a change in the parent can break every child. Composition lets you swap a part (a different retriever) without touching the rest.
+      tip: "Say 'is a' versus 'has a', then give your default (composition) and the reason (loose coupling)."
+    vi:
+      question: "Chọn kế thừa (inheritance) hay composition như thế nào?"
+      answer: |
+        Dùng kế thừa cho quan hệ "là một" khi lớp con thật sự thay thế được lớp cha, ví dụ `ChatModel` là một `Model`. Dùng composition cho quan hệ "có một": `Pipeline` chứa một list các bước, `Bot` chứa một `Retriever`.
+        Mặc định nên ưu tiên composition. Cây kế thừa sâu khiến các class gắn chặt với nhau, nên đổi lớp cha có thể làm hỏng mọi lớp con. Composition cho phép thay một phần (retriever khác) mà không đụng tới phần còn lại.
+      tip: "Nói 'là một' so với 'có một', rồi nêu mặc định của bạn (composition) và lý do (liên kết lỏng)."
+
+  - id: iv-81
+    topic: dataclasses
+    level: junior
+    kind: concept
+    en:
+      question: "Why does a dataclass refuse `messages: list = []`, and how do you fix it?"
+      answer: |
+        A dataclass raises `ValueError` for a mutable default. One list written in the class would be shared by every object, so adding a message to one chat would add it to all of them.
+        Fix it with a factory that makes a fresh list for each object: `messages: list = field(default_factory=list)`.
+        The same rule applies to function arguments: `def f(items=[])` shares one list across calls.
+      tip: "Explain the sharing problem first, then the fix. Connecting it to the mutable default argument shows you see the pattern."
+    vi:
+      question: "Vì sao dataclass từ chối `messages: list = []`, và sửa thế nào?"
+      answer: |
+        Dataclass raise `ValueError` với giá trị mặc định mutable. Một list viết trong class sẽ bị mọi object dùng chung, nên thêm tin nhắn vào một chat sẽ thêm vào tất cả.
+        Sửa bằng một factory tạo list mới cho mỗi object: `messages: list = field(default_factory=list)`.
+        Cùng quy tắc áp dụng cho tham số hàm: `def f(items=[])` dùng chung một list qua các lần gọi.
+      tip: "Giải thích vấn đề dùng chung trước, rồi mới tới cách sửa. Nối với lỗi default argument mutable cho thấy bạn nhận ra quy luật."
+
+  - id: iv-82
+    topic: typing
+    level: junior
+    kind: concept
+    en:
+      question: "Does Python enforce type hints? Why use them then?"
+      answer: |
+        No. Python ignores type hints when the program runs, so `double("ab")` with `x: int` still runs. Hints are for people and tools: editors autocomplete better, a type checker such as mypy or pyright finds mismatches before you run the code, and readers see what a function expects.
+        They are most useful on function signatures and on the data structures that cross module boundaries.
+      tip: "Start with the surprising fact (not enforced), then give two concrete benefits. Naming a checker shows practical experience."
+    vi:
+      question: "Python có ép buộc type hint không? Vậy dùng để làm gì?"
+      answer: |
+        Không. Python bỏ qua type hint khi chương trình chạy, nên `double("ab")` với `x: int` vẫn chạy được. Hint dành cho con người và công cụ: editor gợi ý tốt hơn, công cụ kiểm tra kiểu như mypy hay pyright tìm ra chỗ sai trước khi chạy, và người đọc biết hàm mong đợi gì.
+        Hint hữu ích nhất ở chữ ký hàm và ở các cấu trúc dữ liệu đi qua ranh giới giữa các module.
+      tip: "Mở đầu bằng sự thật bất ngờ (không bị ép buộc), rồi nêu hai lợi ích cụ thể. Nhắc tên một công cụ kiểm tra cho thấy bạn có kinh nghiệm thực tế."
+
+  - id: iv-83
+    topic: closures
+    level: mid
+    kind: concept
+    en:
+      question: "What is a closure, and how does it relate to decorators?"
+      answer: |
+        A closure is an inner function that remembers variables from the outer function that created it, even after the outer function has returned. For example `make_adder(n)` returns a function that adds `n`.
+        A decorator is built on closures: `wrapper` is an inner function that remembers `func`, the function being decorated. That is how the wrapper can call the original function later.
+      tip: "One sentence for the definition, one tiny example, then the link to decorators. Do not drift into `nonlocal` unless asked."
+    vi:
+      question: "Closure là gì và nó liên quan thế nào tới decorator?"
+      answer: |
+        Closure là hàm bên trong nhớ các biến của hàm bên ngoài đã tạo ra nó, kể cả khi hàm bên ngoài đã kết thúc. Ví dụ `make_adder(n)` trả về một hàm cộng thêm `n`.
+        Decorator được xây trên closure: `wrapper` là hàm bên trong nhớ `func`, hàm đang được trang trí. Nhờ vậy wrapper có thể gọi hàm gốc về sau.
+      tip: "Một câu định nghĩa, một ví dụ nhỏ, rồi nối với decorator. Đừng sa vào `nonlocal` nếu không được hỏi."
+
+  - id: iv-84
+    topic: context-managers
+    level: junior
+    kind: concept
+    en:
+      question: "What does a `with` statement guarantee, and when would you write your own context manager?"
+      answer: |
+        `with` guarantees that the cleanup step runs when the block ends, even if an exception is raised inside it. `with open(path) as f:` closes the file in every case.
+        Write your own when you have a setup-and-cleanup pair that must not be forgotten: timing a block, switching a setting temporarily, holding a lock, or saving a file only if the edit succeeded. The easy way is `@contextmanager`: code before `yield` is setup, code after it is cleanup (put it in `finally` if it must run on errors).
+      tip: "Lead with the guarantee, then give a realistic example from your own work."
+    vi:
+      question: "Câu lệnh `with` đảm bảo điều gì và khi nào bạn tự viết context manager?"
+      answer: |
+        `with` đảm bảo bước dọn dẹp luôn chạy khi khối kết thúc, kể cả khi bên trong raise exception. `with open(path) as f:` luôn đóng file trong mọi trường hợp.
+        Tự viết khi bạn có một cặp chuẩn bị và dọn dẹp không được quên: đo thời gian một khối, đổi tạm một cài đặt, giữ lock, hoặc chỉ lưu file khi việc sửa thành công. Cách dễ là `@contextmanager`: code trước `yield` là chuẩn bị, code sau là dọn dẹp (đặt trong `finally` nếu phải chạy cả khi lỗi).
+      tip: "Mở đầu bằng điều được đảm bảo, rồi đưa ví dụ thực tế từ công việc của bạn."
+
+  - id: iv-85
+    topic: iterators
+    level: mid
+    kind: scenario
+    en:
+      question: "You must process a 20 GB text file line by line and keep only lines with the word ERROR. How do you do it without running out of memory?"
+      answer: |
+        Do not read the whole file into a list. Open the file and iterate over it, because a file object yields one line at a time. Wrap the logic in a generator so the steps stay lazy:
+        ```python
+        def error_lines(path):
+            with open(path, encoding="utf-8") as f:
+                for line in f:
+                    if "ERROR" in line:
+                        yield line.rstrip("\n")
+        ```
+        Memory stays small because only one line exists at a time. Do not call `list()` on the result unless the output is small; consume it in a loop or write it out as you go.
+      tip: "Name the key idea: lazy, one item at a time. Mentioning that `list()` would defeat the purpose shows you understand the trade-off."
+    vi:
+      question: "Bạn phải xử lý file văn bản 20 GB theo từng dòng và chỉ giữ các dòng có chữ ERROR. Làm sao để không hết bộ nhớ?"
+      answer: |
+        Đừng đọc cả file vào một list. Mở file và duyệt qua nó, vì file object trả về từng dòng một. Bọc logic trong một generator để các bước vẫn lười (lazy):
+        ```python
+        def error_lines(path):
+            with open(path, encoding="utf-8") as f:
+                for line in f:
+                    if "ERROR" in line:
+                        yield line.rstrip("\n")
+        ```
+        Bộ nhớ nhỏ vì mỗi lúc chỉ có một dòng. Đừng gọi `list()` lên kết quả trừ khi đầu ra nhỏ; hãy duyệt bằng vòng lặp hoặc ghi ra dần.
+      tip: "Nêu ý chính: lazy, từng phần tử một. Nhắc rằng `list()` sẽ phá mục đích cho thấy bạn hiểu sự đánh đổi."
+
+  - id: iv-86
+    topic: exceptions
+    level: mid
+    kind: concept
+    en:
+      question: "How do you validate data from a file or an API, and what should you do when it is wrong?"
+      answer: |
+        Validate at the edge, right where the data enters your program. Check the type and the range of each field and raise a clear exception with a helpful message (`ValueError: amount must be above 0, got -5`). Keep the check in one function or in the dataclass `__post_init__`, so the rest of the code can trust the data.
+        When it is wrong, fail loudly for programmer errors, and for expected bad input either skip the record and log it, or collect the errors and report them all at once. Never silently fix or ignore bad data.
+      tip: "Say 'validate at the edge' and 'clear message'. Distinguishing skip-and-log from fail-fast shows judgement."
+    vi:
+      question: "Bạn kiểm tra tính hợp lệ của dữ liệu từ file hoặc API thế nào, và làm gì khi dữ liệu sai?"
+      answer: |
+        Kiểm tra ngay ở cửa vào, nơi dữ liệu đi vào chương trình. Kiểm tra kiểu và khoảng giá trị của từng trường rồi raise exception rõ ràng kèm thông báo hữu ích (`ValueError: amount must be above 0, got -5`). Đặt phần kiểm tra trong một hàm hoặc trong `__post_init__` của dataclass để phần code còn lại tin được dữ liệu.
+        Khi dữ liệu sai: lỗi do lập trình thì để nó fail rõ ràng; với dữ liệu xấu có thể xảy ra, hoặc bỏ qua bản ghi đó và ghi log, hoặc gom hết lỗi rồi báo một lần. Không bao giờ âm thầm sửa hay bỏ qua dữ liệu xấu.
+      tip: "Nói 'kiểm tra ở cửa vào' và 'thông báo rõ ràng'. Phân biệt bỏ qua kèm log với fail-fast cho thấy bạn có óc phán đoán."
+
+  - id: iv-87
+    topic: logging
+    level: junior
+    kind: concept
+    en:
+      question: "Why use `logging` instead of `print` in real programs?"
+      answer: |
+        `logging` adds what `print` lacks: levels (DEBUG, INFO, WARNING, ERROR) that you can turn on or off without editing code, a timestamp and the module name on each line, and the freedom to send messages to a file or a service instead of the screen. Libraries use it too, so you see their messages in the same stream.
+        Use `print` for the output a user asked for, and `logging` for messages about what the program is doing.
+      tip: "List two or three concrete features. Separating program output from diagnostics is the core idea."
+    vi:
+      question: "Vì sao chương trình thật nên dùng `logging` thay vì `print`?"
+      answer: |
+        `logging` có những thứ `print` không có: các mức (DEBUG, INFO, WARNING, ERROR) bật tắt được mà không sửa code, thời gian và tên module trên mỗi dòng, và có thể gửi thông điệp vào file hoặc dịch vụ thay vì màn hình. Các thư viện cũng dùng nó, nên bạn thấy thông điệp của chúng trong cùng một luồng.
+        Dùng `print` cho đầu ra mà người dùng yêu cầu, và `logging` cho thông điệp về việc chương trình đang làm.
+      tip: "Nêu hai hoặc ba tính năng cụ thể. Tách đầu ra của chương trình khỏi thông tin chẩn đoán là ý cốt lõi."
