@@ -120,13 +120,13 @@ phases:
     lessons:
       - id: p2-01-comprehensions
         title: { en: "Comprehensions", vi: "Comprehension" }
-        prerequisites: [p1-05-functions]
+        prerequisites: [p1-04-collections, p1-05-functions]
         outcomes:
           en: ["List, dict and set comprehensions"]
           vi: ["List, dict và set comprehension"]
       - id: p2-02-classes
         title: { en: "Classes & objects", vi: "Class & object" }
-        prerequisites: [p1-05-functions]
+        prerequisites: [p1-04-collections, p1-05-functions]
         outcomes:
           en: ["Define classes", "Attributes and methods", "__init__ and __repr__"]
           vi: ["Định nghĩa class", "Thuộc tính và phương thức", "__init__ và __repr__"]
@@ -150,26 +150,26 @@ phases:
           vi: ["Chú thích kiểu cho hàm", "Optional, Union, generic cơ bản"]
       - id: p2-06-generators
         title: { en: "Iterators & generators", vi: "Iterator & generator" }
-        prerequisites: [p2-01-comprehensions]
+        prerequisites: [p2-01-comprehensions, p1-03-loops]
         outcomes:
           en: ["yield", "Lazy pipelines over big data"]
           vi: ["yield", "Pipeline lười cho dữ liệu lớn"]
       - id: p2-07-decorators
         title: { en: "Decorators", vi: "Decorator" }
-        prerequisites: [p2-06-generators]
+        prerequisites: [p2-06-generators, p1-05-functions]
         outcomes:
           en: ["Functions as values", "Write a timing / retry decorator"]
           vi: ["Hàm là giá trị", "Viết decorator đo thời gian / retry"]
       - id: p2-08-context-managers
         title: { en: "Context managers", vi: "Context manager" }
-        prerequisites: [p2-07-decorators]
+        prerequisites: [p2-07-decorators, p1-09-files, p1-10-exceptions]
         outcomes:
           en: ["with statement", "contextlib.contextmanager"]
           vi: ["Câu lệnh with", "contextlib.contextmanager"]
       - id: p2-09-mini-project
         kind: project
         title: { en: "Mini-project: expense tracker", vi: "Mini-project: quản lý chi tiêu" }
-        prerequisites: [p2-08-context-managers]
+        prerequisites: [p2-05-typing, p2-08-context-managers, p1-09-files]
         outcomes:
           en: ["Model expenses with dataclasses", "Save and load JSON safely", "Summarise spending by category and month"]
           vi: ["Mô hình hóa khoản chi bằng dataclass", "Lưu và đọc JSON an toàn", "Tổng hợp chi tiêu theo danh mục và tháng"]
@@ -185,32 +185,32 @@ phases:
     lessons:
       - id: p3-01-pytest
         title: { en: "Testing with pytest", vi: "Kiểm thử với pytest" }
-        prerequisites: [p2-05-typing]
+        prerequisites: [p2-05-typing, p1-10-exceptions]
         outcomes:
           en: ["Write tests, fixtures, parametrize"]
           vi: ["Viết test, fixture, parametrize"]
       - id: p3-02-ruff
         title: { en: "Linting & formatting with ruff", vi: "Lint & format với ruff" }
-        prerequisites: [p3-01-pytest]
+        prerequisites: [p2-05-typing]
         outcomes:
           en: ["Configure ruff", "Fix common lint errors"]
           vi: ["Cấu hình ruff", "Sửa lỗi lint thường gặp"]
       - id: p3-03-logging
         title: { en: "Logging", vi: "Logging" }
-        prerequisites: [p3-01-pytest]
+        prerequisites: [p3-01-pytest, p2-08-context-managers]
         outcomes:
           en: ["Log levels", "Structured logs instead of print"]
           vi: ["Các mức log", "Log có cấu trúc thay cho print"]
       - id: p3-04-debugging
         title: { en: "Debugging", vi: "Debug" }
-        prerequisites: [p3-03-logging]
+        prerequisites: [p3-03-logging, p1-10-exceptions]
         outcomes:
           en: ["Read tracebacks", "Use breakpoint() and the VS Code debugger"]
           vi: ["Đọc traceback", "Dùng breakpoint() và debugger của VS Code"]
       - id: p3-05-mini-project
         kind: project
         title: { en: "Mini-project: text-cleaning toolkit", vi: "Mini-project: bộ công cụ làm sạch văn bản" }
-        prerequisites: [p3-04-debugging]
+        prerequisites: [p3-04-debugging, p2-04-dataclasses]
         outcomes:
           en: ["Build a tested, logged text-cleaning module for AI datasets", "Write fixtures and parametrized tests"]
           vi: ["Xây module làm sạch văn bản cho dữ liệu AI, có test và logging", "Viết fixture và test parametrize"]

@@ -29,6 +29,7 @@ topics:
   dataclasses:  { en: "Dataclasses", vi: "Dataclass" }
   typing:       { en: "Type hints", vi: "Type hint" }
   iterators:    { en: "Iterators & generators", vi: "Iterator & generator" }
+  closures:     { en: "Closures", vi: "Closure" }
   decorators:   { en: "Decorators", vi: "Decorator" }
   context-managers: { en: "Context managers", vi: "Context manager" }
   testing:      { en: "Testing", vi: "Kiểm thử" }
