@@ -1,0 +1,6 @@
+[5, 5]
+[10, 10, 10]
+embedding failed
+small batch: 0.4s
+big batch: 3.5s
+broken batch: 0.2s

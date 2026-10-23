@@ -1,0 +1,56 @@
+id: p2-08-ex01
+kind: code
+title:
+  en: "Write: a temporary setting"
+  vi: "Viết hàm: setting tạm thời"
+difficulty: 2
+tags: [context-managers, exceptions]
+hints:
+  en:
+    - |
+      This is the `@contextmanager` pattern from §6 combined with the "temporary setting" idea from §7. For `config = {"model": "small"}`, inside `with temporary_setting(config, "model", "big"):` the value of `config["model"]` is `"big"`, and after the block it is `"small"` again.
+    - |
+      The plan:
+      1. Before you change anything, remember whether `key` is already in `config`, and if so what its old value is.
+      2. Put the new `value` into `config[key]`.
+      3. `yield` inside a `try:`.
+      4. In `finally:`, if the key existed, put the old value back. If it did not exist, remove the key again.
+    - |
+      The shape:
+      ```python
+      existed = key in config
+      old = config.get(key)
+      config[key] = value
+      try:
+          yield
+      finally:
+          if existed:
+              ...        # put the old value back
+          else:
+              ...        # remove the key
+      ```
+      Fill the two gaps. Removing a key from a dict is `del config[key]`, shown in §7.
+  vi:
+    - |
+      Đây là mẫu `@contextmanager` ở §6 kết hợp với ý tưởng "setting tạm thời" ở §7. Với `config = {"model": "small"}`, bên trong `with temporary_setting(config, "model", "big"):` giá trị `config["model"]` là `"big"`, và sau khối thì nó lại là `"small"`.
+    - |
+      Kế hoạch:
+      1. Trước khi đổi gì, hãy nhớ xem `key` đã có trong `config` chưa, và nếu có thì giá trị cũ là gì.
+      2. Đặt `value` mới vào `config[key]`.
+      3. `yield` bên trong một `try:`.
+      4. Trong `finally:`, nếu key đã tồn tại thì đặt giá trị cũ lại. Nếu chưa tồn tại thì xóa key đi.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      existed = key in config
+      old = config.get(key)
+      config[key] = value
+      try:
+          yield
+      finally:
+          if existed:
+              ...        # đặt giá trị cũ lại
+          else:
+              ...        # xóa key
+      ```
+      Hãy điền hai chỗ trống. Cách xóa một key khỏi dict là `del config[key]`, có ở §7.

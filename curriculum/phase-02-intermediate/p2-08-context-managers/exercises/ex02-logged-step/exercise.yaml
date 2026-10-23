@@ -1,0 +1,52 @@
+id: p2-08-ex02
+kind: fill
+title:
+  en: "Fill in: a step logger"
+  vi: "Điền chỗ trống: bộ ghi log cho một bước"
+difficulty: 2
+tags: [context-managers, exceptions, functions]
+hints:
+  en:
+    - |
+      This is the `@contextmanager` generator from §6. For `with logged_step(log, "embed") as step:` the list `log` must first get `"start embed"` and, after the block, `"end embed"`, and `step` must be `"embed"`. There are three blanks.
+    - |
+      Which word goes where:
+      1. The decorator from `contextlib` that turns a generator into a context manager. It is imported at the top.
+      2. The line `yield ...` hands a value to the `as` name. Look at the parameters of the function for the value that `step` must receive.
+      3. The last line puts the closing message in the log. The message must start with the word `end` followed by a space, and the step name comes after it.
+    - |
+      Here is the same shape on a different job: print a header, and always print a footer, and give the block a value. The names are different from yours, and the gaps are for you:
+      ```python
+      from contextlib import contextmanager
+
+      @...
+      def section(title):
+          print("== " + title)
+          try:
+              yield ...
+          finally:
+              print(... + title)
+      ```
+      In the blank of `section`, the footer is the text `-- ` followed by the title. Use the same pattern, but add to the list `log` instead of printing, and end with the text `end ` followed by the step name.
+  vi:
+    - |
+      Đây là generator `@contextmanager` ở §6. Với `with logged_step(log, "embed") as step:` thì list `log` đầu tiên phải nhận `"start embed"` và, sau khối, nhận `"end embed"`, còn `step` phải là `"embed"`. Có ba chỗ trống.
+    - |
+      Từ nào vào chỗ nào:
+      1. Decorator trong `contextlib` biến một generator thành context manager. Nó đã được import ở đầu file.
+      2. Dòng `yield ...` đưa một giá trị cho tên sau `as`. Hãy nhìn các tham số của hàm để biết giá trị mà `step` phải nhận.
+      3. Dòng cuối ghi thông điệp kết thúc vào log. Thông điệp phải bắt đầu bằng từ `end` rồi một dấu cách, và tên của bước đứng sau đó.
+    - |
+      Đây là cùng một khung nhưng cho việc khác: in một tiêu đề, luôn in một phần cuối, và đưa cho khối một giá trị. Tên gọi khác với bài của bạn, còn các chỗ trống là để bạn tự điền:
+      ```python
+      from contextlib import contextmanager
+
+      @...
+      def section(title):
+          print("== " + title)
+          try:
+              yield ...
+          finally:
+              print(... + title)
+      ```
+      Ở chỗ trống của `section`, phần cuối là đoạn chữ `-- ` rồi đến tiêu đề. Dùng cùng mẫu này, nhưng thêm vào list `log` thay vì in ra, và kết thúc bằng đoạn chữ `end ` rồi đến tên bước.

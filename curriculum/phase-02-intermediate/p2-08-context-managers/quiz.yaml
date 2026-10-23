@@ -1,0 +1,348 @@
+questions:
+  - id: p2-08-q01
+    type: mcq
+    tags: [context-managers]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What does the `with` statement guarantee?"
+      options: ["Errors inside the block are hidden", "Clean-up runs when the block ends, even after an error", "The block runs faster than normal code", "Clean-up runs only if the block finishes without an error"]
+      explanation: "A context manager's clean-up runs whether the block ends normally or with an error. `with` does not hide errors by itself, and it does not make code faster."
+    vi:
+      prompt: "Câu lệnh `with` đảm bảo điều gì?"
+      options: ["Lỗi bên trong khối bị giấu đi", "Phần dọn dẹp chạy khi khối kết thúc, kể cả sau khi có lỗi", "Khối chạy nhanh hơn code thường", "Phần dọn dẹp chỉ chạy nếu khối kết thúc mà không có lỗi"]
+      explanation: "Phần dọn dẹp của context manager chạy dù khối kết thúc bình thường hay bằng lỗi. Bản thân `with` không giấu lỗi, và cũng không làm code chạy nhanh hơn."
+
+  - id: p2-08-q02
+    type: output
+    tags: [context-managers, classes]
+    difficulty: 1
+    code: |
+      class Tag:
+          def __enter__(self):
+              print("in")
+              return self
+
+          def __exit__(self, exc_type, exc_value, traceback):
+              print("out")
+              return False
+
+
+      with Tag():
+          print("body")
+      print("after")
+    answer: "in\nbody\nout\nafter"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`with` calls `__enter__` first (`in`), then runs the body (`body`), then calls `__exit__` (`out`). Only then does the code after the block run."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`with` gọi `__enter__` trước (`in`), rồi chạy phần thân (`body`), rồi gọi `__exit__` (`out`). Chỉ sau đó code nằm sau khối mới chạy."
+
+  - id: p2-08-q03
+    type: fill
+    tags: [context-managers, files]
+    difficulty: 1
+    code: |
+      import tempfile
+
+      with tempfile.TemporaryDirectory() as tmp:
+          with open(f"{tmp}/a.txt", "w", encoding="utf-8") ___ f:
+              f.write("hi")
+          print(f.closed)  # True
+    answer: ["as"]
+    en:
+      prompt: "Fill in the blank so the opened file is available as `f`."
+      explanation: "`as f` stores whatever `__enter__` returned (here, the open file) in the name `f`. After the block, the file is closed, so `f.closed` is `True`."
+    vi:
+      prompt: "Điền vào chỗ trống để file đang mở dùng được với tên `f`."
+      explanation: "`as f` lưu thứ mà `__enter__` trả về (ở đây là file đang mở) vào tên `f`. Sau khối, file đã được đóng nên `f.closed` là `True`."
+
+  - id: p2-08-q04
+    type: mcq
+    tags: [context-managers, classes]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which method does `with` call when the block starts?"
+      options: ["`__init__`", "`__exit__`", "`__enter__`", "`__iter__`"]
+      explanation: "`__enter__` runs at the start of the block, and `__exit__` runs at the end. `__init__` only builds the object, and it runs before `with` calls `__enter__`."
+    vi:
+      prompt: "`with` gọi method nào khi khối bắt đầu?"
+      options: ["`__init__`", "`__exit__`", "`__enter__`", "`__iter__`"]
+      explanation: "`__enter__` chạy ở đầu khối, còn `__exit__` chạy ở cuối khối. `__init__` chỉ tạo object, và nó chạy trước khi `with` gọi `__enter__`."
+
+  - id: p2-08-q05
+    type: output
+    tags: [context-managers]
+    difficulty: 1
+    code: |
+      from contextlib import contextmanager
+
+
+      @contextmanager
+      def tag():
+          print("start")
+          yield
+          print("end")
+
+
+      with tag():
+          print("body")
+    answer: "start\nbody\nend"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The code before `yield` runs when the block starts. The body of `with` runs at the `yield`. The code after `yield` runs when the block ends."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Code trước `yield` chạy khi khối bắt đầu. Phần thân của `with` chạy tại chỗ `yield`. Code sau `yield` chạy khi khối kết thúc."
+
+  - id: p2-08-q06
+    type: mcq
+    tags: [context-managers, exceptions]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "The body of a `with` raises an error and `__exit__` returns `True`. What happens?"
+      options: ["The error is raised again after `__exit__` ends", "The body of the block runs a second time", "Python prints the error but keeps going", "The error is hidden and the program goes on"]
+      explanation: "Returning `True` from `__exit__` means \"I handled this error\", so it is suppressed. Returning `False` or `None` lets the error continue upward."
+    vi:
+      prompt: "Phần thân của `with` raise lỗi và `__exit__` trả về `True`. Chuyện gì xảy ra?"
+      options: ["Lỗi được raise lại sau khi `__exit__` kết thúc", "Phần thân của khối chạy lần thứ hai", "Python in lỗi ra nhưng vẫn chạy tiếp", "Lỗi bị giấu và chương trình chạy tiếp"]
+      explanation: "Trả về `True` từ `__exit__` nghĩa là \"tôi đã xử lý lỗi này\", nên lỗi bị suppress. Trả về `False` hoặc `None` thì lỗi tiếp tục đi lên."
+
+  - id: p2-08-q07
+    type: output
+    tags: [context-managers, exceptions]
+    difficulty: 3
+    code: |
+      class Tag:
+          def __enter__(self):
+              return self
+
+          def __exit__(self, exc_type, exc_value, traceback):
+              print("exit", exc_value)
+              return False
+
+
+      try:
+          with Tag():
+              print("body")
+              raise ValueError("bad")
+              print("never")
+      except ValueError:
+          print("caught")
+    answer: "body\nexit bad\ncaught"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The body prints `body`, then raises. `__exit__` runs next and receives the error, so `exc_value` prints as `bad`. It returns `False`, so the error continues to `except`, which prints `caught`. `never` is skipped."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Phần thân in `body` rồi raise lỗi. Kế đó `__exit__` chạy và nhận lỗi, nên `exc_value` được in là `bad`. Nó trả về `False`, nên lỗi tiếp tục tới `except` và in `caught`. Dòng `never` bị bỏ qua."
+
+  - id: p2-08-q08
+    type: mcq
+    tags: [context-managers, exceptions]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why do we put `yield` inside `try` and the clean-up in `finally` in a `@contextmanager` function?"
+      options: ["So the clean-up also runs when the body raises", "Because `yield` must always be inside a `try`", "So the body can run twice", "So errors from the body are hidden"]
+      explanation: "An error in the body is raised at the `yield` line. Without `try/finally`, the clean-up code after `yield` is skipped. `finally` makes it run every time, and the error still goes on."
+    vi:
+      prompt: "Vì sao trong hàm `@contextmanager` ta đặt `yield` trong `try` và phần dọn dẹp trong `finally`?"
+      options: ["Để phần dọn dẹp cũng chạy khi phần thân raise lỗi", "Vì `yield` luôn phải nằm trong một `try`", "Để phần thân có thể chạy hai lần", "Để lỗi từ phần thân bị giấu đi"]
+      explanation: "Lỗi trong phần thân được raise ngay tại dòng `yield`. Không có `try/finally` thì code dọn dẹp sau `yield` bị bỏ qua. `finally` khiến nó chạy mọi lần, và lỗi vẫn đi tiếp."
+
+  - id: p2-08-q09
+    type: fill
+    tags: [context-managers]
+    difficulty: 2
+    code: |
+      from contextlib import contextmanager
+
+
+      ___
+      def quiet():
+          print("on")
+          yield
+          print("off")
+
+
+      with quiet():
+          print("body")
+    answer: ["@contextmanager"]
+    en:
+      prompt: "Fill in the blank so `quiet()` can be used in a `with` statement."
+      explanation: "`@contextmanager` turns a generator function with one `yield` into a context manager. Without it, `with quiet():` fails because a plain generator has no `__enter__`."
+    vi:
+      prompt: "Điền vào chỗ trống để có thể dùng `quiet()` trong câu lệnh `with`."
+      explanation: "`@contextmanager` biến hàm generator có một `yield` thành context manager. Thiếu nó, `with quiet():` bị lỗi vì generator thường không có `__enter__`."
+
+  - id: p2-08-q10
+    type: parsons
+    tags: [context-managers]
+    difficulty: 2
+    lines:
+      - "from contextlib import contextmanager"
+      - "@contextmanager"
+      - "def shout(name):"
+      - '    print("<", name)'
+      - "    yield"
+      - '    print(">", name)'
+      - 'with shout("job"):'
+      - '    print("hi")'
+    en:
+      prompt: "Put the lines in order so the program prints `< job`, then `hi`, then `> job` on separate lines."
+      explanation: "The import comes first, then the decorator right above `def`. Inside the function the setup (`<`) comes before `yield` and the clean-up (`>`) after it. The `with` is last, because the function must exist before you use it."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `< job`, rồi `hi`, rồi `> job` trên các dòng riêng."
+      explanation: "Câu import đứng đầu, rồi decorator ngay phía trên `def`. Trong hàm, phần chuẩn bị (`<`) nằm trước `yield` và phần dọn dẹp (`>`) nằm sau. `with` đứng cuối, vì hàm phải tồn tại trước khi bạn dùng."
+
+  - id: p2-08-q11
+    type: mcq
+    tags: [context-managers]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "In `with a, b:`, in which order are the managers exited?"
+      options: ["`a` first, then `b`", "`b` first, then `a`", "They are all exited at the same moment", "Only `b` is exited and `a` stays open"]
+      explanation: "Managers are entered left to right and exited right to left, like taking off a scarf before a coat. The one entered last is cleaned up first."
+    vi:
+      prompt: "Trong `with a, b:`, các manager được thoát theo thứ tự nào?"
+      options: ["`a` trước, rồi `b`", "`b` trước, rồi `a`", "Tất cả thoát cùng một thời điểm", "Chỉ `b` được thoát và `a` vẫn mở"]
+      explanation: "Các manager được vào từ trái sang phải và thoát từ phải sang trái, giống như cởi khăn trước rồi mới cởi áo khoác. Manager vào sau cùng được dọn dẹp đầu tiên."
+
+  - id: p2-08-q12
+    type: output
+    tags: [context-managers, exceptions]
+    difficulty: 3
+    code: |
+      class Quiet:
+          def __enter__(self):
+              return self
+
+          def __exit__(self, exc_type, exc_value, traceback):
+              print("quiet exit")
+              return True
+
+
+      with Quiet():
+          print("one")
+          raise ValueError("boom")
+          print("two")
+      print("three")
+    answer: "one\nquiet exit\nthree"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The body prints `one`, then raises, so `two` is skipped. `__exit__` runs and prints `quiet exit`. It returns `True`, so the error is hidden and the code after the block prints `three`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Phần thân in `one` rồi raise lỗi, nên `two` bị bỏ qua. `__exit__` chạy và in `quiet exit`. Nó trả về `True`, nên lỗi bị giấu và code sau khối in `three`."
+
+  - id: p2-08-q13
+    type: parsons
+    tags: [context-managers]
+    difficulty: 2
+    lines:
+      - "from contextlib import contextmanager"
+      - "@contextmanager"
+      - "def step(name):"
+      - '    print("start", name)'
+      - "    yield"
+      - '    print("end", name)'
+      - 'with step("a"), step("b"):'
+      - '    print("body")'
+    en:
+      prompt: "Put the lines in order so the program prints `start a`, `start b`, `body`, `end b`, `end a` on separate lines."
+      explanation: "The import, decorator and function come first, in that order. Inside the function the setup comes before `yield` and the clean-up after it. The `with` comes last, with its body indented under it. Managers are entered left to right and exited right to left, which gives the `end b` then `end a` order."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `start a`, `start b`, `body`, `end b`, `end a` trên các dòng riêng."
+      explanation: "Import, decorator rồi hàm đứng đầu, theo thứ tự đó. Trong hàm, phần chuẩn bị nằm trước `yield` và phần dọn dẹp nằm sau. `with` đứng cuối, với phần thân thụt vào dưới nó. Manager được vào từ trái sang phải và thoát từ phải sang trái, nên có thứ tự `end b` rồi `end a`."
+
+  - id: p2-08-q14
+    type: mcq
+    tags: [context-managers, classes]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "A class has `__enter__` that does not return anything. What is `x` in `with Box() as x:`?"
+      options: ["`None`", "The `Box` object", "The error, if there is one", "There is no `x`; Python raises an error on the `with` line"]
+      explanation: "`x` is whatever `__enter__` returns. A function that returns nothing gives `None`, so `x.name` would fail with an `AttributeError`. Add `return self` to get the object."
+    vi:
+      prompt: "Một class có `__enter__` không trả về gì. Trong `with Box() as x:` thì `x` là gì?"
+      options: ["`None`", "Object `Box`", "Lỗi, nếu có lỗi", "Không có `x`; Python báo lỗi ngay ở dòng `with`"]
+      explanation: "`x` là thứ `__enter__` trả về. Hàm không trả gì thì cho `None`, nên `x.name` sẽ lỗi `AttributeError`. Hãy thêm `return self` để nhận được object."
+
+  - id: p2-08-q15
+    type: fill
+    tags: [context-managers, exceptions]
+    difficulty: 3
+    code: |
+      class Skip:
+          def __enter__(self):
+              return self
+
+          def __exit__(self, exc_type, exc_value, traceback):
+              return ___(exc_value, ValueError)
+
+
+      with Skip():
+          int("abc")
+      print("ok")
+    answer: ["isinstance"]
+    en:
+      prompt: "Fill in the blank so the manager hides a `ValueError` but nothing else."
+      explanation: "`isinstance(exc_value, ValueError)` is `True` only when the error is a `ValueError`, so `__exit__` returns `True` just for that error. With no error, `exc_value` is `None` and the result is `False`."
+    vi:
+      prompt: "Điền vào chỗ trống để manager giấu `ValueError` nhưng không giấu lỗi nào khác."
+      explanation: "`isinstance(exc_value, ValueError)` chỉ là `True` khi lỗi là một `ValueError`, nên `__exit__` chỉ trả về `True` cho lỗi đó. Khi không có lỗi, `exc_value` là `None` và kết quả là `False`."
+
+  - id: p2-08-q16
+    type: parsons
+    tags: [context-managers, exceptions]
+    difficulty: 2
+    lines:
+      - "def run():"
+      - '    print("open")'
+      - "    try:"
+      - '        print("work")'
+      - "    finally:"
+      - '        print("close")'
+      - "run()"
+    en:
+      prompt: "Put the lines in order so the program prints `open`, `work`, `close` on separate lines."
+      explanation: "The function header is first and `run()` is last. Inside, `open` is printed before the `try`, the work is in the `try` block, and `finally` holds the clean-up. This is the pattern that `with` writes for you."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình in ra `open`, `work`, `close` trên các dòng riêng."
+      explanation: "Dòng khai báo hàm đứng đầu và `run()` đứng cuối. Bên trong, `open` được in trước `try`, phần việc nằm trong khối `try`, và `finally` chứa phần dọn dẹp. Đây là mẫu mà `with` viết hộ bạn."
+
+flashcards:
+  - id: p2-08-f01
+    tags: [context-managers]
+    code: "with open(path, \"w\", encoding=\"utf-8\") as f:\n    f.write(\"hi\")"
+    en: { front: "What does `with` guarantee?", back: "That the clean-up runs when the block ends, whether it ends normally or with an error. Files are closed, timers stopped, settings restored." }
+    vi: { front: "`with` đảm bảo điều gì?", back: "Phần dọn dẹp luôn chạy khi khối kết thúc, dù kết thúc bình thường hay bằng lỗi. File được đóng, timer được dừng, setting được khôi phục." }
+  - id: p2-08-f02
+    tags: [context-managers, classes]
+    code: "class M:\n    def __enter__(self):\n        return self\n\n    def __exit__(self, exc_type, exc_value, traceback):\n        return False"
+    en: { front: "What are `__enter__` and `__exit__`?", back: "The two methods of a context manager. `__enter__` runs when the block starts and its return value goes to `as`. `__exit__` runs when the block ends and receives the error details." }
+    vi: { front: "`__enter__` và `__exit__` là gì?", back: "Hai method của một context manager. `__enter__` chạy khi khối bắt đầu và giá trị trả về của nó đi vào `as`. `__exit__` chạy khi khối kết thúc và nhận thông tin lỗi." }
+  - id: p2-08-f03
+    tags: [context-managers, exceptions]
+    en: { front: "What does it mean when `__exit__` returns `True`?", back: "The error from the body is suppressed and the program continues after the `with` block. Return `False` or `None` to let the error go on. Hide only the error you expect." }
+    vi: { front: "`__exit__` trả về `True` nghĩa là gì?", back: "Lỗi từ phần thân bị suppress và chương trình chạy tiếp sau khối `with`. Trả về `False` hoặc `None` để lỗi đi tiếp. Chỉ giấu đúng loại lỗi bạn chờ." }
+  - id: p2-08-f04
+    tags: [context-managers]
+    code: "@contextmanager\ndef tag():\n    print(\"start\")\n    try:\n        yield\n    finally:\n        print(\"end\")"
+    en: { front: "How do you write a context manager with `@contextmanager`?", back: "Write a generator function with one `yield`. The code before `yield` is the setup, the value after `yield` goes to `as`, and the clean-up goes after `yield` inside `finally`." }
+    vi: { front: "Viết context manager bằng `@contextmanager` như thế nào?", back: "Viết một hàm generator có một `yield`. Code trước `yield` là phần chuẩn bị, giá trị sau `yield` đi vào `as`, và phần dọn dẹp nằm sau `yield`, bên trong `finally`." }
+  - id: p2-08-f05
+    tags: [context-managers, exceptions]
+    en: { front: "Why wrap `yield` in `try/finally`?", back: "An error in the body is raised at the `yield` line. Without `try/finally` the clean-up after `yield` is skipped. With `finally` it runs every time and the error still goes on." }
+    vi: { front: "Vì sao bọc `yield` trong `try/finally`?", back: "Lỗi trong phần thân được raise ngay tại dòng `yield`. Không có `try/finally` thì phần dọn dẹp sau `yield` bị bỏ qua. Có `finally` thì nó chạy mọi lần và lỗi vẫn đi tiếp." }
+  - id: p2-08-f06
+    tags: [context-managers]
+    code: "with a, b:\n    ..."
+    en: { front: "In what order are `with a, b:` entered and exited?", back: "Entered left to right (`a`, then `b`) and exited right to left (`b`, then `a`). The last one entered is cleaned up first." }
+    vi: { front: "`with a, b:` vào và thoát theo thứ tự nào?", back: "Vào từ trái sang phải (`a` rồi `b`) và thoát từ phải sang trái (`b` rồi `a`). Manager vào sau cùng được dọn dẹp đầu tiên." }

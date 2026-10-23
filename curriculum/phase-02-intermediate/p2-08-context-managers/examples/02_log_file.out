@@ -1,0 +1,8 @@
+log opened
+log closed
+closed: True
+log opened
+log closed
+error: api down
+closed: True
+['start again']
