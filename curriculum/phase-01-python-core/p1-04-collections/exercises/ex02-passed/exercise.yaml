@@ -24,7 +24,7 @@ hints:
       Fill the three gaps: which comparison, what to append, and what to sort.
   vi:
     - |
-      Bài này dùng lặp qua dict (§7) và tạo list mới (§11). Bấm **Check** và đọc các test đang đỏ. Với `passed({"Minh": 8, "Lan": 5, "Hoa": 3}, 5)` đáp án là `["Lan", "Minh"]`: Lan có đúng 5 điểm và vẫn đậu. Có 3 lỗi.
+      Bài này dùng lặp qua dict (§7) và tạo list mới (§11). Bấm **Kiểm tra** và đọc các test đang đỏ. Với `passed({"Minh": 8, "Lan": 5, "Hoa": 3}, 5)` đáp án là `["Lan", "Minh"]`: Lan có đúng 5 điểm và vẫn đậu. Có 3 lỗi.
     - |
       Kiểm tra từng dòng một:
       1. Phép so sánh: điểm bằng `threshold` có được tính là đậu không? (Đề bài nói "từ ... trở lên".)

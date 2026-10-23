@@ -43,7 +43,7 @@ print("Done")          # runs every time
 # Done
 ```
 
-Try changing `temperature` to `20` and run again: "It's hot" disappears, "Done" stays. Press **Visualize** on this block to watch Python jump over the indented line.
+Press **Visualize** on this block first. Then change `temperature` to `20` and press **Visualize** again: watch Python skip the indented line, so "It's hot" disappears and "Done" stays.
 
 ## 3. Indentation and the colon
 
@@ -181,7 +181,7 @@ This is a handy shortcut: `if name:` means "if `name` has something in it". Noti
 
 ## 8. Nested `if` vs `elif`
 
-You can put an `if` inside another `if` (a **nested if**, "if lồng nhau" in Vietnamese). It works, but gets hard to read quickly:
+You can put an `if` inside another `if` (a **nested if**). It works, but gets hard to read quickly:
 
 ```python
 age = 16
@@ -190,6 +190,7 @@ has_id = True
 if age >= 18:
     if has_id:
         print("Enter")
+# (nothing printed: age is 16)
 ```
 
 When the checks are about the same question, prefer `and`, or a flat `elif` chain:
@@ -247,5 +248,4 @@ if x == 1 or x == 2:
 - Python runs only the first matching branch, so put the strictest `elif` first.
 - `and`, `or`, `not` combine conditions (see the truth table); use parentheses when unsure.
 - `0`, `0.0` and `""` count as False; any other number and non-empty text count as True.
-- Prefer a flat `elif` chain or `and` over deeply nested `if`s.
-- Avoid the classic slips: `=` vs `==`, wrong `elif` order, and `x == 1 or 2`.
+- Prefer a flat `elif` chain or `and` over deeply nested `if`s, and avoid the classic slips: `=` vs `==`, wrong `elif` order, and `x == 1 or 2`.

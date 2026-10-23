@@ -32,3 +32,15 @@ def test_old_student_pays_full_price():
 
 def test_adult_non_student_pays_full_price():
     assert exercise.ticket_price(40, False) == 12
+
+
+def test_student_just_over_twenty_five_pays_full_price():
+    assert exercise.ticket_price(26, True) == 12
+
+
+def test_adult_just_under_senior_age_pays_full_price():
+    assert exercise.ticket_price(64, False) == 12
+
+
+def test_child_student_pays_six():
+    assert exercise.ticket_price(10, True) == 6

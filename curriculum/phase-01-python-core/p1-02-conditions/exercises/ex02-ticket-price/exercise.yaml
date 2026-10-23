@@ -18,7 +18,7 @@ hints:
     - |
       Code shape (fill in the `...`):
       ```python
-      if age < 5:
+      if age ... 5:
           return 0
       elif age < 12 ... age >= 65:
           return 6
@@ -39,7 +39,7 @@ hints:
     - |
       Khung code (điền vào chỗ `...`):
       ```python
-      if age < 5:
+      if age ... 5:
           return 0
       elif age < 12 ... age >= 65:
           return 6

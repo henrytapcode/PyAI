@@ -20,7 +20,7 @@ Dòng thụt lề là **thân vòng lặp** (body). Nó chạy một lần mỗi
 
 ```python
 for i in range(5):
-    print(i)  # 0 1 2 3 4
+    print(i)  # 0 1 2 3 4 (mỗi số một dòng)
 ```
 
 `range` là **một** hàm (function) có các tham số tùy chọn. Bạn đưa vào tối đa ba số, số nào bỏ qua thì Python tự điền giá trị mặc định:
@@ -40,14 +40,22 @@ range(2, 10, 3)
 
   0  1  2  3  4  5  6  7  8  9  10
         ^        ^        ^     |
-        2   +3   5   +3   8   +3  11 is past 10: stop
+        2   +3   5   +3   8   +3  11 > 10 ✗
 ```
 
 Vậy vòng lặp sẽ thấy 2, 5, 8.
 
 ```python
 for n in range(2, 11, 2):
-    print(n)  # 2 4 6 8 10
+    print(n)  # 2 4 6 8 10 (mỗi số một dòng)
+```
+
+Khi vòng `for` kết thúc, biến của nó không bị xóa. Nó giữ giá trị cuối cùng mà nó từng có:
+
+```python
+for i in range(3):
+    print(i)  # 0 1 2 (mỗi số một dòng)
+print(i)      # 2
 ```
 
 > [!WARNING]
@@ -168,6 +176,7 @@ Cách sửa: `range(1, 6)`, hoặc `range(1, n + 1)` khi giá trị cuối là m
 **Vòng lặp `while` vô hạn.** Biến trong điều kiện không bao giờ thay đổi, hoặc bạn đổi nhầm sang biến khác:
 
 ```text
+n = 0
 i = 1
 while i <= 3:
     print(i)

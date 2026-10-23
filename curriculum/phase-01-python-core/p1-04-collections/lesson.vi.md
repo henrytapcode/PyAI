@@ -35,7 +35,7 @@ print(names[-1])   # Nam
 
 ## 3. Slicing: cắt lấy một đoạn
 
-Một **slice** (lát cắt) `[start:stop]` sao chép một đoạn của list. Nó lấy từ `start` nhưng dừng **trước** `stop`. Cách dễ nhất để hình dung là đánh số các *khe* giữa các phần tử:
+Một **slice** (lát cắt) `[start:stop]` sao chép một đoạn của list. Nó lấy từ `start` nhưng dừng **trước** `stop`. Cách dễ nhất để hình dung là đánh số các *khe* (gap) giữa các phần tử:
 
 ```text
 gap:    0       1        2       3       4
@@ -77,6 +77,22 @@ print(0.5 in scores)   # False
 
 `.append(x)` thêm `x` vào cuối, gán vào `scores[0]` thay một phần tử, còn `in` hỏi "giá trị này có nằm đâu đó trong list không?" và trả lời bằng một `bool`.
 
+Hãy để ý dấu chấm trong `scores.append(...)`. `.append` là một **method** (phương thức): một hàm thuộc về một giá trị và được gọi bằng dấu chấm đặt sau giá trị đó.
+
+Một cái bẫy: `b = a` **không** sao chép list. Nó chỉ đặt cho cùng một list một cái tên thứ hai, nên đổi qua tên này thì tên kia cũng thấy. Một slice không có start và không có stop, `a[:]`, mới tạo bản sao thật sự:
+
+```python
+a = [1, 2]
+b = a           # b KHÔNG phải bản sao: nó là tên thứ hai của cùng một list
+b.append(3)
+print(a)        # [1, 2, 3]  (a cũng bị đổi!)
+
+c = a[:]        # a[:] tạo một bản sao thật sự
+c.append(4)
+print(a)        # [1, 2, 3]
+print(c)        # [1, 2, 3, 4]
+```
+
 ## 5. Sắp xếp và lặp
 
 `sorted()` trả về một list mới đã sắp xếp và giữ nguyên list gốc:
@@ -86,6 +102,7 @@ scores = [0.82, 0.91, 0.78]
 print(sorted(scores))                # [0.78, 0.82, 0.91]
 print(sorted(scores, reverse=True))  # [0.91, 0.82, 0.78]
 print(scores)                        # [0.82, 0.91, 0.78]
+print(sorted(["Minh", "Lan"]))        # ['Lan', 'Minh']
 ```
 
 Bạn đã biết `for`. Nó đi thẳng qua từng phần tử của list, không cần `range()`. Hãy kết hợp với mẫu accumulator (biến tích lũy) ở bài trước:
@@ -190,7 +207,7 @@ Thật ra bạn đã gặp tuple mà không biết: `grades.items()` cho bạn c
 
 | Dùng... | khi... | Ví dụ |
 |---|---|---|
-| list | thứ tự quan trọng, hoặc có nhiều phần tử giống nhau | điểm của 100 test case |
+| list | thứ tự quan trọng, hoặc có nhiều phần tử cùng loại | điểm của 100 test case |
 | dict | mỗi giá trị có một cái tên, hoặc bạn tra cứu theo key | một học viên: tên, điểm, tuổi |
 | tuple | một bản ghi nhỏ cố định, không nên bị đổi | `(latitude, longitude)` |
 
@@ -211,7 +228,16 @@ student = {"name": "Lan"}
 print(student.get("age", "unknown"))  # unknown
 ```
 
-**Thay đổi list trong lúc đang lặp qua nó.** Thêm hoặc xóa phần tử của list bên trong `for item in that_list:` sẽ làm Python bỏ sót phần tử hoặc lặp mãi. Hãy tạo một list **mới** thay vì sửa list đang lặp:
+**Thay đổi list trong lúc đang lặp qua nó.** Thêm hoặc xóa phần tử của list bên trong `for item in that_list:` sẽ làm Python bỏ sót phần tử hoặc lặp mãi. Ở đây ta thử xóa mọi số (`.remove(x)` xóa phần tử `x` đầu tiên nó tìm thấy), nhưng vòng lặp bỏ sót vài số:
+
+```python
+numbers = [2, 4, 6, 8]
+for n in numbers:
+    numbers.remove(n)
+print(numbers)  # [4, 8]  (đáng lẽ phải là [])
+```
+
+Hãy tạo một list **mới** thay vì sửa list đang lặp qua:
 
 ```python
 numbers = [1, 2, 3, 4, 5, 6]

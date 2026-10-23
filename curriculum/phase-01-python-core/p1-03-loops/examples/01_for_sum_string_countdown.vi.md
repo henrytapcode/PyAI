@@ -12,4 +12,4 @@
 
 **Để ý:** biến của vòng lặp (`n`, `letter`, `step`) chỉ là một biến bình thường. Python tự gán giá trị cho nó ở đầu mỗi vòng.
 
-**Tự thử:** bấm **Visualize** và xem `total` thay đổi ở dòng 4. Sau đó đổi `range(1, 6)` thành `range(1, 11)` và đoán tổng cuối cùng trước khi chạy (phải là 55).
+**Tự thử:** bấm **Visualize** và xem `total` thay đổi ở dòng 4. Sau đó đổi `range(1, 6)` thành `range(1, 11)` và đoán tổng cuối cùng trước khi chạy.

@@ -5,7 +5,7 @@ import exercise
 
 @pytest.mark.parametrize(
     "text, expected",
-    [("banana", 3), ("python", 1), ("queue", 4), ("rhythm", 0), ("", 0)],
+    [("banana", 3), ("python", 1), ("queue", 4), ("rhythm", 0), ("", 0), ("Apple", 1)],
 )
 def test_counts_the_vowels(text, expected):
     assert exercise.count_vowels(text) == expected, f"count_vowels({text!r}) should be {expected}"

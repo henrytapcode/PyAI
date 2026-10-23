@@ -5,3 +5,15 @@ Ví dụ: `sum_of_evens(10)` là `2 + 4 + 6 + 8 + 10 = 30`; `sum_of_evens(1)` l�
 > Bài 5 sẽ học **hàm** (function) bài bản. Bây giờ chỉ cần: viết code **bên trong hàm** (thụt lề dưới dòng `def`) và kết thúc bằng `return` kèm đáp án.
 
 Bấm **Kiểm tra** để chạy test.
+
+**Ví dụ**
+
+| Gọi hàm | Trả về |
+|---|---|
+| `sum_of_evens(10)` | `30` |
+| `sum_of_evens(7)` | `12` |
+| `sum_of_evens(1)` | `0` |
+
+**Quy tắc**
+- Tính cả `n` nếu `n` là số chẵn.
+- Trả về một số nguyên (`int`).

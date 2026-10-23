@@ -13,4 +13,4 @@
 
 **Notice:** the order matters. `number += 1` comes **before** the `continue`. If it came after, an even number would hit `continue` without ever being increased, and the loop would get stuck forever.
 
-**Try it yourself:** change `20` to `50` and predict where it stops. (The totals are the square numbers 1, 4, 9, ..., so it stops at `number = 15` with total 64.)
+**Try it yourself:** change `20` to `50` and predict where it stops.

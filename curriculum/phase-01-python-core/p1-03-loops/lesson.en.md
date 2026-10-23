@@ -20,7 +20,7 @@ The indented line is the **body** of the loop. It runs once per round. Indentati
 
 ```python
 for i in range(5):
-    print(i)  # 0 1 2 3 4
+    print(i)  # 0 1 2 3 4 (one per line)
 ```
 
 `range` is **one** function with optional arguments. You give it up to three numbers, and Python fills in the ones you skip:
@@ -40,14 +40,22 @@ range(2, 10, 3)
 
   0  1  2  3  4  5  6  7  8  9  10
         ^        ^        ^     |
-        2   +3   5   +3   8   +3  11 is past 10: stop
+        2   +3   5   +3   8   +3  11 > 10 ✗
 ```
 
 So the loop sees 2, 5, 8.
 
 ```python
 for n in range(2, 11, 2):
-    print(n)  # 2 4 6 8 10
+    print(n)  # 2 4 6 8 10 (one per line)
+```
+
+After a `for` loop ends, its variable is not deleted. It keeps the last value it had:
+
+```python
+for i in range(3):
+    print(i)  # 0 1 2 (one per line)
+print(i)      # 2
 ```
 
 > [!WARNING]
@@ -168,6 +176,7 @@ Fix: `range(1, 6)`, or `range(1, n + 1)` when the end is a variable.
 **An infinite `while` loop.** The variable in the condition never changes, or you change a different variable:
 
 ```text
+n = 0
 i = 1
 while i <= 3:
     print(i)

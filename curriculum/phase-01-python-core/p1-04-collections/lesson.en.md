@@ -77,6 +77,22 @@ print(0.5 in scores)   # False
 
 `.append(x)` adds `x` at the end, assigning to `scores[0]` replaces one item, and `in` asks "is this value somewhere in the list?" and answers with a `bool`.
 
+Notice the dot in `scores.append(...)`. `.append` is a **method**: a function that belongs to a value and is called with a dot after the value.
+
+One trap: `b = a` does **not** copy a list. It gives the same list a second name, so a change through one name shows up in the other. A slice with no start and no stop, `a[:]`, makes a real copy:
+
+```python
+a = [1, 2]
+b = a           # b is NOT a copy: it is a second name for the same list
+b.append(3)
+print(a)        # [1, 2, 3]  (a changed too!)
+
+c = a[:]        # a[:] makes a real copy
+c.append(4)
+print(a)        # [1, 2, 3]
+print(c)        # [1, 2, 3, 4]
+```
+
 ## 5. Sorting and looping
 
 `sorted()` gives you a new, sorted list and leaves the original alone:
@@ -86,6 +102,7 @@ scores = [0.82, 0.91, 0.78]
 print(sorted(scores))                # [0.78, 0.82, 0.91]
 print(sorted(scores, reverse=True))  # [0.91, 0.82, 0.78]
 print(scores)                        # [0.82, 0.91, 0.78]
+print(sorted(["Minh", "Lan"]))        # ['Lan', 'Minh']
 ```
 
 You already know `for`. It can walk straight through a list, with no `range()` needed. Combine it with the accumulator pattern from the last lesson:
@@ -211,7 +228,16 @@ student = {"name": "Lan"}
 print(student.get("age", "unknown"))  # unknown
 ```
 
-**Changing a list while looping over it.** Adding or removing items of a list inside `for item in that_list:` makes Python skip items or loop forever. Build a **new** list instead:
+**Changing a list while looping over it.** Adding or removing items of a list inside `for item in that_list:` makes Python skip items or loop forever. Here we try to remove every number (`.remove(x)` deletes the first `x` it finds), but the loop skips some:
+
+```python
+numbers = [2, 4, 6, 8]
+for n in numbers:
+    numbers.remove(n)
+print(numbers)  # [4, 8]  (expected [])
+```
+
+Build a **new** list instead of editing the one you loop over:
 
 ```python
 numbers = [1, 2, 3, 4, 5, 6]

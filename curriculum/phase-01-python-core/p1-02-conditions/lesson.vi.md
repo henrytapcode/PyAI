@@ -43,7 +43,7 @@ print("Done")          # lần nào cũng chạy
 # Done
 ```
 
-Hãy thử đổi `temperature` thành `20` rồi chạy lại: "It's hot" biến mất, còn "Done" vẫn ở đó. Bấm **Visualize** ở khối code này để xem Python nhảy qua dòng thụt lề như thế nào.
+Hãy bấm **Visualize** ở khối code này trước. Sau đó đổi `temperature` thành `20` và bấm **Visualize** lần nữa: bạn sẽ thấy Python bỏ qua dòng thụt lề, nên "It's hot" biến mất còn "Done" vẫn ở đó.
 
 ## 3. Thụt lề và dấu hai chấm
 
@@ -69,7 +69,7 @@ print("This line always runs")  # không thụt lề: nằm ngoài if
 
 ## 4. `else`: con đường còn lại
 
-`else` chạy khi điều kiện là `False`. Đúng một trong hai khối sẽ chạy: không bao giờ chạy cả hai, cũng không bao giờ không chạy khối nào:
+`else` chạy khi điều kiện là `False`. Luôn có đúng một trong hai khối chạy: không bao giờ cả hai, cũng không bao giờ bỏ trống:
 
 ```python
 score = 45
@@ -83,7 +83,7 @@ else:
 
 ## 5. `elif`: nhiều hơn hai lựa chọn
 
-Dùng `elif` (viết tắt của "else if") để thêm các phép kiểm tra. Hãy hình dung một máy phân loại: món đồ đi qua từng cổng theo thứ tự, và **cổng nào vừa đầu tiên sẽ giữ nó lại**. Các cổng phía sau đều bị bỏ qua.
+Dùng `elif` (viết tắt của "else if") để thêm các phép kiểm tra. Hãy hình dung một máy phân loại: món đồ đi qua từng cổng theo thứ tự, và **cổng đầu tiên khớp sẽ giữ nó lại**. Các cổng phía sau đều bị bỏ qua.
 
 ```mermaid
 flowchart TD
@@ -190,6 +190,7 @@ has_id = True
 if age >= 18:
     if has_id:
         print("Enter")
+# (không in gì: age là 16)
 ```
 
 Khi các kiểm tra cùng xoay quanh một câu hỏi, hãy ưu tiên `and`, hoặc một chuỗi `elif` phẳng:
@@ -247,5 +248,4 @@ if x == 1 or x == 2:
 - Python chỉ chạy nhánh đúng đầu tiên, nên hãy đặt `elif` khắt khe nhất lên trước.
 - `and`, `or`, `not` kết hợp các điều kiện (xem bảng chân trị); không chắc thì thêm ngoặc.
 - `0`, `0.0` và `""` được coi là False; mọi số khác và văn bản không rỗng được coi là True.
-- Ưu tiên chuỗi `elif` phẳng hoặc `and` thay vì nhiều tầng `if` lồng nhau.
-- Tránh các lỗi kinh điển: `=` với `==`, sai thứ tự `elif`, và `x == 1 or 2`.
+- Ưu tiên chuỗi `elif` phẳng hoặc `and` thay vì nhiều tầng `if` lồng nhau, và tránh các lỗi kinh điển: `=` với `==`, sai thứ tự `elif`, và `x == 1 or 2`.

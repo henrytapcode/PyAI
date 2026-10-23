@@ -13,4 +13,4 @@
 
 **Để ý:** thứ tự rất quan trọng. `number += 1` nằm **trước** `continue`. Nếu nằm sau, số chẵn sẽ gặp `continue` mà không được tăng, và vòng lặp bị kẹt mãi mãi.
 
-**Tự thử:** đổi `20` thành `50` và đoán xem vòng lặp dừng ở đâu. (Các tổng là các số chính phương 1, 4, 9, ..., nên nó dừng ở `number = 15` với total 64.)
+**Tự thử:** đổi `20` thành `50` và đoán xem vòng lặp dừng ở đâu.

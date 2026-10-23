@@ -127,10 +127,10 @@ questions:
           if s ___ best:
               best = s
       print(best)  # 8
-    answer: [">"]
+    answer: [[">", ">="]]
     en:
       prompt: "Fill in the blank so the code finds the largest score."
-      explanation: "Whenever a score is greater than the best so far, it becomes the new best."
+      explanation: "Whenever a score is greater than the best so far, it becomes the new best. (`>=` also works here, it just replaces `best` with an equal value; `>` is the usual choice.)"
     vi:
       prompt: "Điền vào chỗ trống để code tìm ra điểm lớn nhất."
       explanation: "Mỗi khi một điểm lớn hơn điểm tốt nhất hiện có, nó trở thành điểm tốt nhất mới."
@@ -143,11 +143,11 @@ questions:
     en:
       prompt: "How do you add 5 to the end of the list `nums`?"
       options: ["`nums.add(5)`", "`nums.append(5)`", "`nums.push(5)`", "`nums.insert(5)`"]
-      explanation: "`append` adds to the end of a list. `add` is for sets, `push` is a JavaScript habit, and `insert` needs a position first: `nums.insert(i, 5)`."
+      explanation: "`append` is the list method that adds one item to the end. `add` and `push` do not exist for lists, and `insert` is a different method that does not fit here."
     vi:
       prompt: "Làm sao thêm số 5 vào cuối list `nums`?"
       options: ["`nums.add(5)`", "`nums.append(5)`", "`nums.push(5)`", "`nums.insert(5)`"]
-      explanation: "`append` thêm vào cuối list. `add` dùng cho set, `push` là thói quen của JavaScript, còn `insert` cần vị trí trước: `nums.insert(i, 5)`."
+      explanation: "`append` là method của list để thêm một phần tử vào cuối. `add` và `push` không có ở list, còn `insert` là một method khác, không phù hợp ở đây."
 
   - id: p1-04-q10
     type: output
@@ -171,13 +171,13 @@ questions:
     code: |
       nums = [3, 1, 2]
       print(sorted(nums) ___ [1, 2, 3])
-    answer: ["=="]
+    answer: [["==", ">=", "<="]]
     en:
       prompt: "Fill in the operator so the code prints `True`."
-      explanation: "`sorted(nums)` returns the new list `[1, 2, 3]`. `==` compares the contents of two lists. `is` checks whether they are the same object, which is `False` here."
+      explanation: "`sorted(nums)` returns the new list `[1, 2, 3]`. `==` compares the contents of two lists, and they are equal, so it prints `True`. (`>=` and `<=` also print `True` for equal lists, but `==` is the one that means \"are they equal?\".)"
     vi:
       prompt: "Điền toán tử vào chỗ trống để code in ra `True`."
-      explanation: "`sorted(nums)` trả về list mới `[1, 2, 3]`. `==` so sánh nội dung hai list. `is` kiểm tra xem có phải cùng một object không, và ở đây kết quả là `False`."
+      explanation: "`sorted(nums)` trả về list mới `[1, 2, 3]`. `==` so sánh nội dung hai list, và hai list bằng nhau nên in ra `True`. (`>=` và `<=` cũng in `True` với hai list bằng nhau, nhưng `==` mới là toán tử có nghĩa \"chúng có bằng nhau không?\".)"
 
   - id: p1-04-q12
     type: parsons
@@ -207,11 +207,11 @@ questions:
     en:
       prompt: "After this code runs, what is `a`?"
       options: ["`[1, 2]`", "`[1, 2, 3]`", "`[3]`", "An error"]
-      explanation: "`b = a` does not copy the list. Both names point to the same list, so `append` through `b` also changes what `a` sees. Write `b = list(a)` for an independent copy."
+      explanation: "`b = a` does not copy the list. Both names point to the same list, so `append` through `b` also changes what `a` sees. Write `b = a[:]` for an independent copy."
     vi:
       prompt: "Sau khi chạy đoạn code này, `a` là gì?"
       options: ["`[1, 2]`", "`[1, 2, 3]`", "`[3]`", "Lỗi"]
-      explanation: "`b = a` không sao chép list. Cả hai tên cùng trỏ đến một list, nên `append` qua `b` cũng làm thay đổi những gì `a` thấy. Muốn có bản sao độc lập, hãy viết `b = list(a)`."
+      explanation: "`b = a` không sao chép list. Cả hai tên cùng trỏ đến một list, nên `append` qua `b` cũng làm thay đổi những gì `a` thấy. Muốn có bản sao độc lập, hãy viết `b = a[:]`."
 
   - id: p1-04-q14
     type: output
@@ -237,11 +237,11 @@ questions:
     en:
       prompt: "Which line adds 1 to `counts[word]` when `word` is not in the dict yet?"
       options: ["`counts[word] += 1`", "`counts[word] = counts.get(word, 0) + 1`", "`counts.get(word) += 1`", "`counts[word] = counts.get(word) + 1`"]
-      explanation: "`counts[word] += 1` reads the missing key first, so it raises `KeyError`. `.get(word)` with no default returns `None`, and `None + 1` fails. `.get(word, 0)` supplies the starting count."
+      explanation: "`counts[word] += 1` reads the missing key first, so it raises `KeyError`. `.get(word)` with no default returns `None`, and `None + 1` fails. `counts.get(word) += 1` is not even valid Python (a `SyntaxError`), because you cannot assign to a function call. `.get(word, 0)` supplies the starting count."
     vi:
       prompt: "Dòng nào cộng 1 vào `counts[word]` khi `word` chưa có trong dict?"
       options: ["`counts[word] += 1`", "`counts[word] = counts.get(word, 0) + 1`", "`counts.get(word) += 1`", "`counts[word] = counts.get(word) + 1`"]
-      explanation: "`counts[word] += 1` đọc key chưa có trước nên báo `KeyError`. `.get(word)` không có giá trị mặc định sẽ trả về `None`, và `None + 1` bị lỗi. `.get(word, 0)` cung cấp số đếm bắt đầu."
+      explanation: "`counts[word] += 1` đọc key chưa có trước nên báo `KeyError`. `.get(word)` không có giá trị mặc định sẽ trả về `None`, và `None + 1` bị lỗi. `counts.get(word) += 1` thậm chí không hợp lệ (gây `SyntaxError`), vì không thể gán giá trị cho một lời gọi hàm. `.get(word, 0)` cung cấp số đếm bắt đầu."
 
   - id: p1-04-q16
     type: parsons
@@ -273,8 +273,8 @@ flashcards:
     vi: { front: "Slice `items[1:3]` trả về gì?", back: "Các phần tử ở chỉ số 1 và 2. Lấy điểm bắt đầu, không lấy điểm dừng." }
   - id: p1-04-f03
     tags: [lists]
-    en: { front: "`sorted(x)` vs sorting in place?", back: "`sorted(x)` returns a new sorted list and leaves `x` unchanged." }
-    vi: { front: "`sorted(x)` hoạt động thế nào?", back: "`sorted(x)` trả về một list mới đã sắp xếp và không thay đổi `x`." }
+    en: { front: "`sorted(x)` vs sorting in place?", back: "`sorted(x)` returns a new sorted list and leaves `x` unchanged. `x.sort()` sorts `x` itself and returns `None`." }
+    vi: { front: "`sorted(x)` khác sắp xếp tại chỗ thế nào?", back: "`sorted(x)` trả về một list mới đã sắp xếp và không thay đổi `x`. `x.sort()` sắp xếp chính `x` và trả về `None`." }
   - id: p1-04-f04
     tags: [dicts]
     en: { front: "`d[key]` vs `d.get(key, 0)`?", back: "`d[key]` raises `KeyError` if the key is missing. `d.get(key, 0)` returns 0 instead." }
@@ -289,5 +289,5 @@ flashcards:
     code: |
       a = [1, 2]
       b = a
-    en: { front: "After `b = a` with lists, what happens when you change `b`?", back: "`a` changes too: both names point to the same list. Use `b = list(a)` for an independent copy." }
-    vi: { front: "Với list, sau `b = a` thì điều gì xảy ra khi đổi `b`?", back: "`a` cũng đổi: hai tên cùng trỏ đến một list. Dùng `b = list(a)` để có bản sao độc lập." }
+    en: { front: "After `b = a` with lists, what happens when you change `b`?", back: "`a` changes too: both names point to the same list. Use `b = a[:]` for an independent copy." }
+    vi: { front: "Với list, sau `b = a` thì điều gì xảy ra khi đổi `b`?", back: "`a` cũng đổi: hai tên cùng trỏ đến một list. Dùng `b = a[:]` để có bản sao độc lập." }

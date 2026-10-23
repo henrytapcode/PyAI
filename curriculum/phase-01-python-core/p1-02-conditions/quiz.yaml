@@ -159,7 +159,7 @@ questions:
   - id: p1-02-q10
     type: output
     tags: [booleans]
-    difficulty: 1
+    difficulty: 2
     code: |
       a = True
       b = False
@@ -214,20 +214,20 @@ questions:
     tags: [conditions]
     difficulty: 2
     lines:
-      - 'score = 72'
+      - 'score = 95'
       - 'if score >= 90:'
-      - '    grade = "A"'
+      - '    grade = "A"  # 90 and above'
       - 'elif score >= 70:'
-      - '    grade = "C"'
+      - '    grade = "C"  # 70 to 89'
       - 'else:'
-      - '    grade = "F"'
-      - 'print(grade)  # C'
+      - '    grade = "F"  # below 70'
+      - 'print(grade)  # A'
     en:
-      prompt: "Put the lines in order so the program prints `C`."
-      explanation: "The chain must go `if`, then `elif`, then `else`, with each block directly under its line. 72 fails the `>= 90` check but passes `>= 70`, so the `elif` block runs. `print` comes after the whole chain."
+      prompt: "Put the lines in order so the program prints `A`."
+      explanation: "The chain must go `if`, then `elif`, then `else`, with each block directly under its line (the comments tell you which block belongs to which check). The strictest check `>= 90` must come first: if `>= 70` were first, 95 would be caught there and the program would print `C`. `print` comes after the whole chain."
     vi:
-      prompt: "Sắp xếp các dòng để chương trình in ra `C`."
-      explanation: "Chuỗi phải đi theo thứ tự `if`, rồi `elif`, rồi `else`, mỗi khối nằm ngay dưới dòng của nó. 72 không thỏa `>= 90` nhưng thỏa `>= 70`, nên khối `elif` chạy. `print` đặt sau toàn bộ chuỗi."
+      prompt: "Sắp xếp các dòng để chương trình in ra `A`."
+      explanation: "Chuỗi phải đi theo thứ tự `if`, rồi `elif`, rồi `else`, mỗi khối nằm ngay dưới dòng của nó (comment cho biết khối nào thuộc phép kiểm tra nào). Phép kiểm tra khắt khe nhất `>= 90` phải đứng đầu: nếu `>= 70` đứng trước thì 95 bị bắt ở đó và chương trình in ra `C`. `print` đặt sau toàn bộ chuỗi."
 
   - id: p1-02-q14
     type: parsons

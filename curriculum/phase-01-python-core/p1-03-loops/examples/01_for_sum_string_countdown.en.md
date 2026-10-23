@@ -12,4 +12,4 @@
 
 **Notice:** the loop variable (`n`, `letter`, `step`) is just a normal variable. Python sets it for you at the start of every round.
 
-**Try it yourself:** press **Visualize** and watch `total` change at line 4. Then change `range(1, 6)` to `range(1, 11)` and predict the final sum before you run it (it should be 55).
+**Try it yourself:** press **Visualize** and watch `total` change at line 4. Then change `range(1, 6)` to `range(1, 11)` and predict the final sum before you run it.

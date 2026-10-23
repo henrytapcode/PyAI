@@ -11,4 +11,4 @@
 
 **Để ý:** các điều kiện `elif` đi từ nhiệt độ cao xuống thấp. Nếu dòng 9 (`>= 15`) đứng đầu, mọi ngày ấm đều bị gọi là "Mild day".
 
-**Tự thử:** đổi `temperature` thành `10` và `is_raining` thành `True`. Hãy đoán cả hai dòng kết quả trước khi bấm Run.
+**Tự thử:** đổi `temperature` thành `10` và `is_raining` thành `True`. Hãy đoán cả hai dòng kết quả trước khi bấm **Chạy**.
