@@ -1539,3 +1539,47 @@ terms:
       en: "Caching embeddings and frequent LLM answers saves money and time, but only when the same input must always give the same output."
       vi: "Cache embedding và các câu trả lời LLM hay gặp giúp tiết kiệm tiền và thời gian, nhưng chỉ khi cùng đầu vào luôn phải cho cùng đầu ra."
     related: [latency, decorator, immutable]
+
+  - term: validation
+    vi_term: validation (kiểm tra dữ liệu hợp lệ)
+    tags: [exceptions]
+    en: "Checking that data has the shape and values your code expects before using it, and raising a clear error if not."
+    vi: "Kiểm tra dữ liệu có đúng dạng và giá trị mà code mong đợi trước khi dùng, và raise lỗi rõ ràng nếu sai."
+    example: "if amount <= 0:\n    raise ValueError(\"amount must be positive\")"
+    in_practice:
+      en: "Data from files, users and LLM replies is often malformed. Validating it at the edge stops bad values from causing confusing bugs deep in the program."
+      vi: "Dữ liệu từ file, người dùng và phản hồi của LLM thường sai dạng. Kiểm tra ngay ở cửa vào giúp giá trị xấu không gây ra lỗi khó hiểu sâu trong chương trình."
+    related: [dataclass, exception, round trip]
+
+  - term: ISO date
+    vi_term: ISO date (ngày theo chuẩn ISO)
+    tags: [strings]
+    en: "A date written as year-month-day with zero padding, such as 2024-03-05, which sorts correctly as plain text."
+    vi: "Ngày viết theo dạng năm-tháng-ngày có số 0 đệm, như 2024-03-05, và sắp xếp đúng ngay cả khi coi là văn bản."
+    example: "\"2024-03-05\" < \"2024-11-01\"  # True"
+    in_practice:
+      en: "Logs, JSON files and APIs use ISO dates so every tool reads them the same way, and you can group by month with date[:7]."
+      vi: "Log, file JSON và API dùng ngày ISO để mọi công cụ đọc giống nhau, và bạn có thể gom theo tháng bằng date[:7]."
+    related: [validation, json]
+
+  - term: round trip
+    vi_term: round trip (khứ hồi)
+    tags: [json]
+    en: "Saving data and loading it back, and getting the same data you started with."
+    vi: "Lưu dữ liệu rồi đọc lại, và nhận được đúng dữ liệu ban đầu."
+    example: "assert load(path) == original  # after save(path, original)"
+    in_practice:
+      en: "A save-then-load test is the quickest way to prove that your file format loses nothing."
+      vi: "Test lưu rồi đọc lại là cách nhanh nhất để chứng minh định dạng file của bạn không làm mất dữ liệu."
+    related: [dataclass, validation]
+
+  - term: frozen dataclass
+    vi_term: frozen dataclass (dataclass đóng băng)
+    tags: [dataclasses]
+    en: "A dataclass made with frozen=True, whose fields cannot be changed after the object is created."
+    vi: "Dataclass tạo bằng frozen=True, các trường của nó không thể bị đổi sau khi tạo object."
+    example: "@dataclass(frozen=True)\nclass Point:\n    x: int"
+    in_practice:
+      en: "Use frozen for records that should never change, like a config or a saved expense, so no function can edit them by accident."
+      vi: "Dùng frozen cho bản ghi không nên đổi, như config hay một khoản chi đã lưu, để không hàm nào sửa nhầm."
+    related: [dataclass, immutable]
