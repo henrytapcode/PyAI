@@ -13,3 +13,10 @@ apps/web/next-env.d.ts
 *.tsbuildinfo
 apps/web/public/pyrunner/
 apps/web/out/
+
+# AI-assistant instructions (kept locally, not published)
+CLAUDE.md
+AGENTS.md
+docs/
+.claude/agents/
+.claude/commands/
