@@ -34,7 +34,10 @@ def _repr(value, depth: int = 0) -> str:
     if isinstance(value, type):
         return f"class {value.__name__}"
     if isinstance(value, types.GeneratorType):
-        return f"generator {value.__name__}()"
+        # A suspended generator keeps its locals; show them so "the state is kept" is visible.
+        frame = value.gi_frame
+        local = ", ".join(f"{k}={_repr(v, depth + 1)}" for k, v in frame.f_locals.items()) if frame else ""
+        return f"generator {value.__name__}({local})"
     if depth < 3:
         if type(value) is list:
             return "[" + ", ".join(_repr(v, depth + 1) for v in value) + "]"
