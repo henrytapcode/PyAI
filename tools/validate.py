@@ -22,7 +22,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import io
+import itertools
 import json
 import os
 import re
@@ -341,7 +343,46 @@ def check_questions(rep: Report, path: Path, questions: list, ids: set, topics: 
                 rep.error(path, f"{qid}: parsons lines in given order crash: {err.strip()[-300:]}")
             if len(set(q["lines"])) != len(q["lines"]):
                 rep.error(path, f"{qid}: parsons lines must be unique")
+            elif rc == 0 and not FAST:
+                other = _other_parsons_orders(q["lines"])
+                if other:
+                    rep.error(path, f"{qid}: parsons has another valid order, the grader accepts only one: {other!r}")
         rep.count("questions")
+
+
+PARSONS_MAX_LINES = 8
+FAST = False  # set from --fast in main()
+
+
+def _other_parsons_orders(lines: list[str]) -> list[str] | None:
+    """First different line order that runs and prints the same output, or None.
+
+    The quiz grader compares the learner's order with ``lines`` exactly, so a second working
+    order would mark a correct answer wrong. Tries every permutation (up to 8 lines).
+    """
+    if len(lines) > PARSONS_MAX_LINES or any(re.match(r"\s*while", ln) for ln in lines):
+        return None
+
+    def run(order) -> str | None:
+        try:
+            code = compile("\n".join(order) + "\n", "<parsons>", "exec")
+        except (SyntaxError, ValueError):
+            return None
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                exec(code, {"__name__": "__main__"})  # noqa: S102 - our own curriculum code
+        except BaseException:  # noqa: BLE001 - any crash means the order is not valid
+            return None
+        return buf.getvalue()
+
+    expected = run(lines)
+    if expected is None:
+        return None
+    for order in itertools.permutations(lines):
+        if list(order) != lines and run(order) == expected:
+            return list(order)
+    return None
 
 
 # ------------------------------------------------------------------ main walk
@@ -355,6 +396,8 @@ def main() -> int:
     ap.add_argument("--fast", action="store_true", help="skip pytest subprocesses and ruff")
     ap.add_argument("--allow-missing-vi", action="store_true", help="missing translations become warnings")
     args = ap.parse_args()
+    global FAST
+    FAST = args.fast
 
     rep = Report()
     validators = _validators()
