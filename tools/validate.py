@@ -346,6 +346,10 @@ def check_questions(rep: Report, path: Path, questions: list, ids: set, topics: 
 
 # ------------------------------------------------------------------ main walk
 def main() -> int:
+    # Error messages quote Vietnamese text; the Windows console default (cp1252) can't print it.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--path", type=Path, help="only check this lesson folder (or any folder below curriculum/)")
     ap.add_argument("--fast", action="store_true", help="skip pytest subprocesses and ruff")
