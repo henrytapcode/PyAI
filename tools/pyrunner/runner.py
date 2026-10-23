@@ -335,6 +335,12 @@ def reset_state():
     root.handlers[:] = []
     root.setLevel(logging.WARNING)
     logging.disable(logging.NOTSET)
+    for named in list(logging.root.manager.loggerDict.values()):
+        if isinstance(named, logging.Logger):
+            named.setLevel(logging.NOTSET)
+            named.handlers[:] = []
+            named.propagate = True
+            named.disabled = False
 
 
 # ---------------------------------------------------------------- helpers
