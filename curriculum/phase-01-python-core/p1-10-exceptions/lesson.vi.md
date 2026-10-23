@@ -27,7 +27,7 @@ Hãy đọc traceback **từ dưới lên**:
 
 ## 2. try và except
 
-Hãy hình dung `try` là **tấm lưới an toàn dưới người làm xiếc**: bạn thực hiện động tác nguy hiểm trong lưới, nếu bị ngã thì lưới đỡ lấy và buổi diễn vẫn tiếp tục.
+Hãy hình dung `try` là **tấm lưới an toàn dưới người làm xiếc**: bạn thực hiện động tác nguy hiểm trên lưới, nếu bị ngã thì lưới đỡ lấy và buổi diễn vẫn tiếp tục.
 
 ```python
 text = "twelve"
@@ -112,6 +112,18 @@ print(to_number(None))             # None
 print(describe(["a", "b"], 1))     # b
 print(describe(["a", "b"], 9))     # no such position
 print(describe(["a", "b"], "x"))   # position must be a number
+```
+
+Một số loại lỗi là **một dạng của** loại khác. `json.JSONDecodeError` là một dạng của `ValueError`, và mọi lỗi trong bài này đều là một dạng của `Exception`. Vì vậy `except ValueError` cũng bắt luôn các dạng của `ValueError`:
+
+```text
+Exception
+├── ValueError
+│   └── json.JSONDecodeError
+├── TypeError
+└── LookupError
+    ├── KeyError
+    └── IndexError
 ```
 
 ## 4. else và finally
@@ -224,7 +236,7 @@ except ValueError:
 
 Hãy đặt loại cụ thể (`ValueError`) trước, rồi mới đến loại chung.
 
-**Lờ lỗi đi bằng `pass`.** Lỗi biến mất, và biến không bao giờ được tạo ra:
+**Lờ lỗi đi bằng `pass`.** (`pass` là một dòng không làm gì cả.) Lỗi biến mất, và biến không bao giờ được tạo ra:
 
 ```text
 try:
@@ -244,4 +256,4 @@ Hãy gán cho `value` một giá trị dự phòng trong khối `except` (`value
 - `try` chạy code rủi ro; `except` khớp chạy nếu nó thất bại, và phần còn lại của `try` bị bỏ qua.
 - Nêu đúng loại cụ thể (`ValueError`, `KeyError`, ...). Tránh `except` trần.
 - `else` chỉ chạy khi không có gì thất bại; `finally` chạy mọi lần.
-- `raise ValueError("thông báo rõ ràng")` báo dữ liệu xấu từ sớm. Hãy bắt cái bạn chờ đợi, và để bug thật sập để còn sửa.
+- `raise ValueError("clear message")` báo dữ liệu xấu từ sớm. Hãy bắt cái bạn chờ đợi, và để bug thật làm chương trình dừng lại, nhờ vậy bạn mới sửa được.

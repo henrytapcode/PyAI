@@ -8,50 +8,50 @@ tags: [exceptions]
 hints:
   en:
     - |
-      This uses §5 (raise) and §2 (try / except / else). There are three blanks: the error type to raise, the error type to catch, and the value to return when the text is not a good age.
-      The tests expect `validate_age(30)` to return `30`, `validate_age(200)` to raise `ValueError`, and `age_or_none("x")` to return `None`.
+      This uses §3 (error types) and §5 (raise). Of the three blanks, one is an error type you raise, one is the type you catch, and one is the no-result value.
+      The tests expect `validate_age(30)` to return `30`, `validate_age(200)` to raise an error, and `age_or_none("x")` to give back the no-result value.
     - |
       Plan:
       1. Blank 1 (in `validate_age`): a value that is the right kind but out of range is a... (see the table in §3).
       2. Blank 2: `int("x")` and `validate_age(200)` raise the same error type, so one name covers both.
       3. Blank 3: the "nothing useful" value that Python uses for "no result". The tests expect `age_or_none("x")` to be this value.
     - |
-      A similar pattern with other names:
+      The same shape on other names (the gaps are for you to fill):
       ```python
       def check_size(n):
           if n < 0:
-              raise ValueError("size must not be negative")
+              raise ...("size must not be negative")
           return n
 
       def size_or_zero(text):
           try:
               size = check_size(int(text))
-          except ValueError:
+          except ...:
               return 0
           else:
               return size
       ```
   vi:
     - |
-      Bài này dùng §5 (raise) và §2 (try / except / else). Có ba chỗ trống: loại lỗi cần raise, loại lỗi cần bắt, và giá trị trả về khi văn bản không phải tuổi hợp lệ.
-      Test cần `validate_age(30)` trả về `30`, `validate_age(200)` gây `ValueError`, và `age_or_none("x")` trả về `None`.
+      Bài này dùng §3 (các loại lỗi) và §5 (raise). Trong ba chỗ trống, một là loại lỗi bạn raise, một là loại lỗi bạn bắt, và một là giá trị "không có kết quả".
+      Test cần `validate_age(30)` trả về `30`, `validate_age(200)` gây ra một lỗi, và `age_or_none("x")` trả về giá trị "không có kết quả".
     - |
       Kế hoạch:
       1. Chỗ trống 1 (trong `validate_age`): giá trị đúng kiểu nhưng ngoài khoảng cho phép gây loại lỗi nào? (xem bảng ở §3).
       2. Chỗ trống 2: `int("x")` và `validate_age(200)` gây cùng một loại lỗi, nên một cái tên là đủ cho cả hai.
       3. Chỗ trống 3: giá trị "không có kết quả" của Python. Test cần `age_or_none("x")` đúng bằng giá trị này.
     - |
-      Một mẫu tương tự với tên khác:
+      Cùng một khung với tên khác (chỗ `...` là để bạn tự điền):
       ```python
       def check_size(n):
           if n < 0:
-              raise ValueError("size must not be negative")
+              raise ...("size must not be negative")
           return n
 
       def size_or_zero(text):
           try:
               size = check_size(int(text))
-          except ValueError:
+          except ...:
               return 0
           else:
               return size

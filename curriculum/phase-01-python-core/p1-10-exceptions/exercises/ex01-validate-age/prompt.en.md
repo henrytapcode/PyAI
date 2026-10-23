@@ -5,7 +5,7 @@ Two functions are almost finished, but three words are missing. Replace every `_
 | call | result |
 |---|---|
 | `validate_age(30)` | `30` |
-| `validate_age(200)` | raises `ValueError("age must be between 0 and 120, got 200")` |
+| `validate_age(200)` | raises an error with the message `age must be between 0 and 120, got 200` |
 | `age_or_none("25")` | `25` |
 | `age_or_none("x")` | `None` |
 | `age_or_none("200")` | `None` |
@@ -13,5 +13,5 @@ Two functions are almost finished, but three words are missing. Replace every `_
 **Rules**
 - Fill the three blanks only; the `try`, `except` and `else` structure is already correct.
 - An age from `0` to `120` (both included) is valid.
-- `age_or_none` must not crash for any text: both `int("x")` and an age out of range raise `ValueError`.
+- `age_or_none` must not crash for any text: both bad text and an out-of-range age raise the same error type.
 - Press **Check** to run the tests.

@@ -31,4 +31,7 @@ def test_same_average_survives_float_rounding():
 
 def test_different_averages_are_not_the_same():
     assert same_average([1, 2, 3], [5]) is False
+
+
+def test_equal_averages_from_different_lists_are_the_same():
     assert same_average([1, 2, 3], [2, 2]) is True

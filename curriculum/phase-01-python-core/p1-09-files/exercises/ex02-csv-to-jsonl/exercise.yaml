@@ -16,7 +16,17 @@ hints:
       3. CSV values are text, and the score has decimals, so convert it with a built-in that makes decimal numbers.
       4. We need a *string* for each line (then add `"\n"`), so use the function whose name ends with `s`.
     - |
-      Read the blanks like this: mode `"w"`, `csv.DictReader(src)`, `float(row["score"])`, and `json.dumps(record, ensure_ascii=False)`. Type those four words into the four `___` and press Check.
+      Here is the same shape on a different job: read `name:score` text lines and append them as JSON (the mode, the converter and the dump function here differ from yours):
+      ```python
+      import json
+
+      with open("scores.txt", encoding="utf-8") as src:
+          with open("out.jsonl", "a", encoding="utf-8") as dst:
+              for line in src:
+                  name, score = line.strip().split(":")
+                  dst.write(json.dumps({"name": name, "score": int(score)}) + "\n")
+      ```
+      Use the same pattern, but your input is a CSV file read with a `Dict...` reader, and your output file is created fresh.
   vi:
     - |
       Bài này kết hợp phần 6 và phần 8: đọc các dòng bằng `csv.DictReader`, rồi ghi mỗi đối tượng JSON một dòng. Bốn chỗ trống là: chế độ ghi, tên class đọc CSV, hàm đổi sang số, và phiên bản dạng chuỗi của `json.dump`. Với dòng `{"name": "Lan", "score": "9.5"}` thì dòng bạn ghi ra là `{"name": "Lan", "score": 9.5}`.
@@ -27,4 +37,14 @@ hints:
       3. Giá trị CSV là chữ, còn điểm có phần thập phân, nên hãy đổi bằng hàm có sẵn tạo số thập phân.
       4. Mỗi dòng cần một *chuỗi* (rồi thêm `"\n"`), nên dùng hàm có tên kết thúc bằng `s`.
     - |
-      Bốn chỗ trống là: chế độ `"w"`, `csv.DictReader(src)`, `float(row["score"])`, và `json.dumps(record, ensure_ascii=False)`. Gõ bốn từ đó vào bốn chỗ `___` rồi bấm Check.
+      Đây là cùng một khung nhưng cho việc khác: đọc các dòng text `name:score` rồi thêm vào cuối file dạng JSON (chế độ mở, hàm đổi số và hàm dump ở đây khác với bài của bạn):
+      ```python
+      import json
+
+      with open("scores.txt", encoding="utf-8") as src:
+          with open("out.jsonl", "a", encoding="utf-8") as dst:
+              for line in src:
+                  name, score = line.strip().split(":")
+                  dst.write(json.dumps({"name": name, "score": int(score)}) + "\n")
+      ```
+      Dùng cùng mẫu này, nhưng đầu vào của bạn là file CSV đọc bằng reader tên bắt đầu bằng `Dict...`, và file đầu ra được tạo mới.

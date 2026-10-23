@@ -43,8 +43,6 @@ print(st.mean([1, 2, 3]))    # 2
 > [!TIP]
 > Always put the `import` lines at the **top** of the file. Anyone opening your code sees at once which tools it depends on.
 
-Press **Visualize** on the block above to watch the names `math`, `sqrt` and `st` appear in your program one line at a time.
-
 ## 3. A tour of useful standard-library modules
 
 You do not need to memorise these. Remember that they exist, then look up the details when you need them.
@@ -145,6 +143,8 @@ print(roll_three(42))   # [6, 1, 1]  same seed, same result
 print(roll_three(7))    # [3, 2, 4]  another seed, another result
 ```
 
+Press **Visualize** on this block and watch `rolls` grow one number at a time. In `for _ in range(3)` the name `_` is a throwaway: we only want to repeat three times and do not need the counter.
+
 `random.Random(seed)` makes a separate generator, so one function never disturbs the random numbers used somewhere else. Many professional code bases prefer this style.
 
 ## 5. Real projects are many modules
@@ -171,17 +171,7 @@ from stats_tools import summarize
 from retrieval.search import find_best_chunk
 ```
 
-A folder of modules is a **package**, and the dot walks down into it: `retrieval.search` means "the `search` module inside the `retrieval` package". You can see the same pattern in the standard library, and this block runs right here:
-
-```python
-import urllib.parse                          # package urllib, module parse
-from urllib.parse import urlparse
-
-address = urlparse("https://example.com/v1/chat?model=small")
-print(address.netloc)                        # example.com
-print(address.path)                          # /v1/chat
-print(urllib.parse.quote("hello world"))     # hello%20world
-```
+A folder of modules is a **package**, and the dot walks down into it: `retrieval.search` means "the `search` module inside the `retrieval` package".
 
 Why split code into files? Each file stays short, you find things faster, teammates edit different files without clashing, and you can test each module on its own.
 
@@ -249,7 +239,7 @@ print(sqrt(9))   # 3.0
 
 **Naming your own file like a module.** If you create `random.py` or `statistics.py` in your project, `import random` loads **your** file instead of the standard one, and strange errors follow. Pick names like `text_tools.py`.
 
-**`import datetime` versus `from datetime import date`.** The module `datetime` also contains a class named `datetime`. After `import datetime` you must write `datetime.date(2025, 1, 1)`. After `from datetime import date` you write `date(2025, 1, 1)`.
+**`import datetime` versus `from datetime import date`.** The module `datetime` also contains a tool named `datetime`, so the same word means two things. After `import datetime` you must write `datetime.date(2025, 1, 1)`. After `from datetime import date` you write `date(2025, 1, 1)`.
 
 > [!WARNING]
 > Avoid `from module import *`. It dumps every name into your program, you no longer know where a name came from, and it can silently overwrite your own variables.

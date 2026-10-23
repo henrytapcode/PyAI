@@ -20,7 +20,7 @@ print(math.sqrt(16))  # 4.0
 print(math.pi)        # 3.141592653589793
 ```
 
-Sau `import math`, cái tên `math` trỏ tới module. Bạn chui vào bên trong bằng dấu chấm: `math.sqrt` nghĩa là "hàm `sqrt` nằm trong `math`".
+Sau `import math`, cái tên `math` trỏ tới module. Bạn truy cập vào bên trong bằng dấu chấm: `math.sqrt` nghĩa là "hàm `sqrt` nằm trong `math`".
 
 ## 2. Ba cách import
 
@@ -42,8 +42,6 @@ print(st.mean([1, 2, 3]))    # 2
 
 > [!TIP]
 > Luôn đặt các dòng `import` ở **đầu** file. Ai mở code của bạn cũng thấy ngay nó phụ thuộc vào những công cụ nào.
-
-Bấm **Visualize** ở khối code phía trên để xem các tên `math`, `sqrt` và `st` xuất hiện trong chương trình từng dòng một.
 
 ## 3. Điểm qua vài module hữu ích của thư viện chuẩn
 
@@ -145,6 +143,8 @@ print(roll_three(42))   # [6, 1, 1]  cùng seed, cùng kết quả
 print(roll_three(7))    # [3, 2, 4]  seed khác, kết quả khác
 ```
 
+Bấm **Visualize** ở khối code này để xem `rolls` dài ra từng số một. Trong `for _ in range(3)`, tên `_` là tên bỏ đi: ta chỉ muốn lặp ba lần và không cần biến đếm.
+
 `random.Random(seed)` tạo ra một bộ sinh riêng, nên một hàm không làm xáo trộn các số ngẫu nhiên đang dùng ở chỗ khác. Nhiều codebase chuyên nghiệp ưa dùng kiểu viết này.
 
 ## 5. Dự án thật gồm nhiều module
@@ -161,7 +161,7 @@ rag_demo/
     └── search.py
 ```
 
-Ở đây `main.py` là điểm vào (file bạn chạy), `text_tools.py` và `stats_tools.py` là các module chứa hàm hỗ trợ, còn `retrieval/` là thư mục chứa module nên gọi là **package**. File `__init__.py` đánh dấu một thư mục là package.
+Ở đây `main.py` là điểm vào (file bạn chạy), `text_tools.py` và `stats_tools.py` là các module chứa hàm hỗ trợ, còn `retrieval/` là thư mục chứa module nên gọi là **package**. File `__init__.py` (thường để trống) đánh dấu một thư mục là package.
 
 Trong `main.py` bạn sẽ import module của chính mình giống hệt module chuẩn:
 
@@ -171,17 +171,7 @@ from stats_tools import summarize
 from retrieval.search import find_best_chunk
 ```
 
-Một thư mục chứa module gọi là **package** (gói), và dấu chấm đi sâu vào trong nó: `retrieval.search` nghĩa là "module `search` bên trong package `retrieval`". Mẫu này có sẵn ngay trong thư viện chuẩn, và khối code này chạy được ngay tại đây:
-
-```python
-import urllib.parse                          # package urllib, module parse
-from urllib.parse import urlparse
-
-address = urlparse("https://example.com/v1/chat?model=small")
-print(address.netloc)                        # example.com
-print(address.path)                          # /v1/chat
-print(urllib.parse.quote("hello world"))     # hello%20world
-```
+Một thư mục chứa module gọi là **package** (gói), và dấu chấm đi sâu vào trong nó: `retrieval.search` nghĩa là "module `search` bên trong package `retrieval`".
 
 Vì sao nên tách code ra nhiều file? Mỗi file ngắn gọn, bạn tìm đồ nhanh hơn, đồng đội sửa các file khác nhau mà không đụng nhau, và bạn có thể kiểm thử từng module riêng.
 
@@ -249,7 +239,7 @@ print(sqrt(9))   # 3.0
 
 **Đặt tên file của mình trùng tên module.** Nếu bạn tạo `random.py` hoặc `statistics.py` trong dự án, `import random` sẽ nạp file **của bạn** thay vì module chuẩn, và các lỗi kỳ lạ xuất hiện. Hãy đặt tên như `text_tools.py`.
 
-**`import datetime` khác với `from datetime import date`.** Module `datetime` còn chứa một class cũng tên `datetime`. Sau `import datetime` bạn phải viết `datetime.date(2025, 1, 1)`. Sau `from datetime import date` bạn viết `date(2025, 1, 1)`.
+**`import datetime` khác với `from datetime import date`.** Module `datetime` còn chứa một công cụ cũng tên `datetime`, nên cùng một từ mang hai nghĩa. Sau `import datetime` bạn phải viết `datetime.date(2025, 1, 1)`. Sau `from datetime import date` bạn viết `date(2025, 1, 1)`.
 
 > [!WARNING]
 > Tránh `from module import *`. Nó đổ mọi tên vào chương trình, bạn không còn biết một tên đến từ đâu, và nó có thể âm thầm ghi đè biến của bạn.

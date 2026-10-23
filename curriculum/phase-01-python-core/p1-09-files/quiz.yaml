@@ -6,11 +6,11 @@ questions:
     answer: 1
     en:
       prompt: "Which `open` mode erases the old content of an existing file before writing?"
-      options: ["\"r\"", "\"w\"", "\"a\"", "\"rb\""]
+      options: ["\"r\"", "\"w\"", "\"a\"", "\"x\""]
       explanation: "`\"w\"` (write) starts from an empty file, so old content is gone the moment you open it. `\"a\"` adds to the end, and `\"r\"` only reads."
     vi:
       prompt: "Chế độ `open` nào xóa nội dung cũ của file đang có trước khi ghi?"
-      options: ["\"r\"", "\"w\"", "\"a\"", "\"rb\""]
+      options: ["\"r\"", "\"w\"", "\"a\"", "\"x\""]
       explanation: "`\"w\"` (write) bắt đầu từ file rỗng, nên nội dung cũ mất ngay khi bạn mở file. `\"a\"` ghi nối vào cuối, còn `\"r\"` chỉ đọc."
 
   - id: p1-09-q02
@@ -51,7 +51,7 @@ questions:
 
   - id: p1-09-q04
     type: mcq
-    tags: [files, json]
+    tags: [files]
     difficulty: 2
     answer: 0
     en:
@@ -150,7 +150,7 @@ questions:
   - id: p1-09-q09
     type: output
     tags: [json]
-    difficulty: 3
+    difficulty: 2
     code: |
       import json
 
@@ -285,7 +285,7 @@ questions:
   - id: p1-09-q16
     type: parsons
     tags: [json, loops]
-    difficulty: 3
+    difficulty: 2
     lines:
       - "import json"
       - "total = json.loads('{\"x\": 1}')[\"x\"]"

@@ -53,7 +53,7 @@ Tham số thứ hai của `open` là **chế độ** (mode):
 | `"a"` | ghi nối thêm (append) | thêm vào cuối | tạo mới |
 
 > [!WARNING]
-> Luôn viết `encoding="utf-8"`. Nếu không, Python trên một số máy (nhất là Windows) dùng bảng mã khác và các chữ tiếng Việt như `ê` hay `ơ` sẽ bị lỗi font.
+> Luôn viết `encoding="utf-8"`. Nếu không, Python trên một số máy (nhất là Windows) dùng bảng mã khác và các chữ tiếng Việt như `ê` hay `ơ` sẽ bị lỗi mã hóa, hiện thành ký tự lạ.
 
 ## 3. Ba cách đọc
 
@@ -82,14 +82,14 @@ with tempfile.TemporaryDirectory() as tmp:
             print(line.strip())  # Hello, rồi What is AI?, rồi Bye
 ```
 
+Bấm **Visualize** ở khối code này và xem `line` thay đổi khi vòng lặp đi qua file. Vòng lặp qua `f` là cách xử lý file có hàng triệu dòng, vì Python không bao giờ giữ nhiều hơn một dòng.
+
 Mỗi dòng vẫn còn `\n` ở cuối. `line.strip()` bỏ nó đi (cùng khoảng trắng hai đầu). Nếu không `strip()`, `print` sẽ tự thêm một lần xuống dòng nữa và bạn thấy các dòng trống xen giữa.
 
 ```text
 raw line:      "What is AI?\n"
 after strip:   "What is AI?"
 ```
-
-Bấm **Visualize** ở khối code phía trên và xem `line` thay đổi khi vòng lặp đi qua file. Vòng lặp qua `f` là cách xử lý file có hàng triệu dòng, vì Python không bao giờ giữ nhiều hơn một dòng.
 
 ## 4. Ghi từng dòng
 
@@ -224,7 +224,16 @@ File trông như thế này:
 }
 ```
 
-`indent=2` giúp người đọc file dễ nhìn. `ensure_ascii=False` giữ nguyên chữ tiếng Việt; nếu thiếu nó bạn sẽ thấy `"Xin chào"`. Còn đây là bản dùng chuỗi:
+`indent=2` giúp người đọc file dễ nhìn. `ensure_ascii=False` giữ nguyên chữ tiếng Việt; nếu thiếu nó, mỗi chữ như vậy bị ghi thành một mã kiểu `\u00e0`:
+
+```python
+import json
+
+print(json.dumps("chào"))                       # "ch\u00e0o"
+print(json.dumps("chào", ensure_ascii=False))   # "chào"
+```
+
+Còn đây là bản dùng chuỗi:
 
 ```python
 import json
@@ -283,6 +292,19 @@ Một `with` có thể mở cùng lúc hai file (cách nhau bằng dấu phẩy)
 
 **Quên rằng `"w"` xóa sạch file.** Mở file đã có bằng `"w"` là nội dung bị xóa ngay lập tức. Dùng `"a"` để thêm vào cuối.
 
+```python
+import tempfile
+
+with tempfile.TemporaryDirectory() as tmp:
+    path = f"{tmp}/log.txt"
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("run 1\n")
+    with open(path, "w", encoding="utf-8") as f:   # oops: lại "w"
+        f.write("run 2\n")
+    with open(path, encoding="utf-8") as f:
+        print(f.read().splitlines())  # ['run 2']  (run 1 đã mất)
+```
+
 **Quên xuống dòng.** `f.write("a")` rồi `f.write("b")` cho ra `ab` trên cùng một dòng. Hãy thêm `"\n"`. Khi đọc, một dòng là `"Hello\n"` chứ không phải `"Hello"`:
 
 ```python
@@ -293,7 +315,21 @@ print(line.strip() == "Hello")  # True
 
 **Coi giá trị CSV là số.** Mọi giá trị CSV đều là văn bản, nên `row["score"] + 1` gây `TypeError`. Hãy chuyển trước bằng `float(row["score"])`.
 
+```python
+row = {"name": "Lan", "score": "9.5"}   # thứ DictReader trả về
+# print(row["score"] + 1)         # TypeError: can only concatenate str (not "int") to str
+print(float(row["score"]) + 1)    # 10.5
+```
+
 **Nhầm `load` với `loads`.** `load` / `dump` làm việc với file; `loads` / `dumps` làm việc với chuỗi. `json.loads(f)` lỗi vì `f` là file, không phải chuỗi.
+
+```python
+import json
+
+text = '{"ok": true}'
+# json.loads(f) với file object: TypeError: the JSON object must be str, bytes or bytearray, not TextIOWrapper
+print(json.loads(text))   # {'ok': True}  (file thì dùng load(f), chuỗi thì dùng loads(text))
+```
 
 **Dùng file sau khối `with`.** Hết khối thì file đã đóng, và `f.read()` ở ngoài sẽ báo `ValueError: I/O operation on closed file`. Hãy đọc xong mọi thứ bên trong khối.
 

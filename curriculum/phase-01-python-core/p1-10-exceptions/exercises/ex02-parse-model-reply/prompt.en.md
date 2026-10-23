@@ -14,4 +14,4 @@ A classifier model should answer with JSON like `{"label": "spam", "score": 0.9}
 - The fallback is used for invalid JSON, a missing `"label"` or `"score"`, JSON that is not a dict (like a list), a score that is not a number, and a score below `0` or above `1`.
 - `0` and `1` are valid scores.
 - `count_unknown(replies)` returns how many replies in the list give the unknown result.
-- Do not use a bare `except:`. Name the error types.
+- Do not use a bare `except:`. Name the specific error types you catch.

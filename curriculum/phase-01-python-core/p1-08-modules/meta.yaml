@@ -10,7 +10,7 @@ summary:
   vi: "Mượn các công cụ đã được kiểm thử trong thư viện chuẩn (math, statistics, random, datetime, Counter, pathlib) và biết cách project thật tách code thành module."
 level: beginner
 tags: [modules, stdlib]
-prerequisites: [p1-05-functions]
+prerequisites: [p1-05-functions, p1-07-strings]
 duration_min: 15
 outcomes:
   en:

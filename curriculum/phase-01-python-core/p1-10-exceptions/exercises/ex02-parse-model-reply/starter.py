@@ -1,4 +1,4 @@
-import json  # noqa: F401
+import json
 
 
 def parse_reply(text):

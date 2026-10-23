@@ -10,6 +10,6 @@
 5. Dòng 13 là **fallback** (phương án dự phòng): sau mọi lỗi đã xử lý, ta trả về kết quả "unknown" an toàn, nên bên gọi luôn nhận được dict có cùng các key.
 6. Vòng lặp ở cuối thử cả bốn trường hợp: JSON tốt, văn bản lan man, thiếu trường, rồi lại JSON tốt.
 
-**Để ý:** `JSONDecodeError` được liệt kê trước, các lỗi khác sau nó. Python kiểm tra các khối `except` từ trên xuống và dùng khối đầu tiên khớp.
+**Để ý:** thứ tự của hai khối `except` này không quan trọng, vì không loại nào là một dạng của loại kia. Thứ tự chỉ quan trọng khi một loại là một dạng của loại khác (xem cây ở mục 3 của bài): Python dùng khối đầu tiên khớp.
 
 **Tự thử:** thêm reply `'["spam", 0.9]'` vào `replies`. Bạn đoán sẽ thấy thông báo nào? (List không đọc được bằng `["label"]`, nên bạn thấy `JSON is missing a field`.)

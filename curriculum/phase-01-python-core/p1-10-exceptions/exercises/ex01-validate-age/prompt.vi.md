@@ -5,7 +5,7 @@ Hai hàm đã gần xong, nhưng còn thiếu ba từ. Thay mỗi `___` bằng t
 | lời gọi | kết quả |
 |---|---|
 | `validate_age(30)` | `30` |
-| `validate_age(200)` | raise `ValueError("age must be between 0 and 120, got 200")` |
+| `validate_age(200)` | raise một lỗi với thông báo `age must be between 0 and 120, got 200` |
 | `age_or_none("25")` | `25` |
 | `age_or_none("x")` | `None` |
 | `age_or_none("200")` | `None` |
@@ -13,5 +13,5 @@ Hai hàm đã gần xong, nhưng còn thiếu ba từ. Thay mỗi `___` bằng t
 **Quy tắc**
 - Chỉ điền ba chỗ trống; cấu trúc `try`, `except` và `else` đã đúng sẵn.
 - Tuổi từ `0` đến `120` (gồm cả hai đầu) là hợp lệ.
-- `age_or_none` không được sập với bất kỳ văn bản nào: cả `int("x")` lẫn tuổi ngoài khoảng đều gây `ValueError`.
+- `age_or_none` không được sập với bất kỳ văn bản nào: cả văn bản xấu lẫn tuổi ngoài khoảng đều gây cùng một loại lỗi.
 - Bấm **Check** để chạy test.

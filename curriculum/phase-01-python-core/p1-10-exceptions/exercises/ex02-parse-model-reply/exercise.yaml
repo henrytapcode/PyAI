@@ -14,7 +14,7 @@ hints:
       Plan:
       1. Inside `try`: `data = json.loads(text)`, then read `data["label"]` and `data["score"]` into two variables.
       2. Still inside `try`: if the score is below 0 or above 1, `raise ValueError("score out of range")`.
-      3. `except (ValueError, KeyError, TypeError):` return the unknown dict. (Invalid JSON raises `json.JSONDecodeError`, which is a kind of `ValueError`.)
+      3. `except (ValueError, KeyError, TypeError):` return the unknown dict. (Invalid JSON raises `json.JSONDecodeError`, which is a kind of `ValueError` as in the tree in §3, so `ValueError` already catches it.)
       4. After the block, return the good dict.
       5. `count_unknown`: loop over the replies, call `parse_reply`, and add 1 when the label is `"unknown"`.
     - |
@@ -39,7 +39,7 @@ hints:
       Kế hoạch:
       1. Trong `try`: `data = json.loads(text)`, rồi đọc `data["label"]` và `data["score"]` vào hai biến.
       2. Vẫn trong `try`: nếu score nhỏ hơn 0 hoặc lớn hơn 1, `raise ValueError("score out of range")`.
-      3. `except (ValueError, KeyError, TypeError):` trả về dict unknown. (JSON không hợp lệ gây `json.JSONDecodeError`, là một loại `ValueError`.)
+      3. `except (ValueError, KeyError, TypeError):` trả về dict unknown. (JSON không hợp lệ gây `json.JSONDecodeError`, là một dạng của `ValueError` như cây ở §3, nên `ValueError` đã bắt được nó.)
       4. Sau khối đó, trả về dict tốt.
       5. `count_unknown`: lặp qua các reply, gọi `parse_reply`, và cộng 1 khi label là `"unknown"`.
     - |

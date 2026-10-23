@@ -1,6 +1,6 @@
 import ___
-from collections import ___  # noqa: F811
-from datetime import ___  # noqa: F811
+from collections import ___
+from datetime import ___
 
 
 def top_words(text, n):

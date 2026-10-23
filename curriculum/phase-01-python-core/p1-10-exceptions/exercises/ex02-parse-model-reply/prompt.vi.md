@@ -14,4 +14,4 @@ Một model phân loại lẽ ra phải trả lời bằng JSON như `{"label": 
 - Kết quả dự phòng dùng cho: JSON không hợp lệ, thiếu `"label"` hoặc `"score"`, JSON không phải dict (như một list), score không phải số, và score nhỏ hơn `0` hoặc lớn hơn `1`.
 - `0` và `1` là score hợp lệ.
 - `count_unknown(replies)` trả về số reply trong list cho ra kết quả unknown.
-- Không dùng `except:` trần. Hãy nêu tên các loại lỗi.
+- Không dùng `except:` trần. Hãy nêu tên các loại lỗi cụ thể mà bạn bắt.

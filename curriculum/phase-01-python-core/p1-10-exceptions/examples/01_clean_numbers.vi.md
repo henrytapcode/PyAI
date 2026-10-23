@@ -6,7 +6,7 @@
 1. Dòng 2–6 định nghĩa `safe_int`. Lệnh có rủi ro `int(text)` là dòng duy nhất nằm trong `try`.
 2. Dòng 5 bắt hai loại exception cùng lúc. `"twelve"` và `""` gây `ValueError`; `None` gây `TypeError` (`int(None)` vô nghĩa).
 3. Dòng 9 là dữ liệu đầu vào lộn xộn. Lưu ý `" 7 "` vẫn ổn: `int()` bỏ qua khoảng trắng quanh các chữ số.
-4. Dòng 14 truyền `default=None`. `None` không bao giờ bị nhầm với một số thật, nên dòng 15 có thể hỏi `value is None` để nhận ra giá trị lỗi.
+4. Dòng 14 truyền `default=None`. `None` không bao giờ bị nhầm với một số thật, nên dòng 15 có thể hỏi `value is None` ("`value` có đúng là giá trị rỗng `None` không?") để nhận ra giá trị lỗi.
 5. Dòng 16 và 18 đếm giá trị lỗi và gom giá trị tốt. Chương trình kết thúc với `sum: 59` thay vì chết ở giá trị thứ ba.
 
 **Để ý:** giá trị mặc định là lựa chọn của bạn cho từng tình huống. `0` ổn khi bạn chỉ cần tổng; `None` tốt hơn khi bạn phải biết là có chuyện không ổn.

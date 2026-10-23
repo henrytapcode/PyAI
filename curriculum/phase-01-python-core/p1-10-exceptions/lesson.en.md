@@ -114,6 +114,18 @@ print(describe(["a", "b"], 9))     # no such position
 print(describe(["a", "b"], "x"))   # position must be a number
 ```
 
+Some error types are a **kind of** another type. `json.JSONDecodeError` is a kind of `ValueError`, and every error in this lesson is a kind of `Exception`. So `except ValueError` also catches all the kinds of `ValueError`:
+
+```text
+Exception
+├── ValueError
+│   └── json.JSONDecodeError
+├── TypeError
+└── LookupError
+    ├── KeyError
+    └── IndexError
+```
+
 ## 4. else and finally
 
 A `try` statement can have two more optional blocks:
@@ -224,7 +236,7 @@ except ValueError:
 
 Put the specific type first (`ValueError`), then the general one.
 
-**Silently ignoring the error with `pass`.** The error disappears, and the variable never gets created:
+**Silently ignoring the error with `pass`.** (`pass` is a line that does nothing.) The error disappears, and the variable never gets created:
 
 ```text
 try:

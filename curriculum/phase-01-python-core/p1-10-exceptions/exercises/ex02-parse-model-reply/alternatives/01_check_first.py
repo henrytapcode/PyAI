@@ -6,16 +6,21 @@ UNKNOWN = {"label": "unknown", "score": 0.0}
 def parse_reply(text):
     try:
         data = json.loads(text)
-        label = data["label"]
-        score = data["score"]
-        if score < 0 or score > 1:
-            return dict(UNKNOWN)
     except json.JSONDecodeError:
         return dict(UNKNOWN)
-    except (KeyError, TypeError):
+
+    if not isinstance(data, dict) or "label" not in data or "score" not in data:
         return dict(UNKNOWN)
-    return {"label": label, "score": score}
+
+    score = data["score"]
+    if not isinstance(score, (int, float)) or score < 0 or score > 1:
+        return dict(UNKNOWN)
+    return {"label": data["label"], "score": score}
 
 
 def count_unknown(replies):
-    return sum(1 for reply in replies if parse_reply(reply)["label"] == "unknown")
+    count = 0
+    for reply in replies:
+        if parse_reply(reply)["label"] == "unknown":
+            count += 1
+    return count

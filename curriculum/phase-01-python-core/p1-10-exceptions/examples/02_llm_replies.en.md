@@ -10,6 +10,6 @@
 5. Line 13 is the **fallback**: after any handled error we return a safe "unknown" result, so the caller always receives a dict with the same keys.
 6. The loop at the end shows all four cases: good JSON, chatty text, a missing field, and good JSON again.
 
-**Notice:** `JSONDecodeError` is listed first and the others after it. Python checks `except` clauses from top to bottom and uses the first one that matches.
+**Notice:** the order of these two `except` blocks does not matter, because neither type is a kind of the other. Order only matters when one type is a kind of another (see the tree in lesson section 3): Python uses the first block that matches.
 
 **Try it yourself:** add the reply `'["spam", 0.9]'` to `replies`. Which message do you expect? (A list cannot be read with `["label"]`, so you get `JSON is missing a field`.)

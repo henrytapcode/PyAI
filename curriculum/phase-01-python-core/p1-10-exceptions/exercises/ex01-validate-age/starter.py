@@ -1,5 +1,5 @@
 def validate_age(age):
-    """Return age if it is from 0 to 120, otherwise raise a ValueError.
+    """Return age if it is from 0 to 120, otherwise raise an error.
 
     Example: validate_age(30) returns 30
     """

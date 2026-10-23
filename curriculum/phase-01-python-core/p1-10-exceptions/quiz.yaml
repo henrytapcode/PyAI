@@ -82,7 +82,7 @@ questions:
   - id: p1-10-q05
     type: mcq
     tags: [exceptions, debugging]
-    difficulty: 3
+    difficulty: 2
     answer: 3
     en:
       prompt: "Why is a bare `except:` risky?"
@@ -299,15 +299,15 @@ questions:
     lines:
       - "try:"
       - '    number = int("x")'
-      - "except ValueError:"
-      - "    number = 0"
-      - "print(number)"
+      - "except ValueError as err:"
+      - '    print("error:", err)'
+      - 'print("done")'
     en:
-      prompt: "Put the lines in order so the program prints `0`."
-      explanation: "`try:` comes first with the risky line indented under it. Then `except ValueError:` with its fallback. The final `print` is not indented, because it runs after the whole block."
+      prompt: "Put the lines in order so the program prints an error message and then `done`."
+      explanation: "`try:` comes first with the risky line indented under it. Then `except ValueError as err:`, and the `print` that uses `err` must be inside it, because `err` only exists in the `except` block. The final `print(\"done\")` is not indented, because it runs after the whole block."
     vi:
-      prompt: "Sắp xếp các dòng để chương trình in ra `0`."
-      explanation: "`try:` đứng đầu, dòng rủi ro thụt lề bên dưới. Sau đó là `except ValueError:` cùng giá trị dự phòng. Lệnh `print` cuối không thụt lề, vì nó chạy sau cả khối."
+      prompt: "Sắp xếp các dòng để chương trình in ra một thông báo lỗi rồi in `done`."
+      explanation: "`try:` đứng đầu, dòng rủi ro thụt lề bên dưới. Sau đó là `except ValueError as err:`, và lệnh `print` dùng `err` phải nằm trong đó, vì `err` chỉ tồn tại trong khối `except`. Lệnh `print(\"done\")` cuối không thụt lề, vì nó chạy sau cả khối."
 
   - id: p1-10-q16
     type: parsons

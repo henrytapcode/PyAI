@@ -82,14 +82,14 @@ with tempfile.TemporaryDirectory() as tmp:
             print(line.strip())  # Hello, then What is AI?, then Bye
 ```
 
+Press **Visualize** on this block and watch `line` change while the loop walks through the file. A loop over `f` is the way to handle a file with millions of lines, because Python never holds more than one line.
+
 Every line still carries its `\n` at the end. `line.strip()` removes it (and spaces at both ends). Without `strip()`, `print` would add its own newline and you would see blank lines between the lines.
 
 ```text
 raw line:      "What is AI?\n"
 after strip:   "What is AI?"
 ```
-
-Press **Visualize** on the code block above and watch `line` change while the loop walks through the file. A loop over `f` is the way to handle a file with millions of lines, because Python never holds more than one line.
 
 ## 4. Writing lines
 
@@ -224,7 +224,16 @@ The file looks like this:
 }
 ```
 
-`indent=2` makes the file easy for humans to read. `ensure_ascii=False` keeps Vietnamese letters as they are; without it you would get `"Xin chào"`. And the string versions:
+`indent=2` makes the file easy for humans to read. `ensure_ascii=False` keeps Vietnamese letters as they are; without it, each such letter is written as a code like `\u00e0`:
+
+```python
+import json
+
+print(json.dumps("chào"))                       # "ch\u00e0o"
+print(json.dumps("chào", ensure_ascii=False))   # "chào"
+```
+
+And the string versions:
 
 ```python
 import json
@@ -283,6 +292,19 @@ One `with` can open two files at once (separated by a comma). Each line is a com
 
 **Forgetting that `"w"` erases the file.** Opening an existing file with `"w"` deletes its content immediately. Use `"a"` to add to the end.
 
+```python
+import tempfile
+
+with tempfile.TemporaryDirectory() as tmp:
+    path = f"{tmp}/log.txt"
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("run 1\n")
+    with open(path, "w", encoding="utf-8") as f:   # oops: "w" again
+        f.write("run 2\n")
+    with open(path, encoding="utf-8") as f:
+        print(f.read().splitlines())  # ['run 2']  (run 1 is gone)
+```
+
 **Forgetting the newline.** `f.write("a")` followed by `f.write("b")` gives `ab` on one line. Add `"\n"`. When reading, a line is `"Hello\n"`, not `"Hello"`:
 
 ```python
@@ -293,7 +315,21 @@ print(line.strip() == "Hello")  # True
 
 **Treating CSV values as numbers.** Every CSV value is text, so `row["score"] + 1` raises a `TypeError`. Convert first with `float(row["score"])`.
 
+```python
+row = {"name": "Lan", "score": "9.5"}   # what DictReader gives you
+# print(row["score"] + 1)         # TypeError: can only concatenate str (not "int") to str
+print(float(row["score"]) + 1)    # 10.5
+```
+
 **Mixing up `load` and `loads`.** `load` / `dump` work with files; `loads` / `dumps` work with strings. `json.loads(f)` fails because `f` is a file, not a string.
+
+```python
+import json
+
+text = '{"ok": true}'
+# json.loads(f) with a file object: TypeError: the JSON object must be str, bytes or bytearray, not TextIOWrapper
+print(json.loads(text))   # {'ok': True}  (use load(f) for a file, loads(text) for a string)
+```
 
 **Using the file after the `with` block.** When the block ends the file is closed, and `f.read()` outside it raises `ValueError: I/O operation on closed file`. Do all the reading inside the block.
 

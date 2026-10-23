@@ -48,17 +48,17 @@ questions:
     answer: 2
     en:
       prompt: "Which is the safest way to check that two float results are 'the same'?"
-      options: ["`a == b`", "`a is b`", "`math.isclose(a, b)`", "`str(a) == b`"]
+      options: ["`a == b`", "`a is b`", "`math.isclose(a, b)`", "`round(a) == round(b)`"]
       explanation: "Floats carry tiny rounding errors (`0.1 + 0.2 == 0.3` is `False`). `math.isclose` asks whether the numbers are close enough."
     vi:
       prompt: "Cách an toàn nhất để kiểm tra hai kết quả float có 'bằng nhau' là gì?"
-      options: ["`a == b`", "`a is b`", "`math.isclose(a, b)`", "`str(a) == b`"]
+      options: ["`a == b`", "`a is b`", "`math.isclose(a, b)`", "`round(a) == round(b)`"]
       explanation: "Float có sai số làm tròn rất nhỏ (`0.1 + 0.2 == 0.3` là `False`). `math.isclose` hỏi xem hai số có đủ gần nhau không."
 
   - id: p1-08-q05
     type: mcq
     tags: [modules]
-    difficulty: 3
+    difficulty: 2
     answer: 1
     en:
       prompt: "You save your own file as `random.py` in your project folder. What is the likely problem?"
@@ -86,7 +86,7 @@ questions:
   - id: p1-08-q07
     type: output
     tags: [stdlib]
-    difficulty: 1
+    difficulty: 2
     code: |
       import math
 
@@ -102,7 +102,7 @@ questions:
   - id: p1-08-q08
     type: output
     tags: [stdlib]
-    difficulty: 2
+    difficulty: 3
     code: |
       from collections import Counter
 
@@ -180,10 +180,10 @@ questions:
     answer: ["Counter"]
     en:
       prompt: "Fill in the blank so the program prints `2`."
-      explanation: "The class is named `Counter` (capital C). It counts how many times each item appears."
+      explanation: "The tool is named `Counter` (capital C). It counts how many times each item appears."
     vi:
       prompt: "Điền vào chỗ trống để chương trình in ra `2`."
-      explanation: "Class tên là `Counter` (chữ C viết hoa). Nó đếm mỗi phần tử xuất hiện bao nhiêu lần."
+      explanation: "Công cụ này tên là `Counter` (chữ C viết hoa). Nó đếm mỗi phần tử xuất hiện bao nhiêu lần."
 
   - id: p1-08-q13
     type: fill
@@ -255,18 +255,19 @@ questions:
   - id: p1-08-q17
     type: parsons
     tags: [modules]
-    difficulty: 2
+    difficulty: 3
     lines:
       - "def main():"
-      - "    print(\"start\")"
+      - "    message = \"start\""
+      - "    print(message)"
       - "if __name__ == \"__main__\":"
       - "    main()"
     en:
       prompt: "Put the lines in order so the program prints `start` when run directly."
-      explanation: "Define `main` (header, then its indented body) first. The `__main__` guard comes after, because it calls `main()`."
+      explanation: "Define `main` first: the header, then `message` is created, then it is printed. Both body lines are indented under the header. The `__main__` guard comes after, because it calls `main()`."
     vi:
       prompt: "Sắp xếp các dòng để chương trình in ra `start` khi chạy trực tiếp."
-      explanation: "Định nghĩa `main` (dòng header rồi phần thân thụt lề) trước. Đoạn guard `__main__` đứng sau, vì nó gọi `main()`."
+      explanation: "Định nghĩa `main` trước: dòng header, rồi tạo `message`, rồi in nó ra. Hai dòng thân đều thụt lề dưới header. Đoạn guard `__main__` đứng sau, vì nó gọi `main()`."
 
 flashcards:
   - id: p1-08-f01
@@ -289,7 +290,7 @@ flashcards:
     tags: [stdlib]
     code: "math.isclose(0.1 + 0.2, 0.3)"
     en: { front: "How to compare floats safely?", back: "Use `math.isclose(a, b)`. Plain `==` can fail because of tiny rounding errors." }
-    vi: { front: "So sánh float an toàn thế nào?", back: "Dùng `math.isclose(a, b)`. `==` thường có thể sai vì sai số làm tròn rất nhỏ." }
+    vi: { front: "So sánh float an toàn thế nào?", back: "Dùng `math.isclose(a, b)`. Dùng `==` trực tiếp có thể sai vì sai số làm tròn rất nhỏ." }
   - id: p1-08-f05
     tags: [modules]
     en: { front: "What does `if __name__ == \"__main__\":` do?", back: "Runs its block only when the file is run directly, not when it is imported." }
