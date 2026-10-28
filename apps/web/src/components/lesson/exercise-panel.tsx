@@ -22,14 +22,15 @@ export function ExercisePicker({ exercises, activeId, onPick }: { exercises: Exe
         return (
           <button
             key={ex.id}
+            data-live={active}
             onClick={() => onPick(ex.id)}
             className={cn(
-              "flex items-center gap-2 rounded-[4px] border px-3 py-2 text-left text-sm transition",
-              active ? "border-primary bg-accent/60 ring-1 ring-primary" : "hover:bg-muted",
+              "row-cursor flex items-center gap-2 rounded-[4px] border-2 border-border px-3 py-2 text-left text-sm font-bold",
+              active && "border-edge",
             )}
           >
-            {passed ? <CheckCircle2 className="size-4 text-success" /> : <Circle className="size-4 text-muted-foreground" />}
-            <span className="font-medium">{i + 1}.</span>
+            {passed ? <CheckCircle2 className={cn("size-4", !active && "text-success")} /> : <Circle className={cn("size-4", !active && "text-muted-foreground")} />}
+            <span>{i + 1}.</span>
             <span className="max-w-[16rem] truncate">
               <Tx value={ex.title} />
             </span>
@@ -83,12 +84,28 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
 
       {/* 3-tier hints */}
       <section className="space-y-2">
-        <h3 className="flex items-center gap-2 text-sm font-bold">
-          <Lightbulb className="size-4 text-warning" />
-          {t("hints")}
-        </h3>
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="flex items-center gap-2 text-sm font-bold">
+            <Lightbulb className="size-4 text-warning" />
+            {t("hints")}
+          </h3>
+          <div className="flex items-center gap-1.5" aria-hidden>
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className={cn(
+                  "grid size-6 place-items-center rounded-[2px] border-2 text-[11px] font-black",
+                  i < hintsShown ? "border-edge bg-primary text-primary-foreground" : "border-dashed border-border text-muted-foreground",
+                  i === hintsShown - 1 && "coin-drop",
+                )}
+              >
+                {i + 1}
+              </span>
+            ))}
+          </div>
+        </div>
         {(hints.value ?? []).slice(0, hintsShown).map((h, i) => (
-          <div key={i} className="animate-rise rounded-[4px] border border-warning/30 bg-warning-soft/50 px-4 py-3 text-sm">
+          <div key={i} className="animate-rise rounded-[4px] border-2 border-warning bg-warning-soft px-4 py-3 text-sm">
             <div className="mb-1 text-xs font-bold text-warning">{t("hintLevel", { n: i + 1 })}</div>
             <Markdown text={h} className="[&_p]:m-0" />
           </div>
