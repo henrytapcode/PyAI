@@ -208,6 +208,19 @@
   animation-delay: 120ms;
 }
 
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.blink {
+  animation: blink 1s steps(1) infinite;
+}
+
 @keyframes flash {
   0%,
   100% {
@@ -263,6 +276,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .blink {
+    animation: none;
+  }
   .flash-hit,
   .shake,
   .xp-pop,
@@ -281,6 +297,12 @@
   }
 }
 
+.row-cursor:hover .meter,
+.row-cursor[data-live="true"] .meter {
+  --meter-fill: var(--primary-foreground) !important;
+  border-color: var(--primary-foreground);
+  background: transparent;
+}
 .row-cursor:hover svg circle:last-child,
 .row-cursor[data-live="true"] svg circle:last-child {
   stroke: var(--primary-foreground);

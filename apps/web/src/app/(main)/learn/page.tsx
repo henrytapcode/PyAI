@@ -3,6 +3,7 @@
 import { ArrowRight, BookOpen, Check, ClipboardCheck, Clock, Cpu, FolderGit2, Lock, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { PageHeader } from "@/components/page-header";
 import { PhaseIcon } from "@/components/phase-icon";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { catalog } from "@/lib/content";
 import { Tx, useLoc } from "@/lib/i18n";
 import { useProgress } from "@/lib/progress";
-import { lessonParts, lessonStatus, phaseProgress, type LessonStatus } from "@/lib/selectors";
+import { lessonParts, lessonStatus, nextLesson, phaseProgress, type LessonStatus } from "@/lib/selectors";
 import { cn, percent } from "@/lib/utils";
 
 const STATUS_DOT: Record<LessonStatus, string> = {
@@ -31,10 +32,31 @@ export default function LearnPage() {
   const loc = useLoc();
   const p = useProgress();
   const placement = catalog.exams.find((e) => e.kind === "placement");
+  const next = nextLesson(p);
+
+  // Level select: j/k move between lessons; arrows do too once a row has focus. Enter opens it.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true]")) return;
+      const rows = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-lesson-row]"));
+      if (!rows.length) return;
+      const at = rows.indexOf(document.activeElement as HTMLAnchorElement);
+      const down = e.key === "j" || (e.key === "ArrowDown" && at >= 0);
+      const up = e.key === "k" || (e.key === "ArrowUp" && at >= 0);
+      if (!down && !up) return;
+      e.preventDefault();
+      const start = at >= 0 ? at : Math.max(0, rows.findIndex((r) => r.dataset.live === "true"));
+      const to = at < 0 ? start : Math.min(rows.length - 1, Math.max(0, at + (down ? 1 : -1)));
+      rows[to].focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <div>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader display title={t("title")} subtitle={t("subtitle")} />
 
       {p.profile.track === "B" && !p.placement && placement && (
         <Card className="mb-8 flex flex-wrap items-center gap-4 border-primary/30 bg-accent/40 p-5 animate-rise">
@@ -100,7 +122,12 @@ export default function LearnPage() {
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className={cn("font-medium", !l.ready && "text-muted-foreground")}>
+                            <span className={cn("font-bold", !l.ready && "opacity-60")}>
+                              {l.id === next?.id && (
+                                <svg aria-hidden viewBox="0 0 10 12" className="blink mr-2 inline-block h-3 w-2.5 fill-current">
+                                  <path d="M0 0l10 6-10 6z" />
+                                </svg>
+                              )}
                               <Tx value={l.title} />
                             </span>
                             {l.kind === "project" && (
@@ -110,7 +137,7 @@ export default function LearnPage() {
                             )}
                           </div>
                           {l.ready ? (
-                            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs opacity-75">
                               {l.duration && (
                                 <span className="flex items-center gap-1">
                                   <Clock className="size-3" />
@@ -132,17 +159,17 @@ export default function LearnPage() {
                               )}
                             </div>
                           ) : (
-                            l.outcomes && <div className="mt-0.5 truncate text-xs text-muted-foreground">{loc.t(l.outcomes).join(" · ")}</div>
+                            l.outcomes && <div className="mt-0.5 truncate text-xs opacity-75">{loc.t(l.outcomes).join(", ")}</div>
                           )}
                         </div>
                         {parts && parts.fraction > 0 && st !== "completed" && <Progress value={parts.fraction} className="hidden w-24 sm:block" />}
-                        {l.ready && <ArrowRight className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />}
+                        {l.ready && <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />}
                       </div>
                     );
                     return (
                       <li key={l.id}>
                         {l.ready ? (
-                          <Link href={`/lesson/${l.id}/`} className="group block transition hover:bg-muted/50">
+                          <Link href={`/lesson/${l.id}/`} data-lesson-row data-live={l.id === next?.id} className="row-cursor group block">
                             {content}
                           </Link>
                         ) : (
@@ -153,14 +180,15 @@ export default function LearnPage() {
                   })}
                   {prog.phaseTest && (
                     <li>
-                      <Link href={`/exam/${prog.phaseTest.id}/`} className="group flex items-center gap-4 bg-muted/30 px-5 py-3.5 transition hover:bg-muted/60">
-                        <span className={cn("grid size-8 place-items-center rounded-[2px]", prog.phaseTestPassed ? "bg-success text-white" : "bg-primary/10 text-primary")}>
+                      <Link href={`/exam/${prog.phaseTest.id}/`} className="row-cursor group flex items-center gap-4 px-5 py-3.5">
+                        <span className={cn("grid size-8 place-items-center rounded-[2px]", prog.phaseTestPassed ? "bg-success text-success-foreground" : "bg-accent text-accent-foreground")}>
                           <ClipboardCheck className="size-4" />
                         </span>
-                        <span className="flex-1 font-medium">
-                          {t("phaseTest")} · {loc.t(prog.phaseTest.title)}
+                        <span className="flex flex-1 flex-wrap items-baseline gap-x-2 font-bold">
+                          <span>{t("phaseTest")}</span>
+                          <span className="font-normal opacity-75">{loc.t(prog.phaseTest.title)}</span>
                         </span>
-                        <ArrowRight className="size-4 text-muted-foreground" />
+                        <ArrowRight className="size-4" />
                       </Link>
                     </li>
                   )}
