@@ -14,7 +14,7 @@ export function LanguageSwitch({ className }: { className?: string }) {
   const setLocale = useProgress((s) => s.setLocale);
   const t = useTranslations("language");
   return (
-    <div role="radiogroup" aria-label={t("switch")} className={cn("inline-flex rounded-lg bg-muted p-0.5 text-xs font-semibold", className)}>
+    <div role="radiogroup" aria-label={t("switch")} className={cn("inline-flex rounded-[4px] border-2 border-border bg-muted p-0.5 text-xs font-bold", className)}>
       {(["vi", "en"] as Locale[]).map((l) => (
         <button
           key={l}
@@ -23,8 +23,8 @@ export function LanguageSwitch({ className }: { className?: string }) {
           title={t(l)}
           onClick={() => setLocale(l)}
           className={cn(
-            "rounded-md px-2.5 py-1 uppercase transition-colors",
-            locale === l ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+            "rounded-[2px] px-2.5 py-1",
+            locale === l ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
           )}
         >
           {l}
@@ -48,7 +48,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       <button
         onClick={() => setTheme(next)}
         aria-label={t("toggle")}
-        className={cn("grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground", className)}
+        className={cn("row-cursor grid size-8 place-items-center rounded-[4px] text-muted-foreground hover:text-primary-foreground", className)}
       >
         <Icon className="size-4" />
       </button>
@@ -67,14 +67,14 @@ export function ThemeSelect() {
     { id: "system", icon: Monitor },
   ] as const;
   return (
-    <div className="inline-flex rounded-lg bg-muted p-0.5">
+    <div className="inline-flex rounded-[4px] border-2 border-border bg-muted p-0.5">
       {items.map(({ id, icon: Icon }) => (
         <button
           key={id}
           onClick={() => setTheme(id)}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm",
-            mounted && theme === id ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground",
+            "inline-flex items-center gap-1.5 rounded-[2px] px-3 py-1.5 text-sm font-bold",
+            mounted && theme === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
           )}
         >
           <Icon className="size-4" />

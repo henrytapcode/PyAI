@@ -78,9 +78,9 @@ function Splash() {
 export function Logo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden>
-      <rect width="32" height="32" rx="9" fill="var(--primary)" />
-      <path d="M10 21.5V10.5h5.2a3.6 3.6 0 0 1 0 7.2H10" fill="none" stroke="var(--primary-foreground)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="21.5" cy="20.5" r="2.2" fill="var(--primary-foreground)" />
+      <rect x="3" y="3" width="26" height="26" fill="var(--primary)" stroke="var(--edge)" strokeWidth="2" />
+      <path d="M10 22V10h6a3.5 3.5 0 0 1 0 7H10" fill="none" stroke="var(--primary-foreground)" strokeWidth="2.6" strokeLinecap="square" />
+      <rect x="20" y="19" width="4" height="4" fill="var(--primary-foreground)" />
     </svg>
   );
 }

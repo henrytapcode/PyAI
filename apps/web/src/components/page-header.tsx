@@ -4,8 +4,8 @@ export function PageHeader({ title, subtitle, actions, className }: { title: Rea
   return (
     <div className={cn("mb-8 flex flex-wrap items-end justify-between gap-4 animate-rise", className)}>
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
-        {subtitle && <p className="mt-1.5 max-w-2xl text-muted-foreground">{subtitle}</p>}
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-2 max-w-2xl text-muted-foreground">{subtitle}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
