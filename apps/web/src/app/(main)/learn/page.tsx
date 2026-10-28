@@ -38,7 +38,7 @@ export default function LearnPage() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
-      if (e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true]")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || el instanceof HTMLElement && el.closest("input, textarea, select, [contenteditable=true]")) return;
       const rows = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-lesson-row]"));
       if (!rows.length) return;
       const at = rows.indexOf(document.activeElement as HTMLAnchorElement);

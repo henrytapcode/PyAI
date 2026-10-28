@@ -46,7 +46,7 @@ export function QuestionView({
     if (question.type !== "mcq" || revealed) return;
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
-      if (e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true], .monaco-editor")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || el instanceof HTMLElement && el.closest("input, textarea, select, [contenteditable=true], .monaco-editor")) return;
       const k = e.key.toLowerCase();
       const i = k >= "a" && k <= "d" ? k.charCodeAt(0) - 97 : k >= "1" && k <= "4" ? Number(k) - 1 : -1;
       if (i >= 0 && i < optionCount) onChange({ type: "mcq", choice: i });
