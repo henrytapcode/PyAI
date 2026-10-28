@@ -12,23 +12,29 @@ const defineThemes: BeforeMount = (monaco) => {
   monaco.editor.defineTheme("pyai-light", {
     base: "vs",
     inherit: true,
-    rules: [{ token: "comment", foreground: "8a8a9a", fontStyle: "italic" }],
+    rules: [{ token: "comment", foreground: "8a8aa6", fontStyle: "italic" }],
     colors: {
-      "editor.background": "#ffffff",
-      "editorLineNumber.foreground": "#b4b4c4",
-      "editor.lineHighlightBackground": "#f5f5fa",
-      "editorGutter.background": "#ffffff",
+      "editor.background": "#f6f5fa",
+      "editorLineNumber.foreground": "#b4b4c8",
+      "editor.lineHighlightBackground": "#eceaf4",
+      "editorGutter.background": "#f6f5fa",
     },
   });
   monaco.editor.defineTheme("pyai-dark", {
     base: "vs-dark",
     inherit: true,
-    rules: [{ token: "comment", foreground: "7d7d92", fontStyle: "italic" }],
+    rules: [
+      { token: "comment", foreground: "7b86b8", fontStyle: "italic" },
+      { token: "keyword", foreground: "e58fc2" },
+      { token: "string", foreground: "e8e5a6" },
+      { token: "number", foreground: "b7a6ea" },
+      { token: "type", foreground: "a4e6f0" },
+    ],
     colors: {
-      "editor.background": "#1b1b24",
-      "editorLineNumber.foreground": "#4d4d60",
-      "editor.lineHighlightBackground": "#22222d",
-      "editorGutter.background": "#1b1b24",
+      "editor.background": "#262833",
+      "editorLineNumber.foreground": "#5b6082",
+      "editor.lineHighlightBackground": "#2f3142",
+      "editorGutter.background": "#262833",
     },
   });
 };
