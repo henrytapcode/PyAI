@@ -122,11 +122,11 @@ function Visualizer({ code }: { code: string }) {
           </span>
         </div>
       ) : result.timedOut ? (
-        <p className="m-5 rounded-lg bg-danger-soft p-3 text-sm text-danger">{t("timedOut")}</p>
+        <p className="m-5 rounded-[4px] bg-danger-soft p-3 text-sm text-danger">{t("timedOut")}</p>
       ) : steps.length === 0 ? (
         <div className="m-5 space-y-2">
           {result.error ? (
-            <pre className="whitespace-pre-wrap rounded-lg bg-danger-soft p-3 font-mono text-sm text-danger">
+            <pre className="whitespace-pre-wrap rounded-[4px] bg-danger-soft p-3 font-mono text-sm text-danger">
               {result.error.type}: {result.error.message}
               {result.error.line ? ` (${t("line", { line: result.error.line })})` : ""}
             </pre>
@@ -161,13 +161,13 @@ function Visualizer({ code }: { code: string }) {
 
           {/* State */}
           <div className="flex min-h-0 flex-col overflow-auto p-4">
-            <p className={cn("mb-3 rounded-lg px-3 py-2 text-sm", step?.event === "exception" ? "bg-danger-soft text-danger" : "bg-accent/60")}>{caption}</p>
+            <p className={cn("mb-3 rounded-[4px] px-3 py-2 text-sm", step?.event === "exception" ? "bg-danger-soft text-danger" : "bg-accent/60")}>{caption}</p>
             <div className="space-y-3">
               {step?.stack.map((frame, fi) => {
                 const before = prev?.stack[fi]?.name === frame.name ? prev.stack[fi] : undefined;
                 return (
-                  <div key={`${fi}-${frame.name}`} className={cn("rounded-xl border", fi === step.stack.length - 1 && "border-primary/50")}>
-                    <div className="flex items-center gap-2 border-b px-3 py-1.5 text-xs font-semibold">
+                  <div key={`${fi}-${frame.name}`} className={cn("rounded-[4px] border", fi === step.stack.length - 1 && "border-primary/50")}>
+                    <div className="flex items-center gap-2 border-b px-3 py-1.5 text-xs font-bold">
                       {frame.name === "global" ? t("globals") : t("frame", { name: frame.name })}
                     </div>
                     {frame.vars.length === 0 ? (
@@ -198,10 +198,10 @@ function Visualizer({ code }: { code: string }) {
               })}
             </div>
             <div className="mt-4">
-              <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("output")}</div>
-              <pre className="min-h-10 whitespace-pre-wrap rounded-lg border bg-code p-2 font-mono text-[13px]">{output || " "}</pre>
+              <div className="mb-1 text-xs font-bold text-muted-foreground">{t("output")}</div>
+              <pre className="min-h-10 whitespace-pre-wrap rounded-[4px] border bg-code p-2 font-mono text-[13px]">{output || " "}</pre>
               {atEnd && result.error && (
-                <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-danger-soft p-2 font-mono text-[13px] text-danger">
+                <pre className="mt-2 whitespace-pre-wrap rounded-[4px] bg-danger-soft p-2 font-mono text-[13px] text-danger">
                   {result.error.type}: {result.error.message}
                 </pre>
               )}

@@ -34,8 +34,8 @@ export default function GlossaryPage() {
   return (
     <div>
       <PageHeader title={t("title")} subtitle={t("subtitle")} actions={<Badge variant="muted">{t("count", { count: terms.length })}</Badge>} />
-      <div className="sticky top-14 z-10 -mx-4 mb-6 space-y-3 bg-background/90 px-4 py-2 backdrop-blur lg:top-0">
-        <label className="flex items-center gap-2 rounded-xl border bg-card px-4 py-2.5 focus-within:ring-2 focus-within:ring-ring/40">
+      <div className="sticky top-14 z-10 -mx-4 mb-6 space-y-3 bg-background lg:top-0">
+        <label className="flex items-center gap-2 rounded-[4px] border bg-card px-4 py-2.5 focus-within:ring-2 focus-within:ring-ring/40">
           <Search className="size-4 text-muted-foreground" />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("placeholder")} className="flex-1 bg-transparent outline-none" />
         </label>
@@ -60,14 +60,14 @@ export default function GlossaryPage() {
               <Card key={x.term} className="animate-rise">
                 <CardContent className="space-y-2 p-5">
                   <div className="flex flex-wrap items-baseline gap-2">
-                    <h3 className="font-mono text-[15px] font-semibold">{x.term}</h3>
+                    <h3 className="font-mono text-[15px] font-bold">{x.term}</h3>
                     {x.vi_term && x.vi_term !== x.term && <span className="text-sm text-muted-foreground">· {x.vi_term}</span>}
                   </div>
                   <p className="text-sm leading-relaxed">
                     {def.value}
                     {def.fallback && <UntranslatedBadge />}
                   </p>
-                  {x.example && <pre className="overflow-x-auto rounded-lg bg-code px-3 py-2 font-mono text-xs">{x.example}</pre>}
+                  {x.example && <pre className="overflow-x-auto rounded-[4px] bg-code px-3 py-2 font-mono text-xs">{x.example}</pre>}
                 </CardContent>
               </Card>
             );
@@ -80,7 +80,7 @@ export default function GlossaryPage() {
 
 function TagButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className={cn("rounded-full border px-3 py-1 text-xs transition", active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted")}>
+    <button onClick={onClick} className={cn("rounded-[2px] border px-3 py-1 text-xs transition", active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted")}>
       {children}
     </button>
   );

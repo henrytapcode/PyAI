@@ -45,7 +45,7 @@ export function LessonQuiz({ lessonId, questions, flashcards, onDone }: { lesson
           <span className="text-base">{best !== undefined ? percent(best) : <Target className="size-6 text-primary" />}</span>
         </Ring>
         <div>
-          <h2 className="text-xl font-semibold">{t("title")}</h2>
+          <h2 className="text-xl font-bold">{t("title")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{tl("quizPass", { score: percent(QUIZ_PASS) })}</p>
           {best !== undefined && <p className="mt-1 text-sm text-muted-foreground">{tl("quizBest", { score: percent(best) })}</p>}
         </div>
@@ -65,7 +65,7 @@ export function LessonQuiz({ lessonId, questions, flashcards, onDone }: { lesson
         </Ring>
         {passed && <PartyPopper className="size-7 text-warning" />}
         <div>
-          <h2 className="text-xl font-semibold">{t("result", { score: percent(score) })}</h2>
+          <h2 className="text-xl font-bold">{t("result", { score: percent(score) })}</h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">{passed ? t("resultPass") : t("resultFail", { score: percent(QUIZ_PASS) })}</p>
         </div>
         <div className="flex gap-2">

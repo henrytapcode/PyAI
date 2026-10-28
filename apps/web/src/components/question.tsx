@@ -67,7 +67,7 @@ export function QuestionView({
                 disabled={revealed}
                 onClick={() => onChange({ type: "mcq", choice: i })}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-all",
+                  "flex items-center gap-3 rounded-[4px] border px-4 py-3 text-left text-sm transition-colors",
                   !revealed && "hover:border-primary/50 hover:bg-accent/40",
                   !revealed && chosen && "border-primary bg-accent/60 ring-1 ring-primary",
                   revealed && isRight && "border-success bg-success-soft",
@@ -76,7 +76,7 @@ export function QuestionView({
               >
                 <span
                   className={cn(
-                    "grid size-6 shrink-0 place-items-center rounded-full border text-xs font-semibold",
+                    "grid size-6 shrink-0 place-items-center rounded-[2px] border text-xs font-bold",
                     chosen && !revealed && "border-primary bg-primary text-primary-foreground",
                   )}
                 >
@@ -102,7 +102,7 @@ export function QuestionView({
           rows={Math.max(2, String(question.answer ?? "").split("\n").length + 1)}
           spellCheck={false}
           className={cn(
-            "w-full resize-y rounded-xl border bg-code px-4 py-3 font-mono text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary",
+            "w-full resize-y rounded-[4px] border bg-code px-4 py-3 font-mono text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary",
             revealed && (correct ? "border-success" : "border-danger"),
           )}
         />
@@ -115,15 +115,15 @@ export function QuestionView({
       )}
 
       {revealed && (
-        <div className={cn("animate-rise rounded-xl border px-4 py-3", correct ? "border-success/40 bg-success-soft/60" : "border-danger/30 bg-danger-soft/60")}>
-          <div className={cn("flex items-center gap-2 font-semibold", correct ? "text-success" : "text-danger")}>
+        <div className={cn("animate-rise rounded-[4px] border px-4 py-3", correct ? "border-success/40 bg-success-soft/60" : "border-danger/30 bg-danger-soft/60")}>
+          <div className={cn("flex items-center gap-2 font-bold", correct ? "text-success" : "text-danger")}>
             {correct ? <CheckCircle2 className="size-4" /> : <XCircle className="size-4" />}
             {correct ? t("correct") : t("incorrect")}
           </div>
           {!correct && question.type !== "mcq" && (
             <div className="mt-2 text-sm">
               <span className="text-muted-foreground">{t("correctAnswer")}: </span>
-              <pre className="mt-1 whitespace-pre-wrap rounded-md bg-card/70 p-2 font-mono text-[13px]">{correctAnswerText(question, qt.options)}</pre>
+              <pre className="mt-1 whitespace-pre-wrap rounded-[2px] bg-card/70 p-2 font-mono text-[13px]">{correctAnswerText(question, qt.options)}</pre>
             </div>
           )}
           {qt.explanation && (
@@ -142,7 +142,7 @@ function FillCode({ question, answer, onChange, revealed }: { question: Question
   const parts = (question.code ?? "").replace(/\n$/, "").split("___");
   const expected = (question.answer as (string | string[])[]) ?? [];
   return (
-    <pre className="overflow-x-auto rounded-xl border bg-code p-4 font-mono text-[13.5px] leading-8">
+    <pre className="overflow-x-auto rounded-[4px] border bg-code p-4 font-mono text-[13.5px] leading-8">
       {parts.map((part, i) => (
         <span key={i}>
           {part}
@@ -160,7 +160,7 @@ function FillCode({ question, answer, onChange, revealed }: { question: Question
               autoCapitalize="off"
               style={{ width: `${Math.max(4, (answer.blanks[i] ?? "").length + 2, String(Array.isArray(expected[i]) ? expected[i][0] : expected[i] ?? "").length + 1)}ch` }}
               className={cn(
-                "mx-0.5 rounded-md border-b-2 border-warning bg-warning-soft px-1 font-mono text-[13.5px] outline-none focus:border-primary focus:bg-accent",
+                "mx-0.5 rounded-[2px] border-b-2 border-warning bg-warning-soft px-1 font-mono text-[13.5px] outline-none focus:border-primary focus:bg-accent",
                 revealed && "border-transparent bg-muted",
               )}
             />
@@ -185,14 +185,14 @@ function Parsons({ question, answer, onChange, revealed }: { question: Question;
   return (
     <div className="grid gap-3 md:grid-cols-2">
       <div>
-        <div className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("parsonsAvailable")}</div>
-        <div className="min-h-24 space-y-1.5 rounded-xl border border-dashed p-2">
+        <div className="mb-1.5 text-xs font-bold text-muted-foreground">{t("parsonsAvailable")}</div>
+        <div className="min-h-24 space-y-1.5 rounded-[4px] border border-dashed p-2">
           {remaining.map((l) => (
             <button
               key={l}
               disabled={revealed}
               onClick={() => onChange({ type: "parsons", order: [...answer.order, l] })}
-              className="flex w-full items-center gap-2 rounded-lg border bg-card px-3 py-2 text-left font-mono text-[13px] shadow-sm transition hover:border-primary/50 hover:bg-accent/40"
+              className="flex w-full items-center gap-2 rounded-[4px] border bg-card px-3 py-2 text-left font-mono text-[13px] transition hover:border-primary/50 hover:bg-accent/40"
             >
               <GripVertical className="size-3.5 shrink-0 text-muted-foreground" />
               <span className="whitespace-pre">{l}</span>
@@ -201,8 +201,8 @@ function Parsons({ question, answer, onChange, revealed }: { question: Question;
         </div>
       </div>
       <div>
-        <div className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("parsonsYours")}</div>
-        <div className="min-h-24 space-y-1.5 rounded-xl border bg-code p-2">
+        <div className="mb-1.5 text-xs font-bold text-muted-foreground">{t("parsonsYours")}</div>
+        <div className="min-h-24 space-y-1.5 rounded-[4px] border bg-code p-2">
           {answer.order.map((l, i) => {
             const right = revealed && lines[i] === l;
             return (
@@ -211,7 +211,7 @@ function Parsons({ question, answer, onChange, revealed }: { question: Question;
                 disabled={revealed}
                 onClick={() => onChange({ type: "parsons", order: answer.order.filter((x) => x !== l) })}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-lg border bg-card px-3 py-2 text-left font-mono text-[13px] animate-rise",
+                  "flex w-full items-center gap-2 rounded-[4px] border bg-card px-3 py-2 text-left font-mono text-[13px] animate-rise",
                   revealed && (right ? "border-success" : "border-danger"),
                 )}
               >

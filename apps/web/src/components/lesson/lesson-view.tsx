@@ -124,7 +124,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
   return (
     <div className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col lg:h-dvh">
       {/* Lesson header */}
-      <header className="flex items-center gap-3 border-b bg-background/90 px-4 py-2.5 backdrop-blur">
+      <header className="flex items-center gap-3 border-b bg-background">
         <Button asChild variant="ghost" size="icon-sm" aria-label={tc("back")}>
           <Link href="/learn/">
             <ChevronLeft />
@@ -134,7 +134,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           <div className="truncate text-xs text-muted-foreground">
             {loc.t(phase?.title)} · {meta.kind === "project" ? t("projectBadge") : `${summary.order}`}
           </div>
-          <h1 className="truncate font-semibold leading-tight">
+          <h1 className="truncate font-bold leading-tight">
             <Tx value={meta.title} />
           </h1>
         </div>
@@ -182,7 +182,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
             key={pane}
             onClick={() => setMobilePane(pane)}
             className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-sm font-medium",
+              "flex flex-1 items-center justify-center gap-1.5 rounded-[4px] py-1.5 text-sm font-medium",
               mobilePane === pane ? "bg-accent text-accent-foreground" : "text-muted-foreground",
             )}
           >
@@ -199,7 +199,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           className={cn("min-h-0 w-full overflow-y-auto lg:block lg:w-[var(--split)]", mobilePane === "content" ? "block" : "hidden")}
         >
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mx-auto max-w-3xl px-5 py-5 sm:px-8">
-            <TabsList className="sticky top-0 z-10 mb-6 w-full justify-start overflow-x-auto shadow-sm">
+            <TabsList className="sticky top-0 z-10 mb-6 w-full justify-start overflow-x-auto">
               <TabsTrigger value="theory">
                 <BookOpen /> {t("theory")}
                 {parts.theory && <CheckCircle2 className="text-success" />}
@@ -220,13 +220,13 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
             </TabsList>
 
             <TabsContent value="theory" className="space-y-8 animate-rise">
-              <div className="rounded-2xl border bg-accent/30 p-5">
+              <div className="rounded-[4px] border bg-accent/30 p-5">
                 <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <Clock className="size-3.5" /> {tc("minutes", { count: meta.duration_min })}
                   {meta.kind === "project" && <Badge>{t("projectBadge")}</Badge>}
                 </div>
                 <p className="mb-3 text-[0.95rem]">{loc.t(meta.summary)}</p>
-                <div className="text-sm font-semibold">{t("outcomes")}</div>
+                <div className="text-sm font-bold">{t("outcomes")}</div>
                 <ul className="mt-1.5 space-y-1 text-sm">
                   {outcomes.map((o) => (
                     <li key={o} className="flex gap-2">
@@ -240,7 +240,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
               {body.fallback && <UntranslatedBadge />}
               <Markdown text={body.value ?? ""} onTryCode={tryCode} />
 
-              <div className="flex flex-wrap items-center gap-3 rounded-2xl border p-5">
+              <div className="flex flex-wrap items-center gap-3 rounded-[4px] border p-5">
                 {parts.theory ? (
                   <span className="flex items-center gap-2 font-medium text-success">
                     <CheckCircle2 className="size-5" /> {t("read")}
@@ -271,12 +271,12 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
             <TabsContent value="examples" className="space-y-8 animate-rise">
               {lesson.examples.map((ex) => (
                 <div key={ex.name} className="space-y-2">
-                  <h3 className="font-semibold">{loc.t(ex.title)}</h3>
+                  <h3 className="font-bold">{loc.t(ex.title)}</h3>
                   <Markdown text={"```python\n" + ex.code.replace(/\n$/, "") + "\n```"} onTryCode={tryCode} />
                   {ex.output && (
                     <div>
-                      <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("expectedOutput")}</div>
-                      <pre className="overflow-x-auto rounded-xl border border-dashed bg-muted/40 p-3 font-mono text-[13px]">{ex.output}</pre>
+                      <div className="mb-1 text-xs font-bold text-muted-foreground">{t("expectedOutput")}</div>
+                      <pre className="overflow-x-auto rounded-[4px] border border-dashed bg-muted/40 p-3 font-mono text-[13px]">{ex.output}</pre>
                     </div>
                   )}
                   {loc.t(ex.explain) && <Markdown text={loc.t(ex.explain)} className="pt-1" />}
@@ -316,7 +316,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           onPointerDown={startDrag}
           className="group hidden w-1.5 shrink-0 cursor-col-resize items-center justify-center border-x bg-muted/40 hover:bg-primary/20 lg:flex"
         >
-          <div className="h-8 w-0.5 rounded-full bg-muted-foreground/30 group-hover:bg-primary" />
+          <div className="h-8 w-0.5 rounded-[2px] bg-muted-foreground/30 group-hover:bg-primary" />
         </div>
 
         {/* Right: editor */}
@@ -385,7 +385,7 @@ function StepChip({ done, icon, label, onClick }: { done: boolean; icon: React.R
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition hover:bg-muted",
+        "inline-flex items-center gap-1.5 rounded-[2px] border px-2.5 py-1 text-xs font-medium transition hover:bg-muted",
         done && "border-success/40 bg-success-soft text-success",
       )}
     >

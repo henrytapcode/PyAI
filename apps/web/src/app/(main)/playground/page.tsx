@@ -63,7 +63,7 @@ export default function PlaygroundPage() {
     <div className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col lg:h-dvh">
       <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3 sm:px-6">
         <div className="min-w-0 flex-1">
-          <h1 className="font-semibold">{t("playgroundTitle")}</h1>
+          <h1 className="font-bold">{t("playgroundTitle")}</h1>
           <p className="truncate text-xs text-muted-foreground">{t("playgroundSubtitle")}</p>
         </div>
         <div className="flex items-center gap-1.5">
@@ -72,7 +72,7 @@ export default function PlaygroundPage() {
             <button
               key={k}
               onClick={() => update(TEMPLATES[k])}
-              className={cn("rounded-md border px-2 py-1 font-mono text-xs hover:bg-muted", code === TEMPLATES[k] && "border-primary text-primary")}
+              className={cn("rounded-[2px] border px-2 py-1 font-mono text-xs hover:bg-muted", code === TEMPLATES[k] && "border-primary text-primary")}
             >
               {k}
             </button>

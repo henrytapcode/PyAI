@@ -29,7 +29,7 @@ export function UntranslatedBadge() {
   return (
     <span
       title={t("notTranslated")}
-      className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-warning-soft px-1.5 py-0.5 align-middle text-[10px] font-medium text-warning"
+      className="ml-1.5 inline-flex items-center gap-1 rounded-[2px] bg-warning-soft px-1.5 py-0.5 align-middle text-[10px] font-medium text-warning"
     >
       <Languages className="size-3" />
       EN

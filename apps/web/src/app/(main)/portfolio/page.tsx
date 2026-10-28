@@ -37,7 +37,7 @@ export default function PortfolioPage() {
   return (
     <div>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
-      <h2 className="mb-3 font-semibold">{t("keyProjects")}</h2>
+      <h2 className="mb-3 font-bold">{t("keyProjects")}</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {projects.map((proj) => {
           const done = proj.ready && isLessonComplete(p, proj);
@@ -48,12 +48,12 @@ export default function PortfolioPage() {
             <Card key={proj.id} className={done ? "border-success/40" : ""}>
               <CardContent className="space-y-3 p-5">
                 <div className="flex items-start gap-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-[4px] bg-muted">
                     <PhaseIcon name={proj.phase.icon} className="size-5" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-xs text-muted-foreground">{loc.t(proj.phase.title)}</div>
-                    <h3 className="font-semibold">
+                    <h3 className="font-bold">
                       <Tx value={proj.title} />
                     </h3>
                   </div>
@@ -70,9 +70,12 @@ export default function PortfolioPage() {
                 {parts && !done && (
                   <div className="space-y-1">
                     <Progress value={parts.fraction} />
-                    <Link href={`/lesson/${proj.id}/`} className="text-sm text-primary hover:underline">
-                      {t("notStarted")} → {tc("continue")}
-                    </Link>
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-muted-foreground">{t("notStarted")}</span>
+                      <Link href={`/lesson/${proj.id}/`} className="font-bold underline decoration-hit decoration-2 underline-offset-4">
+                        {tc("continue")}
+                      </Link>
+                    </div>
                   </div>
                 )}
                 {done && (
@@ -98,7 +101,7 @@ export default function PortfolioPage() {
         })}
       </div>
 
-      <h2 className="mb-3 mt-10 font-semibold">{t("capstones")}</h2>
+      <h2 className="mb-3 mt-10 font-bold">{t("capstones")}</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {catalog.capstones.map((c) => (
           <Card key={c.id} className="border-dashed bg-transparent">

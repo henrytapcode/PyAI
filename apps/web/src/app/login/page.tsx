@@ -12,7 +12,7 @@ import { authEnabled, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const inputClass =
-  "h-10 w-full rounded-lg border bg-card px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50";
+  "h-10 w-full rounded-[4px] border bg-card px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
@@ -53,21 +53,20 @@ export default function LoginPage() {
 
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-10">
-      <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-[48rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
       <div className="relative w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center gap-3 text-center">
           <Logo className="size-10" />
-          <h1 className="text-2xl font-semibold tracking-tight">{mode === "signin" ? t("signInTitle") : t("signUpTitle")}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{mode === "signin" ? t("signInTitle") : t("signUpTitle")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         {!authEnabled ? (
-          <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">{t("notConfigured")}</p>
+          <p className="rounded-[4px] border bg-card p-4 text-sm text-muted-foreground">{t("notConfigured")}</p>
         ) : (
-          <div className="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
+          <div className="space-y-4 rounded-[4px] border bg-card p-5">
             <Button variant="outline" className="w-full" disabled={busy} onClick={google}>
               <GoogleMark /> {t("google")}
             </Button>

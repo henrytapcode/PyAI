@@ -99,21 +99,21 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
         <CardContent className="space-y-6 p-8">
           <div>
             <Badge variant="muted">{exam.kind === "placement" ? t("placement") : exam.kind === "mock" ? t("mocks") : t("phaseTests")}</Badge>
-            <h1 className="mt-3 text-2xl font-semibold tracking-tight">
+            <h1 className="mt-3 text-2xl font-bold tracking-tight">
               <Tx value={exam.title} />
             </h1>
             {exam.description && <p className="mt-2 text-muted-foreground">{loc.t(exam.description)}</p>}
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5">
+            <span className="flex items-center gap-1.5 rounded-[4px] bg-muted px-3 py-1.5">
               <Flag className="size-4" />
               {tc("questions", { count: exam.questions.length })}
             </span>
-            <span className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5">
+            <span className="flex items-center gap-1.5 rounded-[4px] bg-muted px-3 py-1.5">
               <Clock className="size-4" />
               {t("duration", { count: exam.duration_min })}
             </span>
-            <span className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5">
+            <span className="flex items-center gap-1.5 rounded-[4px] bg-muted px-3 py-1.5">
               <CheckCircle2 className="size-4" />
               {t("passScore", { score: percent(exam.pass_score) })}
             </span>
@@ -121,7 +121,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
           <p className="text-sm text-muted-foreground">{t("rules")}</p>
           {history && history.length > 0 && (
             <div>
-              <div className="mb-2 text-sm font-semibold">{t("history")}</div>
+              <div className="mb-2 text-sm font-bold">{t("history")}</div>
               <div className="flex flex-wrap gap-2">
                 {history.slice(-6).map((h, i) => (
                   <Badge key={i} variant={h.passed ? "success" : "muted"}>
@@ -145,7 +145,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
   if (phase === "result" && result) {
     return (
       <div className="mx-auto max-w-3xl space-y-6 animate-rise">
-        {timeUp && <div className="rounded-xl border border-warning/40 bg-warning-soft px-4 py-3 text-sm">{t("timeUp")}</div>}
+        {timeUp && <div className="rounded-[4px] border border-warning/40 bg-warning-soft px-4 py-3 text-sm">{t("timeUp")}</div>}
         <Card>
           <CardContent className="flex flex-wrap items-center gap-6 p-8">
             <Ring value={result.score} size={120} stroke={9}>
@@ -153,7 +153,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
             </Ring>
             <div className="min-w-0 flex-1">
               <div className="text-sm text-muted-foreground">{t("report")}</div>
-              <h1 className="text-2xl font-semibold">
+              <h1 className="text-2xl font-bold">
                 <Tx value={exam.title} />
               </h1>
               <Badge className="mt-2" variant={result.passed ? "success" : "danger"}>
@@ -174,7 +174,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
 
         <Card>
           <CardContent className="space-y-3 p-6">
-            <h2 className="font-semibold">{t("byTopic")}</h2>
+            <h2 className="font-bold">{t("byTopic")}</h2>
             {Object.entries(result.byTopic)
               .sort(([, a], [, b]) => a.correct / a.total - b.correct / b.total)
               .map(([topic, v]) => (
@@ -192,7 +192,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
         </Card>
 
         <div className="space-y-4">
-          <h2 className="font-semibold">{t("review")}</h2>
+          <h2 className="font-bold">{t("review")}</h2>
           {exam.questions.map((q, i) => (
             <Card key={q.id}>
               <CardContent className="p-6">
@@ -214,9 +214,9 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
   const lowTime = remaining < 60;
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="sticky top-14 z-20 -mx-4 mb-6 border-b bg-background/90 px-4 py-3 backdrop-blur lg:top-0">
+      <div className="sticky top-14 z-20 -mx-4 mb-6 border-b bg-background lg:top-0">
         <div className="flex items-center gap-3">
-          <div className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-sm font-semibold tabular-nums", lowTime ? "bg-danger-soft text-danger animate-pulse" : "bg-muted")}>
+          <div className={cn("flex items-center gap-1.5 rounded-[4px] px-3 py-1.5 font-mono text-sm font-bold tabular-nums", lowTime ? "bg-danger-soft text-danger animate-pulse" : "bg-muted")}>
             <Timer className="size-4" />
             {formatDuration(remaining)}
           </div>
@@ -231,7 +231,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
               key={qq.id}
               onClick={() => setIndex(i)}
               className={cn(
-                "grid size-7 place-items-center rounded-md border text-xs font-medium transition",
+                "grid size-7 place-items-center rounded-[2px] border text-xs font-medium transition",
                 i === index && "ring-2 ring-primary",
                 isAnswered(qq, answers[i]) ? "border-primary bg-accent text-accent-foreground" : "bg-card text-muted-foreground",
               )}

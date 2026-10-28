@@ -190,12 +190,12 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function Segmented({ value, options, onChange }: { value: string; options: { v: string; l: string }[]; onChange: (v: string) => void }) {
   return (
-    <div className="inline-flex rounded-lg bg-muted p-0.5">
+    <div className="inline-flex rounded-[4px] bg-muted p-0.5">
       {options.map((o) => (
         <button
           key={o.v}
           onClick={() => onChange(o.v)}
-          className={cn("rounded-md px-3 py-1.5 text-sm", value === o.v ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground")}
+          className={cn("rounded-[2px] px-3 py-1.5 text-sm", value === o.v ? "bg-card" : "text-muted-foreground hover:text-foreground")}
         >
           {o.l}
         </button>

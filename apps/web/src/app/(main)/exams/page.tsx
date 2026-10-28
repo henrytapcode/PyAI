@@ -28,7 +28,7 @@ export default function ExamsPage() {
           const exams = catalog.exams.filter((e) => e.kind === kind);
           return (
             <section key={kind}>
-              <h2 className="mb-3 flex items-center gap-2 font-semibold">
+              <h2 className="mb-3 flex items-center gap-2 font-bold">
                 <Icon className="size-5 text-primary" /> {t(key)}
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
@@ -60,10 +60,10 @@ function ExamCard({ exam }: { exam: ExamSummary }) {
   const href = exam.kind === "placement" ? "/placement/" : `/exam/${exam.id}/`;
   return (
     <Link href={href} className="group">
-      <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md animate-rise">
+      <Card className="h-full transition hover:-translate-y-0.5 animate-rise">
         <CardContent className="flex h-full flex-col gap-3 p-5">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-semibold">
+            <h3 className="font-bold">
               <Tx value={exam.title} />
             </h3>
             {best !== undefined && <Badge variant={passed ? "success" : "muted"}>{t("best", { score: percent(best) })}</Badge>}

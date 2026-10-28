@@ -28,7 +28,7 @@ export function PythonStatus() {
       <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
         <span
           className={cn(
-            "size-2 rounded-full",
+            "size-2 rounded-[2px]",
             status === "ready" && "bg-success",
             status === "running" && "bg-primary animate-pulse",
             status === "loading" && "bg-warning animate-pulse",
@@ -158,14 +158,14 @@ export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, hi
             <PanelTab active={panel === "tests"} onClick={() => setPanel("tests")} icon={<FlaskConical className="size-3.5" />}>
               {t("tests")}
               {result && !result.timedOut && (
-                <span className={cn("ml-1 rounded-full px-1.5 text-[10px] font-semibold", result.ok ? "bg-success-soft text-success" : "bg-danger-soft text-danger")}>
+                <span className={cn("ml-1 rounded-[2px] px-1.5 text-[10px] font-bold", result.ok ? "bg-success-soft text-success" : "bg-danger-soft text-danger")}>
                   {result.passed}/{result.total || "!"}
                 </span>
               )}
             </PanelTab>
           )}
           {panel === "output" && output.length > 0 && (
-            <button onClick={() => setOutput([])} className="ml-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted">
+            <button onClick={() => setOutput([])} className="ml-auto inline-flex items-center gap-1 rounded-[2px] px-2 py-1 text-xs text-muted-foreground hover:bg-muted">
               <Trash2 className="size-3.5" />
               {t("clear")}
             </button>
@@ -182,7 +182,7 @@ export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, hi
                   className={cn(
                     "whitespace-pre-wrap break-words",
                     l.stream === "stderr" && "text-warning",
-                    l.stream === "error" && "mt-1 rounded-md bg-danger-soft p-2 text-danger",
+                    l.stream === "error" && "mt-1 rounded-[2px] bg-danger-soft p-2 text-danger",
                     l.stream === "info" && "mt-1 font-sans text-xs text-muted-foreground",
                   )}
                 >
@@ -204,7 +204,7 @@ function PanelTab({ active, onClick, icon, children }: { active: boolean; onClic
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center gap-1.5 rounded-[2px] px-2.5 py-1 text-xs font-medium",
         active ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground",
       )}
     >
@@ -225,17 +225,17 @@ function TestResults({ result, busy }: { result: TestRunResult | null; busy: boo
     );
   }
   if (!result) return <p className="font-sans text-sm text-muted-foreground">{t("noTests")}</p>;
-  if (result.timedOut) return <p className="rounded-md bg-danger-soft p-2 font-sans text-sm text-danger">{t("timedOut")}</p>;
+  if (result.timedOut) return <p className="rounded-[2px] bg-danger-soft p-2 font-sans text-sm text-danger">{t("timedOut")}</p>;
   if (result.error) {
     const blank = /name '___' is not defined/.test(result.error.message);
     return (
       <div className="space-y-2 font-sans">
-        <div className="flex items-center gap-2 text-sm font-semibold text-danger">
+        <div className="flex items-center gap-2 text-sm font-bold text-danger">
           <XCircle className="size-4" />
           {t("importError")}
           {result.error.line ? <span className="font-normal text-muted-foreground">· {t("line", { line: result.error.line })}</span> : null}
         </div>
-        <pre className="whitespace-pre-wrap rounded-md bg-danger-soft p-2 font-mono text-[13px] text-danger">
+        <pre className="whitespace-pre-wrap rounded-[2px] bg-danger-soft p-2 font-mono text-[13px] text-danger">
           {result.error.type}: {result.error.message}
         </pre>
         {blank && <p className="text-sm text-warning">{t("blankHint")}</p>}
@@ -244,7 +244,7 @@ function TestResults({ result, busy }: { result: TestRunResult | null; busy: boo
   }
   return (
     <div className="space-y-1.5 font-sans">
-      <div className={cn("mb-2 flex items-center gap-2 text-sm font-semibold", result.ok ? "text-success" : "text-foreground")}>
+      <div className={cn("mb-2 flex items-center gap-2 text-sm font-bold", result.ok ? "text-success" : "text-foreground")}>
         {result.ok ? <CheckCircle2 className="size-4" /> : <CircleDashed className="size-4 text-muted-foreground" />}
         {result.ok ? t("allPassed") : t("testsPassed", { passed: result.passed, total: result.total })}
       </div>
@@ -258,7 +258,7 @@ function TestResults({ result, busy }: { result: TestRunResult | null; busy: boo
             )}
             <span className={tc.status === "passed" ? "text-muted-foreground" : ""}>{tc.label}</span>
           </div>
-          {tc.message && <pre className="ml-6 mt-1 whitespace-pre-wrap rounded-md bg-muted p-2 font-mono text-[12.5px] text-foreground/90">{tc.message}</pre>}
+          {tc.message && <pre className="ml-6 mt-1 whitespace-pre-wrap rounded-[2px] bg-muted p-2 font-mono text-[12.5px] text-foreground/90">{tc.message}</pre>}
         </div>
       ))}
       {result.stdout.trim() && (

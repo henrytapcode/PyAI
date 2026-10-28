@@ -78,7 +78,7 @@ export default function ReviewPage() {
           <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
             {reviewed > 0 ? <PartyPopper className="size-10 text-warning" /> : <CheckCircle2 className="size-10 text-success" />}
             <div>
-              <h2 className="text-lg font-semibold">{reviewed > 0 ? t("sessionDone") : t("due", { count: 0 })}</h2>
+              <h2 className="text-lg font-bold">{reviewed > 0 ? t("sessionDone") : t("due", { count: 0 })}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{reviewed > 0 ? t("reviewed", { count: reviewed }) : t("empty")}</p>
             </div>
             {deckSize > 0 && (
@@ -138,7 +138,7 @@ function GradeButtons({ cardKey, onGrade, suggest }: { cardKey: string; onGrade:
         <button
           key={g}
           onClick={() => onGrade(g)}
-          className={cn("flex flex-col items-center gap-0.5 rounded-xl border bg-card px-2 py-2.5 text-sm font-medium transition", cls, suggest === g && "ring-2 ring-current")}
+          className={cn("flex flex-col items-center gap-0.5 rounded-[4px] border bg-card px-2 py-2.5 text-sm font-medium transition", cls, suggest === g && "ring-2 ring-current")}
         >
           {t(g)}
           <span className="text-[11px] font-normal text-muted-foreground">{t("inDays", { count: previewInterval(card, g) })}</span>
@@ -158,7 +158,7 @@ function FlashcardView({ card, cardKey, onGrade }: { card: Flashcard; cardKey: s
       <Card className="animate-rise">
         <CardContent className="space-y-5 p-8">
           <SourceLine lessonId={card.lessonId} label={t("flashcard")} />
-          <div className="text-xl font-semibold">
+          <div className="text-xl font-bold">
             <Markdown text={side.value!.front} className="[&_p]:m-0" />
             {side.fallback && <UntranslatedBadge />}
           </div>

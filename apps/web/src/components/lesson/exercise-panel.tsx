@@ -24,7 +24,7 @@ export function ExercisePicker({ exercises, activeId, onPick }: { exercises: Exe
             key={ex.id}
             onClick={() => onPick(ex.id)}
             className={cn(
-              "flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+              "flex items-center gap-2 rounded-[4px] border px-3 py-2 text-left text-sm transition",
               active ? "border-primary bg-accent/60 ring-1 ring-primary" : "hover:bg-muted",
             )}
           >
@@ -63,7 +63,7 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
           <Badge>{t(`kind.${exercise.kind}`)}</Badge>
           <span className="flex items-center gap-1 text-xs text-muted-foreground" title={t("difficulty")}>
             {[1, 2, 3].map((d) => (
-              <span key={d} className={cn("size-1.5 rounded-full", d <= exercise.difficulty ? "bg-primary" : "bg-muted-foreground/25")} />
+              <span key={d} className={cn("size-1.5 rounded-[2px]", d <= exercise.difficulty ? "bg-primary" : "bg-muted-foreground/25")} />
             ))}
           </span>
           <span className="text-xs text-muted-foreground">· {t("attempts", { count: attempts })}</span>
@@ -73,7 +73,7 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
             </Badge>
           )}
         </div>
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-xl font-bold">
           <Tx value={exercise.title} />
         </h2>
       </div>
@@ -83,13 +83,13 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
 
       {/* 3-tier hints */}
       <section className="space-y-2">
-        <h3 className="flex items-center gap-2 text-sm font-semibold">
+        <h3 className="flex items-center gap-2 text-sm font-bold">
           <Lightbulb className="size-4 text-warning" />
           {t("hints")}
         </h3>
         {(hints.value ?? []).slice(0, hintsShown).map((h, i) => (
-          <div key={i} className="animate-rise rounded-xl border border-warning/30 bg-warning-soft/50 px-4 py-3 text-sm">
-            <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-warning">{t("hintLevel", { n: i + 1 })}</div>
+          <div key={i} className="animate-rise rounded-[4px] border border-warning/30 bg-warning-soft/50 px-4 py-3 text-sm">
+            <div className="mb-1 text-xs font-bold text-warning">{t("hintLevel", { n: i + 1 })}</div>
             <Markdown text={h} className="[&_p]:m-0" />
           </div>
         ))}
@@ -105,7 +105,7 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
 
       {/* Solution, hidden until enough attempts */}
       <section className="space-y-2">
-        <h3 className="flex items-center gap-2 text-sm font-semibold">
+        <h3 className="flex items-center gap-2 text-sm font-bold">
           <KeyRound className="size-4 text-muted-foreground" />
           {t("solution")}
         </h3>
@@ -117,7 +117,7 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
             </Button>
             {exercise.alternatives?.length > 0 && (
               <div className="space-y-3 pt-2">
-                <h4 className="text-sm font-semibold">{t("otherApproaches")}</h4>
+                <h4 className="text-sm font-bold">{t("otherApproaches")}</h4>
                 {exercise.alternatives.map((alt) => (
                   <div key={alt.name} className="space-y-1">
                     <p className="text-sm font-medium">{loc.t(alt.title)}</p>

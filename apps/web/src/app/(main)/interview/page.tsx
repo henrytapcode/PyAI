@@ -76,7 +76,7 @@ export default function InterviewPage() {
                     <Markdown text={qa.value!.answer} />
                     <button
                       onClick={() => toggle(q.id)}
-                      className={cn("inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm", practiced?.[q.id] ? "border-success/40 bg-success-soft text-success" : "hover:bg-muted")}
+                      className={cn("inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1.5 text-sm", practiced?.[q.id] ? "border-success/40 bg-success-soft text-success" : "hover:bg-muted")}
                     >
                       {practiced?.[q.id] ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}
                       {practiced?.[q.id] ? t("practiced") : t("markPracticed")}
@@ -94,7 +94,7 @@ export default function InterviewPage() {
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className={cn("rounded-full border px-3 py-1 text-xs transition", active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted")}>
+    <button onClick={onClick} className={cn("rounded-[2px] border px-3 py-1 text-xs transition", active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted")}>
       {children}
     </button>
   );

@@ -16,9 +16,9 @@ import { lessonParts, lessonStatus, phaseProgress, type LessonStatus } from "@/l
 import { cn, percent } from "@/lib/utils";
 
 const STATUS_DOT: Record<LessonStatus, string> = {
-  completed: "bg-success border-success text-white",
-  in_progress: "bg-accent border-primary text-primary",
-  available: "bg-card border-primary/40 text-primary",
+  completed: "bg-success border-success text-success-foreground",
+  in_progress: "bg-accent border-edge text-accent-foreground",
+  available: "bg-card border-edge text-foreground",
   locked: "bg-card border-border text-muted-foreground",
   skipped: "bg-muted border-border text-muted-foreground",
   coming_soon: "bg-card border-dashed border-border text-muted-foreground/50",
@@ -56,15 +56,15 @@ export default function LearnPage() {
                 <div className="flex flex-wrap items-center gap-4 border-b p-5">
                   <div
                     className={cn(
-                      "grid size-12 place-items-center rounded-2xl",
-                      hasContent ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "bg-muted text-muted-foreground",
+                      "grid size-12 place-items-center rounded-[4px]",
+                      hasContent ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
                     )}
                   >
                     <PhaseIcon name={phase.icon} className="size-6" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("phase", { n: phase.order })}</div>
-                    <h2 className="text-lg font-semibold">
+                    <div className="text-xs font-bold text-muted-foreground">{t("phase", { n: phase.order })}</div>
+                    <h2 className="text-lg font-bold">
                       <Tx value={phase.title} />
                     </h2>
                     <p className="text-sm text-muted-foreground">{loc.t(phase.summary)}</p>
@@ -95,7 +95,7 @@ export default function LearnPage() {
                     const missing = l.prerequisites.filter((pre) => !phase.lessons.some((x) => x.id === pre) || st === "locked");
                     const content = (
                       <div className="flex items-center gap-4 px-5 py-3.5">
-                        <span className={cn("grid size-8 shrink-0 place-items-center rounded-full border-2 text-xs font-semibold", STATUS_DOT[st])}>
+                        <span className={cn("grid size-8 shrink-0 place-items-center rounded-[2px] border-2 text-xs font-bold", STATUS_DOT[st])}>
                           {st === "completed" ? <Check className="size-4" /> : st === "coming_soon" ? <Lock className="size-3.5" /> : l.order}
                         </span>
                         <div className="min-w-0 flex-1">
@@ -154,7 +154,7 @@ export default function LearnPage() {
                   {prog.phaseTest && (
                     <li>
                       <Link href={`/exam/${prog.phaseTest.id}/`} className="group flex items-center gap-4 bg-muted/30 px-5 py-3.5 transition hover:bg-muted/60">
-                        <span className={cn("grid size-8 place-items-center rounded-full", prog.phaseTestPassed ? "bg-success text-white" : "bg-primary/10 text-primary")}>
+                        <span className={cn("grid size-8 place-items-center rounded-[2px]", prog.phaseTestPassed ? "bg-success text-white" : "bg-primary/10 text-primary")}>
                           <ClipboardCheck className="size-4" />
                         </span>
                         <span className="flex-1 font-medium">
@@ -173,7 +173,7 @@ export default function LearnPage() {
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         <Card className="p-5">
-          <h3 className="mb-3 font-semibold">{t("capstones")}</h3>
+          <h3 className="mb-3 font-bold">{t("capstones")}</h3>
           <ul className="space-y-2 text-sm">
             {catalog.capstones.map((c) => (
               <li key={c.id} className="flex items-center gap-2 text-muted-foreground">
@@ -185,7 +185,7 @@ export default function LearnPage() {
         </Card>
         {catalog.furtherReading && (
           <Card className="p-5">
-            <h3 className="mb-3 font-semibold">{t("furtherReading")}</h3>
+            <h3 className="mb-3 font-bold">{t("furtherReading")}</h3>
             <div className="flex flex-wrap gap-2">
               {loc.t(catalog.furtherReading).map((x) => (
                 <Badge key={x} variant="outline">

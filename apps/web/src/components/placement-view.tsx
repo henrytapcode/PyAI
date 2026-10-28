@@ -24,7 +24,7 @@ export function PlacementView({ exam }: { exam: Exam }) {
       <header className="flex items-center gap-3 border-b px-4 py-3 sm:px-8">
         <Link href="/" className="flex items-center gap-2">
           <Logo className="size-7" />
-          <span className="font-semibold">PyAI Path</span>
+          <span className="font-bold">PyAI Path</span>
         </Link>
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitch />
@@ -34,7 +34,7 @@ export function PlacementView({ exam }: { exam: Exam }) {
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <div className="mb-8 text-center animate-rise">
           <Compass className="mx-auto size-9 text-primary" />
-          <h1 className="mt-3 text-2xl font-semibold">{t("title")}</h1>
+          <h1 className="mt-3 text-2xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle", { score: percent(exam.pass_score) })}</p>
         </div>
         {outcome !== null && (
@@ -42,7 +42,7 @@ export function PlacementView({ exam }: { exam: Exam }) {
             <CardContent className="flex flex-wrap items-center gap-4 p-5">
               <Rocket className="size-6 text-primary" />
               <div className="flex-1">
-                <div className="font-semibold">{outcome ? t("passedTitle") : t("failedTitle")}</div>
+                <div className="font-bold">{outcome ? t("passedTitle") : t("failedTitle")}</div>
                 <div className="text-sm text-muted-foreground">{outcome ? t("passedBody") : t("failedBody")}</div>
               </div>
               <Button asChild>

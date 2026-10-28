@@ -77,18 +77,18 @@ export function CodeBlock({
     }
   };
   return (
-    <div className="group relative overflow-hidden rounded-xl border bg-code">
+    <div className="group relative overflow-hidden rounded-[4px] border bg-code">
       <div className="flex items-center justify-between border-b px-3 py-1.5 text-xs text-muted-foreground">
         <span className="font-mono">{language ?? "python"}</span>
         <div className="flex items-center gap-1">
-          <button onClick={copy} className="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-muted hover:text-foreground">
+          <button onClick={copy} className="inline-flex items-center gap-1 rounded-[2px] px-2 py-1 hover:bg-muted hover:text-foreground">
             {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
             {copied ? t("common.copied") : t("common.copy")}
           </button>
           {canVisualize && (
             <button
               onClick={() => visualize(code)}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-muted hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-[2px] px-2 py-1 font-medium hover:bg-muted hover:text-foreground"
             >
               <Eye className="size-3.5" />
               {t("lesson.visualize")}
@@ -97,7 +97,7 @@ export function CodeBlock({
           {onTry && (
             <button
               onClick={() => onTry(code)}
-              className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 font-medium text-primary hover:bg-primary/15"
+              className="inline-flex items-center gap-1 rounded-[2px] bg-primary/10 px-2 py-1 font-medium text-primary hover:bg-primary/15"
             >
               <Play className="size-3.5" />
               {t("lesson.tryIt")}
@@ -137,7 +137,7 @@ function MermaidDiagram({ chart }: { chart: string }) {
   if (failed) return <CodeBlock code={chart} language="mermaid" />;
   return (
     <div
-      className="my-4 flex justify-center overflow-x-auto rounded-xl border bg-card p-4 [&_svg]:h-auto [&_svg]:max-w-full"
+      className="my-4 flex justify-center overflow-x-auto rounded-[4px] border bg-card p-4 [&_svg]:h-auto [&_svg]:max-w-full"
       role="img"
       aria-label="diagram"
       dangerouslySetInnerHTML={svg ? { __html: svg } : undefined}
@@ -166,7 +166,7 @@ export function Markdown({ text, onTryCode, className }: { text: string; onTryCo
       const style = CALLOUT_STYLE[kind] ?? CALLOUT_STYLE.note;
       const Icon = style.icon;
       return (
-        <aside className={cn("flex gap-3 rounded-xl border px-4 py-3 text-[0.95rem] [&_p]:m-0", style.cls)}>
+        <aside className={cn("flex gap-3 rounded-[4px] border px-4 py-3 text-[0.95rem] [&_p]:m-0", style.cls)}>
           <Icon className={cn("mt-1 size-[18px] shrink-0", style.iconCls)} />
           <div className="min-w-0 space-y-2">{children}</div>
         </aside>
