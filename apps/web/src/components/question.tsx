@@ -2,7 +2,7 @@
 
 import { CheckCircle2, GripVertical, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Markdown, StaticCode } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { UntranslatedBadge, useLoc } from "@/lib/i18n";
@@ -40,6 +40,21 @@ export function QuestionView({
   const qt = text.value!;
   const correct = revealed ? grade(question, answer) : null;
 
+  // Cabinet keys: A to D (or 1 to 4) pick an option while no field has focus.
+  const optionCount = question.type === "mcq" ? (qt.options ?? []).length : 0;
+  useEffect(() => {
+    if (question.type !== "mcq" || revealed) return;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true], .monaco-editor")) return;
+      const k = e.key.toLowerCase();
+      const i = k >= "a" && k <= "d" ? k.charCodeAt(0) - 97 : k >= "1" && k <= "4" ? Number(k) - 1 : -1;
+      if (i >= 0 && i < optionCount) onChange({ type: "mcq", choice: i });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [question.type, revealed, optionCount, onChange]);
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -67,17 +82,17 @@ export function QuestionView({
                 disabled={revealed}
                 onClick={() => onChange({ type: "mcq", choice: i })}
                 className={cn(
-                  "flex items-center gap-3 rounded-[4px] border px-4 py-3 text-left text-sm transition-colors",
-                  !revealed && "hover:border-primary/50 hover:bg-accent/40",
-                  !revealed && chosen && "border-primary bg-accent/60 ring-1 ring-primary",
-                  revealed && isRight && "border-success bg-success-soft",
-                  revealed && chosen && !isRight && "border-danger bg-danger-soft",
+                  "press flex items-center gap-3 rounded-[4px] px-4 py-3 text-left text-sm font-bold",
+                  !chosen && !revealed && "bg-card",
+                  !revealed && chosen && "bg-primary text-primary-foreground",
+                  revealed && isRight && "flash-hit bg-success text-success-foreground",
+                  revealed && chosen && !isRight && "shake bg-danger text-primary-foreground",
+                  revealed && !isRight && !chosen && "bg-card opacity-60",
                 )}
               >
                 <span
                   className={cn(
-                    "grid size-6 shrink-0 place-items-center rounded-[2px] border text-xs font-bold",
-                    chosen && !revealed && "border-primary bg-primary text-primary-foreground",
+                    "grid size-7 shrink-0 place-items-center rounded-[2px] border-2 border-current text-xs font-black",
                   )}
                 >
                   {String.fromCharCode(65 + i)}
@@ -85,8 +100,8 @@ export function QuestionView({
                 <span className="min-w-0 flex-1">
                   <Inline text={opt} />
                 </span>
-                {revealed && isRight && <CheckCircle2 className="size-4 text-success" />}
-                {revealed && chosen && !isRight && <XCircle className="size-4 text-danger" />}
+                {revealed && isRight && <CheckCircle2 className="size-4" />}
+                {revealed && chosen && !isRight && <XCircle className="size-4" />}
               </button>
             );
           })}
