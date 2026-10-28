@@ -1,0 +1,92 @@
+/* Two ways to play: .dark is the Arcade cabinet, :root is the same cabinet in daylight (cream paper, aubergine ink). Ember leads, the hit colour answers. */
+:root {
+  color-scheme: light;
+  --radius: 0.25rem;
+  --bar: 2px;
+
+  --background: oklch(0.965 0.03 92);
+  --foreground: oklch(0.2 0.05 312);
+  --card: oklch(0.985 0.018 92);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.985 0.018 92);
+  --popover-foreground: var(--foreground);
+  --muted: oklch(0.925 0.035 92);
+  --muted-foreground: oklch(0.45 0.04 312);
+  --border: oklch(0.8 0.04 92);
+  --input: oklch(0.55 0.05 312);
+  --ring: oklch(0.2 0.05 312);
+  --primary: oklch(0.66 0.2 40);
+  --primary-ink: oklch(0.5 0.19 40);
+  --scan: 5%;
+  --primary-foreground: oklch(0.15 0.04 312);
+  --accent: oklch(0.93 0.09 105);
+  --accent-foreground: oklch(0.28 0.07 312);
+  --secondary: oklch(0.925 0.035 92);
+  --secondary-foreground: var(--foreground);
+  --success: oklch(0.5 0.14 150);
+  --success-foreground: oklch(0.985 0.01 150);
+  --success-soft: oklch(0.93 0.07 150);
+  --danger: oklch(0.52 0.2 27);
+  --danger-soft: oklch(0.94 0.04 27);
+  --warning: oklch(0.58 0.15 70);
+  --warning-soft: oklch(0.95 0.08 90);
+  --code-bg: oklch(0.95 0.025 92);
+
+  --hit: oklch(0.2 0.05 312);
+  --edge: oklch(0.2 0.05 312);
+  --rule: oklch(0.8 0.04 92);
+  --crt-r: oklch(0.63 0.24 25);
+  --crt-c: oklch(0.78 0.14 200);
+  --shade: oklch(0.2 0.05 312);
+
+  --syn-keyword: oklch(0.5 0.2 300);
+  --syn-string: oklch(0.5 0.13 150);
+  --syn-number: oklch(0.55 0.17 45);
+  --syn-title: oklch(0.48 0.17 255);
+  --syn-meta: oklch(0.52 0.1 30);
+
+  --dur-micro: 120ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root.dark {
+  color-scheme: dark;
+  --background: oklch(0.14 0.04 312);
+  --foreground: oklch(0.95 0.014 315);
+  --card: oklch(0.185 0.042 312);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.21 0.044 312);
+  --popover-foreground: var(--foreground);
+  --muted: oklch(0.23 0.045 312);
+  --muted-foreground: oklch(0.71 0.024 315);
+  --border: oklch(0.34 0.05 312);
+  --input: oklch(0.6 0.04 315);
+  --ring: oklch(0.88 0.195 115);
+  --primary: oklch(0.66 0.215 40);
+  --primary-ink: oklch(0.72 0.19 40);
+  --scan: 14%;
+  --primary-foreground: oklch(0.14 0.04 312);
+  --accent: oklch(0.28 0.06 312);
+  --accent-foreground: oklch(0.88 0.195 115);
+  --secondary: oklch(0.23 0.045 312);
+  --secondary-foreground: var(--foreground);
+  --success: oklch(0.78 0.18 150);
+  --success-foreground: oklch(0.14 0.04 312);
+  --success-soft: oklch(0.26 0.06 150);
+  --danger: oklch(0.7 0.2 25);
+  --danger-soft: oklch(0.27 0.07 25);
+  --warning: oklch(0.85 0.17 90);
+  --warning-soft: oklch(0.3 0.06 90);
+  --code-bg: oklch(0.165 0.04 312);
+
+  --hit: oklch(0.88 0.195 115);
+  --edge: oklch(0.95 0.014 315);
+  --rule: oklch(0.34 0.05 312);
+  --shade: oklch(0.08 0.02 315);
+
+  --syn-keyword: oklch(0.78 0.16 305);
+  --syn-string: oklch(0.82 0.16 140);
+  --syn-number: oklch(0.8 0.15 60);
+  --syn-title: oklch(0.8 0.12 215);
+  --syn-meta: oklch(0.8 0.08 40);
+}
