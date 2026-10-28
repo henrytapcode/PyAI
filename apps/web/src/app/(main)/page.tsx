@@ -4,6 +4,7 @@ import { ArrowRight, Check, CheckCircle2, Circle, Clock, Trophy } from "lucide-r
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
+import { XpFigure } from "@/components/count-up";
 import { PhaseIcon } from "@/components/phase-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -123,7 +124,7 @@ export default function DashboardPage() {
           <Link href="/review/" className="group relative block">
             <ScoreCell label={t("due")} value={data.due} tone="ember" arrow={data.due > 0} />
           </Link>
-          <ScoreCell label={t("totalXp")} value={p.xp} tone="acid" />
+          <ScoreCell label={t("totalXp")} value={<XpFigure value={p.xp} />} tone="acid" />
         </div>
       </Card>
 

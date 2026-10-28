@@ -172,6 +172,7 @@
     "shortcutCheck": "Ctrl+Shift+Enter",
     "testsPassed": "{passed}/{total} tests passed",
     "allPassed": "All tests passed!",
+    "levelClear": "Level clear",
     "importError": "Your code could not run",
     "line": "line {line}",
     "blankHint": "There is still a ___ blank to fill in.",

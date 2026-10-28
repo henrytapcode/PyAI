@@ -172,6 +172,7 @@
     "shortcutCheck": "Ctrl+Shift+Enter",
     "testsPassed": "Qua {passed}/{total} test",
     "allPassed": "Qua toàn bộ test!",
+    "levelClear": "Qua màn",
     "importError": "Code của bạn chưa chạy được",
     "line": "dòng {line}",
     "blankHint": "Vẫn còn chỗ trống ___ chưa điền.",

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { CodeEditor } from "@/components/code-editor";
 import { Button } from "@/components/ui/button";
+import { CountUp } from "@/components/count-up";
 import { Tooltip } from "@/components/ui/tooltip";
 import { python, usePythonStatus } from "@/lib/python";
 import type { TestRunResult } from "@/lib/types";
@@ -244,9 +245,27 @@ function TestResults({ result, busy }: { result: TestRunResult | null; busy: boo
   }
   return (
     <div className="space-y-1.5 font-sans">
-      <div className={cn("mb-2 flex items-center gap-2 text-sm font-bold", result.ok ? "text-success" : "text-foreground")}>
-        {result.ok ? <CheckCircle2 className="size-4" /> : <CircleDashed className="size-4 text-muted-foreground" />}
-        {result.ok ? t("allPassed") : t("testsPassed", { passed: result.passed, total: result.total })}
+      <div className="mb-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+        <div className="flex items-baseline gap-1">
+          <span className={cn("figure text-[48px]", result.ok ? "text-hit" : "text-primary")}>
+            <CountUp value={result.passed} />
+          </span>
+          <span className="text-sm font-bold text-muted-foreground">/{result.total}</span>
+        </div>
+        <div className="flex min-w-24 flex-1 flex-wrap gap-1" aria-hidden>
+          {result.tests.map((tc, i) => (
+            <span
+              key={tc.name}
+              style={{ animationDelay: `${i * 70}ms` }}
+              className={cn("animate-rise h-3 w-5 rounded-[2px] border-2", tc.status === "passed" ? "border-success bg-success" : "border-danger bg-danger")}
+            />
+          ))}
+        </div>
+        {result.ok && <span className="display text-2xl text-primary">{t("levelClear")}</span>}
+        <div className={cn("flex w-full items-center gap-2 text-sm font-bold", result.ok ? "text-success" : "text-foreground")}>
+          {result.ok ? <CheckCircle2 className="size-4" /> : <CircleDashed className="size-4 text-muted-foreground" />}
+          {result.ok ? t("allPassed") : t("testsPassed", { passed: result.passed, total: result.total })}
+        </div>
       </div>
       {result.tests.map((tc) => (
         <div key={tc.name} className="animate-rise">

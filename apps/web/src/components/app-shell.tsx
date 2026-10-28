@@ -17,6 +17,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { XpFigure } from "@/components/count-up";
 import { LanguageSwitch, ThemeToggle } from "@/components/controls";
 import { Logo } from "@/components/providers";
 import { useProgress } from "@/lib/progress";
@@ -92,7 +93,7 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
             <div className="figure text-[40px] text-primary">{days}</div>
           </div>
           <div className="text-right">
-            <div className="figure text-[40px] text-hit">{xp}</div>
+            <XpFigure value={xp} className="figure text-[40px] text-hit" />
             <div className="mt-1 text-xs font-bold text-muted-foreground">XP</div>
           </div>
         </div>
