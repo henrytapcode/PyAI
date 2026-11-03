@@ -99,6 +99,14 @@ Without configuration the app runs in guest mode and keeps progress in the brows
 
 The anon key is public by design; data is protected by row level security. On sign-in the copy with more XP wins, and later changes upload automatically.
 
+### Optional AI Assistant (RAG Backend)
+
+PyAI includes an optional AI-powered teaching assistant backed by [`pyai-rag`](https://github.com/henrytapcode/pyai-rag). The assistant answers questions on lesson materials and provides 3-tier progressive hints for coding exercises without spoiling full solutions.
+
+- **Configuration:** Set `NEXT_PUBLIC_RAG_URL` to your backend URL (e.g. `http://127.0.0.1:8000` for local dev or a secure Cloudflare Tunnel endpoint like `https://rag.yourdomain.com`). In GitHub Pages, add `NEXT_PUBLIC_RAG_URL` as a repository Variable.
+- **Graceful degradation:** If `NEXT_PUBLIC_RAG_URL` is unset or empty, the assistant widget is completely hidden and the platform operates normally in standard static mode.
+- **CORS & Tunneling:** When serving via Cloudflare Tunnel, ensure your backend CORS configuration (`api.cors_origins` in `pyai-rag/config.yaml`) whitelists `https://henrytapcode.github.io` (and `http://localhost:3000` for local dev). See the `pyai-rag` README for setup details.
+
 ### Contributing a lesson
 
 Follow the lesson template (folder layout, tone, quiz rules), then run the quality gates above. All three must be green before a lesson is considered done.
@@ -186,6 +194,14 @@ Nếu không cấu hình, app chạy ở chế độ khách và lưu tiến đ�
 4. Thêm URL và anon key của project vào **variables** của repo (Settings → Secrets and variables → Actions → Variables): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Khi dev local, chép `apps/web/.env.example` thành `apps/web/.env.local`.
 
 Anon key vốn là public; dữ liệu được bảo vệ bằng row level security. Khi đăng nhập, bản có nhiều XP hơn sẽ thắng, các thay đổi sau đó tự động tải lên.
+
+### Trợ giảng AI tùy chọn (RAG Backend)
+
+PyAI tích hợp khung chat trợ giảng AI thông minh kết nối với backend [`pyai-rag`](https://github.com/henrytapcode/pyai-rag). Trợ giảng giải đáp thắc mắc lý thuyết và đưa gợi ý bài tập theo 3 tầng lũy tiến mà không làm lộ đáp án hoàn chỉnh.
+
+- **Cấu hình:** Đặt `NEXT_PUBLIC_RAG_URL` trỏ tới URL backend (ví dụ `http://127.0.0.1:8000` khi chạy local hoặc endpoint Cloudflare Tunnel như `https://rag.yourdomain.com`). Trên GitHub Pages, cấu hình biến này trong repository Variables (`vars.NEXT_PUBLIC_RAG_URL`).
+- **Tự động ẩn:** Nếu `NEXT_PUBLIC_RAG_URL` không được đặt hoặc rỗng, nút và khung chat trợ giảng sẽ ẩn hoàn toàn, trang web vận hành bình thường như trước.
+- **CORS & Cloudflare Tunnel:** Khi triển khai qua Cloudflare Tunnel, đảm bảo cấu hình CORS ở backend (`api.cors_origins` trong `pyai-rag/config.yaml`) cho phép origin `https://henrytapcode.github.io` (và `http://localhost:3000` khi dev). Tham khảo README của repo `pyai-rag` để biết thêm chi tiết.
 
 ### Đóng góp bài học
 
