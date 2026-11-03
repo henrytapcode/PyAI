@@ -20,6 +20,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ExercisePanel, ExercisePicker } from "@/components/lesson/exercise-panel";
 import { LessonQuiz } from "@/components/lesson/lesson-quiz";
+import { RagChat } from "@/components/lesson/rag-chat";
 import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -376,6 +377,8 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <RagChat lessonId={meta.id} exerciseId={editingExercise ? exercise.id : null} />
     </div>
   );
 }
