@@ -184,6 +184,7 @@
     "playgroundTitle": "Sân chơi code",
     "playgroundSubtitle": "Nháp code với Python thật ngay trong trình duyệt. NumPy và Pandas tự tải khi import lần đầu.",
     "templates": "Mẫu",
+    "templatesLabel": "Mẫu:",
     "loading": "Đang tải editor…"
   },
   "quiz": {
