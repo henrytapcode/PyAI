@@ -1,15 +1,15 @@
 "use client";
 
-import { ArrowRight, Check, CheckCircle2, Circle, Clock, Trophy } from "lucide-react";
+import { ArrowRight, CheckCircle2, Circle, Clock, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { XpFigure } from "@/components/count-up";
-import { PhaseIcon } from "@/components/phase-icon";
+import { RoadmapTray } from "@/components/roadmap-tray";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress, Ring } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress";
 import { catalog, phaseOfLesson } from "@/lib/content";
 import { Tx, useLoc } from "@/lib/i18n";
 import { useProgress } from "@/lib/progress";
@@ -18,7 +18,6 @@ import {
   dueKeys,
   isLessonComplete,
   lessonParts,
-  lessonStatus,
   nextLesson,
   overallProgress,
   phaseProgress,
@@ -31,7 +30,6 @@ import { cn, percent, todayKey } from "@/lib/utils";
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
-  const ts = useTranslations("status");
   const loc = useLoc();
   const p = useProgress();
 
@@ -61,143 +59,131 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="animate-rise">
-        <p className="text-sm font-bold text-muted-foreground">{isNew ? t("greetingNew") : t("greeting")}</p>
-        <h1 className="display mt-2 text-4xl sm:text-5xl">PyAI Path</h1>
+      <div className="flex flex-wrap items-end justify-between gap-4 animate-rise">
+        <h1 className="text-2xl font-bold tracking-tight">
+          {isNew ? t("greetingNew") : t("greeting")}
+        </h1>
+
+        <div className="grid w-full grid-cols-4 gap-2 sm:w-auto sm:flex sm:items-end sm:divide-x sm:divide-border sm:gap-0">
+          <div className="text-left sm:pr-5">
+            <div className="font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+              {data.days}
+            </div>
+            <div className="text-xs text-muted-foreground">{t("streak")}</div>
+          </div>
+          <div className="text-left sm:px-5">
+            <div className="flex items-baseline gap-1 font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+              <span>{data.today}</span>
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">/{goal}</span>
+            </div>
+            <div className="text-xs text-muted-foreground">{t("xpToday")}</div>
+          </div>
+          <Link
+            href="/review/"
+            className="group relative block text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:px-5"
+          >
+            <div className="flex items-center gap-1 font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+              <span>{data.due}</span>
+              {data.due > 0 && (
+                <ArrowRight
+                  className="size-3.5 text-foreground transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transform-none"
+                  aria-hidden="true"
+                />
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground">{t("due")}</div>
+          </Link>
+          <div className="text-left sm:pl-5">
+            <div className="font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+              <XpFigure value={p.xp} />
+            </div>
+            <div className="text-xs text-muted-foreground">{t("totalXp")}</div>
+          </div>
+        </div>
       </div>
 
-      {/* Continue: the cabinet's start screen */}
-      <Card className="animate-rise">
-        <CardContent className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
-          {data.next ? (
-            <>
-              <div className="grid size-14 shrink-0 place-items-center rounded-[4px] border-2 border-edge bg-primary text-primary-foreground shadow-[4px_4px_0_var(--hit)]">
-                <PhaseIcon name={data.nextPhase?.icon ?? "code"} className="size-7" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-3 text-sm font-bold">
-                  <span className="text-primary-ink">{isNew ? t("startTitle") : t("continueTitle")}</span>
-                  <span className="text-muted-foreground">{loc.t(data.nextPhase?.title)}</span>
-                </div>
-                <div className="mt-1 text-2xl font-black leading-tight tracking-tight">
-                  <Tx value={data.next.title} />
-                </div>
-                <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">{loc.t(data.next.summary)}</div>
-                <div className="mt-3 flex items-center gap-3">
-                  <Progress value={lessonParts(p, data.next).fraction} className="max-w-xs" />
-                  {data.next.duration && (
-                    <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground">
-                      <Clock className="size-3.5" />
-                      {tc("minutes", { count: data.next.duration })}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <Button asChild size="lg" className="relative z-10 shrink-0">
-                <Link href={`/lesson/${data.next.id}/`}>
-                  {isNew ? tc("start") : tc("continue")}
-                  <ArrowRight />
-                </Link>
-              </Button>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Trophy className="size-10 text-hit" />
-              <div>
-                <div className="font-black">{t("allCaughtUp")}</div>
-                <Button asChild variant="link" className="px-0">
-                  <Link href="/exams/">
-                    {catalog.exams.length ? loc.t(catalog.exams[0].title) : ""} <ArrowRight />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Score line: figures parted by bar rules, ember and acid taking turns */}
-      <Card className="animate-rise">
-        <div className="grid grid-cols-2 lg:grid-cols-4 [&>*]:px-5 [&>*]:py-5 [&>*:nth-child(even)]:border-l-2 lg:[&>*:nth-child(n+2)]:border-l-2 max-lg:[&>*:nth-child(n+3)]:border-t-2">
-          <ScoreCell label={t("streak")} value={data.days} tone="ember" />
-          <ScoreCell label={t("xpToday")} value={data.today} tone="acid" suffix={`/${goal}`} />
-          <Link href="/review/" className="group relative block">
-            <ScoreCell label={t("due")} value={data.due} tone="ember" arrow={data.due > 0} />
-          </Link>
-          <ScoreCell label={t("totalXp")} value={<XpFigure value={p.xp} />} tone="acid" />
-        </div>
-      </Card>
-
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Level select */}
-        <Card className="animate-rise lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between">
-            <div>
-              <CardTitle>{t("skillTree")}</CardTitle>
-              <CardDescription className="flex flex-wrap gap-x-4">
-                <span>
-                  {t("lessonsDone")}: {tc("of", { done: data.overall.lessonsDone, total: data.overall.lessonsReady })}
-                </span>
-                <span>
-                  {t("exercisesPassed")}: {tc("of", { done: data.overall.exercisesPassed, total: data.overall.exercisesTotal })}
-                </span>
-              </CardDescription>
-            </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/learn/">
-                {t("openRoadmap")} <ArrowRight />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {data.phases.map(({ ph, prog }) => {
-              const active = ph.id === data.nextPhase?.id;
-              return (
-                <div key={ph.id} data-live={active} className="row-cursor rounded-[4px] px-3 py-2.5">
-                  <div className="flex items-center gap-3">
-                    <Ring value={prog.skipped ? 1 : prog.fraction} size={40} stroke={4}>
-                      <PhaseIcon name={ph.icon} className={cn("size-4", !prog.ready && "opacity-60")} />
-                    </Ring>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold opacity-70">{ph.order}</span>
-                        <span className={cn("truncate text-sm font-bold", !prog.ready && "opacity-60")}>{loc.t(ph.title)}</span>
-                        {prog.skipped && <Badge variant="muted">{ts("skipped")}</Badge>}
-                        {!prog.ready && <Badge variant="outline" className={cn(active && "border-current text-current")}>{tc("comingSoon")}</Badge>}
-                      </div>
-                      {active && (
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {ph.lessons.map((l) => {
-                            const st = lessonStatus(p, { ...l, phaseId: ph.id });
-                            return (
-                              <Link
-                                key={l.id}
-                                href={l.ready ? `/lesson/${l.id}/` : "/learn/"}
-                                title={`${loc.t(l.title)}: ${ts(st)}`}
-                                className={cn(
-                                  "grid size-8 place-items-center rounded-[2px] border-2 text-[12px] font-bold text-foreground transition-transform hover:-translate-y-0.5 active:translate-y-0.5",
-                                  st === "completed" && "border-success bg-success text-success-foreground",
-                                  st === "in_progress" && "border-edge bg-accent text-accent-foreground",
-                                  (st === "available" || st === "locked") && "border-edge bg-card",
-                                  st === "skipped" && "border-border bg-muted text-muted-foreground",
-                                  st === "coming_soon" && "border-dashed border-border bg-card text-muted-foreground",
-                                )}
-                              >
-                                {st === "completed" ? <Check className="size-3.5" /> : l.order}
-                              </Link>
-                            );
-                          })}
-                        </div>
+        {/* Left column: next lesson + roadmap tray */}
+        <div className="space-y-6 lg:col-span-2">
+          {/* Next lesson card */}
+          <Card className="animate-rise">
+            <CardContent className="p-6">
+              {data.next ? (
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="muted">{loc.t(data.nextPhase?.title)}</Badge>
+                      <span className="text-xs font-bold text-primary-ink">
+                        {isNew ? t("startTitle") : t("continueTitle")}
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-bold leading-tight tracking-tight">
+                      <Tx value={data.next.title} />
+                    </h2>
+                    <p className="line-clamp-2 text-sm text-muted-foreground">
+                      {loc.t(data.next.summary)}
+                    </p>
+                    <div className="flex items-center gap-3 pt-1">
+                      <Progress value={lessonParts(p, data.next).fraction} className="max-w-xs" />
+                      {data.next.duration && (
+                        <span className="flex items-center gap-1 font-mono text-xs font-bold tabular-nums text-muted-foreground">
+                          <Clock className="size-3.5" aria-hidden="true" />
+                          {tc("minutes", { count: data.next.duration })}
+                        </span>
                       )}
                     </div>
-                    <span className="text-xs font-bold tabular-nums opacity-70">{prog.ready ? percent(prog.skipped ? 1 : prog.fraction) : ""}</span>
+                  </div>
+                  <Button asChild size="lg" className="shrink-0">
+                    <Link href={`/lesson/${data.next.id}/`}>
+                      {isNew ? tc("start") : tc("continue")}
+                      <ArrowRight aria-hidden="true" />
+                    </Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <Trophy className="size-10 text-primary" aria-hidden="true" />
+                  <div>
+                    <div className="font-bold">{t("allCaughtUp")}</div>
+                    <Button asChild variant="link" className="px-0">
+                      <Link href="/exams/">
+                        {catalog.exams.length ? loc.t(catalog.exams[0].title) : ""}{" "}
+                        <ArrowRight aria-hidden="true" />
+                      </Link>
+                    </Button>
                   </div>
                 </div>
-              );
-            })}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
 
+          {/* Roadmap tray section */}
+          <Card className="animate-rise">
+            <CardHeader className="flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle>{t("skillTree")}</CardTitle>
+                <CardDescription className="mt-1 flex flex-wrap gap-x-4">
+                  <span>
+                    {t("lessonsDone")}: {tc("of", { done: data.overall.lessonsDone, total: data.overall.lessonsReady })}
+                  </span>
+                  <span>
+                    {t("exercisesPassed")}: {tc("of", { done: data.overall.exercisesPassed, total: data.overall.exercisesTotal })}
+                  </span>
+                </CardDescription>
+              </div>
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
+                <Link href="/learn/">
+                  {t("openRoadmap")} <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <RoadmapTray variant="compact" nextId={data.next?.id} />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column: weak topics + mastery */}
         <div className="space-y-6">
           {/* Weak topics */}
           <Card className="animate-rise">
@@ -213,7 +199,9 @@ export default function DashboardPage() {
                     <div key={w.topic}>
                       <div className="mb-1 flex justify-between text-sm font-bold">
                         <span>{loc.t(catalog.topics[w.topic]) ?? w.topic}</span>
-                        <span className="text-xs text-muted-foreground">{t("accuracy", { rate: percent(w.rate) })}</span>
+                        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                          {t("accuracy", { rate: percent(w.rate) })}
+                        </span>
                       </div>
                       <Progress value={w.rate} tone={w.rate >= 0.7 ? "success" : "primary"} />
                     </div>
@@ -234,7 +222,11 @@ export default function DashboardPage() {
               <CardTitle>{t("mastery")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2.5 text-sm">
-              <Criterion done={(phase1?.exerciseRate ?? 0) >= 0.8} label={t("masteryExercises")} detail={percent(phase1?.exerciseRate ?? 0)} />
+              <Criterion
+                done={(phase1?.exerciseRate ?? 0) >= 0.8}
+                label={t("masteryExercises")}
+                detail={percent(phase1?.exerciseRate ?? 0)}
+              />
               <Criterion done={!!phase1?.phaseTestPassed} label={t("masteryPhaseTest")} />
               <Criterion done={projectsDone >= 4} label={t("masteryProjects")} detail={`${projectsDone}/4`} />
               <Criterion done={mockPassed} label={t("masteryMock")} />
@@ -243,7 +235,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Activity heatmap: ember while building up, acid once the daily goal is hit */}
+      {/* Activity heatmap */}
       <Card className="animate-rise">
         <CardHeader>
           <CardTitle>{t("activity")}</CardTitle>
@@ -258,11 +250,11 @@ export default function DashboardPage() {
                     key={d.key}
                     title={`${d.key}: ${d.xp} XP`}
                     className={cn(
-                      "size-3.5 rounded-[2px] transition-transform hover:scale-150",
+                      "size-3.5 rounded-sm transition-opacity hover:opacity-80",
                       lvl === 0 && "bg-muted",
                       lvl === 1 && "bg-primary/35",
                       lvl === 2 && "bg-primary",
-                      lvl === 3 && "bg-hit",
+                      lvl === 3 && "bg-primary-ink",
                     )}
                   />
                 );
@@ -271,12 +263,12 @@ export default function DashboardPage() {
           </div>
           <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
             {t("less")}
-            <span className="size-3 rounded-[2px] bg-muted" />
-            <span className="size-3 rounded-[2px] bg-primary/35" />
-            <span className="size-3 rounded-[2px] bg-primary" />
-            <span className="size-3 rounded-[2px] bg-hit" />
+            <span className="size-3 rounded-sm bg-muted" />
+            <span className="size-3 rounded-sm bg-primary/35" />
+            <span className="size-3 rounded-sm bg-primary" />
+            <span className="size-3 rounded-sm bg-primary-ink" />
             {t("more")}
-            <span className="ml-auto">{t("goal", { goal })}</span>
+            <span className="ml-auto font-mono tabular-nums">{t("goal", { goal })}</span>
           </div>
         </CardContent>
       </Card>
@@ -284,25 +276,22 @@ export default function DashboardPage() {
   );
 }
 
-function ScoreCell({ label, value, tone, suffix, arrow }: { label: string; value: React.ReactNode; tone: "ember" | "acid"; suffix?: string; arrow?: boolean }) {
-  return (
-    <div className="relative z-10 transition-transform group-hover:-translate-y-0.5">
-      <div className="flex items-baseline gap-1">
-        <span className={cn("figure text-[44px] sm:text-[52px]", tone === "ember" ? "text-primary" : "text-hit")}>{value}</span>
-        {suffix && <span className="text-sm font-bold text-muted-foreground">{suffix}</span>}
-        {arrow && <ArrowRight className="ml-1 size-4 self-center text-foreground transition-transform group-hover:translate-x-1" />}
-      </div>
-      <div className="mt-2 truncate text-sm font-bold text-muted-foreground">{label}</div>
-    </div>
-  );
-}
-
 function Criterion({ done, label, detail }: { done: boolean; label: string; detail?: string }) {
   return (
     <div className="flex items-center gap-2.5">
-      {done ? <CheckCircle2 className="size-4 text-success" /> : <Circle className="size-4 text-muted-foreground" />}
-      <span className={cn("flex-1 font-bold", done && "text-muted-foreground line-through decoration-success decoration-2")}>{label}</span>
-      {detail && <span className="text-xs font-bold tabular-nums text-muted-foreground">{detail}</span>}
+      {done ? (
+        <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden="true" />
+      ) : (
+        <Circle className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      )}
+      <span className={cn("flex-1 font-bold", done && "text-muted-foreground line-through")}>
+        {label}
+      </span>
+      {detail && (
+        <span className="font-mono text-xs font-bold tabular-nums text-muted-foreground">
+          {detail}
+        </span>
+      )}
     </div>
   );
 }
