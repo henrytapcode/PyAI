@@ -45,10 +45,10 @@ export default function OnboardingPage() {
           <p className="mt-3 max-w-md text-muted-foreground">{t("intro")}</p>
         </div>
 
-        <div className="rounded-[4px] border bg-card p-6 sm:p-8">
+        <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
           <div className="mb-6 flex items-center gap-2">
             {Array.from({ length: total }, (_, i) => (
-              <div key={i} className={cn("h-1.5 flex-1 rounded-[2px] transition-colors", i <= step ? "bg-primary" : "bg-muted")} />
+              <div key={i} className={cn("h-1.5 flex-1 rounded-full", i <= step ? "bg-primary" : "bg-muted")} />
             ))}
           </div>
           <div className="mb-1 text-xs text-muted-foreground">{t("step", { n: step + 1, total })}</div>
@@ -56,9 +56,15 @@ export default function OnboardingPage() {
           {step === 0 && (
             <div key="lang" className="animate-rise">
               <h2 className="mb-4 text-lg font-bold">{t("chooseLanguage")}</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div role="radiogroup" aria-label={t("chooseLanguage")} className="grid gap-3 sm:grid-cols-2">
                 {(["vi", "en"] as Locale[]).map((l) => (
-                  <Choice key={l} active={locale === l} onClick={() => setLocale(l)} title={tl(l)} code={l.toUpperCase()} />
+                  <Choice
+                    key={l}
+                    active={locale === l}
+                    onClick={() => setLocale(l)}
+                    title={tl(l)}
+                    code={l === "vi" ? "VI" : "EN"}
+                  />
                 ))}
               </div>
             </div>
@@ -67,9 +73,21 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div key="track" className="animate-rise">
               <h2 className="mb-4 text-lg font-bold">{t("chooseTrack")}</h2>
-              <div className="grid gap-3">
-                <Choice active={track === "A"} onClick={() => setTrack("A")} title={t("trackA")} desc={t("trackADesc")} icon={<Sprout className="size-5" />} />
-                <Choice active={track === "B"} onClick={() => setTrack("B")} title={t("trackB")} desc={t("trackBDesc")} icon={<Compass className="size-5" />} />
+              <div role="radiogroup" aria-label={t("chooseTrack")} className="grid gap-3">
+                <Choice
+                  active={track === "A"}
+                  onClick={() => setTrack("A")}
+                  title={t("trackA")}
+                  desc={t("trackADesc")}
+                  icon={<Sprout className="size-5" aria-hidden />}
+                />
+                <Choice
+                  active={track === "B"}
+                  onClick={() => setTrack("B")}
+                  title={t("trackB")}
+                  desc={t("trackBDesc")}
+                  icon={<Compass className="size-5" aria-hidden />}
+                />
               </div>
             </div>
           )}
@@ -77,7 +95,7 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div key="goal" className="animate-rise">
               <h2 className="mb-4 text-lg font-bold">{t("goal")}</h2>
-              <div className="grid gap-3">
+              <div role="radiogroup" aria-label={t("goal")} className="grid gap-3">
                 {[
                   { v: 20, label: t("goalCasual") },
                   { v: 30, label: t("goalRegular") },
@@ -95,11 +113,11 @@ export default function OnboardingPage() {
             </Button>
             {step < total - 1 ? (
               <Button onClick={() => setStep(step + 1)} disabled={step === 1 && !track}>
-                {tc("next")} <ArrowRight />
+                {tc("next")} <ArrowRight aria-hidden />
               </Button>
             ) : (
               <Button size="lg" onClick={done}>
-                {track === "B" ? t("toPlacement") : t("letsGo")} <ArrowRight />
+                {track === "B" ? t("toPlacement") : t("letsGo")} <ArrowRight aria-hidden />
               </Button>
             )}
           </div>
@@ -109,23 +127,61 @@ export default function OnboardingPage() {
   );
 }
 
-function Choice({ active, onClick, title, desc, code, icon }: { active: boolean; onClick: () => void; title: string; desc?: string; code?: string; icon?: React.ReactNode }) {
+function Choice({
+  active,
+  onClick,
+  title,
+  desc,
+  code,
+  icon,
+}: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  desc?: string;
+  code?: string;
+  icon?: React.ReactNode;
+}) {
   return (
     <button
+      type="button"
+      role="radio"
+      aria-checked={active}
       onClick={onClick}
       className={cn(
-        "flex items-start gap-3 rounded-[4px] border p-4 text-left transition",
-        active ? "border-primary bg-accent/50 ring-1 ring-primary" : "hover:border-primary/40 hover:bg-muted/50",
+        "press flex w-full items-start gap-3 rounded-lg border p-4 text-left outline-none focus-visible:outline-2 outline-ring focus-visible:outline-ring",
+        active
+          ? "border-primary bg-success-soft text-foreground [--press-edge:var(--primary-ink)]"
+          : "bg-card text-foreground",
       )}
     >
-      {code && <span className="grid size-9 shrink-0 place-items-center rounded-[4px] bg-muted font-mono text-sm font-bold text-primary">{code}</span>}
-      {icon && <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-[4px] bg-muted text-primary">{icon}</span>}
+      {code && (
+        <span
+          className="grid size-9 shrink-0 place-items-center rounded-md bg-muted font-mono text-sm font-bold text-primary"
+          aria-hidden
+        >
+          {code}
+        </span>
+      )}
+      {icon && (
+        <span
+          className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-md bg-muted font-mono text-sm font-bold text-primary"
+          aria-hidden
+        >
+          {icon}
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block font-medium">{title}</span>
         {desc && <span className="mt-1 block text-sm text-muted-foreground">{desc}</span>}
       </span>
-      <span className={cn("grid size-5 shrink-0 place-items-center rounded-[2px] border", active && "border-primary bg-primary text-primary-foreground")}>
-        {active && <Check className="size-3" />}
+      <span
+        className={cn(
+          "grid size-5 shrink-0 place-items-center rounded-md border",
+          active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+        )}
+      >
+        {active && <Check className="size-3" aria-hidden />}
       </span>
     </button>
   );

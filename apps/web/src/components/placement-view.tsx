@@ -33,21 +33,21 @@ export function PlacementView({ exam }: { exam: Exam }) {
       </header>
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <div className="mb-8 text-center animate-rise">
-          <Compass className="mx-auto size-9 text-primary" />
-          <h1 className="mt-3 text-2xl font-bold">{t("title")}</h1>
+          <Compass className="mx-auto size-9 text-primary" aria-hidden />
+          <h1 className="mt-3 text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle", { score: percent(exam.pass_score) })}</p>
         </div>
         {outcome !== null && (
-          <Card className="mx-auto mb-6 max-w-3xl border-primary/30 bg-accent/40 animate-rise">
+          <Card className="mx-auto mb-6 max-w-3xl bg-accent animate-rise">
             <CardContent className="flex flex-wrap items-center gap-4 p-5">
-              <Rocket className="size-6 text-primary" />
+              <Rocket className="size-6 text-primary" aria-hidden />
               <div className="flex-1">
                 <div className="font-bold">{outcome ? t("passedTitle") : t("failedTitle")}</div>
                 <div className="text-sm text-muted-foreground">{outcome ? t("passedBody") : t("failedBody")}</div>
               </div>
               <Button asChild>
                 <Link href="/">
-                  {tc("continue")} <ArrowRight />
+                  {tc("continue")} <ArrowRight aria-hidden />
                 </Link>
               </Button>
             </CardContent>
