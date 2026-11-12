@@ -261,7 +261,16 @@
     "rules": "The timer starts when you press Start. You can move between questions freely. Answers are checked when you submit.",
     "answered": "{done}/{total} answered",
     "history": "History",
-    "lockedMock": "The final mock exam unlocks with more phases."
+    "lockedMock": "The final mock exam unlocks with more phases.",
+    "colExam": "Exam",
+    "colQuestions": "Questions",
+    "colMinutes": "Minutes",
+    "colPass": "Pass mark",
+    "colBest": "Best score",
+    "colAttempts": "Attempts",
+    "questionNumber": "Question {n}",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
   },
   "placement": {
     "title": "Placement test",

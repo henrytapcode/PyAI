@@ -1,6 +1,16 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Flag, RotateCcw, Timer, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Flag,
+  RotateCcw,
+  Timer,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -105,16 +115,16 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
             {exam.description && <p className="mt-2 text-muted-foreground">{loc.t(exam.description)}</p>}
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="flex items-center gap-1.5 rounded-[4px] bg-muted px-3 py-1.5">
-              <Flag className="size-4" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 tabular-nums">
+              <Flag className="size-4 text-muted-foreground" aria-hidden="true" />
               {tc("questions", { count: exam.questions.length })}
             </span>
-            <span className="flex items-center gap-1.5 rounded-[4px] bg-muted px-3 py-1.5">
-              <Clock className="size-4" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 tabular-nums">
+              <Clock className="size-4 text-muted-foreground" aria-hidden="true" />
               {t("duration", { count: exam.duration_min })}
             </span>
-            <span className="flex items-center gap-1.5 rounded-[4px] bg-muted px-3 py-1.5">
-              <CheckCircle2 className="size-4" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 tabular-nums">
+              <CheckCircle2 className="size-4 text-muted-foreground" aria-hidden="true" />
               {t("passScore", { score: percent(exam.pass_score) })}
             </span>
           </div>
@@ -124,7 +134,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
               <div className="mb-2 text-sm font-bold">{t("history")}</div>
               <div className="flex flex-wrap gap-2">
                 {history.slice(-6).map((h, i) => (
-                  <Badge key={i} variant={h.passed ? "success" : "muted"}>
+                  <Badge key={i} variant={h.passed ? "success" : "muted"} className="font-mono tabular-nums">
                     {h.date} · {percent(h.score)}
                   </Badge>
                 ))}
@@ -133,7 +143,7 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
           )}
           <div className="flex items-center gap-3">
             <Button size="lg" onClick={start}>
-              <Timer /> {t("start")}
+              <Timer className="size-4" aria-hidden="true" /> {t("start")}
             </Button>
             {best !== undefined && <span className="text-sm text-muted-foreground">{t("best", { score: percent(best) })}</span>}
           </div>
@@ -145,11 +155,16 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
   if (phase === "result" && result) {
     return (
       <div className="mx-auto max-w-3xl space-y-6 animate-rise">
-        {timeUp && <div className="rounded-[4px] border border-warning/40 bg-warning-soft px-4 py-3 text-sm">{t("timeUp")}</div>}
+        {timeUp && (
+          <div className="flex items-center gap-2.5 rounded-lg border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-foreground">
+            <AlertTriangle className="size-5 shrink-0 text-warning-ink" aria-hidden="true" />
+            <span>{t("timeUp")}</span>
+          </div>
+        )}
         <Card>
           <CardContent className="flex flex-wrap items-center gap-6 p-8">
             <Ring value={result.score} size={120} stroke={9}>
-              <span className="text-2xl">{percent(result.score)}</span>
+              <span className="font-mono text-3xl font-bold tabular-nums">{percent(result.score)}</span>
             </Ring>
             <div className="min-w-0 flex-1">
               <div className="text-sm text-muted-foreground">{t("report")}</div>
@@ -157,13 +172,17 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
                 <Tx value={exam.title} />
               </h1>
               <Badge className="mt-2" variant={result.passed ? "success" : "danger"}>
-                {result.passed ? <CheckCircle2 /> : <XCircle />}
+                {result.passed ? (
+                  <CheckCircle2 className="size-4" aria-hidden="true" />
+                ) : (
+                  <XCircle className="size-4" aria-hidden="true" />
+                )}
                 {result.passed ? t("passed") : t("failed")} · {t("passScore", { score: percent(exam.pass_score) })}
               </Badge>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={start}>
-                <RotateCcw /> {t("retake")}
+                <RotateCcw className="size-4" aria-hidden="true" /> {t("retake")}
               </Button>
               <Button asChild>
                 <Link href={backHref}>{tc("done")}</Link>
@@ -173,15 +192,15 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
         </Card>
 
         <Card>
-          <CardContent className="space-y-3 p-6">
-            <h2 className="font-bold">{t("byTopic")}</h2>
+          <CardContent className="space-y-4 p-6">
+            <h2 className="text-lg font-bold">{t("byTopic")}</h2>
             {Object.entries(result.byTopic)
               .sort(([, a], [, b]) => a.correct / a.total - b.correct / b.total)
               .map(([topic, v]) => (
-                <div key={topic}>
-                  <div className="mb-1 flex justify-between text-sm">
-                    <span>{loc.t(catalog.topics[topic]) ?? topic}</span>
-                    <span className="tabular-nums text-muted-foreground">
+                <div key={topic} className="space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-foreground">{loc.t(catalog.topics[topic]) ?? topic}</span>
+                    <span className="font-mono tabular-nums text-muted-foreground">
                       {v.correct}/{v.total}
                     </span>
                   </div>
@@ -192,13 +211,23 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
         </Card>
 
         <div className="space-y-4">
-          <h2 className="font-bold">{t("review")}</h2>
+          <h2 className="text-lg font-bold">{t("review")}</h2>
           {exam.questions.map((q, i) => (
             <Card key={q.id}>
               <CardContent className="p-6">
-                <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
-                  {result.correct[i] ? <CheckCircle2 className="size-4 text-success" /> : <XCircle className="size-4 text-danger" />}
-                  #{i + 1}
+                <div className="mb-3 flex items-center gap-2.5 text-xs">
+                  {result.correct[i] ? (
+                    <span className="flex items-center gap-1 font-medium text-primary">
+                      <CheckCircle2 className="size-4 text-primary" aria-hidden="true" />
+                      {t("correct")}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 font-medium text-danger">
+                      <XCircle className="size-4 text-danger" aria-hidden="true" />
+                      {t("incorrect")}
+                    </span>
+                  )}
+                  <span className="font-mono tabular-nums text-muted-foreground">#{i + 1}</span>
                   {!isAnswered(q, answers[i]) && <Badge variant="muted">{t("unanswered")}</Badge>}
                 </div>
                 <QuestionView question={q} answer={answers[i]} onChange={() => {}} revealed />
@@ -214,31 +243,54 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
   const lowTime = remaining < 60;
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="sticky top-14 z-20 -mx-4 mb-6 border-b bg-background lg:top-0">
+      <div className="sticky top-14 z-20 -mx-4 mb-6 border-b border-border bg-background px-4 py-3 lg:top-0">
         <div className="flex items-center gap-3">
-          <div className={cn("flex items-center gap-1.5 rounded-[4px] px-3 py-1.5 font-mono text-sm font-bold tabular-nums", lowTime ? "bg-danger-soft text-danger animate-pulse" : "bg-muted")}>
-            <Timer className="size-4" />
+          <div
+            className={cn(
+              "flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 font-mono text-sm font-bold tabular-nums",
+              lowTime ? "bg-warning-soft text-warning-ink" : "bg-muted text-foreground",
+            )}
+            aria-live="polite"
+          >
+            {lowTime ? (
+              <AlertTriangle className="size-4 shrink-0 text-warning-ink" aria-hidden="true" />
+            ) : (
+              <Timer className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            )}
             {formatDuration(remaining)}
+            {lowTime && <span className="sr-only">({t("timeLeft")})</span>}
           </div>
-          <span className="text-sm text-muted-foreground">{t("answered", { done: answeredCount, total: exam.questions.length })}</span>
-          <Button className="ml-auto" size="sm" onClick={() => setConfirm(true)}>
+          <span className="text-xs font-mono tabular-nums text-muted-foreground sm:text-sm">
+            {t("answered", { done: answeredCount, total: exam.questions.length })}
+          </span>
+          <Button className="ml-auto shrink-0" size="sm" onClick={() => setConfirm(true)}>
             {t("submit")}
           </Button>
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {exam.questions.map((qq, i) => (
-            <button
-              key={qq.id}
-              onClick={() => setIndex(i)}
-              className={cn(
-                "grid size-7 place-items-center rounded-[2px] border text-xs font-medium transition",
-                i === index && "ring-2 ring-primary",
-                isAnswered(qq, answers[i]) ? "border-primary bg-accent text-accent-foreground" : "bg-card text-muted-foreground",
-              )}
-            >
-              {i + 1}
-            </button>
-          ))}
+          {exam.questions.map((qq, i) => {
+            const answered = isAnswered(qq, answers[i]);
+            const current = i === index;
+            return (
+              <button
+                key={qq.id}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-current={current ? "true" : undefined}
+                aria-label={t("questionNumber", { n: i + 1 })}
+                className={cn(
+                  "grid size-9 place-items-center rounded-md font-mono text-xs font-bold transition-colors",
+                  current
+                    ? "border-2 border-primary" + (answered ? " bg-accent text-primary" : " bg-card text-foreground")
+                    : answered
+                      ? "border border-primary/40 bg-accent text-primary"
+                      : "border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                {i + 1}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -250,11 +302,11 @@ export function ExamRunner({ exam, onFinished, backHref = "/exams/" }: { exam: E
 
       <div className="mt-4 flex justify-between">
         <Button variant="outline" disabled={index === 0} onClick={() => setIndex(index - 1)}>
-          <ArrowLeft /> {tc("previous")}
+          <ArrowLeft className="size-4" aria-hidden="true" /> {tc("previous")}
         </Button>
         {index < exam.questions.length - 1 ? (
           <Button variant="outline" onClick={() => setIndex(index + 1)}>
-            {tc("next")} <ArrowRight />
+            {tc("next")} <ArrowRight className="size-4" aria-hidden="true" />
           </Button>
         ) : (
           <Button onClick={() => setConfirm(true)}>{t("submit")}</Button>

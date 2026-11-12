@@ -261,7 +261,16 @@
     "rules": "Đồng hồ chạy khi bấm Bắt đầu. Bạn có thể chuyển qua lại giữa các câu. Đáp án được chấm khi nộp bài.",
     "answered": "Đã trả lời {done}/{total}",
     "history": "Lịch sử",
-    "lockedMock": "Mock exam tổng sẽ mở khi có thêm phase."
+    "lockedMock": "Mock exam tổng sẽ mở khi có thêm phase.",
+    "colExam": "Đề thi",
+    "colQuestions": "Số câu",
+    "colMinutes": "Thời gian (phút)",
+    "colPass": "Điểm đạt",
+    "colBest": "Điểm cao nhất",
+    "colAttempts": "Số lượt",
+    "questionNumber": "Câu {n}",
+    "correct": "Đúng",
+    "incorrect": "Chưa đúng"
   },
   "placement": {
     "title": "Placement test",
