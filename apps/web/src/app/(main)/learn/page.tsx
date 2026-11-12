@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { PageHeader } from "@/components/page-header";
 import { PhaseIcon } from "@/components/phase-icon";
+import { getPhaseTintClass, trayCellClass } from "@/components/roadmap-tray";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,17 +14,8 @@ import { Progress } from "@/components/ui/progress";
 import { catalog } from "@/lib/content";
 import { Tx, useLoc } from "@/lib/i18n";
 import { useProgress } from "@/lib/progress";
-import { lessonParts, lessonStatus, nextLesson, phaseProgress, type LessonStatus } from "@/lib/selectors";
+import { lessonParts, lessonStatus, nextLesson, phaseProgress } from "@/lib/selectors";
 import { cn, percent } from "@/lib/utils";
-
-const STATUS_DOT: Record<LessonStatus, string> = {
-  completed: "bg-success border-success text-success-foreground",
-  in_progress: "bg-accent border-edge text-accent-foreground",
-  available: "bg-card border-edge text-foreground",
-  locked: "bg-card border-border text-muted-foreground",
-  skipped: "bg-muted border-border text-muted-foreground",
-  coming_soon: "bg-card border-dashed border-border text-muted-foreground/50",
-};
 
 export default function LearnPage() {
   const t = useTranslations("learn");
@@ -38,7 +30,7 @@ export default function LearnPage() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
-      if (e.metaKey || e.ctrlKey || e.altKey || el instanceof HTMLElement && el.closest("input, textarea, select, [contenteditable=true]")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || (el instanceof HTMLElement && el.closest("input, textarea, select, [contenteditable=true]"))) return;
       const rows = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-lesson-row]"));
       if (!rows.length) return;
       const at = rows.indexOf(document.activeElement as HTMLAnchorElement);
@@ -59,9 +51,9 @@ export default function LearnPage() {
       <PageHeader display title={t("title")} subtitle={t("subtitle")} />
 
       {p.profile.track === "B" && !p.placement && placement && (
-        <Card className="mb-8 flex flex-wrap items-center gap-4 border-primary/30 bg-accent/40 p-5 animate-rise">
-          <Trophy className="size-6 text-primary" />
-          <p className="flex-1 text-sm">{t("trackB")}</p>
+        <Card className="mb-8 flex flex-wrap items-center gap-4 bg-accent p-5">
+          <Trophy className="size-6 shrink-0 text-primary" aria-hidden="true" />
+          <p className="flex-1 text-sm text-foreground">{t("trackB")}</p>
           <Button asChild size="sm">
             <Link href="/placement/">{t("takePlacement")}</Link>
           </Button>
@@ -72,128 +64,179 @@ export default function LearnPage() {
         {catalog.phases.map((phase) => {
           const prog = phaseProgress(p, phase);
           const hasContent = prog.ready > 0;
+          const pctValue = prog.skipped ? 1 : prog.fraction;
+          const tintClass = getPhaseTintClass(phase.order);
+
           return (
-            <li key={phase.id} className="relative animate-rise">
-              <Card className={cn("overflow-hidden", !hasContent && "bg-card/60")}>
-                <div className="flex flex-wrap items-center gap-4 border-b p-5">
-                  <div
-                    className={cn(
-                      "grid size-12 place-items-center rounded-[4px]",
-                      hasContent ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    <PhaseIcon name={phase.icon} className="size-6" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs font-bold text-muted-foreground">{t("phase", { n: phase.order })}</div>
-                    <h2 className="text-lg font-bold">
+            <li key={phase.id} className={cn("rounded-lg p-3 sm:p-4", tintClass)}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span aria-hidden="true" className="shrink-0">
+                      <PhaseIcon name={phase.icon} className="size-5 text-foreground" />
+                    </span>
+                    <h2 className="text-lg font-bold text-foreground">
+                      <span className="mr-2 text-sm font-medium">{t("phase", { n: phase.order })}</span>
                       <Tx value={phase.title} />
                     </h2>
-                    <p className="text-sm text-muted-foreground">{loc.t(phase.summary)}</p>
                   </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <div className="flex flex-wrap justify-end gap-1.5">
-                      {phase.runner === "local" && (
-                        <Badge variant="outline">
-                          <Cpu /> {t("localRunner")}
-                        </Badge>
-                      )}
-                      {prog.skipped && <Badge variant="muted">{ts("skipped")}</Badge>}
-                      {!hasContent && <Badge variant="outline">{tc("comingSoon")}</Badge>}
-                    </div>
-                    {hasContent && (
-                      <div className="flex w-40 items-center gap-2">
-                        <Progress value={prog.fraction} />
-                        <span className="text-xs tabular-nums text-muted-foreground">{percent(prog.fraction)}</span>
-                      </div>
-                    )}
-                  </div>
+                  {phase.summary && (
+                    <p className="mt-1 text-sm text-foreground/80">{loc.t(phase.summary)}</p>
+                  )}
                 </div>
 
-                <ul className="divide-y">
-                  {phase.lessons.map((l) => {
-                    const st = lessonStatus(p, { ...l, phaseId: phase.id });
-                    const parts = l.ready ? lessonParts(p, l) : null;
-                    const missing = l.prerequisites.filter((pre) => !phase.lessons.some((x) => x.id === pre) || st === "locked");
-                    const content = (
-                      <div className="flex items-center gap-4 px-5 py-3.5">
-                        <span className={cn("grid size-8 shrink-0 place-items-center rounded-[2px] border-2 text-xs font-bold", STATUS_DOT[st])}>
-                          {st === "completed" ? <Check className="size-4" /> : st === "coming_soon" ? <Lock className="size-3.5" /> : l.order}
+                <div className="flex flex-col items-start gap-2 sm:items-end sm:shrink-0">
+                  <div className="flex flex-wrap gap-1.5 sm:justify-end">
+                    {phase.runner === "local" && (
+                      <Badge variant="outline">
+                        <Cpu className="size-3.5" aria-hidden="true" /> {t("localRunner")}
+                      </Badge>
+                    )}
+                    {prog.skipped && <Badge variant="muted">{ts("skipped")}</Badge>}
+                    {!hasContent && <Badge variant="outline">{tc("comingSoon")}</Badge>}
+                  </div>
+                  {hasContent && (
+                    <div className="flex w-full items-center gap-2 sm:w-40">
+                      <Progress value={pctValue} className="flex-1" />
+                      <span className="shrink-0 font-mono text-xs font-bold tabular-nums text-foreground">
+                        {percent(pctValue)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <ul className="mt-3.5 divide-y divide-border overflow-hidden rounded-md bg-card/70">
+                {phase.lessons.map((l) => {
+                  const st = lessonStatus(p, { ...l, phaseId: phase.id });
+                  const isNext = l.id === next?.id;
+                  const parts = l.ready ? lessonParts(p, l) : null;
+                  const missing = l.prerequisites.filter(
+                    (pre) => !phase.lessons.some((x) => x.id === pre) || st === "locked",
+                  );
+
+                  const cell = (
+                    <div
+                      className={cn(
+                        "grid size-9 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums",
+                        trayCellClass(st, isNext),
+                      )}
+                    >
+                      {st === "completed" ? (
+                        <Check className="size-4" aria-hidden="true" />
+                      ) : st === "coming_soon" ? (
+                        <Lock className="size-3.5" aria-hidden="true" />
+                      ) : (
+                        <span>{l.order}</span>
+                      )}
+                    </div>
+                  );
+
+                  const body = (
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-foreground">
+                          <Tx value={l.title} />
                         </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className={cn("font-bold", !l.ready && "opacity-60")}>
-                              {l.id === next?.id && (
-                                <svg aria-hidden viewBox="0 0 10 12" className="mr-2 inline-block h-3 w-2.5 fill-current">
-                                  <path d="M0 0l10 6-10 6z" />
-                                </svg>
-                              )}
-                              <Tx value={l.title} />
+                        {l.kind === "project" && (
+                          <Badge>
+                            <FolderGit2 className="size-3.5" aria-hidden="true" /> {t("project")}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {l.ready ? (
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/80">
+                          {l.duration && (
+                            <span className="flex items-center gap-1 whitespace-nowrap">
+                              <Clock className="size-3" aria-hidden="true" />
+                              <span>{tc("minutes", { count: l.duration })}</span>
                             </span>
-                            {l.kind === "project" && (
-                              <Badge>
-                                <FolderGit2 /> {t("project")}
-                              </Badge>
-                            )}
-                          </div>
-                          {l.ready ? (
-                            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs opacity-75">
-                              {l.duration && (
-                                <span className="flex items-center gap-1">
-                                  <Clock className="size-3" />
-                                  {tc("minutes", { count: l.duration })}
-                                </span>
-                              )}
-                              <span className="flex items-center gap-1">
-                                <BookOpen className="size-3" />
-                                {ts(st)}
-                              </span>
-                              {st === "locked" && missing.length > 0 && (
-                                <span>
-                                  {t("prereqWarning", {
-                                    list: l.prerequisites
-                                      .map((id) => loc.t(phase.lessons.find((x) => x.id === id)?.title) ?? id)
-                                      .join(", "),
-                                  })}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            l.outcomes && <div className="mt-0.5 truncate text-xs opacity-75">{loc.t(l.outcomes).join(", ")}</div>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <BookOpen className="size-3" aria-hidden="true" />
+                            <span>{ts(st)}</span>
+                          </span>
+                          {st === "locked" && missing.length > 0 && (
+                            <span>
+                              {t("prereqWarning", {
+                                list: l.prerequisites
+                                  .map((id) => loc.t(phase.lessons.find((x) => x.id === id)?.title) ?? id)
+                                  .join(", "),
+                              })}
+                            </span>
                           )}
                         </div>
-                        {parts && parts.fraction > 0 && st !== "completed" && <Progress value={parts.fraction} className="hidden w-24 sm:block" />}
-                        {l.ready && <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />}
-                      </div>
-                    );
-                    return (
-                      <li key={l.id}>
-                        {l.ready ? (
-                          <Link href={`/lesson/${l.id}/`} data-lesson-row data-live={l.id === next?.id} className="row-cursor group block">
-                            {content}
-                          </Link>
-                        ) : (
-                          <div className="cursor-default opacity-80">{content}</div>
-                        )}
-                      </li>
-                    );
-                  })}
-                  {prog.phaseTest && (
-                    <li>
-                      <Link href={`/exam/${prog.phaseTest.id}/`} className="row-cursor group flex items-center gap-4 px-5 py-3.5">
-                        <span className={cn("grid size-8 place-items-center rounded-[2px]", prog.phaseTestPassed ? "bg-success text-success-foreground" : "bg-accent text-accent-foreground")}>
-                          <ClipboardCheck className="size-4" />
-                        </span>
-                        <span className="flex flex-1 flex-wrap items-baseline gap-x-2 font-bold">
-                          <span>{t("phaseTest")}</span>
-                          <span className="font-normal opacity-75">{loc.t(prog.phaseTest.title)}</span>
-                        </span>
-                        <ArrowRight className="size-4" />
-                      </Link>
+                      ) : (
+                        l.outcomes && (
+                          <div className="mt-0.5 truncate text-xs text-foreground/80">
+                            {loc.t(l.outcomes).join(", ")}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  );
+
+                  return (
+                    <li key={l.id}>
+                      {l.ready ? (
+                        <Link
+                          href={`/lesson/${l.id}/`}
+                          data-lesson-row
+                          data-live={isNext}
+                          className={cn(
+                            "group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2",
+                            isNext
+                              ? "border-l-[3px] border-l-primary bg-accent"
+                              : "border-l-[3px] border-l-transparent",
+                          )}
+                        >
+                          {cell}
+                          {body}
+                          {parts && parts.fraction > 0 && st !== "completed" && (
+                            <Progress value={parts.fraction} className="hidden w-24 sm:block" />
+                          )}
+                          <ArrowRight
+                            aria-hidden="true"
+                            className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
+                          />
+                        </Link>
+                      ) : (
+                        <div className="flex items-center gap-4 border-l-[3px] border-l-transparent px-4 py-3 opacity-60">
+                          {cell}
+                          {body}
+                        </div>
+                      )}
                     </li>
-                  )}
-                </ul>
-              </Card>
+                  );
+                })}
+
+                {prog.phaseTest && (
+                  <li>
+                    <Link
+                      href={`/exam/${prog.phaseTest.id}/`}
+                      className="group flex items-center gap-4 border-l-[3px] border-l-transparent px-4 py-3 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2"
+                    >
+                      <div
+                        className={cn(
+                          "grid size-9 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums",
+                          trayCellClass(prog.phaseTestPassed ? "completed" : "available", false),
+                        )}
+                      >
+                        <ClipboardCheck className="size-4" aria-hidden="true" />
+                      </div>
+                      <div className="flex flex-1 flex-wrap items-baseline gap-x-2">
+                        <span className="font-bold text-foreground">{t("phaseTest")}</span>
+                        <span className="text-sm text-foreground/80">{loc.t(prog.phaseTest.title)}</span>
+                      </div>
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
+                      />
+                    </Link>
+                  </li>
+                )}
+              </ul>
             </li>
           );
         })}
@@ -201,19 +244,21 @@ export default function LearnPage() {
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         <Card className="p-5">
-          <h3 className="mb-3 font-bold">{t("capstones")}</h3>
+          <h3 className="mb-3 text-base font-bold text-foreground">{t("capstones")}</h3>
           <ul className="space-y-2 text-sm">
             {catalog.capstones.map((c) => (
-              <li key={c.id} className="flex items-center gap-2 text-muted-foreground">
-                <Lock className="size-3.5" />
-                <Tx value={c.title} />
+              <li key={c.id} className="flex items-center gap-2 text-foreground/80">
+                <Lock className="size-3.5 shrink-0" aria-hidden="true" />
+                <span>
+                  <Tx value={c.title} />
+                </span>
               </li>
             ))}
           </ul>
         </Card>
         {catalog.furtherReading && (
           <Card className="p-5">
-            <h3 className="mb-3 font-bold">{t("furtherReading")}</h3>
+            <h3 className="mb-3 text-base font-bold text-foreground">{t("furtherReading")}</h3>
             <div className="flex flex-wrap gap-2">
               {loc.t(catalog.furtherReading).map((x) => (
                 <Badge key={x} variant="outline">

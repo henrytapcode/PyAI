@@ -31,6 +31,27 @@ export function getPhaseTintClass(order: number): string {
   return PHASE_TINT_CLASSES[order % 7];
 }
 
+export function trayCellClass(status: LessonStatus, isNext: boolean): string {
+  if (isNext) {
+    return "border-2 border-primary bg-card text-primary font-bold";
+  }
+  switch (status) {
+    case "completed":
+      return "border border-transparent bg-success-soft text-primary-ink";
+    case "in_progress":
+      return "border border-primary/50 bg-card text-foreground";
+    case "available":
+      return "border border-border bg-card/80 text-foreground";
+    case "coming_soon":
+      return "border border-dashed border-border bg-card/30 text-foreground opacity-60";
+    case "skipped":
+      return "border border-border bg-muted/60 text-foreground opacity-60";
+    case "locked":
+    default:
+      return "border border-border bg-card/40 text-foreground opacity-60";
+  }
+}
+
 export interface RoadmapTrayProps {
   variant: "compact" | "full";
   nextId?: string;
@@ -90,19 +111,7 @@ export function RoadmapTray({ variant, nextId, className }: RoadmapTrayProps) {
                         aria-label={label}
                         className={cn(
                           "relative grid size-9 place-items-center rounded-md font-mono text-xs tabular-nums outline-none transition-[color,background-color,border-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring after:absolute after:-inset-1 after:content-['']",
-                          isNext
-                            ? "border-2 border-primary bg-card text-primary font-bold"
-                            : st === "completed"
-                              ? "border border-transparent bg-success-soft text-primary-ink"
-                              : st === "in_progress"
-                                ? "border border-primary/50 bg-card text-foreground"
-                                : st === "available"
-                                  ? "border border-border bg-card/80 text-foreground"
-                                  : st === "coming_soon"
-                                    ? "border border-dashed border-border bg-card/30 text-foreground opacity-60"
-                                    : st === "skipped"
-                                      ? "border border-border bg-muted/60 text-foreground opacity-60"
-                                      : "border border-border bg-card/40 text-foreground opacity-60",
+                          trayCellClass(st, isNext),
                         )}
                       >
                         {st === "completed" ? (
