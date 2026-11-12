@@ -8,19 +8,27 @@ import { useRef, useState } from "react";
 import { LanguageSwitch, ThemeSelect } from "@/components/controls";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { authEnabled, useAuth } from "@/lib/auth";
 import { exportProgress, parseImport, useProgress } from "@/lib/progress";
 import { cn, todayKey } from "@/lib/utils";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
+  const tc = useTranslations("common");
   const tl = useTranslations("language");
   const tt = useTranslations("theme");
   const router = useRouter();
   const p = useProgress();
   const fileRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   const doExport = () => {
     const url = URL.createObjectURL(new Blob([exportProgress()], { type: "application/json" }));
@@ -46,96 +54,178 @@ export default function SettingsPage() {
       <div className="space-y-6">
         <AccountCard />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("appearance")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Row label={tl("switch")}>
-              <LanguageSwitch />
-            </Row>
-            <Row label={tt("label")}>
-              <ThemeSelect />
-            </Row>
-          </CardContent>
-        </Card>
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-base font-bold">{t("appearance")}</h2>
+            <p className="text-sm text-muted-foreground">{t("appearanceDesc")}</p>
+          </div>
+          <Card>
+            <CardContent className="space-y-4 p-5">
+              <Row label={tl("switch")}>
+                <LanguageSwitch />
+              </Row>
+              <Row label={tt("label")}>
+                <ThemeSelect />
+              </Row>
+            </CardContent>
+          </Card>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("learning")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Row label={t("track")}>
-              <Segmented value={p.profile.track ?? "A"} options={[{ v: "A", l: t("trackA") }, { v: "B", l: t("trackB") }]} onChange={(v) => p.setTrack(v as "A" | "B")} />
-            </Row>
-            <Row label={t("dailyGoal")}>
-              <Segmented value={String(p.profile.dailyGoal)} options={[20, 30, 50].map((g) => ({ v: String(g), l: `${g} XP` }))} onChange={(v) => p.setDailyGoal(Number(v))} />
-            </Row>
-          </CardContent>
-        </Card>
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-base font-bold">{t("learning")}</h2>
+            <p className="text-sm text-muted-foreground">{t("learningDesc")}</p>
+          </div>
+          <Card>
+            <CardContent className="space-y-4 p-5">
+              <Row label={t("track")}>
+                <Segmented
+                  label={t("track")}
+                  value={p.profile.track ?? "A"}
+                  options={[
+                    { v: "A", l: t("trackA") },
+                    { v: "B", l: t("trackB") },
+                  ]}
+                  onChange={(v) => p.setTrack(v as "A" | "B")}
+                />
+              </Row>
+              <Row label={t("dailyGoal")}>
+                <Segmented
+                  label={t("dailyGoal")}
+                  value={String(p.profile.dailyGoal)}
+                  options={[20, 30, 50].map((g) => ({ v: String(g), l: `${g} XP` }))}
+                  onChange={(v) => p.setDailyGoal(Number(v))}
+                />
+              </Row>
+            </CardContent>
+          </Card>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("data")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={doExport}>
-                <Download /> {t("export")}
-              </Button>
-              <Button variant="outline" onClick={() => fileRef.current?.click()}>
-                <Upload /> {t("import")}
-              </Button>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="application/json,.json"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) void doImport(f);
-                  e.target.value = "";
-                }}
-              />
-            </div>
-            {message && <p className={cn("text-sm", message.ok ? "text-success" : "text-danger")}>{message.text}</p>}
-            <div className="flex flex-wrap gap-2 border-t pt-4">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  useProgress.setState((s) => ({ profile: { ...s.profile, onboarded: false } }));
-                  router.push("/onboarding/");
-                }}
-              >
-                <RotateCcw /> {t("redoOnboarding")}
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-danger hover:bg-danger-soft"
-                onClick={() => {
-                  if (window.confirm(t("resetConfirm"))) {
-                    p.reset();
-                    setMessage({ ok: true, text: t("resetDone") });
-                  }
-                }}
-              >
-                <Trash2 /> {t("reset")}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">{t("storage", { adapter: "localStorage" })}</p>
-          </CardContent>
-        </Card>
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-base font-bold">{t("data")}</h2>
+            <p className="text-sm text-muted-foreground">{t("dataDesc")}</p>
+          </div>
+          <Card>
+            <CardContent className="space-y-3 p-5">
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" onClick={doExport}>
+                  <Download className="size-4" aria-hidden="true" /> {t("export")}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+                  <Upload className="size-4" aria-hidden="true" /> {t("import")}
+                </Button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="application/json,.json"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void doImport(f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              {message && message.text !== t("resetDone") && (
+                <div
+                  role="status"
+                  className={cn(
+                    "rounded-md px-3 py-2 text-sm",
+                    message.ok ? "bg-success-soft text-primary-ink" : "bg-danger-soft text-danger",
+                  )}
+                >
+                  {message.text}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">{t("storage", { adapter: "localStorage" })}</p>
+            </CardContent>
+          </Card>
+        </section>
 
-        <Card>
-          <CardContent className="flex gap-3 p-5 text-sm text-muted-foreground">
-            <Info className="mt-0.5 size-4 shrink-0" />
-            <div>
-              <div className="mb-1 font-medium text-foreground">{t("about")}</div>
-              {t("aboutBody")}
-            </div>
-          </CardContent>
-        </Card>
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-base font-bold text-danger">{t("dangerZone")}</h2>
+            <p className="text-sm text-muted-foreground">{t("dangerZoneDesc")}</p>
+          </div>
+          <Card className="border-danger/30">
+            <CardContent className="space-y-3 p-5">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    useProgress.setState((s) => ({ profile: { ...s.profile, onboarded: false } }));
+                    router.push("/onboarding/");
+                  }}
+                >
+                  <RotateCcw className="size-4" aria-hidden="true" /> {t("redoOnboarding")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="text-danger hover:bg-danger-soft hover:text-danger"
+                  onClick={() => setConfirmReset(true)}
+                >
+                  <Trash2 className="size-4" aria-hidden="true" /> {t("reset")}
+                </Button>
+              </div>
+              {message && message.text === t("resetDone") && (
+                <div
+                  role="status"
+                  className={cn(
+                    "rounded-md px-3 py-2 text-sm",
+                    message.ok ? "bg-success-soft text-primary-ink" : "bg-danger-soft text-danger",
+                  )}
+                >
+                  {message.text}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-base font-bold">{t("about")}</h2>
+          </div>
+          <Card>
+            <CardContent className="flex gap-3 p-5 text-sm text-muted-foreground">
+              <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              <div>
+                <p className="leading-relaxed">{t("aboutBody")}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
       </div>
+
+      <Dialog open={confirmReset} onOpenChange={setConfirmReset}>
+        <DialogContent>
+          <DialogTitle>{t("reset")}</DialogTitle>
+          <DialogDescription>{t("resetConfirm")}</DialogDescription>
+          <div className="mt-4 flex flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setConfirmReset(false)}
+            >
+              {tc("cancel")}
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              onClick={() => {
+                p.reset();
+                setMessage({ ok: true, text: t("resetDone") });
+                setConfirmReset(false);
+              }}
+            >
+              {tc("confirm")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -146,36 +236,38 @@ function AccountCard() {
   const sync = useAuth((s) => s.sync);
   if (!authEnabled) return null;
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("account")}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {user ? (
-          <>
-            <p className="text-sm">{t("signedInAs", { email: user.email ?? "" })}</p>
-            <p className="text-xs text-muted-foreground">{t(`sync.${sync}`)}</p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={() => void useAuth.getState().syncNow()}>
-                <RefreshCw /> {t("syncNow")}
+    <section className="space-y-3">
+      <div>
+        <h2 className="text-base font-bold">{t("account")}</h2>
+      </div>
+      <Card>
+        <CardContent className="space-y-3 p-5">
+          {user ? (
+            <>
+              <p className="text-sm">{t("signedInAs", { email: user.email ?? "" })}</p>
+              <p className="text-xs text-muted-foreground">{t(`sync.${sync}`)}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" onClick={() => void useAuth.getState().syncNow()}>
+                  <RefreshCw className="size-4" aria-hidden="true" /> {t("syncNow")}
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => void useAuth.getState().signOut()}>
+                  <LogOut className="size-4" aria-hidden="true" /> {t("signOut")}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">{t("guestBody")}</p>
+              <Button asChild>
+                <Link href="/login/">
+                  <LogIn className="size-4" aria-hidden="true" /> {t("signIn")}
+                </Link>
               </Button>
-              <Button variant="ghost" onClick={() => void useAuth.getState().signOut()}>
-                <LogOut /> {t("signOut")}
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <p className="text-sm text-muted-foreground">{t("guestBody")}</p>
-            <Button asChild>
-              <Link href="/login/">
-                <LogIn /> {t("signIn")}
-              </Link>
-            </Button>
-          </>
-        )}
-      </CardContent>
-    </Card>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </section>
   );
 }
 
@@ -188,18 +280,39 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-function Segmented({ value, options, onChange }: { value: string; options: { v: string; l: string }[]; onChange: (v: string) => void }) {
+function Segmented({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: string;
+  options: { v: string; l: string }[];
+  onChange: (v: string) => void;
+  label?: string;
+}) {
   return (
-    <div className="inline-flex rounded-[4px] bg-muted p-0.5">
-      {options.map((o) => (
-        <button
-          key={o.v}
-          onClick={() => onChange(o.v)}
-          className={cn("rounded-[2px] px-3 py-1.5 text-sm", value === o.v ? "bg-card" : "text-muted-foreground hover:text-foreground")}
-        >
-          {o.l}
-        </button>
-      ))}
+    <div role="radiogroup" aria-label={label} className="inline-flex rounded-md bg-muted p-0.5">
+      {options.map((o) => {
+        const checked = value === o.v;
+        return (
+          <button
+            key={o.v}
+            type="button"
+            role="radio"
+            aria-checked={checked}
+            onClick={() => onChange(o.v)}
+            className={cn(
+              "rounded-sm px-3 py-1.5 text-sm transition-colors outline-none focus-visible:outline-2 focus-visible:outline-ring",
+              checked
+                ? "bg-card font-bold text-primary"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {o.l}
+          </button>
+        );
+      })}
     </div>
   );
 }

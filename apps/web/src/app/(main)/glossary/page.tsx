@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import glossaryJson from "@/generated/glossary.json";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { catalog } from "@/lib/content";
 import { UntranslatedBadge, useLoc } from "@/lib/i18n";
 import type { GlossaryTerm } from "@/lib/types";
@@ -34,12 +33,18 @@ export default function GlossaryPage() {
   return (
     <div>
       <PageHeader title={t("title")} subtitle={t("subtitle")} actions={<Badge variant="muted">{t("count", { count: terms.length })}</Badge>} />
-      <div className="sticky top-14 z-10 -mx-4 mb-6 space-y-3 bg-background lg:top-0">
-        <label className="flex items-center gap-2 rounded-[4px] border bg-card px-4 py-2.5 focus-within:ring-2 focus-within:ring-ring/40">
-          <Search className="size-4 text-muted-foreground" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("placeholder")} className="flex-1 bg-transparent outline-none" />
+      <div className="sticky top-14 z-10 -mx-4 mb-6 space-y-3 border-b border-border bg-background px-4 py-3 sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-10 lg:px-10">
+        <label className="flex h-10 items-center gap-2 rounded-md border border-border bg-card px-3 focus-within:outline-2 focus-within:outline-ring">
+          <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("placeholder")}
+            aria-label={t("placeholder")}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
         </label>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
           <TagButton active={!tag} onClick={() => setTag(null)}>
             {tc("all")}
           </TagButton>
@@ -51,25 +56,29 @@ export default function GlossaryPage() {
         </div>
       </div>
       {filtered.length === 0 ? (
-        <p className="text-muted-foreground">{t("empty")}</p>
+        <p className="py-8 text-center text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="divide-y divide-border rounded-lg border border-border bg-card">
           {filtered.map((x) => {
             const def = loc.pick({ en: x.en, vi: x.vi });
             return (
-              <Card key={x.term} className="animate-rise">
-                <CardContent className="space-y-2 p-5">
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <h3 className="font-mono text-[15px] font-bold">{x.term}</h3>
-                    {x.vi_term && x.vi_term !== x.term && <span className="text-sm text-muted-foreground">· {x.vi_term}</span>}
-                  </div>
+              <div key={x.term} className="flex flex-col gap-2 p-4 sm:grid sm:grid-cols-[14rem_1fr] sm:gap-4 sm:p-5">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-mono text-sm font-bold">{x.term}</span>
+                  {x.vi_term && x.vi_term !== x.term && (
+                    <span className="text-sm text-muted-foreground">{x.vi_term}</span>
+                  )}
+                </div>
+                <div className="space-y-2">
                   <p className="text-sm leading-relaxed">
                     {def.value}
                     {def.fallback && <UntranslatedBadge />}
                   </p>
-                  {x.example && <pre className="overflow-x-auto rounded-[4px] bg-code px-3 py-2 font-mono text-xs">{x.example}</pre>}
-                </CardContent>
-              </Card>
+                  {x.example && (
+                    <pre className="overflow-x-auto rounded-md bg-code p-3 font-mono text-xs">{x.example}</pre>
+                  )}
+                </div>
+              </div>
             );
           })}
         </div>
@@ -80,7 +89,17 @@ export default function GlossaryPage() {
 
 function TagButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className={cn("rounded-[2px] border px-3 py-1 text-xs transition", active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted")}>
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "h-9 shrink-0 whitespace-nowrap rounded-full border px-3 text-sm transition-colors outline-none focus-visible:outline-2 focus-visible:outline-ring",
+        active
+          ? "border-primary bg-accent font-bold text-primary"
+          : "border-border bg-card text-foreground hover:bg-accent",
+      )}
+    >
       {children}
     </button>
   );
