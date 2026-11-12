@@ -230,7 +230,8 @@
     "sessionDone": "Xong phiên ôn tập!",
     "reviewed": "Đã ôn {count}",
     "deckSize": "Bộ thẻ: {count}",
-    "practice": "Vẫn luyện thêm"
+    "practice": "Vẫn luyện thêm",
+    "goToLessons": "Sang lộ trình bài học"
   },
   "exam": {
     "title": "Kiểm tra",

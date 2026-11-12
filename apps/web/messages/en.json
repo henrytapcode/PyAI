@@ -230,7 +230,8 @@
     "sessionDone": "Review session done!",
     "reviewed": "{count} reviewed",
     "deckSize": "Deck: {count} cards",
-    "practice": "Practice anyway"
+    "practice": "Practice anyway",
+    "goToLessons": "Go to lessons"
   },
   "exam": {
     "title": "Exams",
