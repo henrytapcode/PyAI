@@ -14,17 +14,20 @@ export function DialogContent({ className, children, ...props }: React.Component
   const tc = useTranslations("common");
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[color-mix(in_oklch,var(--shade)_70%,transparent)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[color-mix(in_oklch,var(--foreground)_35%,transparent)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-[4px] border-2 border-edge bg-popover p-6 shadow-[6px_6px_0_var(--hit)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg bg-popover p-6 shadow-[var(--shadow-lift)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-[2px] p-1 text-muted-foreground row-cursor hover:text-primary-foreground">
-          <X className="size-4" />
+        <DialogPrimitive.Close
+          aria-label={tc("close")}
+          className="absolute right-3.5 top-3.5 inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          <X className="size-4" aria-hidden="true" />
           <span className="sr-only">{tc("close")}</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
@@ -33,7 +36,7 @@ export function DialogContent({ className, children, ...props }: React.Component
 }
 
 export function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
-  return <DialogPrimitive.Title className={cn("text-lg font-black", className)} {...props} />;
+  return <DialogPrimitive.Title className={cn("text-lg font-bold tracking-tight", className)} {...props} />;
 }
 
 export function DialogDescription({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Description>) {

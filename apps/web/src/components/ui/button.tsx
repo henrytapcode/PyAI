@@ -4,25 +4,26 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[4px] text-sm font-bold disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring select-none",
   {
     variants: {
       variant: {
-        default: "press bg-primary text-primary-foreground",
-        secondary: "press bg-secondary text-secondary-foreground",
-        outline: "press bg-card text-foreground",
-        ghost: "row-cursor text-foreground hover:text-primary-foreground",
-        soft: "border-2 border-border bg-accent text-accent-foreground hover:border-hit",
-        success: "press bg-success text-success-foreground",
-        danger: "press bg-danger text-primary-foreground",
-        link: "text-foreground underline decoration-hit decoration-2 underline-offset-4 hover:decoration-primary",
+        default: "press [--press-edge:var(--primary-ink)] border-[var(--press-edge)] bg-primary text-primary-foreground hover:opacity-95",
+        secondary: "press bg-secondary text-secondary-foreground hover:bg-accent",
+        outline: "press bg-card text-foreground hover:bg-muted",
+        ghost: "row-cursor text-foreground hover:bg-accent hover:text-primary",
+        soft: "border border-border bg-accent text-primary hover:bg-accent/80",
+        success: "press [--press-edge:var(--primary-ink)] border-[var(--press-edge)] bg-success text-success-foreground hover:opacity-95",
+        danger:
+          "press [--press-edge:color-mix(in_oklch,var(--danger)_75%,var(--foreground))] border-[var(--press-edge)] bg-danger text-danger-foreground hover:opacity-95",
+        link: "text-foreground underline decoration-border underline-offset-4 hover:decoration-primary hover:text-primary",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-8 gap-1.5 px-3 text-[13px]",
-        lg: "h-12 px-6 text-base",
-        icon: "size-10",
-        "icon-sm": "size-8",
+        sm: "h-9 gap-1.5 px-3 text-xs",
+        lg: "h-11 px-6 text-base",
+        icon: "size-10 after:absolute after:-inset-1 after:content-['']",
+        "icon-sm": "size-9 after:absolute after:-inset-[4px] after:content-['']",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

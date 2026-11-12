@@ -59,7 +59,7 @@ export function XpFigure({ value, className }: { value: number; className?: stri
     <span className="relative inline-block">
       <span className={className}>{shown}</span>
       {gain > 0 && (
-        <span aria-hidden className="xp-pop pointer-events-none absolute -top-1 right-0 text-sm font-black text-hit">
+        <span aria-hidden="true" className="xp-pop pointer-events-none absolute -top-1 right-0 font-mono text-sm font-bold tabular-nums text-primary">
           +{gain}
         </span>
       )}

@@ -124,7 +124,7 @@ export default function LearnPage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <span className={cn("font-bold", !l.ready && "opacity-60")}>
                               {l.id === next?.id && (
-                                <svg aria-hidden viewBox="0 0 10 12" className="blink mr-2 inline-block h-3 w-2.5 fill-current">
+                                <svg aria-hidden viewBox="0 0 10 12" className="mr-2 inline-block h-3 w-2.5 fill-current">
                                   <path d="M0 0l10 6-10 6z" />
                                 </svg>
                               )}

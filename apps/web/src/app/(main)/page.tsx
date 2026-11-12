@@ -67,7 +67,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Continue: the cabinet's start screen */}
-      <Card className="crt animate-rise">
+      <Card className="animate-rise">
         <CardContent className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
           {data.next ? (
             <>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
       </Card>
 
       {/* Score line: figures parted by bar rules, ember and acid taking turns */}
-      <Card className="crt animate-rise">
+      <Card className="animate-rise">
         <div className="grid grid-cols-2 lg:grid-cols-4 [&>*]:px-5 [&>*]:py-5 [&>*:nth-child(even)]:border-l-2 lg:[&>*:nth-child(n+2)]:border-l-2 max-lg:[&>*:nth-child(n+3)]:border-t-2">
           <ScoreCell label={t("streak")} value={data.days} tone="ember" />
           <ScoreCell label={t("xpToday")} value={data.today} tone="acid" suffix={`/${goal}`} />
