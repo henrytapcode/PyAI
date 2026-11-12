@@ -125,10 +125,10 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
   return (
     <div className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col lg:h-dvh">
       {/* Lesson header */}
-      <header className="flex items-center gap-3 border-b bg-background">
+      <header className="flex h-12 items-center gap-3 border-b border-border bg-background px-4">
         <Button asChild variant="ghost" size="icon-sm" aria-label={tc("back")}>
           <Link href="/learn/">
-            <ChevronLeft />
+            <ChevronLeft aria-hidden="true" />
           </Link>
         </Button>
         <div className="min-w-0 flex-1">
@@ -158,37 +158,38 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           <Button asChild={!!prev} variant="ghost" size="icon-sm" disabled={!prev} aria-label={t("prevLesson")}>
             {prev ? (
               <Link href={`/lesson/${prev.id}/`}>
-                <ArrowLeft />
+                <ArrowLeft aria-hidden="true" />
               </Link>
             ) : (
-              <ArrowLeft />
+              <ArrowLeft aria-hidden="true" />
             )}
           </Button>
           <Button asChild={!!next} variant="ghost" size="icon-sm" disabled={!next} aria-label={t("nextLesson")}>
             {next ? (
               <Link href={`/lesson/${next.id}/`}>
-                <ArrowRight />
+                <ArrowRight aria-hidden="true" />
               </Link>
             ) : (
-              <ArrowRight />
+              <ArrowRight aria-hidden="true" />
             )}
           </Button>
         </div>
       </header>
 
       {/* Mobile pane switch */}
-      <div className="flex gap-1 border-b p-2 lg:hidden">
+      <div className="flex gap-1 border-b border-border p-2 lg:hidden">
         {(["content", "editor"] as const).map((pane) => (
           <button
             key={pane}
+            type="button"
             onClick={() => setMobilePane(pane)}
             className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 rounded-[4px] py-1.5 text-sm font-medium",
-              mobilePane === pane ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+              "flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition-colors",
+              mobilePane === pane ? "bg-accent text-primary font-bold" : "text-muted-foreground hover:text-foreground",
             )}
           >
-            {pane === "content" ? <BookOpen className="size-4" /> : <Code2 className="size-4" />}
-            {pane === "content" ? t("content") : t("editor")}
+            {pane === "content" ? <BookOpen className="size-4" aria-hidden="true" /> : <Code2 className="size-4" aria-hidden="true" />}
+            <span>{pane === "content" ? t("content") : t("editor")}</span>
           </button>
         ))}
       </div>
@@ -197,42 +198,42 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
         {/* Left: content */}
         <section
           style={{ ["--split" as string]: `${split}%` }}
-          className={cn("min-h-0 w-full overflow-y-auto lg:block lg:w-[var(--split)]", mobilePane === "content" ? "block" : "hidden")}
+          className={cn("min-h-0 w-full overflow-y-auto bg-background lg:block lg:w-[var(--split)]", mobilePane === "content" ? "block" : "hidden")}
         >
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mx-auto max-w-3xl px-5 py-5 sm:px-8">
             <TabsList className="sticky top-0 z-10 mb-6 w-full justify-start overflow-x-auto">
               <TabsTrigger value="theory">
-                <BookOpen /> {t("theory")}
-                {parts.theory && <CheckCircle2 className="text-success" />}
+                <BookOpen aria-hidden="true" /> {t("theory")}
+                {parts.theory && <CheckCircle2 className="text-primary" aria-hidden="true" />}
               </TabsTrigger>
               <TabsTrigger value="examples">
-                <Sparkles /> {t("examples")}
+                <Sparkles aria-hidden="true" /> {t("examples")}
               </TabsTrigger>
               <TabsTrigger value="exercises">
-                <PenLine /> {t("exercises")}
+                <PenLine aria-hidden="true" /> {t("exercises")}
                 <span className="text-xs text-muted-foreground">
                   {parts.exPassed}/{parts.exTotal}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="quiz">
-                <ListChecks /> {t("quiz")}
-                {parts.quizDone && <CheckCircle2 className="text-success" />}
+                <ListChecks aria-hidden="true" /> {t("quiz")}
+                {parts.quizDone && <CheckCircle2 className="text-primary" aria-hidden="true" />}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="theory" className="space-y-8 animate-rise">
-              <div className="rounded-[4px] border bg-accent/30 p-5">
+              <div className="rounded-lg border border-border bg-card p-5">
                 <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <Clock className="size-3.5" /> {tc("minutes", { count: meta.duration_min })}
+                  <Clock className="size-3.5" aria-hidden="true" /> {tc("minutes", { count: meta.duration_min })}
                   {meta.kind === "project" && <Badge>{t("projectBadge")}</Badge>}
                 </div>
-                <p className="mb-3 text-[0.95rem]">{loc.t(meta.summary)}</p>
-                <div className="text-sm font-bold">{t("outcomes")}</div>
+                <p className="mb-3 text-sm text-foreground">{loc.t(meta.summary)}</p>
+                <div className="text-sm font-bold text-foreground">{t("outcomes")}</div>
                 <ul className="mt-1.5 space-y-1 text-sm">
                   {outcomes.map((o) => (
                     <li key={o} className="flex gap-2">
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
-                      {o}
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                      <span>{o}</span>
                     </li>
                   ))}
                 </ul>
@@ -241,18 +242,18 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
               {body.fallback && <UntranslatedBadge />}
               <Markdown text={body.value ?? ""} onTryCode={tryCode} />
 
-              <div className="flex flex-wrap items-center gap-3 rounded-[4px] border p-5">
+              <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-5">
                 {parts.theory ? (
-                  <span className="flex items-center gap-2 font-medium text-success">
-                    <CheckCircle2 className="size-5" /> {t("read")}
+                  <span className="flex items-center gap-2 font-medium text-primary">
+                    <CheckCircle2 className="size-5" aria-hidden="true" /> {t("read")}
                   </span>
                 ) : (
                   <Button onClick={() => markTheory(meta.id, lesson.quiz.flashcards.map((f) => f.id))}>
-                    <CheckCircle2 /> {t("markRead")}
+                    <CheckCircle2 aria-hidden="true" /> {t("markRead")}
                   </Button>
                 )}
                 <Button variant="outline" className="ml-auto" onClick={() => setTab(lesson.exercises.length ? "exercises" : "quiz")}>
-                  {lesson.exercises.length ? t("exercises") : t("quiz")} <ArrowRight />
+                  {lesson.exercises.length ? t("exercises") : t("quiz")} <ArrowRight aria-hidden="true" />
                 </Button>
               </div>
 
@@ -260,7 +261,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                 <div className="space-y-1 text-sm">
                   {meta.further_reading.map((fr) => (
                     <a key={fr.url} href={fr.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-primary hover:underline">
-                      <ExternalLink className="size-3.5" />
+                      <ExternalLink className="size-3.5" aria-hidden="true" />
                       {loc.t(fr.title)}
                     </a>
                   ))}
@@ -277,7 +278,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                   {ex.output && (
                     <div>
                       <div className="mb-1 text-xs font-bold text-muted-foreground">{t("expectedOutput")}</div>
-                      <pre className="overflow-x-auto rounded-[4px] border border-dashed bg-muted/40 p-3 font-mono text-[13px]">{ex.output}</pre>
+                      <pre className="overflow-x-auto rounded-lg border border-border bg-code p-3 font-mono text-[13px]">{ex.output}</pre>
                     </div>
                   )}
                   {loc.t(ex.explain) && <Markdown text={loc.t(ex.explain)} className="pt-1" />}
@@ -299,7 +300,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
               )}
               {exercise && (
                 <Button className="w-full lg:hidden" onClick={() => setMobilePane("editor")}>
-                  <Code2 /> {t("editor")}
+                  <Code2 aria-hidden="true" /> {t("editor")}
                 </Button>
               )}
             </TabsContent>
@@ -315,9 +316,9 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           role="separator"
           aria-orientation="vertical"
           onPointerDown={startDrag}
-          className="group hidden w-1.5 shrink-0 cursor-col-resize items-center justify-center border-x bg-muted/40 hover:bg-primary/20 lg:flex"
+          className="group hidden w-1.5 shrink-0 cursor-col-resize items-center justify-center border-x border-border bg-muted/40 hover:bg-primary/20 lg:flex"
         >
-          <div className="h-8 w-0.5 rounded-[2px] bg-muted-foreground/30 group-hover:bg-primary" />
+          <div className="h-8 w-0.5 rounded-full bg-muted-foreground/30 group-hover:bg-primary" />
         </div>
 
         {/* Right: editor */}
@@ -358,7 +359,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
 
       <Dialog open={celebrate} onOpenChange={setCelebrate}>
         <DialogContent className="text-center">
-          <PartyPopper className="mx-auto size-10 text-warning" />
+          <PartyPopper className="mx-auto size-10 text-warning" aria-hidden="true" />
           <DialogTitle className="text-center">{t("lessonComplete")}</DialogTitle>
           <DialogDescription className="text-center">
             <Tx value={meta.title} />
@@ -370,7 +371,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
             {next && (
               <Button asChild>
                 <Link href={`/lesson/${next.id}/`}>
-                  {t("nextLesson")} <ArrowRight />
+                  {t("nextLesson")} <ArrowRight aria-hidden="true" />
                 </Link>
               </Button>
             )}
@@ -386,14 +387,15 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
 function StepChip({ done, icon, label, onClick }: { done: boolean; icon: React.ReactNode; label: string; onClick: () => void }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[2px] border px-2.5 py-1 text-xs font-medium transition hover:bg-muted",
-        done && "border-success/40 bg-success-soft text-success",
+        "inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        done && "border-transparent bg-success-soft text-primary-ink font-medium",
       )}
     >
-      {done ? <CheckCircle2 className="size-3.5" /> : icon}
-      {label}
+      {done ? <CheckCircle2 className="size-3.5 text-primary" aria-hidden="true" /> : <span aria-hidden="true">{icon}</span>}
+      <span>{label}</span>
     </button>
   );
 }

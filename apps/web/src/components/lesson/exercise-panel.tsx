@@ -23,13 +23,18 @@ export function ExercisePicker({ exercises, activeId, onPick }: { exercises: Exe
           <button
             key={ex.id}
             data-live={active}
+            type="button"
             onClick={() => onPick(ex.id)}
             className={cn(
-              "row-cursor flex items-center gap-2 rounded-[4px] border-2 border-border px-3 py-2 text-left text-sm font-bold",
-              active && "border-edge",
+              "row-cursor flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-bold transition-colors",
+              active ? "border-primary bg-accent text-primary" : "border-border bg-card text-foreground hover:bg-accent/50",
             )}
           >
-            {passed ? <CheckCircle2 className={cn("size-4", !active && "text-success")} /> : <Circle className={cn("size-4", !active && "text-muted-foreground")} />}
+            {passed ? (
+              <CheckCircle2 className={cn("size-4", active ? "text-primary" : "text-primary-ink")} aria-hidden="true" />
+            ) : (
+              <Circle className={cn("size-4", active ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
+            )}
             <span>{i + 1}.</span>
             <span className="max-w-[16rem] truncate">
               <Tx value={ex.title} />
@@ -64,13 +69,13 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
           <Badge>{t(`kind.${exercise.kind}`)}</Badge>
           <span className="flex items-center gap-1 text-xs text-muted-foreground" title={t("difficulty")}>
             {[1, 2, 3].map((d) => (
-              <span key={d} className={cn("size-1.5 rounded-[2px]", d <= exercise.difficulty ? "bg-primary" : "bg-muted-foreground/25")} />
+              <span key={d} className={cn("size-1.5 rounded-full", d <= exercise.difficulty ? "bg-primary" : "bg-muted-foreground/30")} />
             ))}
           </span>
           <span className="text-xs text-muted-foreground">· {t("attempts", { count: attempts })}</span>
           {state?.passed && (
             <Badge variant="success">
-              <CheckCircle2 /> {t("passed")}
+              <CheckCircle2 aria-hidden="true" /> {t("passed")}
             </Badge>
           )}
         </div>
@@ -86,16 +91,16 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
       <section className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <h3 className="flex items-center gap-2 text-sm font-bold">
-            <Lightbulb className="size-4 text-warning" />
+            <Lightbulb className="size-4 text-warning" aria-hidden="true" />
             {t("hints")}
           </h3>
-          <div className="flex items-center gap-1.5" aria-hidden>
+          <div className="flex items-center gap-1.5" aria-hidden="true">
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
                 className={cn(
-                  "grid size-6 place-items-center rounded-[2px] border-2 text-[11px] font-black",
-                  i < hintsShown ? "border-edge bg-primary text-primary-foreground" : "border-dashed border-border text-muted-foreground",
+                  "grid size-6 place-items-center rounded-full border text-xs font-bold font-mono",
+                  i < hintsShown ? "border-primary bg-primary text-primary-foreground" : "border-dashed border-border text-muted-foreground",
                   i === hintsShown - 1 && "coin-drop",
                 )}
               >
@@ -105,14 +110,14 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
           </div>
         </div>
         {(hints.value ?? []).slice(0, hintsShown).map((h, i) => (
-          <div key={i} className="animate-rise rounded-[4px] border-2 border-warning bg-warning-soft px-4 py-3 text-sm">
-            <div className="mb-1 text-xs font-bold text-warning">{t("hintLevel", { n: i + 1 })}</div>
+          <div key={i} className="animate-rise rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-foreground">
+            <div className="mb-1 text-xs font-bold text-warning-ink">{t("hintLevel", { n: i + 1 })}</div>
             <Markdown text={h} className="[&_p]:m-0" />
           </div>
         ))}
         {hintsShown < 3 ? (
           <Button variant="outline" size="sm" onClick={() => showHint(exercise.id)}>
-            <Lightbulb />
+            <Lightbulb aria-hidden="true" />
             {t("showHint", { n: hintsShown + 1 })}
           </Button>
         ) : (
@@ -123,7 +128,7 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
       {/* Solution, hidden until enough attempts */}
       <section className="space-y-2">
         <h3 className="flex items-center gap-2 text-sm font-bold">
-          <KeyRound className="size-4 text-muted-foreground" />
+          <KeyRound className="size-4 text-muted-foreground" aria-hidden="true" />
           {t("solution")}
         </h3>
         {solutionVisible ? (
@@ -147,12 +152,12 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
           </div>
         ) : solutionUnlocked ? (
           <Button variant="outline" size="sm" onClick={() => setConfirmOpen(true)}>
-            <Eye />
+            <Eye aria-hidden="true" />
             {t("showSolution")}
           </Button>
         ) : (
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Lock className="size-3.5" />
+            <Lock className="size-3.5" aria-hidden="true" />
             {t("solutionLocked", { count: exercise.solution_unlock_attempts })}
           </p>
         )}

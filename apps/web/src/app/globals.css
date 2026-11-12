@@ -358,7 +358,7 @@
   font-size: 0.86em;
   background: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 0.08em 0.36em;
 }
 .prose-lesson table {
@@ -420,7 +420,7 @@
 /* Monaco: blank placeholders in fill-in exercises */
 .blank-decoration {
   background: color-mix(in oklch, var(--warning) 35%, transparent);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   outline: 1px dashed var(--warning);
 }
 .error-line-decoration {

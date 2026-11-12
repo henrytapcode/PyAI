@@ -426,6 +426,9 @@
     "err500": "Đã xảy ra lỗi nội bộ khi xử lý câu hỏi.",
     "err503": "Dịch vụ trợ giảng tạm thời không khả dụng. Vui lòng thử lại sau.",
     "clearChat": "Xóa hội thoại",
+    "expand": "Mở rộng",
+    "minimize": "Thu nhỏ",
+    "viewSource": "Xem nguồn [{n}]",
     "emptyNotice": "Đặt câu hỏi về lý thuyết hoặc bài tập để nhận gợi ý từng bước mà không lo lộ đáp án!"
   }
 }

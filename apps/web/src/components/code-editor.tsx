@@ -12,29 +12,37 @@ const defineThemes: BeforeMount = (monaco) => {
   monaco.editor.defineTheme("pyai-light", {
     base: "vs",
     inherit: true,
-    rules: [{ token: "comment", foreground: "8a8aa6", fontStyle: "italic" }],
+    rules: [
+      { token: "comment", foreground: "596f65", fontStyle: "italic" },
+      { token: "keyword", foreground: "006738" },
+      { token: "string", foreground: "416b25" },
+      { token: "number", foreground: "905211" },
+      { token: "type", foreground: "005532" },
+      { token: "function", foreground: "005532" },
+    ],
     colors: {
-      "editor.background": "#f6f5fa",
-      "editorLineNumber.foreground": "#b4b4c8",
-      "editor.lineHighlightBackground": "#eceaf4",
-      "editorGutter.background": "#f6f5fa",
+      "editor.background": "#f3f2ec",
+      "editorLineNumber.foreground": "#7c8a83",
+      "editor.lineHighlightBackground": "#ebeae1",
+      "editorGutter.background": "#f3f2ec",
     },
   });
   monaco.editor.defineTheme("pyai-dark", {
     base: "vs-dark",
     inherit: true,
     rules: [
-      { token: "comment", foreground: "7b86b8", fontStyle: "italic" },
-      { token: "keyword", foreground: "e58fc2" },
-      { token: "string", foreground: "e8e5a6" },
-      { token: "number", foreground: "b7a6ea" },
-      { token: "type", foreground: "a4e6f0" },
+      { token: "comment", foreground: "768c82", fontStyle: "italic" },
+      { token: "keyword", foreground: "5aca94" },
+      { token: "string", foreground: "99c77f" },
+      { token: "number", foreground: "e4b572" },
+      { token: "type", foreground: "70ddb1" },
+      { token: "function", foreground: "70ddb1" },
     ],
     colors: {
-      "editor.background": "#262833",
-      "editorLineNumber.foreground": "#5b6082",
-      "editor.lineHighlightBackground": "#2f3142",
-      "editorGutter.background": "#262833",
+      "editor.background": "#090f0d",
+      "editorLineNumber.foreground": "#54615b",
+      "editor.lineHighlightBackground": "#111815",
+      "editorGutter.background": "#090f0d",
     },
   });
 };

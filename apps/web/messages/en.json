@@ -426,6 +426,9 @@
     "err500": "An internal error occurred while processing your request.",
     "err503": "Assistant service is temporarily unavailable. Please try again later.",
     "clearChat": "Clear conversation",
+    "expand": "Expand",
+    "minimize": "Minimize",
+    "viewSource": "View source [{n}]",
     "emptyNotice": "Ask anything about this lesson or exercise to get guidance without spoiling solutions!"
   }
 }
