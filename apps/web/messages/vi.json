@@ -244,6 +244,7 @@
     "duration": "{count} phút",
     "passScore": "Đạt {score}",
     "best": "Cao nhất {score}",
+    "notTaken": "Chưa làm",
     "attempts": "{count, plural, =0 {Chưa làm} other {# lần làm}}",
     "timeLeft": "Còn lại",
     "submit": "Nộp bài",

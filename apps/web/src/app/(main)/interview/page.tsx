@@ -127,7 +127,7 @@ function TagButton({ active, onClick, children }: { active: boolean; onClick: ()
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "h-9 rounded-full border px-3 text-sm transition-colors outline-none focus-visible:outline-2 focus-visible:outline-ring",
+        "hit h-9 rounded-full border px-3 text-sm transition-colors outline-none focus-visible:outline-2 focus-visible:outline-ring",
         active
           ? "border-primary bg-accent font-bold text-primary"
           : "border-border bg-card text-foreground hover:bg-accent",

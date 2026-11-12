@@ -369,7 +369,7 @@ function RagChatInner({
       >
         <Bot className="size-5 shrink-0" aria-hidden="true" />
         <span className="hidden sm:inline">{t("open")}</span>
-        {isOnline === false && <span className="size-2 rounded-full bg-danger animate-pulse" aria-hidden="true" />}
+        {isOnline === false && <span className="size-2 rounded-full bg-danger" aria-hidden="true" />}
       </button>
 
       {/* Floating Chat Panel */}

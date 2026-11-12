@@ -212,7 +212,7 @@ function PanelTab({ active, onClick, icon, children }: { active: boolean; onClic
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        "hit inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         active ? "bg-accent text-primary font-bold" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
       )}
     >

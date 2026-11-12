@@ -184,7 +184,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
             type="button"
             onClick={() => setMobilePane(pane)}
             className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition-colors",
+              "hit flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition-colors",
               mobilePane === pane ? "bg-accent text-primary font-bold" : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -201,21 +201,21 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           className={cn("min-h-0 w-full overflow-y-auto bg-background lg:block lg:w-[var(--split)]", mobilePane === "content" ? "block" : "hidden")}
         >
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mx-auto max-w-3xl px-5 py-5 sm:px-8">
-            <TabsList className="sticky top-0 z-10 mb-6 w-full justify-start overflow-x-auto">
-              <TabsTrigger value="theory">
+            <TabsList className="sticky top-0 z-10 mb-6 grid w-full grid-cols-4 sm:flex sm:w-full sm:justify-start">
+              <TabsTrigger value="theory" className="justify-center gap-1 px-1.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm">
                 <BookOpen aria-hidden="true" /> {t("theory")}
                 {parts.theory && <CheckCircle2 className="text-primary" aria-hidden="true" />}
               </TabsTrigger>
-              <TabsTrigger value="examples">
+              <TabsTrigger value="examples" className="justify-center gap-1 px-1.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm">
                 <Sparkles aria-hidden="true" /> {t("examples")}
               </TabsTrigger>
-              <TabsTrigger value="exercises">
+              <TabsTrigger value="exercises" className="justify-center gap-1 px-1.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm">
                 <PenLine aria-hidden="true" /> {t("exercises")}
-                <span className="text-xs text-muted-foreground">
+                <span className="hidden text-xs text-muted-foreground sm:inline">
                   {parts.exPassed}/{parts.exTotal}
                 </span>
               </TabsTrigger>
-              <TabsTrigger value="quiz">
+              <TabsTrigger value="quiz" className="justify-center gap-1 px-1.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm">
                 <ListChecks aria-hidden="true" /> {t("quiz")}
                 {parts.quizDone && <CheckCircle2 className="text-primary" aria-hidden="true" />}
               </TabsTrigger>

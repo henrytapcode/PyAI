@@ -126,7 +126,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-3 pt-1">
                       <Progress value={lessonParts(p, data.next).fraction} className="max-w-xs" />
                       {data.next.duration && (
-                        <span className="flex items-center gap-1 font-mono text-xs font-bold tabular-nums text-muted-foreground">
+                        <span className="flex items-center gap-1 font-mono text-xs font-bold tabular-nums text-muted-foreground whitespace-nowrap">
                           <Clock className="size-3.5" aria-hidden="true" />
                           {tc("minutes", { count: data.next.duration })}
                         </span>

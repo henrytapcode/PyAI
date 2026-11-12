@@ -303,7 +303,7 @@ function Segmented({
             aria-checked={checked}
             onClick={() => onChange(o.v)}
             className={cn(
-              "rounded-sm px-3 py-1.5 text-sm transition-colors outline-none focus-visible:outline-2 focus-visible:outline-ring",
+              "hit rounded-sm px-3 py-1.5 text-sm transition-colors outline-none focus-visible:outline-2 focus-visible:outline-ring",
               checked
                 ? "bg-card font-bold text-primary"
                 : "text-muted-foreground hover:text-foreground",

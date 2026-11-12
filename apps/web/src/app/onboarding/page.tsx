@@ -177,8 +177,8 @@ function Choice({
       </span>
       <span
         className={cn(
-          "grid size-5 shrink-0 place-items-center rounded-md border",
-          active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+          "grid size-5 shrink-0 place-items-center rounded-full",
+          active ? "bg-primary text-primary-foreground" : "bg-muted",
         )}
       >
         {active && <Check className="size-3" aria-hidden />}

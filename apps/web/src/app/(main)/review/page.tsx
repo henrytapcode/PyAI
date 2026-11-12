@@ -123,7 +123,7 @@ function SourceLine({ lessonId, label }: { lessonId?: string; label: string }) {
       {lesson && (
         <Link
           href={`/lesson/${lesson.id}/`}
-          className="rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+          className="hit rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring"
         >
           {t("fromLesson", { lesson: loc.t(lesson.title) })}
         </Link>

@@ -85,7 +85,7 @@ export function CodeBlock({
             type="button"
             onClick={copy}
             aria-label={copied ? t("common.copied") : t("common.copy")}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="hit inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             {copied ? <Check className="size-3.5 text-primary" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
             <span>{copied ? t("common.copied") : t("common.copy")}</span>
@@ -95,7 +95,7 @@ export function CodeBlock({
               type="button"
               onClick={() => visualize(code)}
               aria-label={t("lesson.visualize")}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="hit inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <Eye className="size-3.5" aria-hidden="true" />
               <span>{t("lesson.visualize")}</span>
@@ -106,7 +106,7 @@ export function CodeBlock({
               type="button"
               onClick={() => onTry(code)}
               aria-label={t("lesson.tryIt")}
-              className="inline-flex items-center gap-1 rounded-md bg-accent px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="hit inline-flex items-center gap-1 rounded-md bg-accent px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <Play className="size-3.5" aria-hidden="true" />
               <span>{t("lesson.tryIt")}</span>

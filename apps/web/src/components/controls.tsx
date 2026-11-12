@@ -27,7 +27,7 @@ export function LanguageSwitch({ className }: { className?: string }) {
           title={t(l)}
           onClick={() => setLocale(l)}
           className={cn(
-            "rounded-sm px-2.5 py-1 transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
+            "hit rounded-sm px-2.5 py-1 transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
             locale === l ? "bg-card font-bold text-primary shadow-xs" : "text-muted-foreground hover:text-foreground",
           )}
         >
@@ -53,7 +53,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         onClick={() => setTheme(next)}
         aria-label={t("toggle")}
         className={cn(
-          "relative grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-primary outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring after:absolute after:-inset-[4px] after:content-['']",
+          "hit grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-primary outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           className,
         )}
       >
@@ -80,7 +80,7 @@ export function ThemeSelect() {
           key={id}
           onClick={() => setTheme(id)}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
+            "hit inline-flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
             mounted && theme === id ? "bg-card font-bold text-primary shadow-xs" : "text-muted-foreground hover:text-foreground",
           )}
         >

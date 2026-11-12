@@ -244,6 +244,7 @@
     "duration": "{count} min",
     "passScore": "Pass {score}",
     "best": "Best {score}",
+    "notTaken": "Not taken",
     "attempts": "{count, plural, =0 {Not taken} one {# attempt} other {# attempts}}",
     "timeLeft": "Time left",
     "submit": "Submit exam",

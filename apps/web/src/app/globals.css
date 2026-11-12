@@ -41,8 +41,6 @@
   --color-warning-soft: var(--warning-soft);
   --color-warning-ink: var(--warning-ink);
   --color-code: var(--code-bg);
-  --color-hit: var(--hit);
-  --color-edge: var(--edge);
   --color-phase-1: var(--phase-1);
   --color-phase-2: var(--phase-2);
   --color-phase-3: var(--phase-3);
@@ -111,6 +109,18 @@
 /* ---------- Dose theme parts ---------- */
 
 @layer components {
+  /* Hit area: grows the tap target to at least 44px without changing the visible size. */
+  .hit { position: relative; }
+  .hit::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
   /* Display heading: Be Vietnam Pro 700, tracking -0.02em, sentence case */
   .display {
     font-family: var(--font-display);

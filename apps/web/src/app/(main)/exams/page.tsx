@@ -124,7 +124,7 @@ function ExamTableRow({ exam }: { exam: ExamSummary }) {
             {percent(best)}
           </Badge>
         ) : (
-          <span className="text-muted-foreground">—</span>
+          <span className="text-muted-foreground">{t("notTaken")}</span>
         )}
       </td>
       <td className="whitespace-nowrap px-4 py-3 text-right font-mono tabular-nums text-muted-foreground">

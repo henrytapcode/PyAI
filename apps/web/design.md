@@ -135,3 +135,4 @@ Bộ token cú pháp lấy tông xanh lá pharmacy làm chủ đạo, tương ph
 - Các icon minh họa/trang trí đi kèm chữ bắt buộc có `aria-hidden="true"`.
 - Bàn phím: outline rõ nét với `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring`.
 - Không tràn ngang (no horizontal overflow) ở kích thước màn hình nhỏ 375px.
+- Vùng bấm tối thiểu (Tap target ≥ 44px): Dùng utility chung `.hit` (pseudo-element `::after` `width/height: max(100%, 44px)` căn giữa) cho các control nhỏ (nút switch, tab, icon button, filter chip, link phụ) để đạt vùng bấm ≥ 44px mà không làm phình kích thước nhìn thấy.

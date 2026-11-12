@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Eye, Loader2, Pause, Play } from "lucide-react";
+import { ArrowRight, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Eye, Loader2, Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -126,7 +126,7 @@ function Visualizer({ code }: { code: string }) {
       ) : steps.length === 0 ? (
         <div className="m-5 space-y-2">
           {result.error ? (
-            <pre className="whitespace-pre-wrap rounded-md border border-danger/20 bg-danger-soft p-3 font-mono text-[13px] text-danger">
+            <pre className="whitespace-pre-wrap rounded-md border border-danger/20 bg-danger-soft p-3 font-mono text-xs text-danger">
               {result.error.type}: {result.error.message}
               {result.error.line ? ` (${t("line", { line: result.error.line })})` : ""}
             </pre>
@@ -137,7 +137,7 @@ function Visualizer({ code }: { code: string }) {
       ) : (
         <div className="grid min-h-0 flex-1 gap-0 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           {/* Code with the current line */}
-          <div className="min-h-0 overflow-auto border-b bg-code py-3 font-mono text-[13px] leading-6 md:border-b-0 md:border-r">
+          <div className="min-h-0 overflow-auto border-b bg-code py-3 font-mono text-xs leading-6 md:border-b-0 md:border-r">
             {lines.map((text, i) => {
               const n = i + 1;
               const current = step?.line === n;
@@ -152,7 +152,7 @@ function Visualizer({ code }: { code: string }) {
                     previous && "bg-muted/40",
                   )}
                 >
-                  <span className="w-5 shrink-0 select-none text-right font-mono text-xs text-muted-foreground/70">{current ? "➜" : n}</span>
+                  <span className="flex items-center justify-end w-5 shrink-0 select-none font-mono text-xs text-muted-foreground/70">{current ? <ArrowRight className="size-3.5 text-primary" aria-hidden="true" /> : n}</span>
                   <span className="whitespace-pre">{text || " "}</span>
                 </div>
               );
@@ -199,9 +199,9 @@ function Visualizer({ code }: { code: string }) {
             </div>
             <div className="mt-4">
               <div className="mb-1 text-xs font-bold text-muted-foreground">{t("output")}</div>
-              <pre className="min-h-10 whitespace-pre-wrap rounded-lg border border-border bg-code p-2 font-mono text-[13px]">{output || " "}</pre>
+              <pre className="min-h-10 whitespace-pre-wrap rounded-lg border border-border bg-code p-2 font-mono text-xs">{output || " "}</pre>
               {atEnd && result.error && (
-                <pre className="mt-2 whitespace-pre-wrap rounded-lg border border-danger/20 bg-danger-soft p-2 font-mono text-[13px] text-danger">
+                <pre className="mt-2 whitespace-pre-wrap rounded-lg border border-danger/20 bg-danger-soft p-2 font-mono text-xs text-danger">
                   {result.error.type}: {result.error.message}
                 </pre>
               )}

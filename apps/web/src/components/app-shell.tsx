@@ -95,10 +95,10 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
         <div className="well mt-auto flex items-end justify-between gap-2 px-3 py-3">
           <div>
             <Flame className={cn("mb-1 size-4", days > 0 ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
-            <div className="figure font-mono text-3xl text-primary tabular-nums">{days}</div>
+            <div className="font-mono text-3xl font-bold leading-none text-primary tabular-nums">{days}</div>
           </div>
           <div className="text-right">
-            <XpFigure value={xp} className="figure font-mono text-3xl text-foreground tabular-nums" />
+            <XpFigure value={xp} className="font-mono text-3xl font-bold leading-none text-foreground tabular-nums" />
             <div className="mt-1 text-xs font-medium text-muted-foreground">XP</div>
           </div>
         </div>
@@ -111,7 +111,7 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar: solid background */}
         <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background px-4 lg:hidden">
-          <Link href="/" className="flex items-center gap-2" aria-label="PyAI Path">
+          <Link href="/" className="hit flex items-center gap-2" aria-label="PyAI Path">
             <Logo className="size-7" aria-hidden="true" />
             <span className="font-display text-lg font-bold leading-none tracking-tight">PyAI Path</span>
           </Link>
