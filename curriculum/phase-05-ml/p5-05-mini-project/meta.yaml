@@ -1,0 +1,31 @@
+id: p5-05-mini-project
+phase: p5
+order: 5
+kind: project
+title:
+  en: "Mini-project: ML classifier"
+  vi: "Mini-project: bộ phân loại ML"
+summary:
+  en: "Build an urgent-ticket classifier from messy support logs to an honest evaluation report: clean raw features without target leakage, compare models against a baseline using stratified CV, tune the decision threshold on train only, and score the holdout test set once."
+  vi: "Xây dựng bộ phân loại ticket khẩn cấp từ log hỗ trợ thô tới báo cáo đánh giá trung thực: làm sạch feature không dính target leakage, so sánh mô hình với baseline bằng CV phân tầng, chọn ngưỡng trên tập train và chấm tập holdout test đúng một lần."
+level: beginner
+tags: [model-evaluation, sklearn, data-cleaning]
+prerequisites: [p5-04-evaluation, p4-03-cleaning]
+duration_min: 48
+outcomes:
+  en:
+    - "Train and evaluate a classifier end to end"
+    - "Report results honestly"
+    - "Clean messy raw logs into NumPy feature arrays while removing target leakage"
+    - "Compare candidate models with stratified CV and tune thresholds without touching the holdout test set"
+  vi:
+    - "Huấn luyện và đánh giá một bộ phân loại từ đầu đến cuối"
+    - "Báo cáo kết quả trung thực"
+    - "Làm sạch log thô thành mảng NumPy feature đồng thời loại bỏ cột target leakage"
+    - "So sánh các mô hình bằng CV phân tầng và chỉnh ngưỡng mà không đụng vào tập holdout test"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "scikit-learn: Common pitfalls and recommended practices", vi: "scikit-learn: Common pitfalls and recommended practices (EN)" }
+    url: "https://scikit-learn.org/stable/common_pitfalls.html"
+  - title: { en: "scikit-learn: Tuning the decision threshold for class prediction", vi: "scikit-learn: Tuning the decision threshold for class prediction (EN)" }
+    url: "https://scikit-learn.org/stable/modules/classification_threshold.html"

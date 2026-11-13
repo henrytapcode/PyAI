@@ -1,0 +1,13 @@
+shape: (240, 7)
+duplicate ticket_id: 4
+missing per column:
+  tokens: 3
+  error_count: 2
+plan counts:
+  'free': 86
+  'pro': 49
+  ' PRO': 31
+  ' Free': 31
+  'enterprise': 25
+  'Enterprise ': 18
+urgent: 57/240 (0.237)

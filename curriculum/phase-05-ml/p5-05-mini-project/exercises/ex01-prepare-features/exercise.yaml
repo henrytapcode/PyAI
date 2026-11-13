@@ -1,0 +1,72 @@
+id: p5-05-ex01
+kind: project
+title:
+  en: "Clean raw ticket logs into feature arrays"
+  vi: "Làm sạch log ticket thô thành mảng feature"
+difficulty: 3
+tags: [data-cleaning, sklearn]
+hints:
+  en:
+    - |
+      Follow the cleaning pipeline from §3: copy `raw`, normalise `plan`, parse `tokens` with comma removal, coerce numeric columns, drop duplicate `ticket_id` (`keep="first"`), map `plan` to `0.0 / 1.0 / 2.0`, drop missing rows, and extract the 4 feature columns into `X` while excluding `escalated_to_oncall`.
+      For a row with `plan=" PRO"` and `tokens="1,200"`, `X[0]` must be `[1200.0, error_count, hours_since_deploy, 1.0]`.
+    - |
+      Step-by-step plan:
+      1. Copy the input DataFrame so the caller's table stays untouched.
+      2. Clean the plan column by converting to string, trimming spaces, and lowercasing.
+      3. Strip commas from the token strings and coerce tokens, error count, and deploy hours to numbers (turning bad entries into missing values).
+      4. Drop duplicate ticket IDs while keeping the first occurrence.
+      5. Map clean plan names to floating-point codes, drop any row missing a feature or label, and convert the four feature columns and urgent label to NumPy arrays with `"float64"` and `"int64"` dtypes.
+    - |
+      Function skeleton:
+      ```python
+      df = raw.copy()
+      df["plan"] = df["plan"].astype(str).str.strip().str.lower()
+      df["tokens"] = pd.to_numeric(
+          df["tokens"].astype(str).str.replace(",", "", regex=False),
+          errors="coerce",
+      )
+      df["error_count"] = pd.to_numeric(df["error_count"], errors="coerce")
+      df["hours_since_deploy"] = pd.to_numeric(df["hours_since_deploy"], errors="coerce")
+      # 1. drop duplicate ticket_id rows keeping the first occurrence:
+      ...
+      # 2. map plan ("free": 0.0, "pro": 1.0, "enterprise": 2.0) and drop rows with missing values:
+      ...
+      # 3. extract X (4 columns in order, float64) and y ("int64"), excluding escalated_to_oncall:
+      X = ...
+      y = ...
+      return X, y
+      ```
+      Complete the three blocks without modifying `raw`.
+  vi:
+    - |
+      Làm theo quy trình ở §3: sao chép `raw`, chuẩn hóa `plan`, bỏ dấu phẩy ở `tokens`, ép kiểu các cột số, loại `ticket_id` trùng (`keep="first"`), ánh xạ `plan` sang `0.0 / 1.0 / 2.0`, bỏ dòng thiếu rồi tách 4 cột feature vào `X` và loại bỏ `escalated_to_oncall`.
+      Với dòng có `plan=" PRO"` và `tokens="1,200"`, `X[0]` phải là `[1200.0, error_count, hours_since_deploy, 1.0]`.
+    - |
+      Kế hoạch từng bước:
+      1. Sao chép DataFrame đầu vào để không làm thay đổi dữ liệu gốc của người gọi.
+      2. Chuẩn hóa cột gói dịch vụ bằng cách chuyển sang chuỗi, cắt khoảng trắng hai đầu và đổi về chữ thường.
+      3. Xóa dấu phẩy trong chuỗi token rồi ép kiểu token, số lỗi và số giờ sau deploy sang dạng số (giá trị lỗi biến thành thiếu).
+      4. Loại bỏ các dòng trùng mã ticket và giữ lại dòng xuất hiện đầu tiên.
+      5. Ánh xạ tên gói sạch sang mã số thực, bỏ mọi dòng bị thiếu feature hoặc nhãn, rồi chuyển bốn cột feature và nhãn khẩn cấp sang mảng NumPy kiểu `"float64"` và `"int64"`.
+    - |
+      Khung hàm:
+      ```python
+      df = raw.copy()
+      df["plan"] = df["plan"].astype(str).str.strip().str.lower()
+      df["tokens"] = pd.to_numeric(
+          df["tokens"].astype(str).str.replace(",", "", regex=False),
+          errors="coerce",
+      )
+      df["error_count"] = pd.to_numeric(df["error_count"], errors="coerce")
+      df["hours_since_deploy"] = pd.to_numeric(df["hours_since_deploy"], errors="coerce")
+      # 1. bỏ các dòng trùng ticket_id và giữ lại dòng đầu tiên:
+      ...
+      # 2. ánh xạ plan ("free": 0.0, "pro": 1.0, "enterprise": 2.0) rồi bỏ dòng có ô thiếu:
+      ...
+      # 3. tách X (4 cột đúng thứ tự, float64) và y ("int64"), loại bỏ escalated_to_oncall:
+      X = ...
+      y = ...
+      return X, y
+      ```
+      Hoàn thiện ba phần trên mà không sửa đổi `raw`.

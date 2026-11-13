@@ -1648,6 +1648,28 @@ terms:
       vi: "Với dữ liệu lệch lớp, `StratifiedKFold` bảo đảm mọi fold đều giữ nguyên tỉ lệ lớp hiếm để không fold nào bị thiếu mẫu dương."
     related: [cross-validation, stratify, imbalanced data]
 
+  - term: target leakage
+    vi_term: target leakage (rò rỉ nhãn mục tiêu)
+    tags: [model-evaluation, data-prep]
+    en: "A form of data leakage where a feature column encodes information only known after the label is decided, making training and CV scores look artificially near 1.0."
+    vi: "Một dạng rò rỉ dữ liệu khi một cột feature chứa thông tin chỉ biết được sau khi đáp án đã ngã ngũ, khiến điểm train và CV cao gần 1.0 một cách giả tạo."
+    example: "# Drop post-outcome columns like escalated_to_oncall before building X\nX = df[[\"tokens\", \"error_count\", \"hours_since_deploy\", \"plan_code\"]]"
+    in_practice:
+      en: "For a ticket classifier, columns logged after a human resolves the ticket (such as escalation status or resolution time) are unavailable when a new ticket arrives and must be dropped."
+      vi: "Với bộ phân loại ticket, các cột chỉ ghi nhận sau khi nhân viên xử lý xong (như trạng thái chuyển trực hay thời gian xử lý) không tồn tại khi ticket mới gửi tới nên bắt buộc phải bỏ."
+    related: [data leakage, feature, label]
+
+  - term: holdout set
+    vi_term: tập holdout (tập giữ riêng để kiểm tra cuối)
+    tags: [model-evaluation, supervised-learning]
+    en: "A test split locked away from the start—excluded from feature tuning, cross-validation, and threshold selection—and scored only once at the end."
+    vi: "Phần dữ liệu test được khóa riêng ngay từ đầu—không dùng để chọn mô hình, chạy cross-validation hay chỉnh ngưỡng—và chỉ chấm điểm đúng một lần ở bước cuối."
+    example: "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, stratify=y, random_state=42)"
+    in_practice:
+      en: "Choosing models and thresholds on training CV while keeping the holdout set untouched ensures your final reported precision, recall, and F1 reflect unseen data."
+      vi: "Chọn mô hình và ngưỡng trên CV của tập train trong khi giữ nguyên tập holdout giúp precision, recall và F1 báo cáo cuối cùng phản ánh đúng dữ liệu chưa từng thấy."
+    related: [train/test split, cross-validation, decision threshold]
+
   # ---------------------------------------------------------- LLM / GenAI
   - term: LLM
     vi_term: LLM (mô hình ngôn ngữ lớn)

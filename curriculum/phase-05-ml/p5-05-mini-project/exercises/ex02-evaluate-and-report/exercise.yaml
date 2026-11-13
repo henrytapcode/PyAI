@@ -1,0 +1,88 @@
+id: p5-05-ex02
+kind: project
+title:
+  en: "Compare models with CV and write an honest report"
+  vi: "So sánh mô hình bằng CV và viết báo cáo trung thực"
+difficulty: 3
+tags: [model-evaluation, sklearn]
+hints:
+  en:
+    - |
+      Follow §4 and §6: in `evaluate_models(X, y, seed)`, run 5-fold `StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)` on `"baseline"`, `"logreg"`, and `"tree"` using `make_scorer(f1_score, zero_division=0)`. In `write_report(results, n_test)`, format one line per model, find the best non-baseline model, append `"test size: <n_test>"`, and add the warning line if the top two non-baseline models are within one `std`.
+      For `{"baseline": (0.0, 0.0), "logreg": (0.709, 0.092), "tree": (0.701, 0.14)}`, `write_report(..., 58)` returns 6 lines ending with `"warning: logreg and tree differ by less than one std"`.
+    - |
+      Step-by-step plan:
+      1. In `evaluate_models`, create a 5-fold stratified splitter seeded with `seed` and a zero-division-safe F1 scorer.
+      2. Loop over the three named models (`"baseline"`, `"logreg"`, `"tree"`), compute `cross_val_score`, and store `(mean, std)` rounded to 3 decimals as plain Python floats.
+      3. In `write_report`, filter out `"baseline"` to collect all non-baseline models; raise `ValueError` if none exist.
+      4. Build the output list with one formatted F1 line per model in `results` order, then `"best: <name>"` (highest mean, alphabetical tie-breaker), then `"test size: <n_test>"`.
+      5. If at least two non-baseline models exist, sort them by descending mean (alphabetical tie-breaker) and append the warning line whenever their mean gap is strictly less than the larger of their two standard deviations.
+    - |
+      Function skeleton:
+      ```python
+      def evaluate_models(X: np.ndarray, y: np.ndarray, seed: int) -> dict[str, tuple[float, float]]:
+          skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+          scorer = make_scorer(f1_score, zero_division=0)
+          models = [
+              ("baseline", DummyClassifier(strategy="most_frequent")),
+              ("logreg", make_pipeline(StandardScaler(), LogisticRegression())),
+              ("tree", DecisionTreeClassifier(max_depth=3, random_state=0)),
+          ]
+          results = {}
+          for name, estimator in models:
+              # 1. compute CV F1 scores and store rounded (mean, std) floats:
+              ...
+          return results
+
+
+      def write_report(results: dict[str, tuple[float, float]], n_test: int) -> list[str]:
+          non_baseline = [(name, stats) for name, stats in results.items() if name != "baseline"]
+          if not non_baseline:
+              raise ValueError("need at least one non-baseline model")
+          # 2. format model lines, pick best via (-mean, name), append test size:
+          lines = [...]
+          # 3. if len(ranked) >= 2 and mean gap < max std, append warning line:
+          ...
+          return lines
+      ```
+      Fill in the three `...` sections carefully.
+  vi:
+    - |
+      Làm theo §4 và §6: trong `evaluate_models(X, y, seed)`, chạy `StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)` 5 fold cho `"baseline"`, `"logreg"` và `"tree"` dùng `make_scorer(f1_score, zero_division=0)`. Trong `write_report(results, n_test)`, định dạng một dòng mỗi mô hình, chọn mô hình tốt nhất (không tính baseline), thêm `"test size: <n_test>"` và thêm dòng cảnh báo nếu hai mô hình tốt nhất chênh nhau nhỏ hơn một `std`.
+      Với `{"baseline": (0.0, 0.0), "logreg": (0.709, 0.092), "tree": (0.701, 0.14)}`, `write_report(..., 58)` trả về 6 dòng kết thúc bằng `"warning: logreg and tree differ by less than one std"`.
+    - |
+      Kế hoạch từng bước:
+      1. Trong `evaluate_models`, tạo bộ chia phân tầng 5 fold với hạt giống `seed` và bộ chấm F1 có `zero_division=0`.
+      2. Lặp qua ba mô hình đúng tên (`"baseline"`, `"logreg"`, `"tree"`), gọi `cross_val_score` rồi lưu `(mean, std)` làm tròn 3 chữ số dưới dạng `float` Python.
+      3. Trong `write_report`, lọc các mô hình không phải `"baseline"`; nếu không có mô hình nào thì ném `ValueError`.
+      4. Tạo danh sách kết quả gồm một dòng F1 cho mỗi mô hình theo đúng thứ tự của `results`, tiếp theo là dòng `"best: <name>"` (mean cao nhất, hòa theo chữ cái) và dòng `"test size: <n_test>"`.
+      5. Nếu có từ hai mô hình (ngoài baseline) trở lên, xếp hạng theo mean giảm dần (hòa theo chữ cái) và thêm dòng cảnh báo khi độ chênh mean nhỏ hơn hẳn độ lệch chuẩn lớn hơn trong hai mô hình đầu.
+    - |
+      Khung hàm:
+      ```python
+      def evaluate_models(X: np.ndarray, y: np.ndarray, seed: int) -> dict[str, tuple[float, float]]:
+          skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+          scorer = make_scorer(f1_score, zero_division=0)
+          models = [
+              ("baseline", DummyClassifier(strategy="most_frequent")),
+              ("logreg", make_pipeline(StandardScaler(), LogisticRegression())),
+              ("tree", DecisionTreeClassifier(max_depth=3, random_state=0)),
+          ]
+          results = {}
+          for name, estimator in models:
+              # 1. tính điểm CV F1 và lưu cặp (mean, std) dạng float đã làm tròn:
+              ...
+          return results
+
+
+      def write_report(results: dict[str, tuple[float, float]], n_test: int) -> list[str]:
+          non_baseline = [(name, stats) for name, stats in results.items() if name != "baseline"]
+          if not non_baseline:
+              raise ValueError("need at least one non-baseline model")
+          # 2. tạo các dòng F1, chọn best theo (-mean, name), thêm dòng test size:
+          lines = [...]
+          # 3. nếu có >= 2 mô hình và độ chênh mean < max std, thêm dòng cảnh báo:
+          ...
+          return lines
+      ```
+      Hoàn thiện ba phần `...` theo đúng định dạng yêu cầu.

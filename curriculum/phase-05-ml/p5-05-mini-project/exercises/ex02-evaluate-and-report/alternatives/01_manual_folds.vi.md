@@ -1,0 +1,3 @@
+# Tự lặp cross-validation bằng `StratifiedKFold.split` và `clone`
+
+Thay vì giao vòng lặp cho `cross_val_score`, cách này tự duyệt từng cặp chỉ số từ `skf.split(X, y)`, nhân bản estimator sạch cho mỗi fold bằng `sklearn.base.clone`, huấn luyện trên `X[train_idx]`, dự đoán trên `X[val_idx]` rồi gọi thẳng `f1_score(..., zero_division=0)`—cho kết quả từng fold, `mean` và `std` trùng khớp tới 3 chữ số thập phân với `solution.py`. `cross_val_score` ở `solution.py` ngắn gọn và ít sai sót cho bước chấm chuẩn thông thường, còn vòng lặp thủ công rất hữu ích khi bạn cần lưu confusion matrix từng fold, thu thập dự đoán out-of-fold hoặc chỉnh ngưỡng bên trong mỗi fold.

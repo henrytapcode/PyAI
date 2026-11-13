@@ -1,0 +1,55 @@
+"""Mini-project part 2: 5-fold stratified CV evaluation and honest reporting."""
+
+import numpy as np
+from sklearn.dummy import DummyClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import f1_score, make_scorer
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeClassifier
+
+
+def evaluate_models(X: np.ndarray, y: np.ndarray, seed: int) -> dict[str, tuple[float, float]]:
+    """Run 5-fold stratified CV for baseline, logreg, and tree; return {name: (mean, std)}."""
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+    scorer = make_scorer(f1_score, zero_division=0)
+    models = [
+        ("baseline", DummyClassifier(strategy="most_frequent")),
+        ("logreg", make_pipeline(StandardScaler(), LogisticRegression())),
+        ("tree", DecisionTreeClassifier(max_depth=3, random_state=0)),
+    ]
+    results: dict[str, tuple[float, float]] = {}
+    for name, estimator in models:
+        scores = cross_val_score(estimator, X, y, cv=skf, scoring=scorer)
+        results[name] = (round(float(scores.mean()), 3), round(float(scores.std()), 3))
+    return results
+
+
+def write_report(results: dict[str, tuple[float, float]], n_test: int) -> list[str]:
+    """Format CV results into honest report lines, flagging close top models.
+
+    Example:
+        results = {"baseline": (0.0, 0.0), "logreg": (0.709, 0.092), "tree": (0.701, 0.14)}
+        write_report(results, 58)
+        # ['baseline F1: 0.000 +/- 0.000', 'logreg F1: 0.709 +/- 0.092',
+        #  'tree F1: 0.701 +/- 0.140', 'best: logreg', 'test size: 58',
+        #  'warning: logreg and tree differ by less than one std']
+    """
+    non_baseline = [(name, stats) for name, stats in results.items() if name != "baseline"]
+    if not non_baseline:
+        raise ValueError("results must include at least one non-baseline model")
+
+    ranked = sorted(non_baseline, key=lambda item: (-item[1][0], item[0]))
+    best_name = ranked[0][0]
+
+    lines = [f"{name} F1: {mean:.3f} +/- {std:.3f}" for name, (mean, std) in results.items()]
+    lines.append(f"best: {best_name}")
+    lines.append(f"test size: {n_test}")
+
+    if len(ranked) >= 2:
+        (name_a, (mean_a, std_a)), (name_b, (mean_b, std_b)) = ranked[0], ranked[1]
+        if abs(mean_a - mean_b) < max(std_a, std_b):
+            lines.append(f"warning: {name_a} and {name_b} differ by less than one std")
+
+    return lines

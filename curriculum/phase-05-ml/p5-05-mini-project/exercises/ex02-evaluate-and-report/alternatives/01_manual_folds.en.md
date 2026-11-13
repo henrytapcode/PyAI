@@ -1,0 +1,3 @@
+# Manual cross-validation loop with `StratifiedKFold.split` and `clone`
+
+Instead of delegating the loop to `cross_val_score`, this alternative iterates explicitly over `skf.split(X, y)`, clones a fresh estimator per fold with `sklearn.base.clone`, fits on `X[train_idx]`, predicts on `X[val_idx]`, and computes `f1_score(..., zero_division=0)` directly—producing the exact same fold scores, mean, and standard deviation to 3 decimal places. `cross_val_score` in `solution.py` is shorter and harder to get wrong for routine benchmarking, while a manual fold loop is better when you need to log per-fold confusion matrices, collect out-of-fold predictions, or tune a threshold inside each fold.

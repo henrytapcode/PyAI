@@ -1,0 +1,6 @@
+train/test rows: 173 58
+model      mean    std
+baseline   0.000   0.000
+logreg     0.709   0.092
+tree       0.701   0.140
+selected: logreg

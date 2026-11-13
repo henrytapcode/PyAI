@@ -1,0 +1,8 @@
+test set: 58 tickets (14 urgent)
+baseline: acc=0.759 F1=0.000
+logreg CV F1: 0.709 +/- 0.092
+tree   CV F1: 0.701 +/- 0.140
+chosen threshold (train OOF recall>=0.80): 0.2
+test confusion matrix: [[31, 13], [1, 13]]
+test metrics: prec=0.500 rec=0.929 F1=0.650
+note: logreg and tree differ by less than one std; cannot claim one is clearly better
