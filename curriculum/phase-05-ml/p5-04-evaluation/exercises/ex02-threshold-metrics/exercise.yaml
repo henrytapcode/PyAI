@@ -1,0 +1,70 @@
+id: p5-04-ex02
+kind: code
+title:
+  en: "Write: precision, recall, F1, and threshold selection"
+  vi: "Viết code: precision, recall, F1 và chọn ngưỡng"
+difficulty: 2
+tags: [model-evaluation, numpy]
+hints:
+  en:
+    - |
+      This combines the metric formulas from §3 and the probability threshold loop from §5. First count `tp`, `fp`, and `fn` from `y_true` and `y_pred`; then sweep `thresholds` over `(probs >= t)` to pick the largest `t` meeting `min_recall`.
+    - |
+      The plan:
+      1. In `precision_recall_f1`, count true positives, false positives, and false negatives using NumPy boolean masks.
+      2. Compute precision and recall from those counts, guarding against a zero denominator by defaulting to `0.0`.
+      3. Compute the F1 score from unrounded precision and recall (defaulting to `0.0` if their sum is zero), and round all three values to 3 decimal places as Python `float`s.
+      4. In `threshold_for_recall`, iterate over the thresholds from highest to lowest (or track the maximum), convert probabilities to `0`/`1` predictions at each threshold, compute recall, and return the largest threshold that reaches `min_recall` (or `None` if none qualifies).
+    - |
+      The shape:
+      ```python
+      def precision_recall_f1(y_true, y_pred):
+          tp = int(((y_true == 1) & (y_pred == 1)).sum())
+          fp = int(((y_true == 0) & (y_pred == 1)).sum())
+          fn = int(((y_true == 1) & (y_pred == 0)).sum())
+          precision = ...
+          recall = ...
+          f1 = ...
+          return (round(float(precision), 3), round(float(recall), 3), round(float(f1), 3))
+      ```
+      For `threshold_for_recall`:
+      ```python
+      best = None
+      for t in sorted(thresholds, reverse=True):
+          preds = (probs >= t).astype("int64")
+          _, recall, _ = precision_recall_f1(y_true, preds)
+          if ...:
+              return float(t)
+      return best
+      ```
+  vi:
+    - |
+      Bài này kết hợp công thức chỉ số ở §3 và vòng lặp thử ngưỡng xác suất ở §5. Trước hết hãy đếm `tp`, `fp`, `fn` từ `y_true` và `y_pred`; sau đó duyệt `thresholds` trên `(probs >= t)` để chọn ngưỡng lớn nhất đạt `min_recall`.
+    - |
+      Kế hoạch:
+      1. Trong `precision_recall_f1`, đếm số true positive, false positive và false negative bằng boolean mask của NumPy.
+      2. Tính precision và recall từ các số đếm đó, kiểm tra nếu mẫu số bằng 0 thì trả về `0.0`.
+      3. Tính F1 từ precision và recall chưa làm tròn (trả `0.0` nếu tổng bằng 0), rồi làm tròn cả ba giá trị tới 3 chữ số thập phân dưới dạng `float` Python.
+      4. Trong `threshold_for_recall`, duyệt các ngưỡng theo thứ tự giảm dần (hoặc giữ giá trị lớn nhất), chuyển xác suất thành dự đoán `0`/`1` tại mỗi ngưỡng, tính recall rồi trả về ngưỡng lớn nhất đạt `min_recall` (hoặc `None` nếu không ngưỡng nào đạt).
+    - |
+      Hình dạng của lời giải:
+      ```python
+      def precision_recall_f1(y_true, y_pred):
+          tp = int(((y_true == 1) & (y_pred == 1)).sum())
+          fp = int(((y_true == 0) & (y_pred == 1)).sum())
+          fn = int(((y_true == 1) & (y_pred == 0)).sum())
+          precision = ...
+          recall = ...
+          f1 = ...
+          return (round(float(precision), 3), round(float(recall), 3), round(float(f1), 3))
+      ```
+      Còn cho `threshold_for_recall`:
+      ```python
+      best = None
+      for t in sorted(thresholds, reverse=True):
+          preds = (probs >= t).astype("int64")
+          _, recall, _ = precision_recall_f1(y_true, preds)
+          if ...:
+              return float(t)
+      return best
+      ```

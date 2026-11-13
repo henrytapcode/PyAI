@@ -1,0 +1,3 @@
+# Using `sklearn.metrics` with `zero_division=0`
+
+Instead of counting `tp`, `fp`, and `fn` manually, this alternative delegates all three metrics to `precision_score`, `recall_score`, and `f1_score` from `sklearn.metrics`, passing `zero_division=0` so zero-denominator edge cases return `0.0` cleanly without warnings. Implementing the formulas by hand once (as in `solution.py`) builds intuition for what each denominator means and avoids library overhead in tight threshold loops; in production pipelines and model evaluation scripts, calling `sklearn.metrics` is shorter, handles multi-class averaging (`average="macro"`), and prevents formula typos.

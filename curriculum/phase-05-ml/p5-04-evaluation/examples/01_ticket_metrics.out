@@ -1,0 +1,14 @@
+test counts: [51, 9]
+baseline acc: 0.85
+baseline recall: 0.0
+model acc: 0.883
+confusion matrix: [[51, 0], [7, 2]]
+precision / recall / f1: 1.0 0.222 0.364
+              precision    recall  f1-score   support
+
+           0      0.879     1.000     0.936        51
+           1      1.000     0.222     0.364         9
+
+    accuracy                          0.883        60
+   macro avg      0.940     0.611     0.650        60
+weighted avg      0.897     0.883     0.850        60

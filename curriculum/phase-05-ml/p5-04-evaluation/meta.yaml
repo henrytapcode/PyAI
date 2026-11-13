@@ -1,0 +1,35 @@
+id: p5-04-evaluation
+phase: p5
+order: 4
+kind: lesson
+title:
+  en: "Evaluating models"
+  vi: "Đánh giá mô hình"
+summary:
+  en: "Go beyond accuracy on imbalanced data using confusion matrices, precision, recall, F1, classification_report, decision thresholds, and stratified cross-validation."
+  vi: "Vượt qua bẫy accuracy trên dữ liệu lệch lớp bằng confusion matrix, precision, recall, F1, classification_report, ngưỡng quyết định và cross-validation có phân tầng."
+level: beginner
+tags: [model-evaluation, sklearn, evaluation]
+prerequisites: [p5-03-sklearn]
+duration_min: 14
+outcomes:
+  en:
+    - "Accuracy, precision, recall and F1"
+    - "Read a confusion matrix"
+    - "Cross-validation"
+    - "Tune decision thresholds using predicted probabilities"
+    - "Compare models against a baseline on imbalanced data"
+  vi:
+    - "Accuracy, precision, recall và F1"
+    - "Đọc confusion matrix"
+    - "Cross-validation"
+    - "Điều chỉnh ngưỡng quyết định từ xác suất dự đoán"
+    - "So sánh mô hình với baseline trên dữ liệu lệch lớp"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "scikit-learn: Metrics and scoring: quantifying the quality of predictions", vi: "scikit-learn: Metrics and scoring: quantifying the quality of predictions (EN)" }
+    url: "https://scikit-learn.org/stable/modules/model_evaluation.html"
+  - title: { en: "scikit-learn: Cross-validation: evaluating estimator performance", vi: "scikit-learn: Cross-validation: evaluating estimator performance (EN)" }
+    url: "https://scikit-learn.org/stable/modules/cross_validation.html"
+  - title: { en: "Google ML Crash Course: Classification: Accuracy, recall, precision, and related metrics", vi: "Google ML Crash Course: Classification: Accuracy, recall, precision, and related metrics (EN)" }
+    url: "https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall"

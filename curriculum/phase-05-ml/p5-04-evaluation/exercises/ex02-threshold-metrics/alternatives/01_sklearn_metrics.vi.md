@@ -1,0 +1,3 @@
+# Dùng `sklearn.metrics` với `zero_division=0`
+
+Thay vì tự đếm `tp`, `fp`, `fn` bằng tay, cách làm này giao toàn bộ phần tính toán cho `precision_score`, `recall_score` và `f1_score` từ `sklearn.metrics`, kèm tham số `zero_division=0` để các trường hợp mẫu số bằng 0 trả về `0.0` êm đẹp mà không phát sinh cảnh báo. Tự cài đặt công thức một lần (như trong `solution.py`) giúp bạn hiểu rõ ý nghĩa từng mẫu số và tránh chi phí gọi thư viện bên trong vòng lặp thử nhiều ngưỡng; còn trong pipeline thực tế, dùng `sklearn.metrics` gọn hơn, hỗ trợ sẵn bài toán nhiều lớp (`average="macro"`) và tránh sai sót khi viết lại công thức.

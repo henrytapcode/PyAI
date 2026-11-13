@@ -1,0 +1,5 @@
+dataset shape: (569, 30) class counts: [212, 357]
+LogReg     mean=0.983 std=0.011
+KNN(k=5)   mean=0.973 std=0.016
+Tree(d=4)  mean=0.942 std=0.020
+best model: LogReg with F1 0.983

@@ -1505,6 +1505,149 @@ terms:
       vi: "Khi lớp cần tìm khá hiếm (như 10% ticket khẩn cấp), chia có stratify ngăn việc chia ngẫu nhiên làm tập test gần như không có ca dương tính nào."
     related: [train/test split, random_state, classification]
 
+  - term: baseline
+    vi_term: baseline (mức chuẩn cơ sở)
+    tags: [model-evaluation, ml]
+    en: "A simple rule or trivial model—such as predicting the most frequent class with `DummyClassifier`—used as the minimum benchmark a real model must beat."
+    vi: "Một quy tắc đơn giản hoặc mô hình tối giản—như luôn đoán lớp phổ biến nhất bằng `DummyClassifier`—dùng làm mức sàn tối thiểu mà mô hình thật phải vượt qua."
+    example: "baseline = DummyClassifier(strategy=\"most_frequent\").fit(X_train, y_train)"
+    in_practice:
+      en: "Before shipping an expensive LLM or ML pipeline, you measure a baseline first: if a dataset is 90% normal, 91% accuracy is barely better than always saying 'normal'."
+      vi: "Trước khi triển khai một pipeline ML hoặc LLM đắt đỏ, bạn luôn đo baseline trước: nếu dữ liệu có 90% mẫu bình thường, accuracy 91% chẳng hơn gì việc lúc nào cũng trả lời 'bình thường'."
+    related: [accuracy, imbalanced data, evaluation]
+
+  - term: imbalanced data
+    vi_term: dữ liệu lệch lớp (imbalanced data)
+    tags: [model-evaluation, data-prep]
+    en: "A classification dataset where one class has far fewer examples than another, such as 85% normal tickets and 15% urgent ones."
+    vi: "Bộ dữ liệu phân loại mà một lớp có số mẫu ít hơn hẳn lớp còn lại, ví dụ 85% ticket bình thường và 15% ticket khẩn cấp."
+    example: "X, y = make_classification(n_samples=200, weights=[0.85], random_state=1)"
+    in_practice:
+      en: "Fraud detection, outage alerts, and toxic-reply filters are all imbalanced, so accuracy misleads you and you rely on confusion matrices, precision, recall, and F1 instead."
+      vi: "Phát hiện gian lận, cảnh báo sự cố và lọc phản hồi độc hại đều bị lệch lớp, nên accuracy dễ đánh lừa và bạn phải dựa vào confusion matrix, precision, recall và F1."
+    related: [accuracy, baseline, stratify, F1 score]
+
+  - term: confusion matrix
+    vi_term: ma trận nhầm lẫn (confusion matrix)
+    tags: [model-evaluation, sklearn]
+    en: "A grid comparing actual labels (rows) against predicted labels (columns); in binary classification with scikit-learn, it is `[[TN, FP], [FN, TP]]`."
+    vi: "Bảng đối chiếu nhãn thật (theo hàng) với nhãn dự đoán (theo cột); trong phân loại nhị phân của scikit-learn, bố cục là `[[TN, FP], [FN, TP]]`."
+    example: "cm = confusion_matrix(y_true, y_pred).tolist()  # [[51, 0], [7, 2]]"
+    in_practice:
+      en: "A confusion matrix immediately shows whether your classifier makes too many false alarms (`FP`) or misses too many real incidents (`FN`)."
+      vi: "Confusion matrix cho thấy ngay bộ phân loại đang báo động giả quá nhiều (`FP`) hay bỏ sót quá nhiều sự cố thật (`FN`)."
+    related: [true positive, false positive, true negative, false negative]
+
+  - term: true positive
+    vi_term: true positive (dương tính thật, TP)
+    tags: [model-evaluation]
+    en: "An example whose actual label is positive (`1`) and that the model also predicts as positive (`1`)."
+    vi: "Mẫu có nhãn thật là dương (`1`) và mô hình cũng dự đoán đúng là dương (`1`)."
+    example: "tp = int(((y_true == 1) & (y_pred == 1)).sum())"
+    in_practice:
+      en: "In urgent-ticket routing, each urgent ticket correctly escalated to the on-call team is a true positive."
+      vi: "Trong hệ thống phân tuyến ticket khẩn cấp, mỗi ticket khẩn cấp được chuyển đúng tới đội trực là một true positive."
+    related: [confusion matrix, precision, recall]
+
+  - term: false positive
+    vi_term: false positive (dương tính giả, FP)
+    tags: [model-evaluation]
+    en: "An example whose actual label is negative (`0`), but that the model wrongly predicts as positive (`1`)—a false alarm."
+    vi: "Mẫu có nhãn thật là âm (`0`) nhưng mô hình lại đoán nhầm là dương (`1`)—tức báo động giả."
+    example: "fp = int(((y_true == 0) & (y_pred == 1)).sum())"
+    in_practice:
+      en: "In spam filtering, a false positive sends an important customer email into the spam folder, which is why spam filters demand high precision."
+      vi: "Trong bộ lọc spam, một false positive đẩy nhầm email quan trọng của khách vào thư rác, đó là lý do bộ lọc spam cần precision cao."
+    related: [confusion matrix, precision, true positive]
+
+  - term: true negative
+    vi_term: true negative (âm tính thật, TN)
+    tags: [model-evaluation]
+    en: "An example whose actual label is negative (`0`) and that the model also predicts as negative (`0`)."
+    vi: "Mẫu có nhãn thật là âm (`0`) và mô hình cũng dự đoán đúng là âm (`0`)."
+    example: "tn = int(((y_true == 0) & (y_pred == 0)).sum())"
+    in_practice:
+      en: "Normal support tickets kept in the regular queue are true negatives; on imbalanced data they inflate accuracy even when urgent tickets are missed."
+      vi: "Các ticket bình thường được giữ đúng ở hàng đợi thường là true negative; trên dữ liệu lệch lớp chúng đẩy accuracy lên cao dù ca khẩn cấp bị bỏ sót."
+    related: [confusion matrix, accuracy, imbalanced data]
+
+  - term: false negative
+    vi_term: false negative (âm tính giả, FN)
+    tags: [model-evaluation]
+    en: "An example whose actual label is positive (`1`), but that the model wrongly predicts as negative (`0`)—a missed detection."
+    vi: "Mẫu có nhãn thật là dương (`1`) nhưng mô hình lại đoán nhầm là âm (`0`)—tức bỏ sót ca cần bắt."
+    example: "fn = int(((y_true == 1) & (y_pred == 0)).sum())"
+    in_practice:
+      en: "In fraud detection or outage alerting, a false negative lets a real incident slip past unnoticed, which is why those tasks optimize recall."
+      vi: "Trong phát hiện gian lận hoặc cảnh báo sự cố, một false negative làm sự cố thật lọt qua mà không ai hay biết, nên các bài toán này ưu tiên recall."
+    related: [confusion matrix, recall, true positive]
+
+  - term: precision
+    vi_term: precision (độ chính xác dự đoán dương)
+    tags: [model-evaluation, sklearn]
+    en: "The fraction of positive predictions that are actually positive: `TP / (TP + FP)`."
+    vi: "Tỉ lệ các dự đoán dương thật sự đúng: `TP / (TP + FP)`."
+    example: "prec = precision_score(y_true, y_pred, zero_division=0)"
+    in_practice:
+      en: "You optimize precision when acting on a prediction is costly or annoying to users, such as auto-blocking accounts or flagging spam."
+      vi: "Bạn ưu tiên precision khi hành động theo dự đoán gây tốn kém hoặc phiền người dùng, như tự động khóa tài khoản hay chặn spam."
+    related: [recall, F1 score, false positive, decision threshold]
+
+  - term: recall
+    vi_term: recall (độ phủ)
+    tags: [model-evaluation, sklearn]
+    en: "The fraction of actual positive examples that the model successfully caught: `TP / (TP + FN)`."
+    vi: "Tỉ lệ các ca dương thật mà mô hình bắt trúng được: `TP / (TP + FN)`."
+    example: "rec = recall_score(y_true, y_pred, zero_division=0)"
+    in_practice:
+      en: "You optimize recall when missing a positive case is dangerous or expensive, such as urgent support escalations or security alerts."
+      vi: "Bạn ưu tiên recall khi bỏ sót một ca dương gây hậu quả nghiêm trọng hoặc đắt giá, như ticket sự cố khẩn cấp hay cảnh báo bảo mật."
+    related: [precision, F1 score, false negative, decision threshold]
+
+  - term: F1 score
+    vi_term: F1 score (điểm F1)
+    tags: [model-evaluation, sklearn]
+    en: "The harmonic mean of precision and recall, `2 * precision * recall / (precision + recall)`, which stays high only when both are reasonably high."
+    vi: "Trung bình điều hòa của precision và recall, `2 * precision * recall / (precision + recall)`, chỉ cao khi cả hai cùng khá cao."
+    example: "f1 = f1_score(y_true, y_pred, zero_division=0)"
+    in_practice:
+      en: "When comparing models on imbalanced datasets in cross-validation (`scoring=\"f1\"`), F1 gives one honest score that neither class can game alone."
+      vi: "Khi so sánh mô hình trên dữ liệu lệch lớp bằng cross-validation (`scoring=\"f1\"`), F1 cho một con số công bằng mà không lớp nào ăn gian riêng lẻ được."
+    related: [precision, recall, imbalanced data, cross-validation]
+
+  - term: decision threshold
+    vi_term: ngưỡng quyết định (decision threshold)
+    tags: [model-evaluation]
+    en: "The probability cutoff (0.5 by default in `.predict()`) above which a classifier outputs class `1` instead of class `0`."
+    vi: "Mốc xác suất (mặc định là 0.5 trong `.predict()`) mà khi vượt qua nó bộ phân loại sẽ xuất lớp `1` thay vì lớp `0`."
+    example: "probs = pipe.predict_proba(X_test)[:, 1]\npreds = (probs >= 0.3).astype(\"int64\")"
+    in_practice:
+      en: "Lowering the decision threshold from 0.5 to 0.3 lets you raise recall on urgent cases without retraining the model."
+      vi: "Hạ ngưỡng quyết định từ 0.5 xuống 0.3 giúp bạn tăng recall cho các ca khẩn cấp mà không cần huấn luyện lại mô hình."
+    related: [precision, recall, predict]
+
+  - term: cross-validation
+    vi_term: cross-validation (kiểm định chéo)
+    tags: [model-evaluation, sklearn]
+    en: "Evaluating a model by splitting data into `k` folds, training on `k - 1` folds and scoring on the held-out fold `k` times, then reporting the mean and standard deviation."
+    vi: "Đánh giá mô hình bằng cách chia dữ liệu thành `k` phần (fold), huấn luyện trên `k - 1` fold và chấm điểm trên fold còn lại đủ `k` lượt, rồi báo cáo trung bình và độ lệch chuẩn."
+    example: "scores = cross_val_score(pipe, X, y, cv=5)"
+    in_practice:
+      en: "Cross-validation replaces the luck of a single train/test split with `mean +/- std` across splits—just make sure preprocessing like `StandardScaler` lives inside a `Pipeline`."
+      vi: "Cross-validation thay thế sự may rủi của một lần chia train/test bằng `mean +/- std` qua nhiều lần chia—chỉ cần nhớ đặt bước tiền xử lý như `StandardScaler` bên trong `Pipeline`."
+    related: [fold, pipeline, data leakage]
+
+  - term: fold
+    vi_term: fold (phần chia trong cross-validation)
+    tags: [model-evaluation, sklearn]
+    en: "One of the `k` equal slices of a dataset created for cross-validation; each fold takes one turn as the held-out validation set."
+    vi: "Một trong `k` phần bằng nhau của bộ dữ liệu được chia cho cross-validation; mỗi fold lần lượt đóng vai trò tập kiểm tra một lượt."
+    example: "skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)"
+    in_practice:
+      en: "With imbalanced classes, `StratifiedKFold` ensures every fold keeps the same rare-class ratio so no fold ends up without positive examples."
+      vi: "Với dữ liệu lệch lớp, `StratifiedKFold` bảo đảm mọi fold đều giữ nguyên tỉ lệ lớp hiếm để không fold nào bị thiếu mẫu dương."
+    related: [cross-validation, stratify, imbalanced data]
+
   # ---------------------------------------------------------- LLM / GenAI
   - term: LLM
     vi_term: LLM (mô hình ngôn ngữ lớn)

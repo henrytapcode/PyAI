@@ -1,0 +1,7 @@
+threshold precision  recall  urgent
+      0.5     1.000   0.222       2
+      0.4     1.000   0.444       4
+      0.3     0.889   0.889       9
+      0.2     0.667   0.889      12
+      0.1     0.471   0.889      17
+highest threshold with recall >= 0.8: 0.3

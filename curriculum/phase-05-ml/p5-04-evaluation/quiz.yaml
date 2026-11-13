@@ -1,0 +1,402 @@
+questions:
+  - id: p5-04-q01
+    type: mcq
+    tags: [model-evaluation]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "In a dataset where 92% of emails are normal and 8% are phishing, a baseline that always predicts 'normal' scores 0.92 accuracy. Why is this score misleading?"
+      options:
+        - "Because accuracy can never be computed when classes are binary"
+        - "Because `DummyClassifier` refuses to train on imbalanced datasets"
+        - "Because the baseline catches 0% of the phishing emails despite high accuracy"
+        - "Because 0.92 accuracy guarantees the model is overfitting the training split"
+      explanation: "On imbalanced data, a model can earn high accuracy simply by predicting the majority class every time while missing every single rare positive case."
+    vi:
+      prompt: "Trên bộ dữ liệu có 92% email bình thường và 8% email lừa đảo, một baseline luôn đoán 'bình thường' đạt accuracy 0.92. Vì sao con số này gây hiểu nhầm?"
+      options:
+        - "Vì accuracy không tính được cho bài toán phân loại nhị phân"
+        - "Vì `DummyClassifier` từ chối huấn luyện trên dữ liệu lệch lớp"
+        - "Vì baseline này bỏ sót 100% email lừa đảo dù accuracy rất cao"
+        - "Vì accuracy 0.92 chứng tỏ mô hình đang bị overfitting trên tập train"
+      explanation: "Trên dữ liệu lệch lớp, chỉ cần đoán lớp đa số mọi lúc là đã có accuracy cao, trong khi không bắt được bất kỳ ca lớp hiếm nào."
+
+  - id: p5-04-q02
+    type: mcq
+    tags: [model-evaluation]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Given the scikit-learn confusion matrix `[[80, 5], [10, 15]]` (rows = actual `0, 1`; columns = predicted `0, 1`), what is the precision for class `1`?"
+      options:
+        - "`0.60` (`15 / 25`)"
+        - "`0.75` (`15 / 20`)"
+        - "`0.80` (`80 / 100`)"
+        - "`0.864` (`95 / 110`)"
+      explanation: "In `[[TN, FP], [FN, TP]]`, `TP = 15` and `FP = 5`, so `precision = TP / (TP + FP) = 15 / (15 + 5) = 0.75`."
+    vi:
+      prompt: "Cho confusion matrix của scikit-learn là `[[80, 5], [10, 15]]` (hàng = nhãn thật `0, 1`; cột = nhãn đoán `0, 1`). Precision của lớp `1` là bao nhiêu?"
+      options:
+        - "`0.60` (`15 / 25`)"
+        - "`0.75` (`15 / 20`)"
+        - "`0.80` (`80 / 100`)"
+        - "`0.864` (`95 / 110`)"
+      explanation: "Theo bố cục `[[TN, FP], [FN, TP]]`, ta có `TP = 15` và `FP = 5`, nên `precision = TP / (TP + FP) = 15 / (15 + 5) = 0.75`."
+
+  - id: p5-04-q03
+    type: output
+    tags: [model-evaluation, sklearn]
+    difficulty: 1
+    code: |
+      import numpy as np
+      from sklearn.metrics import confusion_matrix
+
+      y_true = np.array([0, 0, 1, 1, 1])
+      y_pred = np.array([0, 1, 0, 1, 1])
+      print(confusion_matrix(y_true, y_pred).tolist())
+    answer: "[[1, 1], [1, 2]]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Counting `(actual, pred)`: `(0, 0)` occurs once (`TN=1`), `(0, 1)` once (`FP=1`), `(1, 0)` once (`FN=1`), and `(1, 1)` twice (`TP=2`), giving `[[1, 1], [1, 2]]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Đếm từng cặp `(thật, đoán)`: `(0, 0)` có 1 (`TN=1`), `(0, 1)` có 1 (`FP=1`), `(1, 0)` có 1 (`FN=1`) và `(1, 1)` có 2 (`TP=2`), tạo thành `[[1, 1], [1, 2]]`."
+
+  - id: p5-04-q04
+    type: fill
+    tags: [model-evaluation, sklearn]
+    difficulty: 1
+    code: |
+      import numpy as np
+      from sklearn.dummy import DummyClassifier
+      from sklearn.metrics import precision_score
+
+      X = np.array([[1.0], [2.0], [3.0], [4.0]])
+      y = np.array([0, 0, 0, 1])
+      dummy = DummyClassifier(strategy="___").fit(X, y)
+      preds = dummy.predict(X)
+      print(round(float(precision_score(y, preds, zero_division=___)), 3))
+    answer: ["most_frequent", "0"]
+    en:
+      prompt: "Fill in the `DummyClassifier` strategy that always predicts the majority class, and the parameter value that safely returns `0.0` instead of raising an `UndefinedMetricWarning`."
+      explanation: "`strategy=\"most_frequent\"` predicts the majority class (`0`), and `zero_division=0` returns `0.0` cleanly when there are no positive predictions."
+    vi:
+      prompt: "Điền chiến lược của `DummyClassifier` để luôn đoán lớp phổ biến nhất, và giá trị tham số giúp trả về `0.0` an toàn thay vì sinh `UndefinedMetricWarning`."
+      explanation: "`strategy=\"most_frequent\"` luôn đoán lớp đa số (`0`), còn `zero_division=0` giúp trả về `0.0` êm đẹp khi không có dự đoán dương nào."
+
+  - id: p5-04-q05
+    type: parsons
+    tags: [model-evaluation, sklearn]
+    difficulty: 1
+    lines:
+      - "from sklearn.metrics import confusion_matrix"
+      - "cm = confusion_matrix([0, 0, 1, 1], [0, 1, 1, 1])"
+      - "tn, fp, fn, tp = cm.ravel().tolist()"
+      - "precision = round(tp / (tp + fp), 3)"
+      - "print(precision)"
+    en:
+      prompt: "Arrange these lines in order to build a confusion matrix, unpack its four cells, compute precision, and print it."
+      explanation: "Import `confusion_matrix`, compute `cm`, unpack `tn, fp, fn, tp` from `cm.ravel().tolist()`, calculate `precision`, and print it."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo confusion matrix, tách bốn ô, tính precision rồi in ra."
+      explanation: "Import `confusion_matrix`, tính `cm`, tách `tn, fp, fn, tp` từ `cm.ravel().tolist()`, tính `precision` và cuối cùng in ra."
+
+  - id: p5-04-q06
+    type: mcq
+    tags: [model-evaluation]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Given `confusion_matrix(y_true, y_pred)` = `[[40, 2], [4, 12]]`, what is the recall for class `1`?"
+      options:
+        - "`0.75` (`12 / 16`)"
+        - "`0.857` (`12 / 14`)"
+        - "`0.667` (`4 / 6`)"
+        - "`0.897` (`52 / 58`)"
+      explanation: "From `[[TN, FP], [FN, TP]]`, `TP = 12` and `FN = 4`, so `recall = TP / (TP + FN) = 12 / (12 + 4) = 0.75`."
+    vi:
+      prompt: "Cho `confusion_matrix(y_true, y_pred)` = `[[40, 2], [4, 12]]`. Recall của lớp `1` là bao nhiêu?"
+      options:
+        - "`0.75` (`12 / 16`)"
+        - "`0.857` (`12 / 14`)"
+        - "`0.667` (`4 / 6`)"
+        - "`0.897` (`52 / 58`)"
+      explanation: "Theo `[[TN, FP], [FN, TP]]`, ta có `TP = 12` và `FN = 4`, nên `recall = TP / (TP + FN) = 12 / (12 + 4) = 0.75`."
+
+  - id: p5-04-q07
+    type: mcq
+    tags: [model-evaluation]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Your team is building a classifier to catch fraudulent credit-card transactions, where missing a real fraud case costs far more than reviewing a false alarm. Which metric should you prioritize?"
+      options:
+        - "True Negative count, because most transactions are legitimate"
+        - "Overall accuracy, because it counts all correct predictions across the dataset"
+        - "Precision, to guarantee zero false alarms for cardholders"
+        - "Recall for the fraud class, so as few real frauds as possible slip through"
+      explanation: "High recall (`TP / (TP + FN)`) minimizes false negatives (`FN`), ensuring real fraud cases are caught even if analysts must check a few extra alerts."
+    vi:
+      prompt: "Đội của bạn xây bộ phân loại phát hiện giao dịch thẻ gian lận, trong đó bỏ sót một ca gian lận thật tốn kém hơn nhiều so với việc kiểm tra một báo động giả. Bạn nên ưu tiên chỉ số nào?"
+      options:
+        - "Số lượng True Negative, vì đa số giao dịch là hợp lệ"
+        - "Accuracy tổng thể, vì nó gộp chung mọi dự đoán đúng trên toàn bộ dữ liệu"
+        - "Precision, để bảo đảm không bao giờ có báo động giả"
+        - "Recall của lớp gian lận, để bỏ sót càng ít ca gian lận thật càng tốt"
+      explanation: "Recall cao (`TP / (TP + FN)`) giúp giảm tối đa false negative (`FN`), bắt được nhiều ca gian lận thật nhất có thể dù phải kiểm tra thêm vài cảnh báo nhầm."
+
+  - id: p5-04-q08
+    type: output
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    code: |
+      import numpy as np
+      from sklearn.metrics import f1_score, precision_score, recall_score
+
+      y_true = np.array([1, 1, 1, 1, 0, 0])
+      y_pred = np.array([1, 1, 0, 0, 1, 0])
+      print(
+          round(float(precision_score(y_true, y_pred)), 3),
+          round(float(recall_score(y_true, y_pred)), 3),
+          round(float(f1_score(y_true, y_pred)), 3),
+      )
+    answer: "0.667 0.5 0.571"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Here `TP = 2`, `FP = 1`, `FN = 2`: `precision = 2/3 = 0.667`, `recall = 2/4 = 0.5`, and `f1 = 2 * (2/3) * 0.5 / (2/3 + 0.5) = 4/7 = 0.571`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Ở đây `TP = 2`, `FP = 1`, `FN = 2`: `precision = 2/3 = 0.667`, `recall = 2/4 = 0.5`, và `f1 = 2 * (2/3) * 0.5 / (2/3 + 0.5) = 4/7 = 0.571`."
+
+  - id: p5-04-q09
+    type: fill
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    code: |
+      import numpy as np
+      from sklearn.metrics import recall_score
+
+      probs = np.array([0.85, 0.35, 0.25, 0.1])
+      y_true = np.array([1, 1, 0, 0])
+      preds = (probs >= ___).astype("___")
+      print(round(float(recall_score(y_true, preds)), 3))
+    answer: ["0.3", "int64"]
+    en:
+      prompt: "Fill in the decision threshold `0.3` and the 64-bit integer dtype string so `preds` catches both positive rows (`0.85` and `0.35`) and prints `1.0`."
+      explanation: "At threshold `0.3`, both `0.85` and `0.35` pass `(probs >= 0.3)`, and `.astype(\"int64\")` converts the boolean mask cleanly to 64-bit integers."
+    vi:
+      prompt: "Điền ngưỡng quyết định `0.3` và tên kiểu số nguyên 64-bit để `preds` bắt trúng cả hai mẫu dương (`0.85` và `0.35`) và in ra `1.0`."
+      explanation: "Ở ngưỡng `0.3`, cả `0.85` và `0.35` đều thỏa `(probs >= 0.3)`, và `.astype(\"int64\")` chuyển mảng boolean sang số nguyên 64-bit nhất quán."
+
+  - id: p5-04-q10
+    type: mcq
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "In `classification_report`, class `0` has `support = 90` (`F1 = 0.94`) and class `1` has `support = 10` (`F1 = 0.30`). Why is `weighted avg` F1 much higher than `macro avg` F1?"
+      options:
+        - "`weighted avg` ignores class `1` completely whenever its `support` is under 20"
+        - "`weighted avg` multiplies each class F1 by its `support`, so the 90 majority rows dominate"
+        - "`macro avg` penalizes the majority class by dividing by `FP + FN`"
+        - "`weighted avg` reports training F1 instead of test F1"
+      explanation: "`macro avg` averages `(0.94 + 0.30) / 2 = 0.62` equally, whereas `weighted avg` computes `0.9 * 0.94 + 0.1 * 0.30 = 0.876`, dominated by the large majority class."
+    vi:
+      prompt: "Trong `classification_report`, lớp `0` có `support = 90` (`F1 = 0.94`) và lớp `1` có `support = 10` (`F1 = 0.30`). Vì sao `weighted avg` F1 cao hơn hẳn `macro avg` F1?"
+      options:
+        - "`weighted avg` bỏ qua hoàn toàn lớp `1` khi `support` nhỏ hơn 20"
+        - "`weighted avg` nhân F1 của mỗi lớp với `support` của nó nên 90 mẫu đa số kéo điểm lên"
+        - "`macro avg` phạt lớp đa số bằng cách chia cho `FP + FN`"
+        - "`weighted avg` báo cáo điểm F1 trên tập train thay vì tập test"
+      explanation: "`macro avg` lấy trung bình đều `(0.94 + 0.30) / 2 = 0.62`, còn `weighted avg` tính `0.9 * 0.94 + 0.1 * 0.30 = 0.876`, bị chi phối bởi lớp đa số."
+
+  - id: p5-04-q11
+    type: output
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    code: |
+      import numpy as np
+      from sklearn.metrics import recall_score
+
+      probs = np.array([0.9, 0.4, 0.3, 0.2, 0.1])
+      y_true = np.array([1, 1, 0, 1, 0])
+      p_high = (probs >= 0.5).astype("int64")
+      p_low = (probs >= 0.3).astype("int64")
+      print(round(float(recall_score(y_true, p_high)), 3), round(float(recall_score(y_true, p_low)), 3))
+    answer: "0.333 0.667"
+    en:
+      prompt: "What does this code print?"
+      explanation: "There are 3 actual positives (at indices 0, 1, 3). At `0.5`, only `0.9` is predicted `1` (`recall = 1/3 = 0.333`). At `0.3`, `0.9` and `0.4` are caught (`recall = 2/3 = 0.667`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Có 3 mẫu dương thật (tại vị trí 0, 1, 3). Ở ngưỡng `0.5`, chỉ `0.9` được đoán `1` (`recall = 1/3 = 0.333`). Ở ngưỡng `0.3`, bắt thêm được `0.4` (`recall = 2/3 = 0.667`)."
+
+  - id: p5-04-q12
+    type: parsons
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    lines:
+      - "from sklearn.linear_model import LogisticRegression"
+      - "clf = LogisticRegression().fit([[0.0], [1.0], [4.0], [5.0]], [0, 0, 1, 1])"
+      - "probs = clf.predict_proba([[0.5], [4.5]])[:, 1]"
+      - "preds = (probs >= 0.5).astype(\"int64\")"
+      - "print(preds.tolist())"
+    en:
+      prompt: "Arrange these lines in order to fit a classifier, extract class-1 probabilities, apply a 0.5 threshold, and print the predicted labels."
+      explanation: "Import `LogisticRegression`, fit `clf`, extract class-1 probabilities with `.predict_proba(...)[:, 1]`, threshold `probs >= 0.5`, and print `preds.tolist()`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để huấn luyện bộ phân loại, lấy xác suất lớp 1, áp ngưỡng 0.5 rồi in nhãn dự đoán."
+      explanation: "Import `LogisticRegression`, fit `clf`, lấy xác suất lớp 1 qua `.predict_proba(...)[:, 1]`, áp ngưỡng `probs >= 0.5`, rồi in `preds.tolist()`."
+
+  - id: p5-04-q13
+    type: mcq
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "When calling `precision_score(y_true, y_pred, zero_division=0)`, what situation triggers the `zero_division` rule?"
+      options:
+        - "Every example in `y_true` and `y_pred` is correctly classified (`TP + TN == len(y_true)`)"
+        - "The dataset has more features than rows (`n_features > n_samples`)"
+        - "The model predicts zero positive examples (`TP + FP == 0`)"
+        - "The decision threshold is set below `0.5`"
+      explanation: "Precision divides `TP` by `TP + FP` (all predicted positives). When `TP + FP == 0`, dividing by zero raises `UndefinedMetricWarning` unless `zero_division=0` is passed."
+    vi:
+      prompt: "Khi gọi `precision_score(y_true, y_pred, zero_division=0)`, trường hợp nào kích hoạt quy tắc `zero_division`?"
+      options:
+        - "Mọi mẫu trong `y_true` và `y_pred` đều được phân loại đúng (`TP + TN == len(y_true)`)"
+        - "Bộ dữ liệu có số feature nhiều hơn số hàng (`n_features > n_samples`)"
+        - "Mô hình không dự đoán bất kỳ mẫu dương nào (`TP + FP == 0`)"
+        - "Ngưỡng quyết định được đặt thấp hơn `0.5`"
+      explanation: "Precision chia `TP` cho `TP + FP` (tổng số dự đoán dương). Khi `TP + FP == 0`, phép chia cho 0 gây `UndefinedMetricWarning` trừ khi bạn truyền `zero_division=0`."
+
+  - id: p5-04-q14
+    type: mcq
+    tags: [model-evaluation, sklearn]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "Why should `StandardScaler()` be placed inside `make_pipeline(StandardScaler(), LogisticRegression())` before calling `cross_val_score`, rather than calling `StandardScaler().fit_transform(X)` once beforehand?"
+      options:
+        - "Inside a pipeline, each CV fold fits the scaler only on its `k - 1` training folds, preventing validation fold leakage"
+        - "Because `cross_val_score` raises a `ValueError` if given a scaled NumPy array"
+        - "Because `StandardScaler` inside a pipeline automatically changes `scoring` to F1"
+        - "Because scaling before `cross_val_score` forces every fold to use identical test indices"
+      explanation: "Scaling `X` before splitting lets validation-fold means and standard deviations leak into every training fold; putting `StandardScaler` inside a pipeline isolates each fold cleanly."
+    vi:
+      prompt: "Vì sao nên đặt `StandardScaler()` bên trong `make_pipeline(StandardScaler(), LogisticRegression())` trước khi gọi `cross_val_score`, thay vì gọi `StandardScaler().fit_transform(X)` một lần trên toàn bộ `X` trước đó?"
+      options:
+        - "Khi nằm trong pipeline, mỗi fold chỉ fit scaler trên `k - 1` fold train của riêng nó, tránh rò rỉ dữ liệu từ fold test"
+        - "Vì `cross_val_score` sẽ báo lỗi `ValueError` nếu nhận vào mảng NumPy đã chuẩn hóa"
+        - "Vì `StandardScaler` trong pipeline tự động đổi `scoring` sang F1"
+        - "Vì chuẩn hóa trước `cross_val_score` ép mọi fold dùng chung chỉ số test"
+      explanation: "Chuẩn hóa toàn bộ `X` trước khi chia làm trung bình và độ lệch chuẩn của fold kiểm tra rò rỉ vào tập train; đặt `StandardScaler` trong pipeline cô lập hoàn toàn từng fold."
+
+  - id: p5-04-q15
+    type: output
+    tags: [model-evaluation, sklearn]
+    difficulty: 3
+    code: |
+      import numpy as np
+      from sklearn.model_selection import StratifiedKFold
+
+      X = np.zeros((10, 2))
+      y = np.array([0] * 8 + [1] * 2)
+      skf = StratifiedKFold(n_splits=2, shuffle=True, random_state=0)
+      counts = [np.bincount(y[te], minlength=2).tolist() for _, te in skf.split(X, y)]
+      print(counts)
+    answer: "[[4, 1], [4, 1]]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`y` has 8 zeros and 2 ones (`4:1`). A 2-fold `StratifiedKFold` splits the 10 rows into two 5-row test folds that each preserve the `4:1` class ratio (`[4, 1]`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`y` có 8 số `0` và 2 số `1` (tỉ lệ `4:1`). `StratifiedKFold` 2 fold chia 10 hàng thành hai tập kiểm tra 5 hàng, mỗi tập đều giữ nguyên tỉ lệ `[4, 1]`."
+
+  - id: p5-04-q16
+    type: fill
+    tags: [model-evaluation, sklearn]
+    difficulty: 3
+    code: |
+      import numpy as np
+      from sklearn.linear_model import LogisticRegression
+      from sklearn.model_selection import StratifiedKFold, cross_val_score
+
+      X = np.array([[0.0], [1.0], [2.0], [8.0], [9.0], [10.0]])
+      y = np.array([0, 0, 0, 1, 1, 1])
+      skf = ___(n_splits=3, shuffle=True, random_state=0)
+      scores = cross_val_score(LogisticRegression(), X, y, cv=skf, scoring="___")
+      print(round(float(scores.mean()), 3))
+    answer: ["StratifiedKFold", "f1"]
+    en:
+      prompt: "Fill in the stratified splitter class and the scoring string to evaluate 3-fold cross-validated F1 score."
+      explanation: "`StratifiedKFold(n_splits=3, shuffle=True, random_state=0)` creates reproducible stratified folds, and `scoring=\"f1\"` computes the F1 score on each fold."
+    vi:
+      prompt: "Điền tên lớp chia fold giữ tỉ lệ lớp và chuỗi `scoring` để tính điểm F1 qua cross-validation 3 fold."
+      explanation: "`StratifiedKFold(n_splits=3, shuffle=True, random_state=0)` tạo các fold phân tầng tái lập được, còn `scoring=\"f1\"` tính điểm F1 trên từng fold."
+
+flashcards:
+  - id: p5-04-f01
+    tags: [model-evaluation]
+    en:
+      front: "Why can accuracy be misleading on imbalanced data, and what should you check first?"
+      back: "A dummy baseline that always predicts the majority class gets high accuracy (e.g. 0.85 on an 85/15 split) while catching 0% of rare positives; always compare against a `DummyClassifier` baseline first."
+    vi:
+      front: "Vì sao accuracy dễ gây hiểu nhầm trên dữ liệu lệch lớp, và cần kiểm tra gì đầu tiên?"
+      back: "Một baseline ngây thơ luôn đoán lớp đa số vẫn đạt accuracy cao (ví dụ 0.85 trên tỉ lệ 85/15) nhưng bỏ sót 100% lớp hiếm; luôn so sánh với baseline `DummyClassifier` trước."
+
+  - id: p5-04-f02
+    tags: [model-evaluation, sklearn]
+    code: |
+      # rows = actual (0, 1), cols = predicted (0, 1)
+      # [[TN, FP],
+      #  [FN, TP]]
+      cm = confusion_matrix(y_true, y_pred).tolist()
+    en:
+      front: "How is `confusion_matrix(y_true, y_pred)` laid out in `scikit-learn`?"
+      back: "Rows are actual labels and columns are predicted labels: `[[TN, FP], [FN, TP]]`. Passing `(y_pred, y_true)` transposes the matrix and swaps `FP` and `FN`."
+    vi:
+      front: "Bố cục của `confusion_matrix(y_true, y_pred)` trong `scikit-learn` như thế nào?"
+      back: "Hàng là nhãn thật, cột là nhãn dự đoán: `[[TN, FP], [FN, TP]]`. Đảo thứ tự thành `(y_pred, y_true)` sẽ làm chuyển vị ma trận và đọc nhầm `FP` thành `FN`."
+
+  - id: p5-04-f03
+    tags: [model-evaluation]
+    en:
+      front: "What are the formulas and meanings of precision, recall, and F1?"
+      back: "`precision = TP / (TP + FP)` (how often positive predictions are right), `recall = TP / (TP + FN)` (share of real positives caught), and `F1 = 2 * P * R / (P + R)` (harmonic mean of both)."
+    vi:
+      front: "Công thức và ý nghĩa của precision, recall và F1 là gì?"
+      back: "`precision = TP / (TP + FP)` (tỉ lệ đúng khi báo dương), `recall = TP / (TP + FN)` (tỉ lệ ca dương thật được bắt trúng) và `F1 = 2 * P * R / (P + R)` (trung bình điều hòa của cả hai)."
+
+  - id: p5-04-f04
+    tags: [model-evaluation, sklearn]
+    en:
+      front: "In `classification_report`, how do `macro avg` and `weighted avg` differ?"
+      back: "`macro avg` takes the unweighted mean across classes (treating rare and common classes equally); `weighted avg` weights each class by its `support`, so the majority class dominates."
+    vi:
+      front: "Trong `classification_report`, `macro avg` và `weighted avg` khác nhau thế nào?"
+      back: "`macro avg` lấy trung bình cộng đều giữa các lớp (coi lớp hiếm ngang lớp phổ biến); `weighted avg` nhân trọng số theo `support` của từng lớp nên lớp đa số chi phối."
+
+  - id: p5-04-f05
+    tags: [model-evaluation, sklearn]
+    code: |
+      probs = pipe.predict_proba(X_test)[:, 1]
+      preds = (probs >= 0.3).astype("int64")
+    en:
+      front: "How does changing the decision threshold on `predict_proba` affect precision and recall?"
+      back: "`.predict()` defaults to `0.5`. Lowering the threshold (e.g. to `0.3`) predicts more positives, raising **recall** while usually lowering **precision** due to extra false alarms."
+    vi:
+      front: "Thay đổi ngưỡng quyết định trên `predict_proba` ảnh hưởng tới precision và recall thế nào?"
+      back: "`.predict()` mặc định dùng ngưỡng `0.5`. Hạ ngưỡng (ví dụ xuống `0.3`) sẽ gắn nhãn dương nhiều hơn, giúp tăng **recall** nhưng thường làm giảm **precision** vì thêm báo động giả."
+
+  - id: p5-04-f06
+    tags: [model-evaluation, sklearn]
+    code: |
+      skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
+      scores = cross_val_score(pipe, X, y, cv=skf, scoring="f1")
+    en:
+      front: "Why run `cross_val_score` with a `Pipeline` and report `mean +/- std`?"
+      back: "Cross-validation averages across `k` folds instead of one lucky split, reporting `std` shows fold stability, and keeping `StandardScaler` inside `make_pipeline` prevents fold leakage."
+    vi:
+      front: "Vì sao nên chạy `cross_val_score` cùng `Pipeline` và báo cáo `mean +/- std`?"
+      back: "Cross-validation đánh giá qua `k` fold thay vì một lần chia may rủi, `std` cho thấy độ ổn định giữa các fold, và đặt `StandardScaler` trong `make_pipeline` chặn rò rỉ dữ liệu."
