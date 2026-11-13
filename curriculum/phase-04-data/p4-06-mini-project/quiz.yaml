@@ -1,0 +1,392 @@
+questions:
+  - id: p4-06-q01
+    type: mcq
+    tags: [pandas, data-cleaning]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "When inspecting a raw CSV log with `df.shape`, `df.dtypes`, `df.isna().sum()`, and `df[\"model\"].value_counts()`, why do we check `value_counts()` in addition to `isna().sum()`?"
+      options:
+        - "Because `value_counts()` automatically strips whitespace and lowercases every string"
+        - "Because a column with zero `NaN` cells can still have messy text variants like `\" GPT-4o\"` and `\"gpt_4o\"`"
+        - "Because `isna().sum()` only checks numeric columns and ignores `object` columns"
+        - "Because `value_counts()` converts comma-formatted strings like `\"1,200\"` to integers"
+      explanation: "A `model` column with no missing cells reports `0` in `isna().sum()`, yet `value_counts()` reveals split categories caused by extra spaces, mixed case, or underscores."
+    vi:
+      prompt: "Khi kiểm tra log CSV thô bằng `df.shape`, `df.dtypes`, `df.isna().sum()` và `df[\"model\"].value_counts()`, vì sao cần xem thêm `value_counts()` bên cạnh `isna().sum()`?"
+      options:
+        - "Vì `value_counts()` tự động cắt khoảng trắng và chuyển chuỗi sang chữ thường"
+        - "Vì một cột không có ô `NaN` nào vẫn có thể chứa nhiều biến thể chữ lộn xộn như `\" GPT-4o\"` và `\"gpt_4o\"`"
+        - "Vì `isna().sum()` chỉ kiểm tra các cột số và bỏ qua cột `object`"
+        - "Vì `value_counts()` tự chuyển chuỗi có dấu phẩy như `\"1,200\"` thành số nguyên"
+      explanation: "Cột `model` dù không thiếu ô nào (`isna().sum()` bằng `0`) vẫn có thể bị tách nhóm do thừa khoảng trắng, lẫn chữ hoa thường hoặc dấu gạch dưới, và `value_counts()` giúp phát hiện ngay."
+
+  - id: p4-06-q02
+    type: output
+    tags: [pandas, data-cleaning]
+    difficulty: 1
+    code: |
+      import pandas as pd
+
+      s = pd.Series([" GPT-4o", "gpt_4o", "Claude "])
+      cleaned = s.str.strip().str.lower().str.replace("_", "-", regex=False)
+      print(cleaned.unique().tolist())
+    answer: "['gpt-4o', 'claude']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`.str.strip()` removes leading/trailing spaces, `.str.lower()` lowercases everything, and `.str.replace(\"_\", \"-\", regex=False)` turns `gpt_4o` into `gpt-4o`, leaving two unique names."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`.str.strip()` xóa khoảng trắng hai đầu, `.str.lower()` đổi thành chữ thường, còn `.str.replace(\"_\", \"-\", regex=False)` biến `gpt_4o` thành `gpt-4o`, nên chỉ còn hai tên duy nhất."
+
+  - id: p4-06-q03
+    type: fill
+    tags: [pandas, data-cleaning]
+    difficulty: 1
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "request_id": ["r01", "r01", "r02"],
+          "tokens": [900, 950, 300],
+      })
+      deduped = df.drop_duplicates(subset=["request_id"], keep="___")
+      print(deduped["tokens"].tolist())
+    answer: ["first"]
+    en:
+      prompt: "Fill in the `keep` argument so repeated `request_id` rows keep the first occurrence and discard later copies."
+      explanation: "`keep=\"first\"` retains the first row (`900`) for `r01` and drops the duplicate (`950`)."
+    vi:
+      prompt: "Điền tham số cho `keep` để khi `request_id` bị lặp thì giữ dòng đầu tiên và bỏ các bản sao phía sau."
+      explanation: "`keep=\"first\"` giữ lại dòng đầu (`900`) của `r01` và loại bỏ dòng lặp (`950`)."
+
+  - id: p4-06-q04
+    type: mcq
+    tags: [pandas, data-cleaning]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why does calling `df[\"tokens\"].astype(\"int64\")` right after `pd.to_numeric(..., errors=\"coerce\")` crash with `IntCastingNaNError` when a row had empty `tokens`?"
+      options:
+        - "Because `pd.to_numeric` returns strings instead of floats"
+        - "Because `\"int64\"` only works on columns with fewer than 10 rows"
+        - "Because standard `\"int64\"` cannot represent `NaN`, so rows with missing `tokens` must be dropped first"
+        - "Because you must drop `status` before casting `tokens` to `\"int64\"`"
+      explanation: "`pd.to_numeric(..., errors=\"coerce\")` produces `float64` when `NaN` is present. Dropping missing `tokens` rows with `.dropna(subset=[\"tokens\"])` before calling `.astype(\"int64\")` avoids `IntCastingNaNError`."
+    vi:
+      prompt: "Vì sao gọi `df[\"tokens\"].astype(\"int64\")` ngay sau `pd.to_numeric(..., errors=\"coerce\")` lại báo lỗi `IntCastingNaNError` khi có một dòng bị trống `tokens`?"
+      options:
+        - "Vì `pd.to_numeric` trả về chuỗi chứ không phải số thực"
+        - "Vì kiểu `\"int64\"` chỉ dùng được cho bảng có ít hơn 10 dòng"
+        - "Vì cột số nguyên `\"int64\"` không thể chứa `NaN`, nên phải bỏ các dòng thiếu `tokens` trước khi ép kiểu"
+        - "Vì bắt buộc phải bỏ cột `status` trước khi ép `tokens` sang `\"int64\"`"
+      explanation: "`pd.to_numeric(..., errors=\"coerce\")` trả về `float64` khi có `NaN`. Hãy gọi `.dropna(subset=[\"tokens\"])` trước rồi mới `.astype(\"int64\")` để tránh `IntCastingNaNError`."
+
+  - id: p4-06-q05
+    type: output
+    tags: [pandas, data-cleaning]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "request_id": ["r01", "r02", "r03"],
+          "rating": [5.0, 9.0, 0.0],
+      })
+      df["rating"] = df["rating"].where(df["rating"].between(1, 5))
+      print(df["rating"].isna().tolist())
+    answer: "[False, True, True]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`.between(1, 5)` is `True` only for `5.0` and `False` for `9.0` and `0.0`. `.where(...)` keeps values where the condition is `True` and replaces `False` positions with `NaN`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`.between(1, 5)` chỉ cho `True` với `5.0`, còn `9.0` và `0.0` là `False`. `.where(...)` giữ nguyên nơi điều kiện `True` và thay các vị trí `False` bằng `NaN`."
+
+  - id: p4-06-q06
+    type: fill
+    tags: [sql, pandas]
+    difficulty: 2
+    code: |
+      import sqlite3
+      import pandas as pd
+
+      conn = sqlite3.connect(":memory:")
+      df = pd.DataFrame({"model": ["mini"], "tokens": [100]})
+      df.to_sql("requests", conn, index=False)
+      df.to_sql("requests", conn, index=False, if_exists="___")
+      print(conn.execute("SELECT COUNT(*) FROM requests").fetchone())
+      conn.close()
+    answer: ["replace"]
+    en:
+      prompt: "Fill in the `if_exists` option so writing to the same `\"requests\"` table a second time overwrites it instead of raising `ValueError`."
+      explanation: "`to_sql` defaults to `if_exists=\"fail\"`; passing `if_exists=\"replace\"` drops the existing table and recreates it cleanly."
+    vi:
+      prompt: "Điền giá trị cho `if_exists` để lần gọi `to_sql` thứ hai vào cùng bảng `\"requests\"` ghi đè bảng cũ thay vì báo `ValueError`."
+      explanation: "Mặc định `to_sql` dùng `if_exists=\"fail\"`; truyền `if_exists=\"replace\"` sẽ thay bảng cũ bằng bảng mới."
+
+  - id: p4-06-q07
+    type: parsons
+    tags: [pandas, data-cleaning]
+    difficulty: 2
+    lines:
+      - "import pandas as pd"
+      - 'df = pd.DataFrame({"tokens": [100.0, float("nan"), 200.0]})'
+      - 'df = df.dropna(subset=["tokens"]).reset_index(drop=True)'
+      - 'df["tokens"] = df["tokens"].astype("int64")'
+      - 'print(df["tokens"].tolist())'
+    en:
+      prompt: "Put the lines in order to drop missing `tokens`, cast to `\"int64\"`, and print `[100, 200]`."
+      explanation: "Create the DataFrame first, drop missing `tokens` before casting to `\"int64\"` (otherwise `IntCastingNaNError` occurs), then print the integer list."
+    vi:
+      prompt: "Sắp xếp các dòng để bỏ giá trị thiếu ở `tokens`, ép kiểu sang `\"int64\"` rồi in ra `[100, 200]`."
+      explanation: "Tạo DataFrame trước, bỏ các dòng thiếu `tokens` rồi mới ép sang `\"int64\"` (nếu làm ngược sẽ bị `IntCastingNaNError`), sau đó in kết quả."
+
+  - id: p4-06-q08
+    type: mcq
+    tags: [pandas, data-cleaning]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why should we replace out-of-range ratings like `9` with `NaN` instead of dropping the entire row?"
+      options:
+        - "Because the request's `tokens`, `status`, and `latency_ms` are still valid and belong in the model's usage and error totals"
+        - "Because SQLite `AVG(rating)` crashes if any row has `NULL`"
+        - "Because `.dropna()` cannot remove rows based on numeric ranges"
+        - "Because `NaN` counts as `0` in `AVG(rating)` to penalise bad ratings"
+      explanation: "A missing or invalid rating only means the user score is unusable—the request still consumed tokens and succeeded or failed. SQL `AVG(rating)` ignores `NULL`, keeping other metrics accurate."
+    vi:
+      prompt: "Vì sao ta nên đổi `rating` ngoài khoảng như `9` thành `NaN` thay vì xóa hẳn cả dòng request đó?"
+      options:
+        - "Vì các cột `tokens`, `status` và `latency_ms` của request đó vẫn hợp lệ và cần được tính vào tổng token cũng như tỉ lệ lỗi của model"
+        - "Vì SQLite `AVG(rating)` sẽ bị lỗi nếu có dòng chứa `NULL`"
+        - "Vì `.dropna()` không hỗ trợ lọc theo khoảng số"
+        - "Vì `NaN` được tính là `0` trong `AVG(rating)` để phạt các đánh giá sai"
+      explanation: "`rating` không hợp lệ chỉ làm phần điểm đánh giá bị thiếu, còn request đó vẫn tiêu tốn token và có trạng thái thành công/lỗi thật. Hàm `AVG(rating)` trong SQL tự bỏ qua `NULL`, giữ cho mọi chỉ số đều chính xác."
+
+  - id: p4-06-q09
+    type: fill
+    tags: [sql]
+    difficulty: 2
+    code: |
+      import sqlite3
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE reqs (model TEXT, status TEXT)")
+      conn.executemany(
+          "INSERT INTO reqs VALUES (?, ?)",
+          [("mini", "ok"), ("mini", "error"), ("mini", "ok"), ("mini", "ok")],
+      )
+      rate = conn.execute(
+          "SELECT ROUND(AVG(status ___ 'error'), 3) FROM reqs"
+      ).fetchone()[0]
+      print(rate)
+      conn.close()
+    answer: ["="]
+    en:
+      prompt: "Fill in the SQL comparison operator inside `AVG(status ___ 'error')` so it computes the error rate `0.25`."
+      explanation: "In SQLite, `status = 'error'` evaluates to `1` for error rows and `0` for other rows, so `AVG(...)` equals the fraction of error requests."
+    vi:
+      prompt: "Điền toán tử so sánh SQL vào trong `AVG(status ___ 'error')` để tính tỉ lệ lỗi `0.25`."
+      explanation: "Trong SQLite, `status = 'error'` trả về `1` cho dòng lỗi và `0` cho dòng khác, nên `AVG(...)` chính là tỉ lệ request lỗi."
+
+  - id: p4-06-q10
+    type: output
+    tags: [sql, pandas]
+    difficulty: 2
+    code: |
+      import sqlite3
+      import pandas as pd
+
+      conn = sqlite3.connect(":memory:")
+      df = pd.DataFrame({
+          "model": ["zeta", "alpha", "beta"],
+          "tokens": [500, 500, 900],
+      })
+      df.to_sql("requests", conn, index=False)
+      out = pd.read_sql_query(
+          "SELECT model FROM requests ORDER BY tokens DESC, model ASC",
+          conn,
+      )
+      print(out["model"].tolist())
+      conn.close()
+    answer: "['beta', 'alpha', 'zeta']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`ORDER BY tokens DESC` puts `beta` (`900`) first; `alpha` and `zeta` tie at `500`, and the secondary `model ASC` places `alpha` before `zeta`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`ORDER BY tokens DESC` đưa `beta` (`900`) lên đầu; `alpha` và `zeta` hòa nhau ở `500`, nên cột phụ `model ASC` xếp `alpha` trước `zeta`."
+
+  - id: p4-06-q11
+    type: mcq
+    tags: [sql, pandas]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "When is it better to aggregate log metrics in SQL rather than pure pandas `groupby()`?"
+      options:
+        - "When you need to draw a Matplotlib bar chart directly inside SQLite"
+        - "When the logs already live in a SQL database so filtering and grouping happen before loading rows into Python RAM"
+        - "When `rating` contains `NaN`, because pandas `groupby()` cannot ignore `NaN` in `.mean()`"
+        - "When you want to mutate the input DataFrame in place"
+      explanation: "Both SQL `GROUP BY` and pandas `groupby().agg()` ignore `NaN`/`NULL` in averages. SQL shines when data is stored in a database and you only want the small summary pulled into pandas."
+    vi:
+      prompt: "Khi nào tổng hợp chỉ số bằng SQL hợp lý hơn so với dùng thuần pandas `groupby()`?"
+      options:
+        - "Khi bạn cần vẽ biểu đồ cột Matplotlib trực tiếp bên trong SQLite"
+        - "Khi log vốn đã nằm sẵn trong database SQL nên việc lọc và gom nhóm chạy ngay ở database trước khi tải dữ liệu vào RAM Python"
+        - "Khi cột `rating` có `NaN`, vì `groupby()` của pandas không bỏ qua được `NaN` trong `.mean()`"
+        - "Khi bạn muốn sửa trực tiếp `DataFrame` đầu vào"
+      explanation: "Cả SQL `GROUP BY` lẫn pandas `groupby().agg()` đều bỏ qua `NULL`/`NaN` khi tính trung bình. SQL phát huy thế mạnh khi dữ liệu nằm sẵn trong database và bạn chỉ muốn kéo bảng tóm tắt gọn nhẹ về pandas."
+
+  - id: p4-06-q12
+    type: fill
+    tags: [plotting, pandas]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+      import pandas as pd
+
+      report = pd.DataFrame({
+          "model": ["gpt-4o", "mini"],
+          "total_tokens": [4000, 900],
+      })
+      fig, ax = plt.subplots()
+      ax.bar(report["model"].___(), report["total_tokens"].___())
+      print(len(ax.patches))
+      plt.close(fig)
+    answer: ["tolist", "tolist"]
+    en:
+      prompt: "Fill in the same pandas method name in both blanks to convert the Series columns to plain Python lists before plotting."
+      explanation: "Calling `.tolist()` passes standard Python lists (`str` and `int`) to `ax.bar(...)`, avoiding NumPy scalar quirks."
+    vi:
+      prompt: "Điền cùng một tên phương thức của pandas vào cả hai chỗ trống để chuyển các cột Series sang list Python thuần trước khi vẽ."
+      explanation: "Gọi `.tolist()` giúp truyền list Python chuẩn (`str` và `int`) vào `ax.bar(...)`, tránh các vấn đề về scalar của NumPy."
+
+  - id: p4-06-q13
+    type: parsons
+    tags: [pandas, data-cleaning]
+    difficulty: 3
+    lines:
+      - "import pandas as pd"
+      - 'df = pd.DataFrame({"model": [" GPT-4o", "gpt_4o"], "tokens": [100, 200]})'
+      - 'df["model"] = df["model"].str.strip().str.lower().str.replace("_", "-", regex=False)'
+      - 'df = df.drop_duplicates(subset=["model"], keep="first")'
+      - 'print(df["tokens"].tolist())'
+    en:
+      prompt: "Put the lines in order so both messy names merge before deduplicating, printing `[100]`."
+      explanation: "You must normalise `model` before `drop_duplicates(subset=[\"model\"])`; if you deduplicate first, `\" GPT-4o\"` and `\"gpt_4o\"` look different and both survive."
+    vi:
+      prompt: "Sắp xếp các dòng để hai tên model lộn xộn gộp thành một trước khi loại trùng, in ra `[100]`."
+      explanation: "Phải chuẩn hóa `model` trước khi gọi `drop_duplicates(subset=[\"model\"])`; nếu loại trùng trước thì `\" GPT-4o\"` và `\"gpt_4o\"` vẫn khác nhau và bị giữ lại cả hai."
+
+  - id: p4-06-q14
+    type: mcq
+    tags: [pandas, data-cleaning]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "In a cleaned report, `gpt-4o` has `4000` tokens, `853.3 ms` latency, `0.5` error rate, and `4.5` rating, while `mini` has `900` tokens, `210.0 ms` latency, `0.0` error rate, and `4.0` rating. Which action follows directly from the report?"
+      options:
+        - "Retire `mini` immediately because its rating is `0.5` points lower than `gpt-4o`"
+        - "Ignore `gpt-4o`'s errors because its average rating is highest"
+        - "Prioritise optimising `gpt-4o` (caching, retries, or routing simple prompts to `mini`) because it drives the most tokens, slowest latency, and highest error rate"
+        - "Delete rows where `status == 'error'` before running the report so `gpt-4o` looks faster"
+      explanation: "A usage report drives engineering priorities: `gpt-4o` accounts for the largest token spend, worst latency, and 50% failures, while `mini` is fast and reliable enough to take simple traffic."
+    vi:
+      prompt: "Trong báo cáo sau khi làm sạch, `gpt-4o` có `4000` token, độ trễ `853.3 ms`, tỉ lệ lỗi `0.5`, rating `4.5`; còn `mini` có `900` token, độ trễ `210.0 ms`, tỉ lệ lỗi `0.0`, rating `4.0`. Hành động nào rút ra hợp lý nhất từ báo cáo?"
+      options:
+        - "Loại bỏ `mini` ngay vì rating của nó thấp hơn `gpt-4o` `0.5` điểm"
+        - "Bỏ qua các lỗi của `gpt-4o` vì điểm đánh giá trung bình của nó cao nhất"
+        - "Ưu tiên tối ưu `gpt-4o` (cache, retry hoặc chuyển bớt prompt đơn giản sang `mini`) vì nó chiếm nhiều token nhất, chậm nhất và lỗi cao nhất"
+        - "Xóa các dòng `status == 'error'` trước khi lập báo cáo để số liệu `gpt-4o` đẹp hơn"
+      explanation: "Báo cáo nhằm định hướng tối ưu kỹ thuật: `gpt-4o` đang gánh chi phí token cao nhất, chậm nhất và lỗi tới 50%, trong khi `mini` nhanh và ổn định nên có thể nhận bớt các tác vụ đơn giản."
+
+  - id: p4-06-q15
+    type: output
+    tags: [sql]
+    difficulty: 3
+    code: |
+      import sqlite3
+      import pandas as pd
+
+      conn = sqlite3.connect(":memory:")
+      df = pd.DataFrame({
+          "model": ["gpt-4o", "gpt-4o", "mini"],
+          "latency_ms": [800.0, float("nan"), 200.0],
+          "rating": [float("nan"), float("nan"), 4.0],
+      })
+      df.to_sql("requests", conn, index=False)
+      rep = pd.read_sql_query(
+          "SELECT model, ROUND(AVG(latency_ms), 1) AS lat, ROUND(AVG(rating), 2) AS rat "
+          "FROM requests GROUP BY model ORDER BY model ASC",
+          conn,
+      )
+      print(float(rep.loc[0, "lat"]), pd.isna(rep.loc[0, "rat"]))
+      conn.close()
+    answer: "800.0 True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "For `gpt-4o` (index `0` sorted alphabetically), `AVG(latency_ms)` ignores the `NaN` (`NULL`) and averages only `800.0` (`800.0`). Since both ratings are `NULL`, `AVG(rating)` returns `NULL`, which `pd.read_sql_query` reads as `NaN` (`pd.isna(...)` is `True`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Với `gpt-4o` (index `0` khi xếp theo chữ cái), `AVG(latency_ms)` bỏ qua `NaN` (`NULL`) nên trung bình chỉ tính trên `800.0` (`800.0`). Vì cả hai `rating` đều là `NULL`, `AVG(rating)` trả về `NULL`, và `pd.read_sql_query` đọc thành `NaN` (`pd.isna(...)` là `True`)."
+
+  - id: p4-06-q16
+    type: parsons
+    tags: [sql]
+    difficulty: 3
+    lines:
+      - "import sqlite3"
+      - 'conn = sqlite3.connect(":memory:")'
+      - 'conn.execute("CREATE TABLE reqs (model TEXT, status TEXT)")'
+      - 'conn.executemany("INSERT INTO reqs VALUES (?, ?)", [("a", "ok"), ("a", "error")])'
+      - 'print(conn.execute("SELECT model, ROUND(AVG(status = ''error''), 2) FROM reqs GROUP BY model ORDER BY model").fetchall())'
+    en:
+      prompt: "Put the lines in order to insert two requests for model `'a'` and print `[('a', 0.5)]`."
+      explanation: "Import `sqlite3`, open `:memory:`, create `reqs`, insert rows before running the `GROUP BY` error-rate query, and print the result."
+    vi:
+      prompt: "Sắp xếp các dòng để thêm hai request cho model `'a'` rồi in ra `[('a', 0.5)]`."
+      explanation: "Import `sqlite3`, mở `:memory:`, tạo bảng `reqs`, thêm dữ liệu trước khi chạy truy vấn `GROUP BY` tính tỉ lệ lỗi và in kết quả."
+
+flashcards:
+  - id: p4-06-f01
+    tags: [data-cleaning, pandas]
+    code: |
+      df["model"] = df["model"].str.strip().str.lower().str.replace("_", "-", regex=False)
+    en: { front: "In what order should you normalise messy category labels before `groupby` or `drop_duplicates`?", back: "Strip spaces, lowercase, and unify separators (`_ -> -`) **before** deduplicating or grouping so variants like `\" GPT-4o\"` and `\"gpt_4o\"` merge cleanly." }
+    vi: { front: "Nên chuẩn hóa các nhãn lộn xộn khi nào so với bước `groupby` hoặc `drop_duplicates`?", back: "Hãy cắt khoảng trắng, chuyển chữ thường và thống nhất dấu nối (`_ -> -`) **trước** khi loại trùng hay gom nhóm để các biến thể như `\" GPT-4o\"` và `\"gpt_4o\"` gộp đúng thành một." }
+  - id: p4-06-f02
+    tags: [data-cleaning, pandas]
+    code: |
+      df["tokens"] = pd.to_numeric(df["tokens"].astype(str).str.replace(",", "", regex=False), errors="coerce")
+      df = df.dropna(subset=["tokens"]).reset_index(drop=True)
+      df["tokens"] = df["tokens"].astype("int64")
+    en: { front: "Why must you call `.dropna(subset=[\"tokens\"])` before `.astype(\"int64\")`?", back: "Standard `\"int64\"` cannot store `NaN`; casting before dropping missing rows raises `IntCastingNaNError`." }
+    vi: { front: "Vì sao phải gọi `.dropna(subset=[\"tokens\"])` trước khi gọi `.astype(\"int64\")`?", back: "Kiểu số nguyên `\"int64\"` không chứa được `NaN`; nếu ép kiểu trước khi bỏ dòng thiếu sẽ gặp lỗi `IntCastingNaNError`." }
+  - id: p4-06-f03
+    tags: [data-cleaning, pandas]
+    code: |
+      df["rating"] = df["rating"].where(df["rating"].between(1, 5))
+    en: { front: "How do you turn out-of-range ratings into `NaN` without dropping the whole row?", back: "Use `df[\"rating\"].where(df[\"rating\"].between(1, 5))`. Values outside `1..5` become `NaN`, keeping the row's tokens and status intact." }
+    vi: { front: "Làm sao biến các `rating` ngoài khoảng thành `NaN` mà không xóa cả dòng?", back: "Dùng `df[\"rating\"].where(df[\"rating\"].between(1, 5))`. Giá trị ngoài `1..5` trở thành `NaN`, còn `tokens` và `status` của dòng vẫn được giữ lại." }
+  - id: p4-06-f04
+    tags: [sql]
+    code: |
+      ROUND(AVG(status = 'error'), 3) AS error_rate
+    en: { front: "How does `AVG(status = 'error')` compute the error rate in SQLite?", back: "In SQLite, a boolean comparison returns `1` when true and `0` when false, so the average of `0`s and `1`s is the exact error rate." }
+    vi: { front: "Vì sao `AVG(status = 'error')` tính được tỉ lệ lỗi trong SQLite?", back: "Trong SQLite, phép so sánh trả về `1` khi đúng và `0` khi sai, nên trung bình cộng của dãy `0` và `1` chính là tỉ lệ lỗi." }
+  - id: p4-06-f05
+    tags: [sql, pandas]
+    code: |
+      df.to_sql("requests", conn, index=False, if_exists="replace")
+    en: { front: "What happens if you call `df.to_sql(\"requests\", conn, index=False)` twice on the same connection?", back: "It raises `ValueError: Table 'requests' already exists.` unless you pass `if_exists=\"replace\"` (or `\"append\"`)." }
+    vi: { front: "Điều gì xảy ra nếu gọi `df.to_sql(\"requests\", conn, index=False)` hai lần trên cùng một kết nối?", back: "Nó báo `ValueError: Table 'requests' already exists.` trừ khi bạn truyền thêm `if_exists=\"replace\"` (hoặc `\"append\"`)." }
+  - id: p4-06-f06
+    tags: [plotting, pandas]
+    code: |
+      fig, ax = plt.subplots()
+      ax.bar(report["model"].tolist(), report["total_tokens"].tolist())
+    en: { front: "Why does `plot_report(report)` in exercises return `(fig, ax)` without calling `plt.show()`?", back: "Returning `(fig, ax)` lets tests inspect bar heights, labels, and titles cleanly and close the figure with `plt.close(fig)`, while avoiding GUI side effects." }
+    vi: { front: "Vì sao hàm `plot_report(report)` trong bài tập trả về `(fig, ax)` mà không gọi `plt.show()`?", back: "Trả về `(fig, ax)` giúp bộ test kiểm tra được chiều cao cột, nhãn trục, tiêu đề và tự đóng figure bằng `plt.close(fig)` mà không bật cửa sổ GUI." }

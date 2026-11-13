@@ -1,0 +1,90 @@
+id: p4-06-ex02
+kind: project
+title:
+  en: "Aggregate model report in SQL and plot tokens"
+  vi: "Tổng hợp báo cáo theo model bằng SQL và vẽ biểu đồ"
+difficulty: 3
+tags: [sql, pandas, plotting]
+hints:
+  en:
+    - |
+      Follow §4 and §5: in `model_report(df)`, write `df` to an in-memory SQLite table `"requests"` with `df.to_sql("requests", conn, index=False)`, run one `GROUP BY model` query via `pd.read_sql_query`, and close `conn`. In `plot_report(report)`, draw `ax.bar(report["model"].tolist(), report["total_tokens"].tolist())` and return `(fig, ax)`.
+    - |
+      Step-by-step plan:
+      1. Open `conn = sqlite3.connect(":memory:")` and call `df.to_sql("requests", conn, index=False)`.
+      2. Run `pd.read_sql_query(...)` with `COUNT(*) AS requests`, `SUM(tokens) AS total_tokens`, `ROUND(AVG(status = 'error'), 3) AS error_rate`, `ROUND(AVG(latency_ms), 1) AS avg_latency`, `ROUND(AVG(rating), 2) AS avg_rating`, `GROUP BY model`, `ORDER BY total_tokens DESC, model ASC`.
+      3. Close `conn` and return the report `DataFrame`.
+      4. In `plot_report(report)`, create `fig, ax = plt.subplots()`, call `ax.bar(...)`, set title `"Tokens by model"` and ylabel `"tokens"`, and return `(fig, ax)` without calling `plt.show()`.
+    - |
+      Function skeleton:
+      ```python
+      def model_report(df: pd.DataFrame) -> pd.DataFrame:
+          conn = sqlite3.connect(":memory:")
+          try:
+              df.to_sql("requests", conn, index=False)
+              sql = """
+                  SELECT
+                      model,
+                      COUNT(*) AS requests,
+                      SUM(tokens) AS total_tokens,
+                      ROUND(AVG(status = 'error'), ...) AS error_rate,
+                      ROUND(AVG(latency_ms), 1) AS avg_latency,
+                      ROUND(AVG(rating), 2) AS avg_rating
+                  FROM requests
+                  GROUP BY model
+                  ORDER BY total_tokens DESC, ...
+              """
+              return pd.read_sql_query(sql, conn)
+          finally:
+              conn.close()
+
+
+      def plot_report(report: pd.DataFrame) -> tuple:
+          fig, ax = plt.subplots()
+          ax.bar(report["model"].tolist(), report["total_tokens"].tolist())
+          ax.set_title(...)
+          ax.set_ylabel("tokens")
+          return fig, ax
+      ```
+      Fill in the three `...` gaps.
+  vi:
+    - |
+      Làm theo §4 và §5: trong `model_report(df)`, ghi `df` vào bảng SQLite `"requests"` trong RAM bằng `df.to_sql("requests", conn, index=False)`, chạy một câu `GROUP BY model` qua `pd.read_sql_query` rồi đóng `conn`. Trong `plot_report(report)`, vẽ `ax.bar(report["model"].tolist(), report["total_tokens"].tolist())` và trả về `(fig, ax)`.
+    - |
+      Trình tự từng bước:
+      1. Mở `conn = sqlite3.connect(":memory:")` và gọi `df.to_sql("requests", conn, index=False)`.
+      2. Chạy `pd.read_sql_query(...)` với `COUNT(*) AS requests`, `SUM(tokens) AS total_tokens`, `ROUND(AVG(status = 'error'), 3) AS error_rate`, `ROUND(AVG(latency_ms), 1) AS avg_latency`, `ROUND(AVG(rating), 2) AS avg_rating`, `GROUP BY model`, `ORDER BY total_tokens DESC, model ASC`.
+      3. Đóng `conn` và trả về `DataFrame` báo cáo.
+      4. Trong `plot_report(report)`, tạo `fig, ax = plt.subplots()`, gọi `ax.bar(...)`, đặt title `"Tokens by model"` và ylabel `"tokens"`, rồi trả về `(fig, ax)` mà không gọi `plt.show()`.
+    - |
+      Khung hàm:
+      ```python
+      def model_report(df: pd.DataFrame) -> pd.DataFrame:
+          conn = sqlite3.connect(":memory:")
+          try:
+              df.to_sql("requests", conn, index=False)
+              sql = """
+                  SELECT
+                      model,
+                      COUNT(*) AS requests,
+                      SUM(tokens) AS total_tokens,
+                      ROUND(AVG(status = 'error'), ...) AS error_rate,
+                      ROUND(AVG(latency_ms), 1) AS avg_latency,
+                      ROUND(AVG(rating), 2) AS avg_rating
+                  FROM requests
+                  GROUP BY model
+                  ORDER BY total_tokens DESC, ...
+              """
+              return pd.read_sql_query(sql, conn)
+          finally:
+              conn.close()
+
+
+      def plot_report(report: pd.DataFrame) -> tuple:
+          fig, ax = plt.subplots()
+          ax.bar(report["model"].tolist(), report["total_tokens"].tolist())
+          ax.set_title(...)
+          ax.set_ylabel("tokens")
+          return fig, ax
+      ```
+      Hãy điền vào ba chỗ `...`.

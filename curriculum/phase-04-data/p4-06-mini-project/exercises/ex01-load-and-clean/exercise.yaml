@@ -1,0 +1,60 @@
+id: p4-06-ex01
+kind: project
+title:
+  en: "Load and clean chatbot API logs"
+  vi: "Nạp và làm sạch log API chatbot"
+difficulty: 3
+tags: [pandas, data-cleaning]
+hints:
+  en:
+    - |
+      Follow the cleaning pipeline from §3: load with `pd.read_csv(io.StringIO(csv_text))`, clean `model`, coerce numeric columns, mask out-of-range `rating`, deduplicate `request_id`, drop missing `tokens`, reset the index, and cast `tokens` to `"int64"`.
+      For two rows with `" GPT-4o"` and `"gpt_4o"`, both must become `"gpt-4o"`.
+    - |
+      Step-by-step plan:
+      1. Read `csv_text` with `pd.read_csv(io.StringIO(csv_text))`.
+      2. Clean `model` using `.str.strip().str.lower().str.replace("_", "-", regex=False)`.
+      3. Remove commas in `tokens`, coerce `tokens`, `latency_ms`, and `rating` with `pd.to_numeric(..., errors="coerce")`.
+      4. Replace ratings outside `1..5` with `NaN` via `.where(df["rating"].between(1, 5))`.
+      5. Drop duplicate `request_id` (`keep="first"`), drop rows missing `tokens`, `.reset_index(drop=True)`, cast `tokens` to `"int64"`, and return the 6 columns in order.
+    - |
+      Function skeleton:
+      ```python
+      df = pd.read_csv(io.StringIO(csv_text))
+      df["model"] = df["model"].astype(str).str.strip().str.lower().str.replace("_", "-", regex=False)
+      df["tokens"] = pd.to_numeric(df["tokens"].astype(str).str.replace(",", "", regex=False), errors="coerce")
+      df["latency_ms"] = pd.to_numeric(df["latency_ms"], errors="coerce").astype("float64")
+      df["rating"] = pd.to_numeric(df["rating"], errors="coerce").astype("float64")
+      df["rating"] = df["rating"].where(df["rating"].between(...))
+      df = df.drop_duplicates(subset=["request_id"], keep=...)
+      df = df.dropna(subset=["tokens"]).reset_index(drop=True)
+      df["tokens"] = df["tokens"].astype(...)
+      return df[["request_id", "model", "tokens", "latency_ms", "status", "rating"]]
+      ```
+      Fill in the three `...` gaps.
+  vi:
+    - |
+      Làm theo pipeline làm sạch ở §3: đọc CSV bằng `pd.read_csv(io.StringIO(csv_text))`, chuẩn hóa `model`, ép kiểu các cột số, biến `rating` ngoài khoảng thành `NaN`, bỏ `request_id` trùng, bỏ dòng thiếu `tokens`, đánh lại index rồi ép `tokens` sang `"int64"`.
+      Với `" GPT-4o"` và `"gpt_4o"`, cả hai đều phải trở thành `"gpt-4o"`.
+    - |
+      Trình tự từng bước:
+      1. Đọc `csv_text` bằng `pd.read_csv(io.StringIO(csv_text))`.
+      2. Chuẩn hóa `model` qua `.str.strip().str.lower().str.replace("_", "-", regex=False)`.
+      3. Xóa dấu phẩy ở `tokens`, ép kiểu `tokens`, `latency_ms` và `rating` bằng `pd.to_numeric(..., errors="coerce")`.
+      4. Biến các `rating` ngoài `1..5` thành `NaN` bằng `.where(df["rating"].between(1, 5))`.
+      5. Bỏ `request_id` trùng (`keep="first"`), bỏ dòng thiếu `tokens`, gọi `.reset_index(drop=True)`, ép `tokens` sang `"int64"` rồi trả về đúng 6 cột theo thứ tự.
+    - |
+      Khung hàm:
+      ```python
+      df = pd.read_csv(io.StringIO(csv_text))
+      df["model"] = df["model"].astype(str).str.strip().str.lower().str.replace("_", "-", regex=False)
+      df["tokens"] = pd.to_numeric(df["tokens"].astype(str).str.replace(",", "", regex=False), errors="coerce")
+      df["latency_ms"] = pd.to_numeric(df["latency_ms"], errors="coerce").astype("float64")
+      df["rating"] = pd.to_numeric(df["rating"], errors="coerce").astype("float64")
+      df["rating"] = df["rating"].where(df["rating"].between(...))
+      df = df.drop_duplicates(subset=["request_id"], keep=...)
+      df = df.dropna(subset=["tokens"]).reset_index(drop=True)
+      df["tokens"] = df["tokens"].astype(...)
+      return df[["request_id", "model", "tokens", "latency_ms", "status", "rating"]]
+      ```
+      Hãy điền vào ba chỗ `...`.

@@ -1,0 +1,31 @@
+id: p4-06-mini-project
+phase: p4
+order: 6
+kind: project
+title:
+  en: "Mini-project: data analysis"
+  vi: "Mini-project: phân tích dữ liệu"
+summary:
+  en: "Build an API usage report from raw chatbot logs: clean messy CSV data with pandas, aggregate metrics by model in SQLite, plot a sorted bar chart, and interpret the results."
+  vi: "Xây báo cáo sử dụng API từ log chatbot thô: làm sạch dữ liệu CSV lộn xộn bằng pandas, tổng hợp chỉ số theo model trong SQLite, vẽ biểu đồ cột đã sắp xếp và đọc kết quả."
+level: beginner
+tags: [pandas, data-cleaning, sql, plotting]
+prerequisites: [p4-03-cleaning, p4-04-matplotlib, p4-05-sql]
+duration_min: 45
+outcomes:
+  en:
+    - "Clean, aggregate and plot a realistic dataset"
+    - "Answer business questions with pandas and SQL"
+    - "Design a small end-to-end pipeline from raw CSV to chart"
+    - "Verify each stage cleanly and avoid common pandas and SQL pitfalls"
+  vi:
+    - "Làm sạch, tổng hợp và vẽ một bộ dữ liệu thực tế"
+    - "Trả lời câu hỏi nghiệp vụ bằng pandas và SQL"
+    - "Thiết kế một pipeline nhỏ hoàn chỉnh từ CSV thô tới biểu đồ"
+    - "Kiểm tra từng bước rõ ràng và tránh các lỗi pandas, SQL thường gặp"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "pandas docs: DataFrame.to_sql", vi: "pandas docs: DataFrame.to_sql (EN)" }
+    url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html"
+  - title: { en: "pandas user guide: Comparison with SQL", vi: "pandas user guide: Comparison with SQL (EN)" }
+    url: "https://pandas.pydata.org/docs/getting_started/comparison/comparison_with_sql.html"

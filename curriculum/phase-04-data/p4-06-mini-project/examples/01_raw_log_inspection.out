@@ -1,0 +1,11 @@
+Shape: (14, 6)
+Missing per column:
+request_id    0
+model         0
+tokens        1
+latency_ms    1
+status        0
+rating        2
+dtype: int64
+Raw model variants: [' CLAUDE', ' GPT-4o', ' MINI ', 'Claude ', 'GPT-4o ', 'claude', 'claude ', 'gpt_4o', 'mini']
+Duplicate request_ids: 2
