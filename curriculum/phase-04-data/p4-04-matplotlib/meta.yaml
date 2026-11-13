@@ -1,0 +1,31 @@
+id: p4-04-matplotlib
+phase: p4
+order: 4
+kind: lesson
+title:
+  en: "Plotting"
+  vi: "Vẽ biểu đồ"
+summary:
+  en: "Build line, bar, and scatter plots with matplotlib's figure-and-axes API, add titles, labels, and legends, plot directly from pandas DataFrames, and arrange subplots side by side."
+  vi: "Vẽ biểu đồ đường, cột và scatter bằng API figure-axes của matplotlib, thêm tiêu đề, nhãn trục và chú thích, vẽ trực tiếp từ pandas DataFrame và đặt nhiều biểu đồ cạnh nhau."
+level: beginner
+tags: [plotting, pandas, data]
+prerequisites: [p4-02-pandas]
+duration_min: 11
+outcomes:
+  en:
+    - "Line, bar and scatter plots"
+    - "Label axes, titles and legends"
+    - "Plot straight from a DataFrame"
+    - "Choose the right chart and arrange side-by-side subplots"
+  vi:
+    - "Biểu đồ đường, cột và scatter"
+    - "Đặt nhãn trục, tiêu đề và chú thích"
+    - "Vẽ trực tiếp từ DataFrame"
+    - "Chọn đúng loại biểu đồ và xếp nhiều biểu đồ cạnh nhau"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "Matplotlib quick start guide", vi: "Matplotlib quick start guide (EN)" }
+    url: "https://matplotlib.org/stable/users/explain/quick_start.html"
+  - title: { en: "Chart visualization in pandas", vi: "Chart visualization in pandas (EN)" }
+    url: "https://pandas.pydata.org/docs/user_guide/visualization.html"

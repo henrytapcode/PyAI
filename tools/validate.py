@@ -39,6 +39,9 @@ from jsonschema import Draft202012Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 
+# In-process tracer and browser runner run matplotlib code inside validate.py.
+os.environ.setdefault("MPLBACKEND", "Agg")
+
 ROOT = Path(__file__).resolve().parent.parent
 CURRICULUM = ROOT / "curriculum"
 SCHEMA_DIR = ROOT / "tools" / "schema"

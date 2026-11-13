@@ -1,0 +1,361 @@
+questions:
+  - id: p4-04-q01
+    type: mcq
+    tags: [plotting]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "In matplotlib, what is the difference between a `Figure` and an `Axes`?"
+      options:
+        - "A `Figure` holds one line and an `Axes` holds the legend only"
+        - "A `Figure` is the outer canvas, while an `Axes` is one individual plot area inside it"
+        - "A `Figure` is only for bar charts and an `Axes` is only for line charts"
+        - "They are two names for the exact same object"
+      explanation: "The `Figure` is the whole outer window or canvas; an `Axes` is a single chart inside that canvas with its own x-axis, y-axis, title, and data."
+    vi:
+      prompt: "Trong matplotlib, `Figure` và `Axes` khác nhau thế nào?"
+      options:
+        - "`Figure` chỉ chứa một đường vẽ, còn `Axes` chỉ chứa hộp chú thích"
+        - "`Figure` là khung canvas bên ngoài, còn `Axes` là một vùng biểu đồ cụ thể nằm bên trong nó"
+        - "`Figure` chỉ dùng cho biểu đồ cột, còn `Axes` chỉ dùng cho biểu đồ đường"
+        - "Đây chỉ là hai tên gọi khác nhau của cùng một đối tượng"
+      explanation: "`Figure` là toàn bộ khung chứa bên ngoài; `Axes` là một biểu đồ đơn nằm bên trong khung đó với trục x, trục y, tiêu đề và dữ liệu riêng."
+
+  - id: p4-04-q02
+    type: output
+    tags: [plotting]
+    difficulty: 1
+    code: |
+      import matplotlib.pyplot as plt
+      fig, ax = plt.subplots()
+      ax.plot([1, 2, 3], [0.9, 0.5, 0.3])
+      ax.set_title("Training loss")
+      print(ax.get_title())
+    answer: "Training loss"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`ax.set_title(\"Training loss\")` stores the title string on `ax`, and `ax.get_title()` returns `\"Training loss\"`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`ax.set_title(\"Training loss\")` đặt tiêu đề cho `ax`, nên `ax.get_title()` trả về chuỗi `\"Training loss\"`."
+
+  - id: p4-04-q03
+    type: fill
+    tags: [plotting]
+    difficulty: 1
+    code: |
+      import matplotlib.pyplot as plt
+
+      fig, ax = plt.___()
+      ax.plot([1, 2], [0.8, 0.4])
+      print(len(ax.lines))
+    answer: ["subplots"]
+    en:
+      prompt: "Fill in the `pyplot` function that creates `(fig, ax)` together."
+      explanation: "`plt.subplots()` creates a `Figure` and an `Axes` (or a grid of `Axes`) and returns them as `(fig, ax)`."
+    vi:
+      prompt: "Điền tên hàm của `pyplot` để tạo đồng thời cặp `(fig, ax)`."
+      explanation: "`plt.subplots()` tạo ra một `Figure` và một `Axes` (hoặc lưới nhiều `Axes`) rồi trả về cặp `(fig, ax)`."
+
+  - id: p4-04-q04
+    type: mcq
+    tags: [plotting]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which chart method is best for showing whether prompt token count and response latency increase together across individual requests?"
+      options:
+        - "`ax.bar(tokens, latency)`"
+        - "`ax.barh(tokens, latency)`"
+        - "`ax.scatter(tokens, latency)`"
+        - "`ax.legend()`"
+      explanation: "`ax.scatter(x, y)` plots each `(x, y)` observation as a separate dot so you can inspect the relationship between two numeric measurements."
+    vi:
+      prompt: "Phương thức biểu đồ nào phù hợp nhất để xem số token prompt và độ trễ phản hồi có cùng tăng ở từng request hay không?"
+      options:
+        - "`ax.bar(tokens, latency)`"
+        - "`ax.barh(tokens, latency)`"
+        - "`ax.scatter(tokens, latency)`"
+        - "`ax.legend()`"
+      explanation: "`ax.scatter(x, y)` chấm từng cặp `(x, y)` thành các điểm riêng lẻ để bạn quan sát mối liên hệ giữa hai đại lượng số."
+
+  - id: p4-04-q05
+    type: output
+    tags: [plotting]
+    difficulty: 1
+    code: |
+      import matplotlib.pyplot as plt
+      fig, ax = plt.subplots()
+      ax.plot([1, 2, 3], [0.9, 0.6, 0.4], label="train")
+      ax.plot([1, 2, 3], [0.95, 0.7, 0.6], label="val")
+      print(len(ax.lines))
+    answer: "2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Each call to `ax.plot(...)` adds one `Line2D` artist to `ax.lines`, so two calls give `2`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mỗi lần gọi `ax.plot(...)` thêm một đường vào `ax.lines`, nên gọi hai lần cho kết quả là `2`."
+
+  - id: p4-04-q06
+    type: fill
+    tags: [plotting]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+
+      fig, ax = plt.subplots()
+      ax.plot([1, 2, 3], [0.8, 0.5, 0.3], label="train_loss")
+      ax.___()
+      print([t.get_text() for t in ax.get_legend().get_texts()])
+    answer: ["legend"]
+    en:
+      prompt: "Fill in the method on `ax` that builds the legend box from the line's `label=`."
+      explanation: "Calling `ax.legend()` reads the `label=` attributes from plotted lines and renders the legend box."
+    vi:
+      prompt: "Điền tên phương thức trên `ax` để tạo hộp chú thích từ thuộc tính `label=` của đường vẽ."
+      explanation: "Gọi `ax.legend()` đọc các nhãn `label=` đã gắn trên đường vẽ để hiển thị hộp chú thích."
+
+  - id: p4-04-q07
+    type: parsons
+    tags: [plotting]
+    difficulty: 2
+    lines:
+      - "import matplotlib.pyplot as plt"
+      - "fig, ax = plt.subplots()"
+      - 'ax.plot([1, 2, 3], [0.8, 0.5, 0.3], label="loss")'
+      - "ax.legend()"
+      - "print([t.get_text() for t in ax.get_legend().get_texts()])"
+    en:
+      prompt: "Put the lines in order to draw a labeled line chart, add its legend, and print `['loss']`."
+      explanation: "Import `pyplot`, create `(fig, ax)`, plot the line with `label=\"loss\"` before calling `ax.legend()`, and finally inspect the legend text."
+    vi:
+      prompt: "Sắp xếp các dòng để vẽ biểu đồ đường có nhãn, thêm hộp chú thích và in `['loss']`."
+      explanation: "Import `pyplot`, tạo `(fig, ax)`, vẽ đường có `label=\"loss\"` trước khi gọi `ax.legend()`, rồi in chữ trong hộp chú thích."
+
+  - id: p4-04-q08
+    type: mcq
+    tags: [plotting]
+    difficulty: 2
+    answer: 0
+    code: |
+      import matplotlib.pyplot as plt
+      fig, ax = plt.subplots()
+      ax.title("Loss")
+    en:
+      prompt: "Why does `ax.title(\"Loss\")` raise `TypeError: 'Text' object is not callable`?"
+      options:
+        - "Because `ax.title` is already a `Text` object, not a method; use `ax.set_title(\"Loss\")`"
+        - "Because titles in matplotlib must be integers, not strings"
+        - "Because you must call `plt.show()` before setting a title"
+        - "Because `ax.title` only works on bar charts"
+      explanation: "On an `Axes`, `ax.title` is the `Text` artist itself. To change its string, call the setter method `ax.set_title(\"Loss\")`."
+    vi:
+      prompt: "Vì sao `ax.title(\"Loss\")` báo lỗi `TypeError: 'Text' object is not callable`?"
+      options:
+        - "Vì `ax.title` đã là một đối tượng `Text` chứ không phải hàm; phải dùng `ax.set_title(\"Loss\")`"
+        - "Vì tiêu đề trong matplotlib phải là số nguyên, không được dùng chuỗi"
+        - "Vì bạn phải gọi `plt.show()` trước khi đặt tiêu đề"
+        - "Vì `ax.title` chỉ dùng được cho biểu đồ cột"
+      explanation: "Trên `Axes`, `ax.title` là đối tượng `Text` giữ tiêu đề. Muốn đặt nội dung tiêu đề, bạn phải gọi phương thức `ax.set_title(\"Loss\")`."
+
+  - id: p4-04-q09
+    type: fill
+    tags: [plotting]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+
+      tasks = ["Summarise long PDF", "Extract structured JSON"]
+      counts = [120, 340]
+      fig, ax = plt.subplots()
+      ax.___(tasks, counts)
+      print(len(ax.patches))
+    answer: ["barh"]
+    en:
+      prompt: "Fill in the `Axes` method that draws horizontal bars so long task names stay readable."
+      explanation: "`ax.barh(names, values)` places category names vertically on the y-axis, giving long text labels plenty of room."
+    vi:
+      prompt: "Điền tên phương thức của `Axes` vẽ cột nằm ngang để tên tác vụ dài vẫn dễ đọc."
+      explanation: "`ax.barh(names, values)` đặt tên nhóm theo trục dọc y, chừa nhiều khoảng trống cho các nhãn dài."
+
+  - id: p4-04-q10
+    type: output
+    tags: [plotting]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+      fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3))
+      ax1.plot([1, 2], [0.8, 0.5])
+      ax2.bar(["mini", "pro"], [0.4, 2.5])
+      plt.xlabel("model")
+      print(repr(ax1.get_xlabel()), repr(ax2.get_xlabel()))
+    answer: "'' 'model'"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`plt.xlabel(...)` only updates the currently active (last) axes `ax2`, leaving `ax1.get_xlabel()` as `''`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`plt.xlabel(...)` chỉ đặt nhãn cho axes đang hoạt động (cuối cùng) là `ax2`, nên `ax1.get_xlabel()` vẫn là chuỗi rỗng `''`."
+
+  - id: p4-04-q11
+    type: mcq
+    tags: [plotting]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "What happens if you call `ax.legend()` after plotting lines without any `label=` argument?"
+      options:
+        - "Matplotlib emits a warning (\"No artists with labels found to put in legend\") and draws an empty legend"
+        - "Matplotlib raises a `KeyError` and stops the script"
+        - "Matplotlib automatically names the lines using the Python variable names"
+        - "Matplotlib refuses to draw the lines at all"
+      explanation: "Without `label=` strings, `ax.legend()` finds no labeled artists, logs a `UserWarning`, and creates an empty legend box."
+    vi:
+      prompt: "Điều gì xảy ra nếu bạn gọi `ax.legend()` sau khi vẽ các đường mà không truyền tham số `label=`?"
+      options:
+        - "Matplotlib phát cảnh báo (\"No artists with labels found to put in legend\") và vẽ hộp chú thích rỗng"
+        - "Matplotlib báo lỗi `KeyError` và dừng chương trình"
+        - "Matplotlib tự lấy tên biến Python làm nhãn"
+        - "Matplotlib không vẽ các đường nữa"
+      explanation: "Khi không có `label=`, `ax.legend()` không tìm thấy đối tượng nào có nhãn nên phát `UserWarning` và tạo hộp chú thích trống."
+
+  - id: p4-04-q12
+    type: fill
+    tags: [plotting, pandas]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+      import pandas as pd
+
+      df = pd.DataFrame({"epoch": [1, 2], "train": [0.8, 0.4], "val": [0.9, 0.5]})
+      fig, ax = plt.subplots()
+      df.plot(x="epoch", y=["train", "val"], ___=ax)
+      print(len(ax.lines))
+    answer: ["ax"]
+    en:
+      prompt: "Fill in the keyword parameter that tells pandas to draw onto your existing `Axes` object `ax`."
+      explanation: "Passing `ax=ax` to `df.plot(...)` draws the DataFrame curves onto your `Axes` instead of creating a separate figure."
+    vi:
+      prompt: "Điền tên tham số từ khóa để bảo pandas vẽ lên đối tượng `Axes` `ax` đã tạo sẵn."
+      explanation: "Truyền `ax=ax` vào `df.plot(...)` giúp vẽ các cột của DataFrame trực tiếp lên `ax` thay vì tự tạo một figure mới."
+
+  - id: p4-04-q13
+    type: parsons
+    tags: [plotting]
+    difficulty: 2
+    lines:
+      - "import matplotlib.pyplot as plt"
+      - "fig, ax = plt.subplots()"
+      - 'ax.plot([1, 2, 3], [0.9, 0.5, 0.3], label="train")'
+      - 'ax.plot([1, 2, 3], [0.95, 0.6, 0.7], label="val")'
+      - "ax.legend()"
+      - "print([t.get_text() for t in ax.get_legend().get_texts()])"
+    en:
+      prompt: "Put the lines in order to plot `train` before `val`, add the legend, and print `['train', 'val']`."
+      explanation: "Import `pyplot`, create `(fig, ax)`, plot `train` then `val` (the legend preserves plot order), call `ax.legend()`, and print the legend labels."
+    vi:
+      prompt: "Sắp xếp các dòng để vẽ `train` trước `val`, bật chú thích và in `['train', 'val']`."
+      explanation: "Import `pyplot`, tạo `(fig, ax)`, vẽ `train` rồi mới vẽ `val` (hộp chú thích giữ đúng thứ tự vẽ), gọi `ax.legend()`, rồi in các nhãn."
+
+  - id: p4-04-q14
+    type: mcq
+    tags: [plotting]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "In a training-vs-validation loss line chart, `train_loss` keeps dropping from epoch 1 to 6 while `val_loss` reaches its minimum at epoch 4 and rises at epochs 5 and 6. What does this usually signal?"
+      options:
+        - "The learning rate is zero and the model is not updating"
+        - "The dataset has duplicate columns"
+        - "Matplotlib plotted the y-axis upside down"
+        - "Overfitting: the model is memorising the training set instead of improving on unseen validation data"
+      explanation: "When training loss keeps falling but validation loss climbs back up, the model is starting to overfit the training data."
+    vi:
+      prompt: "Trên biểu đồ đường so sánh loss, `train_loss` giảm liên tục từ epoch 1 đến 6 còn `val_loss` chạm đáy ở epoch 4 rồi tăng lại ở epoch 5 và 6. Điều này thường báo hiệu gì?"
+      options:
+        - "Tốc độ học bằng 0 nên mô hình không hề cập nhật"
+        - "Dataset đang bị trùng tên cột"
+        - "Matplotlib đang vẽ ngược trục y"
+        - "Overfitting: mô hình bắt đầu học thuộc tập train thay vì làm tốt hơn trên dữ liệu validation mới"
+      explanation: "Khi training loss tiếp tục giảm nhưng validation loss quay đầu tăng, mô hình đang có dấu hiệu overfit dữ liệu huấn luyện."
+
+  - id: p4-04-q15
+    type: output
+    tags: [plotting, pandas]
+    difficulty: 3
+    code: |
+      import matplotlib.pyplot as plt
+      import pandas as pd
+      df = pd.DataFrame({
+          "model": ["mini", "pro", "mini", "base"],
+          "cost": [0.20, 2.50, 0.30, 1.10],
+      })
+      totals = df.groupby("model")["cost"].sum().sort_values(ascending=False)
+      fig, ax = plt.subplots()
+      ax.bar(totals.index.tolist(), totals.tolist())
+      print([t.get_text() for t in ax.get_xticklabels()])
+    answer: "['pro', 'base', 'mini']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`totals` sums to `pro: 2.50`, `base: 1.10`, `mini: 0.50`, so descending sorting orders the x-tick labels as `['pro', 'base', 'mini']`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`totals` có tổng `pro: 2.50`, `base: 1.10`, `mini: 0.50`, nên sắp xếp giảm dần đặt nhãn trục x theo thứ tự `['pro', 'base', 'mini']`."
+
+  - id: p4-04-q16
+    type: parsons
+    tags: [plotting, pandas]
+    difficulty: 3
+    lines:
+      - "import pandas as pd"
+      - 'df = pd.DataFrame({"model": ["mini", "pro", "mini"], "cost": [0.2, 2.0, 0.3]})'
+      - 'totals = df.groupby("model")["cost"].sum().sort_values(ascending=False)'
+      - 'ax = totals.plot(kind="bar")'
+      - 'print([t.get_text() for t in ax.get_xticklabels()])'
+    en:
+      prompt: "Put the lines in order to sum `cost` by `model` descending, plot bars from pandas, and print the bar labels `['pro', 'mini']`."
+      explanation: "Import `pandas`, build `df`, aggregate and sort `totals`, draw the bar chart returning `ax`, and print the x-tick labels."
+    vi:
+      prompt: "Sắp xếp các dòng để cộng `cost` theo `model` giảm dần, vẽ cột từ pandas rồi in nhãn các cột `['pro', 'mini']`."
+      explanation: "Import `pandas`, tạo `df`, gom nhóm và sắp xếp thành `totals`, vẽ biểu đồ cột lấy `ax`, rồi in nhãn trục x."
+
+flashcards:
+  - id: p4-04-f01
+    tags: [plotting]
+    code: "fig, ax = plt.subplots()"
+    en: { front: "In matplotlib, what is the difference between `fig` and `ax`?", back: "`fig` (`Figure`) is the outer canvas; `ax` (`Axes`) is one individual chart inside it with its own x/y axes, title, and plotted artists." }
+    vi: { front: "Trong matplotlib, `fig` và `ax` khác nhau thế nào?", back: "`fig` (`Figure`) là khung canvas bên ngoài; `ax` (`Axes`) là một biểu đồ cụ thể bên trong với trục x/y, tiêu đề và dữ liệu riêng." }
+  - id: p4-04-f02
+    tags: [plotting]
+    code: |
+      ax.plot(epochs, loss, marker="o", label="train")
+      ax.set_title("Training loss")
+      ax.set_xlabel("epoch")
+      ax.set_ylabel("loss")
+      ax.legend()
+      ax.grid(True)
+    en: { front: "Which `Axes` methods add a title, axis labels, gridlines, and a legend?", back: "Use `ax.set_title(...)`, `ax.set_xlabel(...)`, `ax.set_ylabel(...)`, `ax.grid(True)`, and pass `label=` to `ax.plot(...)` before calling `ax.legend()`." }
+    vi: { front: "Dùng những phương thức nào trên `Axes` để thêm tiêu đề, nhãn trục, lưới và chú thích?", back: "Dùng `ax.set_title(...)`, `ax.set_xlabel(...)`, `ax.set_ylabel(...)`, `ax.grid(True)`, và truyền `label=` vào `ax.plot(...)` trước khi gọi `ax.legend()`." }
+  - id: p4-04-f03
+    tags: [plotting]
+    code: "ax.bar(names, values)  # or ax.barh(names, values)"
+    en: { front: "When should you use `ax.barh()` instead of `ax.bar()`, and why sort first?", back: "Use `ax.barh()` when category labels are long so they do not overlap along the bottom; sort values before plotting so rankings are easy to read." }
+    vi: { front: "Khi nào nên dùng `ax.barh()` thay cho `ax.bar()`, và vì sao nên sắp xếp trước?", back: "Dùng `ax.barh()` khi tên nhóm dài để nhãn không đè lên nhau ở trục đáy; sắp xếp giá trị trước khi vẽ giúp nhìn thứ hạng ngay lập tức." }
+  - id: p4-04-f04
+    tags: [plotting]
+    code: "ax.scatter(tokens, latency_ms)"
+    en: { front: "When do you choose `ax.scatter(x, y)` over `ax.plot(x, y)`?", back: "Use `ax.scatter(x, y)` to check how two numeric variables relate across individual observations without connecting points in list order." }
+    vi: { front: "Khi nào chọn `ax.scatter(x, y)` thay cho `ax.plot(x, y)`?", back: "Dùng `ax.scatter(x, y)` khi muốn xem quan hệ giữa hai đại lượng số qua từng mẫu đo riêng lẻ mà không nối dây theo thứ tự danh sách." }
+  - id: p4-04-f05
+    tags: [plotting, pandas]
+    code: 'df.groupby("model")["cost"].sum().sort_values().plot(kind="bar", ax=ax)'
+    en: { front: "How do you plot a pandas `DataFrame` or `Series` onto an existing matplotlib `Axes`?", back: "Pass `ax=ax` to `.plot(...)`, for example `df.plot(x=\"epoch\", y=[\"train\", \"val\"], ax=ax)` or `series.plot(kind=\"bar\", ax=ax)`." }
+    vi: { front: "Làm sao vẽ `DataFrame` hoặc `Series` của pandas lên một `Axes` matplotlib có sẵn?", back: "Truyền `ax=ax` vào `.plot(...)`, ví dụ `df.plot(x=\"epoch\", y=[\"train\", \"val\"], ax=ax)` hoặc `series.plot(kind=\"bar\", ax=ax)`." }
+  - id: p4-04-f06
+    tags: [plotting]
+    code: |
+      fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3))
+      fig.tight_layout()
+    en: { front: "How do you place two charts side by side without overlapping labels?", back: "Create `fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3))`, draw onto `ax1` and `ax2` separately, and call `fig.tight_layout()`." }
+    vi: { front: "Làm sao đặt hai biểu đồ cạnh nhau mà nhãn không bị đè lên nhau?", back: "Tạo `fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3))`, vẽ riêng lên `ax1` và `ax2`, rồi gọi `fig.tight_layout()`." }

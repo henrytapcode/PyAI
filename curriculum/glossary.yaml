@@ -1726,3 +1726,70 @@ terms:
       en: "Use frozen for records that should never change, like a config or a saved expense, so no function can edit them by accident."
       vi: "Dùng frozen cho bản ghi không nên đổi, như config hay một khoản chi đã lưu, để không hàm nào sửa nhầm."
     related: [dataclass, immutable]
+
+  # ---------------------------------------------------------- Plotting (matplotlib)
+  - term: figure
+    vi_term: figure (khung hình / canvas)
+    tags: [plotting]
+    en: "The outer window or canvas in Matplotlib that holds one or more Axes (charts), titles, and margins."
+    vi: "Khung chứa hoặc tấm canvas bên ngoài trong Matplotlib, chứa một hoặc nhiều Axes (biểu đồ), tiêu đề và phần lề."
+    example: "import matplotlib.pyplot as plt\nfig, ax = plt.subplots()"
+    in_practice:
+      en: "When you place a training-loss chart and a validation-loss chart side by side with plt.subplots(1, 2), both plots live inside one Figure."
+      vi: "Khi đặt biểu đồ training loss và validation loss cạnh nhau bằng plt.subplots(1, 2), cả hai biểu đồ nằm chung trong một Figure."
+    related: [axes, legend, line chart]
+
+  - term: axes
+    vi_term: axes (hệ trục biểu đồ)
+    tags: [plotting]
+    en: "A single plot area inside a Figure, with its own x-axis, y-axis, title, legend, and plotted data."
+    vi: "Một vùng biểu đồ đơn bên trong Figure, có trục x, trục y, tiêu đề, chú thích và dữ liệu vẽ riêng."
+    example: "fig, ax = plt.subplots()\nax.plot([1, 2, 3], [0.8, 0.5, 0.3])\nax.set_title(\"Training loss\")"
+    in_practice:
+      en: "You call methods on ax (ax.plot, ax.set_title, ax.set_xlabel) so each chart stays self-contained even when a figure holds several plots."
+      vi: "Bạn gọi các phương thức trên ax (ax.plot, ax.set_title, ax.set_xlabel) để mỗi biểu đồ độc lập với nhau ngay cả khi figure chứa nhiều biểu đồ."
+    related: [figure, legend, bar chart]
+
+  - term: legend
+    vi_term: legend (chú thích biểu đồ)
+    tags: [plotting]
+    en: "A box on a chart that matches each line colour or marker to the label= name you gave it."
+    vi: "Hộp chú thích trên biểu đồ giúp ghép từng màu đường hoặc ký hiệu với tên label= mà bạn đã đặt."
+    example: "ax.plot(epochs, train_loss, label=\"train\")\nax.plot(epochs, val_loss, label=\"val\")\nax.legend()"
+    in_practice:
+      en: "Any time you plot train and validation curves together or compare two models on one chart, a legend makes it obvious which line is which."
+      vi: "Mỗi khi vẽ hai đường train và validation cùng lúc hoặc so sánh hai mô hình trên một biểu đồ, legend cho biết ngay đường nào là của cái nào."
+    related: [axes, line chart, overfitting]
+
+  - term: line chart
+    vi_term: biểu đồ đường (line chart)
+    tags: [plotting]
+    en: "A chart that connects ordered data points with line segments to show how a value changes over time, steps, or epochs."
+    vi: "Biểu đồ nối các điểm dữ liệu theo thứ tự bằng các đoạn thẳng để thể hiện sự thay đổi theo thời gian, bước lặp hoặc epoch."
+    example: "ax.plot(epochs, val_loss, marker=\"o\")"
+    in_practice:
+      en: "Training and validation loss curves are line charts; watching them diverge warns you early that a model is starting to overfit."
+      vi: "Đường cong training loss và validation loss là biểu đồ đường; nhìn hai đường tách nhau cảnh báo sớm rằng mô hình bắt đầu bị overfit."
+    related: [axes, legend, overfitting]
+
+  - term: bar chart
+    vi_term: biểu đồ cột (bar chart)
+    tags: [plotting]
+    en: "A chart that draws rectangular bars whose lengths compare values across discrete categories or groups."
+    vi: "Biểu đồ vẽ các cột hình chữ nhật có độ dài tương ứng để so sánh giá trị giữa các nhóm hoặc danh mục rời rạc."
+    example: "ax.bar([\"gpt-4o\", \"claude\", \"mini\"], [4.5, 3.1, 0.4])"
+    in_practice:
+      en: "Sorting API costs or benchmark accuracies by model and drawing a bar chart (or horizontal barh for long names) immediately reveals the winner."
+      vi: "Sắp xếp chi phí API hoặc độ chính xác benchmark theo từng mô hình rồi vẽ bar chart (hoặc barh nằm ngang khi tên dài) giúp thấy ngay mô hình nổi bật nhất."
+    related: [axes, groupby, DataFrame]
+
+  - term: scatter plot
+    vi_term: biểu đồ phân tán (scatter plot)
+    tags: [plotting]
+    en: "A chart that plots individual (x, y) pairs as dots to reveal the relationship or clusters between two numeric variables."
+    vi: "Biểu đồ chấm từng cặp điểm (x, y) rời rạc để thấy mối liên hệ hoặc cụm dữ liệu giữa hai đại lượng số."
+    example: "ax.scatter(tokens, latency_ms)"
+    in_practice:
+      en: "Plotting prompt tokens against response latency as a scatter plot quickly shows whether longer prompts slow down the API and exposes outlier requests."
+      vi: "Vẽ số token prompt theo độ trễ phản hồi bằng scatter plot cho thấy ngay prompt dài có làm chậm API không và làm lộ các request bất thường."
+    related: [axes, latency, token]

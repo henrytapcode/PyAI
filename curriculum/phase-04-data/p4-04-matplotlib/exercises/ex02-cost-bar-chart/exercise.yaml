@@ -1,0 +1,48 @@
+id: p4-04-ex02
+kind: code
+title:
+  en: "Sorted bar chart of API cost by model"
+  vi: "Biểu đồ cột chi phí API theo mô hình (đã sắp xếp)"
+difficulty: 2
+tags: [plotting, pandas]
+hints:
+  en:
+    - |
+      This combines `groupby` + `sort_values` from §5 with `ax.bar` from §3. For `df` with `"gpt-4o"` totaling `4.25` and `"mini"` totaling `0.40`, draw two bars ordered `["gpt-4o", "mini"]` with heights `[4.25, 0.40]` and return `(fig, ax)`.
+    - |
+      Follow these steps without modifying `df`:
+      1. Group `df` by `"model"`, sum `"cost"`, and sort descending with `.sort_values(ascending=False)`.
+      2. Create `fig, ax = plt.subplots()`.
+      3. Draw bars with `ax.bar(totals.index.tolist(), totals.tolist())`.
+      4. Set title `"Cost by model"` and ylabel `"cost (USD)"`, then return `(fig, ax)`.
+    - |
+      Function skeleton:
+      ```python
+      totals = df.groupby("model")["cost"].sum().sort_values(ascending=...)
+      fig, ax = plt.subplots()
+      ax.bar(totals.index.tolist(), ...)
+      ax.set_title(...)
+      ax.set_ylabel("cost (USD)")
+      return fig, ax
+      ```
+      Fill in the three `...` gaps.
+  vi:
+    - |
+      Bài này kết hợp `groupby` + `sort_values` ở §5 với `ax.bar` ở §3. Với `df` có `"gpt-4o"` tổng `4.25` và `"mini"` tổng `0.40`, cần vẽ hai cột theo thứ tự `["gpt-4o", "mini"]` với chiều cao `[4.25, 0.40]` rồi trả về `(fig, ax)`.
+    - |
+      Thực hiện các bước sau mà không làm thay đổi `df`:
+      1. Gom nhóm `df` theo `"model"`, cộng tổng `"cost"` và sắp xếp giảm dần bằng `.sort_values(ascending=False)`.
+      2. Tạo `fig, ax = plt.subplots()`.
+      3. Vẽ cột bằng `ax.bar(totals.index.tolist(), totals.tolist())`.
+      4. Đặt tiêu đề `"Cost by model"`, nhãn trục y `"cost (USD)"` rồi trả về `(fig, ax)`.
+    - |
+      Khung hàm:
+      ```python
+      totals = df.groupby("model")["cost"].sum().sort_values(ascending=...)
+      fig, ax = plt.subplots()
+      ax.bar(totals.index.tolist(), ...)
+      ax.set_title(...)
+      ax.set_ylabel("cost (USD)")
+      return fig, ax
+      ```
+      Hãy điền vào ba chỗ `...`.

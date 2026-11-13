@@ -1,0 +1,50 @@
+id: p4-04-ex01
+kind: fill
+title:
+  en: "Fill in: training loss chart"
+  vi: "Điền vào: biểu đồ training loss"
+difficulty: 1
+tags: [plotting]
+hints:
+  en:
+    - |
+      This uses the figure-and-axes setup from §1 and labels/legend from §2. For `plot_loss([1, 2, 3], [0.9, 0.5, 0.3])`, the function must return `(fig, ax)` with title `"Training loss"`, xlabel `"epoch"`, ylabel `"loss"`, one marked line, and a legend showing `["loss"]`.
+    - |
+      Fill the blanks in order:
+      1. Call `plt.subplots()` to create `fig, ax`.
+      2. Pass `marker="o"` inside `ax.plot(...)`.
+      3. Call `ax.set_xlabel("epoch")` to label the horizontal axis.
+      4. Call `ax.legend()` so the `"loss"` label appears in a legend box.
+    - |
+      Shape of the completed function:
+      ```python
+      fig, ax = plt.<setup>()
+      ax.plot(epochs, losses, label="loss", marker=...)
+      ax.set_title("Training loss")
+      ax.<xlabel_method>("epoch")
+      ax.set_ylabel("loss")
+      ax.<legend_method>()
+      return fig, ax
+      ```
+      Fill in `<setup>`, `...`, `<xlabel_method>`, and `<legend_method>` in `starter.py`.
+  vi:
+    - |
+      Bài này dùng cách tạo `fig, ax` ở §1 và gắn nhãn/chú thích ở §2. Với `plot_loss([1, 2, 3], [0.9, 0.5, 0.3])`, hàm cần trả về `(fig, ax)` có tiêu đề `"Training loss"`, nhãn trục x `"epoch"`, nhãn trục y `"loss"`, một đường có điểm chấm tròn và hộp chú thích chứa `["loss"]`.
+    - |
+      Điền lần lượt các chỗ trống:
+      1. Gọi `plt.subplots()` để tạo `fig, ax`.
+      2. Truyền `marker="o"` vào `ax.plot(...)`.
+      3. Gọi `ax.set_xlabel("epoch")` để đặt nhãn cho trục ngang.
+      4. Gọi `ax.legend()` để nhãn `"loss"` hiện trong hộp chú thích.
+    - |
+      Hình dạng của hàm khi hoàn chỉnh:
+      ```python
+      fig, ax = plt.<setup>()
+      ax.plot(epochs, losses, label="loss", marker=...)
+      ax.set_title("Training loss")
+      ax.<xlabel_method>("epoch")
+      ax.set_ylabel("loss")
+      ax.<legend_method>()
+      return fig, ax
+      ```
+      Hãy điền `<setup>`, `...`, `<xlabel_method>` và `<legend_method>` vào các ô `___` trong `starter.py`.
