@@ -121,6 +121,23 @@ export function CodeBlock({
   );
 }
 
+function cssColorToHex(cssColor: string): string {
+  if (typeof document === "undefined" || !cssColor) return cssColor;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return cssColor;
+    ctx.fillStyle = cssColor.trim();
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
+  } catch {
+    return cssColor;
+  }
+}
+
 /** Flow diagrams from ```mermaid fences. Loaded lazily; falls back to the source if it fails to parse. */
 function MermaidDiagram({ chart }: { chart: string }) {
   const id = "mmd" + useId().replace(/[^a-zA-Z0-9]/g, "");
@@ -132,7 +149,28 @@ function MermaidDiagram({ chart }: { chart: string }) {
     (async () => {
       try {
         const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({ startOnLoad: false, theme: resolvedTheme === "dark" ? "dark" : "neutral", securityLevel: "strict" });
+        const style = getComputedStyle(document.documentElement);
+        const readColor = (prop: string) => cssColorToHex(style.getPropertyValue(prop));
+
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: "strict",
+          theme: "base",
+          themeVariables: {
+            background: readColor("--card"),
+            primaryColor: readColor("--muted"),
+            primaryBorderColor: readColor("--primary"),
+            primaryTextColor: readColor("--foreground"),
+            secondaryColor: readColor("--accent"),
+            tertiaryColor: readColor("--card"),
+            lineColor: readColor("--muted-foreground"),
+            textColor: readColor("--foreground"),
+            edgeLabelBackground: readColor("--card"),
+            clusterBkg: readColor("--muted"),
+            clusterBorder: readColor("--border"),
+            fontFamily: "var(--font-sans)",
+          },
+        });
         const out = await mermaid.render(id, chart);
         if (alive) setSvg(out.svg);
       } catch {

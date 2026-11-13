@@ -84,9 +84,9 @@ export function RoadmapTray({ variant, nextId, className }: RoadmapTrayProps) {
                     <span className={cn("truncate text-sm font-bold text-foreground", !prog.ready && "opacity-60")}>
                       {loc.t(ph.title)}
                     </span>
-                    {prog.skipped && <Badge variant="muted">{ts("skipped")}</Badge>}
+                    {prog.skipped && <Badge variant="muted" className="border-foreground/25 text-foreground">{ts("skipped")}</Badge>}
                     {!prog.ready && (
-                      <Badge variant="outline">
+                      <Badge variant="outline" className="border-foreground/25 text-foreground">
                         {tc("comingSoon")}
                       </Badge>
                     )}
@@ -110,7 +110,7 @@ export function RoadmapTray({ variant, nextId, className }: RoadmapTrayProps) {
                         title={label}
                         aria-label={label}
                         className={cn(
-                          "relative grid size-9 place-items-center rounded-md font-mono text-xs tabular-nums outline-none transition-[color,background-color,border-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring after:absolute after:-inset-1 after:content-['']",
+                          "hit grid size-9 place-items-center rounded-md font-mono text-xs tabular-nums outline-none transition-[color,background-color,border-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                           trayCellClass(st, isNext),
                         )}
                       >
@@ -130,9 +130,9 @@ export function RoadmapTray({ variant, nextId, className }: RoadmapTrayProps) {
                   <span className={cn("truncate text-sm font-bold text-foreground", !prog.ready && "opacity-60")}>
                     {loc.t(ph.title)}
                   </span>
-                  {prog.skipped && <Badge variant="muted">{ts("skipped")}</Badge>}
+                  {prog.skipped && <Badge variant="muted" className="border-foreground/25 text-foreground">{ts("skipped")}</Badge>}
                   {!prog.ready && (
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="border-foreground/25 text-foreground">
                       {tc("comingSoon")}
                     </Badge>
                   )}

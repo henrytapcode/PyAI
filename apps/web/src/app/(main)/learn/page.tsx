@@ -88,12 +88,12 @@ export default function LearnPage() {
                 <div className="flex flex-col items-start gap-2 sm:items-end sm:shrink-0">
                   <div className="flex flex-wrap gap-1.5 sm:justify-end">
                     {phase.runner === "local" && (
-                      <Badge variant="outline">
+                      <Badge variant="outline" className="border-foreground/25 text-foreground">
                         <Cpu className="size-3.5" aria-hidden="true" /> {t("localRunner")}
                       </Badge>
                     )}
-                    {prog.skipped && <Badge variant="muted">{ts("skipped")}</Badge>}
-                    {!hasContent && <Badge variant="outline">{tc("comingSoon")}</Badge>}
+                    {prog.skipped && <Badge variant="muted" className="border-foreground/25 text-foreground">{ts("skipped")}</Badge>}
+                    {!hasContent && <Badge variant="outline" className="border-foreground/25 text-foreground">{tc("comingSoon")}</Badge>}
                   </div>
                   {hasContent && (
                     <div className="flex w-full items-center gap-2 sm:w-40">

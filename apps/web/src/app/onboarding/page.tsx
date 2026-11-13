@@ -158,7 +158,7 @@ function Choice({
       {code && (
         <span
           className="grid size-9 shrink-0 place-items-center rounded-md bg-muted font-mono text-sm font-bold text-primary"
-          aria-hidden
+          aria-hidden="true"
         >
           {code}
         </span>
