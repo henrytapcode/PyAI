@@ -1,0 +1,13 @@
+Missing per column:
+user     1
+plan     0
+score    2
+dtype: int64
+Cleaned survey:
+   user  plan  score
+0    an   pro    5.0
+1  binh   pro    4.0
+2   chi  free    4.0
+3  dung   pro    4.0
+4    em  free    3.0
+Average score: 4.0

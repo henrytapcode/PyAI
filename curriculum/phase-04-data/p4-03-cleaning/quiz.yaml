@@ -1,0 +1,360 @@
+questions:
+  - id: p4-03-q01
+    type: mcq
+    tags: [data-cleaning, pandas]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What does `df.isna().sum()` show when you inspect a new table?"
+      options:
+        - "The total sum of all numbers in every column"
+        - "The number of duplicate rows in the DataFrame"
+        - "The count of missing (`NaN` / `None`) values in each column"
+        - "The memory size of each column in bytes"
+      explanation: "`.isna()` returns `True` for every missing cell and `False` otherwise, and `.sum()` counts `True` as `1` down each column."
+    vi:
+      prompt: "`df.isna().sum()` hiển thị thông tin gì khi bạn kiểm tra một bảng mới?"
+      options:
+        - "Tổng giá trị của tất cả các con số trong mọi cột"
+        - "Số lượng dòng bị trùng lặp trong DataFrame"
+        - "Số lượng ô bị thiếu (`NaN` / `None`) ở từng cột"
+        - "Dung lượng bộ nhớ của mỗi cột tính theo byte"
+      explanation: "`.isna()` trả về `True` tại mọi ô thiếu và `False` ở ô còn lại, rồi `.sum()` cộng `True` như `1` theo từng cột."
+
+  - id: p4-03-q02
+    type: output
+    tags: [data-cleaning, pandas]
+    difficulty: 1
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({
+          "user": ["an", "binh", "chi"],
+          "score": [5.0, None, 4.0],
+      })
+      print(int(df["score"].isna().sum()))
+    answer: "1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The `score` column has one `None` (stored as `NaN`), so `.isna().sum()` returns `1`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Cột `score` có một giá trị `None` (được lưu là `NaN`), nên `.isna().sum()` trả về `1`."
+
+  - id: p4-03-q03
+    type: fill
+    tags: [data-cleaning, pandas]
+    difficulty: 1
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({"user": ["an", None, "chi"], "score": [4, 5, 3]})
+      clean = df.___(subset=["user"])
+      print(len(clean))
+    answer: ["dropna"]
+    en:
+      prompt: "Fill in the DataFrame method that drops rows where `user` is missing."
+      explanation: "`df.dropna(subset=[\"user\"])` removes only rows whose `user` value is `NaN` or `None`."
+    vi:
+      prompt: "Điền tên phương thức của DataFrame để bỏ những hàng bị thiếu `user`."
+      explanation: "`df.dropna(subset=[\"user\"])` chỉ xóa các hàng có giá trị `user` là `NaN` hoặc `None`."
+
+  - id: p4-03-q04
+    type: mcq
+    tags: [data-cleaning, pandas]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "How does `df[\"score\"].mean()` behave when `score` contains `NaN` values?"
+      options:
+        - "It raises a `ValueError` until every `NaN` is removed"
+        - "It automatically skips `NaN` values and averages the non-missing numbers"
+        - "It treats each `NaN` as `0` in the average"
+        - "It always returns `NaN` if at least one cell is missing"
+      explanation: "By default, pandas aggregations such as `.mean()` and `.median()` ignore `NaN` values instead of crashing or treating them as `0`."
+    vi:
+      prompt: "`df[\"score\"].mean()` xử lý thế nào khi cột `score` có chứa `NaN`?"
+      options:
+        - "Báo lỗi `ValueError` cho tới khi toàn bộ `NaN` bị xóa"
+        - "Tự động bỏ qua các ô `NaN` và tính trung bình trên các số hiện có"
+        - "Coi mỗi ô `NaN` là `0` khi tính trung bình"
+        - "Luôn trả về `NaN` nếu có ít nhất một ô bị thiếu"
+      explanation: "Mặc định, các phép tổng hợp của pandas như `.mean()` và `.median()` bỏ qua `NaN` chứ không báo lỗi hay coi chúng bằng `0`."
+
+  - id: p4-03-q05
+    type: output
+    tags: [data-cleaning, pandas]
+    difficulty: 1
+    code: |
+      import pandas as pd
+      raw = pd.Series([" GPT-4o ", "gpt-4o", "Claude "])
+      clean = raw.str.strip().str.lower()
+      print(clean.nunique())
+    answer: "2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "After stripping spaces and lowercasing, `\" GPT-4o \"` and `\"gpt-4o\"` both become `\"gpt-4o\"`, leaving `2` unique labels (`\"gpt-4o\"` and `\"claude\"`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Sau khi cắt khoảng trắng và viết thường, `\" GPT-4o \"` và `\"gpt-4o\"` đều thành `\"gpt-4o\"`, chỉ còn `2` nhãn duy nhất (`\"gpt-4o\"` và `\"claude\"`)."
+
+  - id: p4-03-q06
+    type: fill
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      prices = pd.Series(["120", "N/A", "350"])
+      nums = pd.to_numeric(prices, errors="___")
+      print(int(nums.isna().sum()))
+    answer: ["coerce"]
+    en:
+      prompt: "Fill in the `errors` argument so unreadable entries like `\"N/A\"` become `NaN` instead of raising an error."
+      explanation: "`errors=\"coerce\"` turns invalid strings into `NaN` rather than crashing with `ValueError`."
+    vi:
+      prompt: "Điền giá trị cho tham số `errors` để chuỗi không đọc được như `\"N/A\"` biến thành `NaN` thay vì báo lỗi."
+      explanation: "`errors=\"coerce\"` biến các chuỗi không hợp lệ thành `NaN` thay vì dừng chương trình với `ValueError`."
+
+  - id: p4-03-q07
+    type: output
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+      s = pd.Series(["1,200", "N/A", " 300 "])
+      nums = pd.to_numeric(s.str.replace(",", "", regex=False), errors="coerce")
+      print(int(nums.isna().sum()))
+    answer: "1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`\"1,200\"` becomes `\"1200\"` -> `1200.0`, `\" 300 \"` becomes `300.0`, and only `\"N/A\"` turns into `NaN`, giving `1`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`\"1,200\"` thành `\"1200\"` -> `1200.0`, `\" 300 \"` thành `300.0`, chỉ có `\"N/A\"` biến thành `NaN`, nên kết quả là `1`."
+
+  - id: p4-03-q08
+    type: mcq
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    answer: 0
+    code: |
+      import numpy as np
+      import pandas as pd
+      df = pd.DataFrame({"score": [4.0, np.nan]})
+      df.fillna(0)
+      print(df["score"].tolist())
+    en:
+      prompt: "Why does `df[\"score\"]` still contain `nan` after calling `df.fillna(0)`?"
+      options:
+        - "`fillna(0)` returns a new DataFrame and does not update `df` unless you assign it back"
+        - "`fillna(0)` only works on text columns, not `float64` columns"
+        - "`0` is treated as missing by pandas"
+        - "`np.nan` cannot be replaced once it is inside a DataFrame"
+      explanation: "Methods like `fillna()` and `dropna()` return a modified copy by default, so you must write `df = df.fillna(0)` to keep the change."
+    vi:
+      prompt: "Vì sao `df[\"score\"]` vẫn còn `nan` sau khi gọi `df.fillna(0)`?"
+      options:
+        - "`fillna(0)` trả về một DataFrame mới và không tự cập nhật `df` nếu bạn không gán lại"
+        - "`fillna(0)` chỉ hoạt động trên cột chữ, không dùng cho cột `float64`"
+        - "`0` bị pandas coi là giá trị thiếu"
+        - "Một khi `np.nan` đã nằm trong DataFrame thì không thể thay thế"
+      explanation: "Các phương thức như `fillna()` và `dropna()` mặc định trả về bản mới, nên bạn phải viết `df = df.fillna(0)` để giữ kết quả."
+
+  - id: p4-03-q09
+    type: fill
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({"paid": ["yes", "no", "yes"]})
+      df["paid"] = df["paid"].___({"yes": True, "no": False})
+      print(df["paid"].tolist())
+    answer: ["map"]
+    en:
+      prompt: "Fill in the Series method that replaces `\"yes\"` and `\"no\"` using the dictionary."
+      explanation: "`.map({\"yes\": True, \"no\": False})` looks up each cell in the dictionary and returns the mapped boolean Series."
+    vi:
+      prompt: "Điền tên phương thức của Series để đổi `\"yes\"` và `\"no\"` theo dictionary đã cho."
+      explanation: "`.map({\"yes\": True, \"no\": False})` tra từng ô trong dictionary và trả về Series kiểu boolean tương ứng."
+
+  - id: p4-03-q10
+    type: output
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({
+          "user": ["an", "binh", "an"],
+          "score": [2, 5, 4],
+      })
+      out = df.drop_duplicates(subset=["user"], keep="last")
+      print(out["score"].tolist())
+    answer: "[5, 4]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`keep=\"last\"` drops the first `\"an\"` row (`score=2`) and keeps row `1` (`\"binh\"`, `5`) followed by row `2` (`\"an\"`, `4`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`keep=\"last\"` bỏ dòng `\"an\"` đầu tiên (`score=2`) và giữ hàng `1` (`\"binh\"`, `5`) rồi tới hàng `2` (`\"an\"`, `4`)."
+
+  - id: p4-03-q11
+    type: mcq
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    answer: 3
+    code: |
+      import numpy as np
+      import pandas as pd
+      s = pd.Series([4.0, np.nan])
+      print((s == np.nan).tolist())
+    en:
+      prompt: "Why does `(s == np.nan).tolist()` print `[False, False]` instead of `[False, True]`?"
+      options:
+        - "Because `pd.Series` cannot be compared with `==`"
+        - "Because `None` must be used instead of `np.nan` in pandas"
+        - "Because `.tolist()` converts `True` into `False`"
+        - "Because `NaN` is never equal to anything, not even `NaN`; use `s.isna()` instead"
+      explanation: "In floating-point rules, `NaN == NaN` is always `False`, so `s == np.nan` returns `False` everywhere. Always use `.isna()`."
+    vi:
+      prompt: "Vì sao `(s == np.nan).tolist()` in `[False, False]` thay vì `[False, True]`?"
+      options:
+        - "Vì `pd.Series` không dùng được với toán tử `==`"
+        - "Vì trong pandas bắt buộc phải dùng `None` thay cho `np.nan`"
+        - "Vì `.tolist()` đổi `True` thành `False`"
+        - "Vì `NaN` không bao giờ bằng bất cứ thứ gì, kể cả chính nó; hãy dùng `s.isna()`"
+      explanation: "Theo quy tắc số thực, `NaN == NaN` luôn là `False`, nên `s == np.nan` trả về `False` ở mọi ô. Luôn dùng `.isna()`."
+
+  - id: p4-03-q12
+    type: fill
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({"rating": [0, 3, 5, 8]})
+      valid = df[df["rating"].___(1, 5)]
+      print(valid["rating"].tolist())
+    answer: ["between"]
+    en:
+      prompt: "Fill in the Series method that keeps ratings from `1` through `5` inclusive."
+      explanation: "`.between(1, 5)` returns `True` for every value where `1 <= rating <= 5`."
+    vi:
+      prompt: "Điền tên phương thức của Series để giữ các đánh giá từ `1` đến `5` (tính cả hai đầu)."
+      explanation: "`.between(1, 5)` trả về `True` cho mọi giá trị thỏa `1 <= rating <= 5`."
+
+  - id: p4-03-q13
+    type: parsons
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    lines:
+      - "import pandas as pd"
+      - 'raw = pd.Series(["1,200", "bad", " 300 "])'
+      - 'nums = pd.to_numeric(raw.str.replace(",", "", regex=False), errors="coerce")'
+      - 'clean = nums.dropna().astype("int64")'
+      - "print(clean.tolist())"
+    en:
+      prompt: "Put the lines in order to clean comma-separated price strings into `int64` integers and print `[1200, 300]`."
+      explanation: "Import `pandas`, create `raw`, remove commas and coerce to numbers (`nums`), drop `NaN` before casting to `int64` (`clean`), and print `clean.tolist()`."
+    vi:
+      prompt: "Sắp xếp các dòng để làm sạch chuỗi giá có dấu phẩy thành số nguyên `int64` và in `[1200, 300]`."
+      explanation: "Import `pandas`, tạo `raw`, bỏ dấu phẩy rồi ép kiểu an toàn (`nums`), bỏ `NaN` trước khi ép sang `int64` (`clean`), rồi in `clean.tolist()`."
+
+  - id: p4-03-q14
+    type: mcq
+    tags: [data-cleaning, exceptions]
+    difficulty: 3
+    answer: 1
+    code: |
+      import numpy as np
+      import pandas as pd
+      s = pd.Series([1.0, np.nan, 3.0])
+      s.astype("int64")
+    en:
+      prompt: "What happens when you run `s.astype(\"int64\")` on a Series that still contains `NaN`?"
+      options:
+        - "Pandas turns `NaN` into `0` automatically"
+        - "Pandas raises `IntCastingNaNError` because standard `int64` cannot store `NaN`"
+        - "Pandas drops the `NaN` row before converting"
+        - "Pandas converts the column to `object` strings"
+      explanation: "Standard integer columns (`int64`) have no `NaN` representation, so pandas raises `IntCastingNaNError`. Always `dropna()` or `fillna()` first."
+    vi:
+      prompt: "Điều gì xảy ra khi chạy `s.astype(\"int64\")` trên một Series vẫn còn chứa `NaN`?"
+      options:
+        - "Pandas tự động biến `NaN` thành `0`"
+        - "Pandas báo lỗi `IntCastingNaNError` vì kiểu `int64` chuẩn không lưu được `NaN`"
+        - "Pandas tự xóa dòng `NaN` trước khi chuyển kiểu"
+        - "Pandas đổi cột đó thành chuỗi `object`"
+      explanation: "Cột số nguyên chuẩn (`int64`) không có ký hiệu cho `NaN`, nên pandas báo `IntCastingNaNError`. Luôn `dropna()` hoặc `fillna()` trước."
+
+  - id: p4-03-q15
+    type: output
+    tags: [data-cleaning, pandas]
+    difficulty: 3
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({
+          "user": [" An ", "an", "bo"],
+          "score": [3, 5, 9],
+      })
+      df["user"] = df["user"].str.strip().str.lower()
+      df = df[df["score"].between(1, 5)]
+      df = df.drop_duplicates(subset=["user"], keep="last")
+      print(df["score"].tolist())
+    answer: "[5]"
+    en:
+      prompt: "What does this cleaning pipeline print?"
+      explanation: "Both `\" An \"` and `\"an\"` normalise to `\"an\"`; `\"bo\"` (`9`) is dropped by `between(1, 5)`; `keep=\"last\"` keeps `5` for `\"an\"`."
+    vi:
+      prompt: "Pipeline làm sạch này in ra gì?"
+      explanation: "Cả `\" An \"` và `\"an\"` đều chuẩn hóa thành `\"an\"`; `\"bo\"` (`9`) bị loại bởi `between(1, 5)`; `keep=\"last\"` giữ lại `5` cho `\"an\"`."
+
+  - id: p4-03-q16
+    type: parsons
+    tags: [data-cleaning, pandas]
+    difficulty: 3
+    lines:
+      - "import pandas as pd"
+      - 's = pd.Series([" 4 ", "bad", " 4 "])'
+      - 'nums = pd.to_numeric(s, errors="coerce")'
+      - "valid = nums.dropna().drop_duplicates()"
+      - 'ints = valid.astype("int64")'
+      - "print(ints.tolist())"
+    en:
+      prompt: "Put the lines in order to coerce `s` to numbers, drop missing and duplicate entries, cast to `int64`, and print `[4]`."
+      explanation: "Import `pandas`, define `s`, coerce with `errors=\"coerce\"`, drop `NaN` and duplicates, cast to `\"int64\"`, and print `ints.tolist()`."
+    vi:
+      prompt: "Sắp xếp các dòng để ép `s` sang số, bỏ giá trị thiếu và trùng lặp, ép sang `int64`, rồi in `[4]`."
+      explanation: "Import `pandas`, tạo `s`, ép kiểu với `errors=\"coerce\"`, bỏ `NaN` và giá trị trùng, ép sang `\"int64\"`, rồi in `ints.tolist()`."
+
+flashcards:
+  - id: p4-03-f01
+    tags: [data-cleaning, pandas]
+    code: "df.isna().sum()"
+    en: { front: "How do you inspect table size, column types, and missing values per column?", back: "Run `df.shape`, `df.dtypes`, and `df.isna().sum()` to see table size, column types, and missing counts per column." }
+    vi: { front: "Làm sao kiểm tra kích thước bảng, kiểu cột và giá trị thiếu theo từng cột?", back: "Dùng `df.shape`, `df.dtypes` và `df.isna().sum()` để xem kích thước bảng, kiểu cột và số ô thiếu của mỗi cột." }
+  - id: p4-03-f02
+    tags: [data-cleaning, pandas]
+    code: 'df["score"].fillna(df["score"].median())'
+    en: { front: "When do you use `dropna(subset=[...])` versus `fillna(median)`?", back: "Drop rows with `dropna(subset=[...])` when a key field (like `user` or `text`) is missing; fill secondary numeric gaps with `fillna(median)` when the rest of the row is still useful." }
+    vi: { front: "Khi nào dùng `dropna(subset=[...])` và khi nào dùng `fillna(median)`?", back: "Dùng `dropna(subset=[...])` khi thiếu trường khóa bắt buộc (như `user` hay `text`); dùng `fillna(median)` cho cột số phụ khi phần còn lại của hàng vẫn có ích." }
+  - id: p4-03-f03
+    tags: [data-cleaning, conversion]
+    code: 'pd.to_numeric(col, errors="coerce")'
+    en: { front: "What does `pd.to_numeric(col, errors=\"coerce\")` do?", back: "It parses valid number strings into numbers and turns unreadable strings (like `\"N/A\"`) into `NaN` instead of raising a `ValueError`." }
+    vi: { front: "`pd.to_numeric(col, errors=\"coerce\")` làm gì?", back: "Nó chuyển các chuỗi số hợp lệ thành số và biến các chuỗi không đọc được (như `\"N/A\"`) thành `NaN` thay vì báo lỗi `ValueError`." }
+  - id: p4-03-f04
+    tags: [data-cleaning, strings]
+    code: 's.str.strip().str.lower().str.replace("_", " ", regex=False)'
+    en: { front: "Why must you write `s.str.strip()` instead of `s.strip()` on a pandas Series?", back: "A `Series` has no `.strip()` method of its own; string methods live under the `.str` accessor so they run element-wise across the whole column." }
+    vi: { front: "Vì sao phải viết `s.str.strip()` thay vì `s.strip()` trên một pandas Series?", back: "`Series` không có sẵn phương thức `.strip()`; các thao tác chuỗi nằm dưới `.str` để chạy lên toàn bộ từng phần tử trong cột." }
+  - id: p4-03-f05
+    tags: [data-cleaning, pandas]
+    code: 'df.drop_duplicates(subset=["user"], keep="last")'
+    en: { front: "How do you keep only the most recent row per key and filter a valid numeric range?", back: "Use `df.drop_duplicates(subset=[\"user\"], keep=\"last\")` to keep the last occurrence, and `df[df[\"col\"].between(low, high)]` to filter valid ranges." }
+    vi: { front: "Làm sao chỉ giữ dòng mới nhất theo khóa và lọc khoảng số hợp lệ?", back: "Dùng `df.drop_duplicates(subset=[\"user\"], keep=\"last\")` để giữ dòng cuối cùng, và `df[df[\"col\"].between(low, high)]` để lọc theo khoảng hợp lệ." }
+  - id: p4-03-f06
+    tags: [data-cleaning, exceptions]
+    code: 'df.dropna(subset=["x"])["x"].astype("int64")'
+    en: { front: "Why must you remove or fill `NaN` before calling `.astype(\"int64\")`?", back: "Standard `int64` cannot store `NaN`, so pandas raises `IntCastingNaNError` unless missing values are dropped or filled first." }
+    vi: { front: "Vì sao phải bỏ hoặc điền hết `NaN` trước khi gọi `.astype(\"int64\")`?", back: "Kiểu `int64` chuẩn không lưu được `NaN`, nên pandas sẽ báo `IntCastingNaNError` nếu bạn chưa xử lý hết giá trị thiếu." }

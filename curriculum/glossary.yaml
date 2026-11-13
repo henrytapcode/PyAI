@@ -1152,6 +1152,50 @@ terms:
       vi: "Tài sản AI hữu ích đầu tiên của bạn thường là dataset nhỏ, được kiểm tra kỹ, gồm 50 đến 200 mẫu thật, dùng lại cho mọi thí nghiệm."
     related: [train/test split, ground truth, eval]
 
+  - term: data cleaning
+    vi_term: data cleaning (làm sạch dữ liệu)
+    tags: [data-cleaning, pandas]
+    en: "Fixing messy, missing, duplicate or wrongly typed values in a dataset before analysing it or training a model."
+    vi: "Sửa các giá trị lộn xộn, bị thiếu, trùng lặp hoặc sai kiểu dữ liệu trong dataset trước khi phân tích hay huấn luyện mô hình."
+    example: "df = df.dropna(subset=[\"user\"]).drop_duplicates(subset=[\"user\"], keep=\"last\")"
+    in_practice:
+      en: "Real logs arrive with extra spaces, string numbers like \"1,200\" and blank cells; cleaning them first stops \"garbage in, garbage out\" from ruining evals or models."
+      vi: "Log thật luôn có khoảng trắng thừa, số dạng chữ như \"1,200\" và ô trống; làm sạch trước giúp tránh cảnh \"garbage in, garbage out\" làm hỏng eval hay mô hình."
+    related: [missing value / NaN, duplicate, type coercion]
+
+  - term: missing value / NaN
+    vi_term: giá trị thiếu (missing value / NaN)
+    tags: [data-cleaning, pandas]
+    en: "An empty or unknown cell in a table, shown in pandas as NaN (Not a Number) or None and checked with .isna()."
+    vi: "Ô trống hoặc chưa biết giá trị trong bảng, được pandas hiển thị là NaN (Not a Number) hoặc None và kiểm tra bằng .isna()."
+    example: "df[\"score\"].isna().sum()\ndf[\"score\"] = df[\"score\"].fillna(df[\"score\"].median())"
+    in_practice:
+      en: "Users skip optional survey fields and API logs drop fields on timeouts; you decide per column whether to drop the row or fill with a safe default like the median."
+      vi: "Người dùng hay bỏ trống ô khảo sát và log API bị thiếu trường khi timeout; tùy từng cột bạn quyết định bỏ hàng đó hay điền bằng giá trị an toàn như median."
+    related: [data cleaning, None, type coercion]
+
+  - term: duplicate
+    vi_term: bản ghi trùng (duplicate)
+    tags: [data-cleaning, pandas]
+    en: "A repeated row (or repeated key such as the same user or text) in a dataset that can skew counts and model training."
+    vi: "Hàng bị lặp lại (hoặc trùng khóa như cùng user hay cùng văn bản) trong dataset, dễ làm lệch số đếm và quá trình huấn luyện."
+    example: "df = df.drop_duplicates(subset=[\"user\"], keep=\"last\")"
+    in_practice:
+      en: "If the same chat prompt appears ten times in a training set or a user submits a form twice, dropping duplicates keeps metrics honest and stops train/test leakage."
+      vi: "Nếu cùng một prompt xuất hiện mười lần trong tập train hoặc người dùng bấm gửi hai lần, bỏ dòng trùng giúp số liệu trung thực và tránh rò rỉ dữ liệu train/test."
+    related: [data cleaning, DataFrame, train/test split]
+
+  - term: type coercion
+    vi_term: ép kiểu an toàn (type coercion)
+    tags: [data-cleaning, conversion]
+    en: "Converting messy values into a target type while turning unreadable entries into missing values (NaN) instead of crashing."
+    vi: "Chuyển đổi các giá trị lộn xộn sang kiểu mong muốn, đồng thời biến những ô không đọc được thành giá trị thiếu (NaN) thay vì làm sập chương trình."
+    example: "pd.to_numeric(df[\"price\"], errors=\"coerce\")"
+    in_practice:
+      en: "A price column from CSV often mixes \"350\" with \"N/A\"; pd.to_numeric(..., errors=\"coerce\") turns \"N/A\" into NaN so you can count, drop or fill bad rows cleanly."
+      vi: "Cột giá từ CSV hay lẫn \"350\" với \"N/A\"; pd.to_numeric(..., errors=\"coerce\") đổi \"N/A\" thành NaN để bạn đếm, bỏ hoặc điền các dòng hỏng một cách gọn gàng."
+    related: [type conversion, missing value / NaN, data cleaning]
+
   # ---------------------------------------------------------- ML
   - term: feature
     vi_term: feature (đặc trưng)

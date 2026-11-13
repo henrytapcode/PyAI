@@ -15,7 +15,7 @@ print(scores.ndim)   # 1
 print(len(scores))   # 3
 ```
 
-Notice four useful properties: `shape` tells you the size along each dimension as a tuple, `dtype` shows the element type (such as `int64` or `float64`), `ndim` counts the dimensions, and `len(scores)` gives the length along the first dimension.
+Notice four useful properties: `shape` tells you the size along each dimension as a tuple, `dtype` shows the element type (such as `int64`, `int32` or `float64`), `ndim` counts the dimensions, and `len(scores)` gives the length along the first dimension.
 
 | Python `list` | NumPy `array` |
 |---|---|
@@ -196,7 +196,7 @@ print(a[(a > 1) & (a < 5)])   # [3]
 
 Fix: always put `( ... )` around every comparison before `&` or `|`.
 
-**Assigning a float into an integer array.** An array has a fixed `dtype`, so writing a decimal into an `int64` slot silently drops the fraction:
+**Assigning a float into an integer array.** An array has a fixed `dtype`, so writing a decimal into an integer slot silently drops the fraction:
 
 ```python
 import numpy as np

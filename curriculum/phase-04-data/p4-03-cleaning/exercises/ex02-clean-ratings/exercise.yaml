@@ -1,0 +1,50 @@
+id: p4-03-ex02
+kind: code
+title:
+  en: "Clean user ratings table"
+  vi: "Làm sạch bảng đánh giá người dùng"
+difficulty: 2
+tags: [data-cleaning, pandas]
+hints:
+  en:
+    - |
+      This combines §3 (`pd.to_numeric` and `.astype("int64")`), §4 (`.str.strip().str.lower()`), and §5 (`.drop_duplicates` and `.between`) into a §6 pipeline. For `[{"user": " An ", "rating": " 4 "}, {"user": "an", "rating": "5"}, {"user": "bo", "rating": "five"}]`, return a DataFrame with one row: `user="an"`, `rating=5` (`int64`).
+    - |
+      Follow these steps on a copy of `df`:
+      1. Normalise `out["user"]` with `.str.strip().str.lower()`.
+      2. Convert `out["rating"]` with `pd.to_numeric(..., errors="coerce")`, then drop `NaN` rows and keep only `rating.between(1, 5)`.
+      3. Deduplicate by `"user"` keeping `"last"`, cast `"rating"` to `"int64"`, select `["user", "rating"]`, and `.reset_index(drop=True)`.
+    - |
+      Pipeline skeleton:
+      ```python
+      out = df.copy()
+      out["user"] = out["user"].str.strip().str.lower()
+      out["rating"] = pd.to_numeric(out["rating"], errors=...)
+      out = out.dropna(subset=["rating"])
+      out = out[out["rating"].between(..., ...)]
+      out = out.drop_duplicates(subset=["user"], keep=...)
+      out["rating"] = out["rating"].astype(...)
+      return out[["user", "rating"]].reset_index(drop=True)
+      ```
+      Fill in the four `...` arguments.
+  vi:
+    - |
+      Bài này kết hợp §3 (`pd.to_numeric` và `.astype("int64")`), §4 (`.str.strip().str.lower()`), và §5 (`.drop_duplicates` và `.between`) thành một pipeline như §6. Với `[{"user": " An ", "rating": " 4 "}, {"user": "an", "rating": "5"}, {"user": "bo", "rating": "five"}]`, cần trả về DataFrame gồm một hàng: `user="an"`, `rating=5` (kiểu `int64`).
+    - |
+      Thực hiện các bước sau trên một bản sao của `df`:
+      1. Chuẩn hóa `out["user"]` bằng `.str.strip().str.lower()`.
+      2. Ép `out["rating"]` bằng `pd.to_numeric(..., errors="coerce")`, bỏ các dòng `NaN` rồi giữ lại các dòng có `rating.between(1, 5)`.
+      3. Loại trùng theo `"user"` giữ `"last"`, ép `"rating"` sang `"int64"`, chọn cột `["user", "rating"]` và `.reset_index(drop=True)`.
+    - |
+      Khung pipeline:
+      ```python
+      out = df.copy()
+      out["user"] = out["user"].str.strip().str.lower()
+      out["rating"] = pd.to_numeric(out["rating"], errors=...)
+      out = out.dropna(subset=["rating"])
+      out = out[out["rating"].between(..., ...)]
+      out = out.drop_duplicates(subset=["user"], keep=...)
+      out["rating"] = out["rating"].astype(...)
+      return out[["user", "rating"]].reset_index(drop=True)
+      ```
+      Hãy điền bốn đối số còn thiếu vào các chỗ `...`.

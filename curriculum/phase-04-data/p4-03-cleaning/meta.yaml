@@ -1,0 +1,31 @@
+id: p4-03-cleaning
+phase: p4
+order: 3
+kind: lesson
+title:
+  en: "Cleaning data"
+  vi: "Làm sạch dữ liệu"
+summary:
+  en: "Inspect messy tables, find and fill missing values, coerce column types, normalise messy text, drop duplicates and invalid rows, and bundle the steps into a pipeline."
+  vi: "Kiểm tra bảng dữ liệu bẩn, tìm và điền giá trị thiếu, sửa kiểu cột, chuẩn hóa văn bản lộn xộn, bỏ dòng trùng và dòng không hợp lệ, rồi gộp thành một pipeline."
+level: beginner
+tags: [data-cleaning, pandas, data]
+prerequisites: [p4-02-pandas]
+duration_min: 11
+outcomes:
+  en:
+    - "Find and fill missing values"
+    - "Fix column types and messy text"
+    - "Drop duplicates and invalid rows"
+    - "Combine cleaning steps into a reusable pipeline"
+  vi:
+    - "Tìm và điền giá trị thiếu"
+    - "Sửa kiểu cột và văn bản lộn xộn"
+    - "Bỏ dòng trùng và dòng không hợp lệ"
+    - "Gộp các bước làm sạch thành pipeline dùng lại được"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "Working with missing data", vi: "Working with missing data (EN)" }
+    url: "https://pandas.pydata.org/docs/user_guide/missing_data.html"
+  - title: { en: "Working with text data", vi: "Working with text data (EN)" }
+    url: "https://pandas.pydata.org/docs/user_guide/text.html"

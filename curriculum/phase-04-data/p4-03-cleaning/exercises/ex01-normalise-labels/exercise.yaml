@@ -1,0 +1,40 @@
+id: p4-03-ex01
+kind: fill
+title:
+  en: "Fill in: normalise labels"
+  vi: "Điền vào: chuẩn hóa nhãn"
+difficulty: 1
+tags: [data-cleaning, pandas]
+hints:
+  en:
+    - |
+      This uses the `.str` text methods from §4. For `pd.Series([" Bug_Report ", "FEATURE-REQ"])`, `normalise_labels` must return a Series with values `["bug report", "feature req"]` and the same index.
+    - |
+      Fill the blanks in order:
+      1. Use the `.str` accessor on `labels` before calling `.strip()`.
+      2. Chain `.str.lower()` to turn all letters lowercase.
+      3. Call `.str.replace(...)` first for `"_"` and then for `"-"`, turning each into `" "`.
+    - |
+      Shape of the completed function:
+      ```python
+      cleaned = labels.<accessor>.strip().str.<method>()
+      cleaned = cleaned.str.<method>("_", " ", regex=False)
+      return cleaned.str.replace(<separator>, " ", regex=False)
+      ```
+      Replace `<accessor>`, `<method>`, and `<separator>` in `starter.py`.
+  vi:
+    - |
+      Bài này dùng các phương thức xử lý chuỗi qua `.str` ở §4. Với `pd.Series([" Bug_Report ", "FEATURE-REQ"])`, hàm `normalise_labels` phải trả về Series có các giá trị `["bug report", "feature req"]` và giữ nguyên index.
+    - |
+      Điền lần lượt các chỗ trống:
+      1. Dùng bộ truy cập `.str` trên `labels` trước khi gọi `.strip()`.
+      2. Nối tiếp `.str.lower()` để đưa mọi chữ cái về chữ thường.
+      3. Gọi `.str.replace(...)` lần đầu cho `"_"` và lần hai cho `"-"`, đổi cả hai thành `" "`.
+    - |
+      Hình dạng của hàm khi hoàn chỉnh:
+      ```python
+      cleaned = labels.<accessor>.strip().str.<method>()
+      cleaned = cleaned.str.<method>("_", " ", regex=False)
+      return cleaned.str.replace(<separator>, " ", regex=False)
+      ```
+      Thay `<accessor>`, `<method>` và `<separator>` vào các ô `___` trong `starter.py`.

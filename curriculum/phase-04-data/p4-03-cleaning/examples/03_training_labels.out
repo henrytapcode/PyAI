@@ -1,0 +1,12 @@
+Clean dataset:
+                  text         label
+0          App crashes    bug report
+1       Reset password  account help
+2  Login button broken    bug report
+3        Billing issue       billing
+Label counts:
+label
+bug report      2
+account help    1
+billing         1
+Name: count, dtype: int64

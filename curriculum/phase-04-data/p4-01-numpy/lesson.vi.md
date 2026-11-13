@@ -15,7 +15,7 @@ print(scores.ndim)   # 1
 print(len(scores))   # 3
 ```
 
-Để ý bốn thuộc tính hữu ích: `shape` cho biết kích thước theo từng chiều dưới dạng tuple, `dtype` (kiểu dữ liệu phần tử) hiển thị kiểu như `int64` hay `float64`, `ndim` đếm số chiều, còn `len(scores)` trả về độ dài theo chiều đầu tiên.
+Để ý bốn thuộc tính hữu ích: `shape` cho biết kích thước theo từng chiều dưới dạng tuple, `dtype` (kiểu dữ liệu phần tử) hiển thị kiểu như `int64`, `int32` hay `float64`, `ndim` đếm số chiều, còn `len(scores)` trả về độ dài theo chiều đầu tiên.
 
 | Python `list` | NumPy `array` |
 |---|---|
@@ -196,7 +196,7 @@ print(a[(a > 1) & (a < 5)])   # [3]
 
 Cách sửa: luôn bọc `( ... )` quanh mỗi phép so sánh trước khi nối bằng `&` hoặc `|`.
 
-**Gán số thực vào mảng số nguyên.** Mảng có `dtype` cố định, nên gán số thập phân vào ô `int64` sẽ lặng lẽ cắt mất phần thập phân:
+**Gán số thực vào mảng số nguyên.** Mảng có `dtype` cố định, nên gán số thập phân vào ô số nguyên sẽ lặng lẽ cắt mất phần thập phân:
 
 ```python
 import numpy as np
