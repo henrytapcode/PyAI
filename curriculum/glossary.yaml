@@ -1793,3 +1793,92 @@ terms:
       en: "Plotting prompt tokens against response latency as a scatter plot quickly shows whether longer prompts slow down the API and exposes outlier requests."
       vi: "Vẽ số token prompt theo độ trễ phản hồi bằng scatter plot cho thấy ngay prompt dài có làm chậm API không và làm lộ các request bất thường."
     related: [axes, latency, token]
+
+  # ---------------------------------------------------------- SQL & SQLite
+  - term: SQL
+    vi_term: SQL (ngôn ngữ truy vấn có cấu trúc)
+    tags: [sql]
+    en: "Structured Query Language: the standard language used to create tables, insert records, and query or summarise data in a relational database."
+    vi: "Structured Query Language: ngôn ngữ chuẩn để tạo bảng, thêm bản ghi, truy vấn và tổng hợp dữ liệu trong cơ sở dữ liệu quan hệ."
+    example: "SELECT model, COUNT(*) FROM feedback GROUP BY model"
+    in_practice:
+      en: "AI apps store chat logs, user feedback, and evaluation runs in SQL databases so you can filter or aggregate millions of rows without loading everything into pandas."
+      vi: "Ứng dụng AI lưu lịch sử chat, phản hồi người dùng và kết quả eval trong database SQL để lọc hoặc tổng hợp hàng triệu dòng mà không cần tải hết vào pandas."
+    related: [table, query, DataFrame]
+
+  - term: table
+    vi_term: bảng (table)
+    tags: [sql]
+    en: "A named grid of columns (each with a name and data type) and rows that stores records of one kind inside a database."
+    vi: "Cấu trúc dạng lưới có tên, gồm các cột (mỗi cột có tên và kiểu dữ liệu) và các dòng để lưu một loại bản ghi trong database."
+    example: "CREATE TABLE messages (id INTEGER PRIMARY KEY, user TEXT, text TEXT)"
+    in_practice:
+      en: "Your app might keep a users table, a messages table for chat turns, and an eval_runs table for benchmark scores."
+      vi: "Ứng dụng của bạn có thể có bảng users, bảng messages lưu từng lượt chat và bảng eval_runs lưu điểm benchmark."
+    related: [SQL, row, primary key]
+
+  - term: row
+    vi_term: dòng / bản ghi (row)
+    tags: [sql]
+    en: "A single record in a database table, holding one value for each column."
+    vi: "Một bản ghi đơn lẻ trong bảng cơ sở dữ liệu, chứa một giá trị cho mỗi cột."
+    example: "INSERT INTO feedback (model, rating) VALUES ('gpt-4o', 5)"
+    in_practice:
+      en: "Each incoming API request, user rating, or eval test case becomes one new row inserted into its table."
+      vi: "Mỗi API request, lượt đánh giá của người dùng hoặc test case eval trở thành một dòng mới được thêm vào bảng."
+    related: [table, primary key, query]
+
+  - term: query
+    vi_term: truy vấn (query)
+    tags: [sql]
+    en: "A SQL statement sent to a database to read, filter, sort, or aggregate data (most often starting with SELECT)."
+    vi: "Câu lệnh SQL gửi tới database để đọc, lọc, sắp xếp hoặc tổng hợp dữ liệu (thường bắt đầu bằng SELECT)."
+    example: "SELECT user, text FROM messages WHERE user = ? ORDER BY id"
+    in_practice:
+      en: "When a user opens a chat thread, your backend runs a SELECT query to fetch only that user's messages in chronological order."
+      vi: "Khi người dùng mở một cuộc hội thoại, backend chạy câu truy vấn SELECT để chỉ lấy tin nhắn của người dùng đó theo đúng thứ tự."
+    related: [SQL, table, GROUP BY]
+
+  - term: primary key
+    vi_term: khóa chính (primary key)
+    tags: [sql]
+    en: "A column (or combination of columns) whose value uniquely identifies every row in a table and cannot be duplicated or left empty."
+    vi: "Cột (hoặc tổ hợp cột) có giá trị định danh duy nhất từng dòng trong bảng, không được trùng lặp hoặc bỏ trống."
+    example: "CREATE TABLE messages (id INTEGER PRIMARY KEY, text TEXT)"
+    in_practice:
+      en: "An INTEGER PRIMARY KEY id lets you order chat messages reliably and reference a specific message from another table such as feedback."
+      vi: "Cột id kiểu INTEGER PRIMARY KEY giúp sắp xếp tin nhắn theo thứ tự chính xác và trỏ tới đúng tin nhắn đó từ bảng khác như feedback."
+    related: [table, row, SQL]
+
+  - term: GROUP BY
+    vi_term: GROUP BY (gom nhóm)
+    tags: [sql]
+    en: "A SQL clause that puts rows sharing the same column value into groups so aggregate functions like COUNT, SUM, and AVG compute one result per group."
+    vi: "Mệnh đề SQL gom các dòng có cùng giá trị ở một cột thành từng nhóm để các hàm tổng hợp như COUNT, SUM, AVG tính một kết quả cho mỗi nhóm."
+    example: "SELECT model, ROUND(AVG(rating), 2) FROM feedback GROUP BY model"
+    in_practice:
+      en: "Before choosing which LLM to ship, you GROUP BY model on your eval table to compare average score and run count side by side."
+      vi: "Trước khi chọn LLM để đưa lên production, bạn dùng GROUP BY model trên bảng eval để so sánh điểm trung bình và số lượt chạy của từng mô hình."
+    related: [query, groupby, aggregation]
+
+  - term: placeholder / parameterized query
+    vi_term: placeholder / truy vấn tham số hóa (parameterized query)
+    tags: [sql]
+    en: "Writing ? markers in a SQL string and passing Python values separately as a tuple so SQLite treats the inputs strictly as data, never as SQL syntax."
+    vi: "Đặt dấu ? trong chuỗi SQL rồi truyền giá trị Python riêng qua một tuple để SQLite luôn coi đầu vào là dữ liệu thuần túy, không bao giờ hiểu nhầm thành cú pháp SQL."
+    example: "conn.execute(\"SELECT * FROM users WHERE name = ?\", (\"O'Brien\",))"
+    in_practice:
+      en: "Parameterized queries safely handle names with apostrophes like O'Brien and block SQL injection attacks across every user-facing endpoint."
+      vi: "Truy vấn tham số hóa xử lý an toàn các tên có dấu nháy đơn như O'Brien và chặn đứng tấn công SQL injection ở mọi endpoint."
+    related: [SQL injection, query, tuple]
+
+  - term: SQL injection
+    vi_term: SQL injection
+    tags: [sql]
+    en: "A security vulnerability where untrusted text concatenated directly into a SQL string changes the query's structure and lets an attacker read, alter, or delete data."
+    vi: "Lỗ hổng bảo mật xảy ra khi văn bản không tin cậy được nối thẳng vào chuỗi SQL làm thay đổi cấu trúc câu lệnh, cho phép kẻ tấn công đọc, sửa hoặc xóa dữ liệu."
+    example: "# Unsafe: f\"SELECT * FROM users WHERE name = '{name}'\"\n# Safe:   conn.execute(\"SELECT * FROM users WHERE name = ?\", (name,))"
+    in_practice:
+      en: "If an LLM user or web form sends crafted input into an f-string SQL query, it can leak private chat logs; always pass values through ? placeholders instead."
+      vi: "Nếu người dùng LLM hoặc form web gửi chuỗi độc hại vào câu SQL ghép bằng f-string, toàn bộ lịch sử chat có thể bị lộ; luôn truyền giá trị qua placeholder ?."
+    related: [placeholder / parameterized query, prompt injection, validation]

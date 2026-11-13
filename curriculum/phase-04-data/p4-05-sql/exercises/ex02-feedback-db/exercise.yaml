@@ -1,0 +1,66 @@
+id: p4-05-ex02
+kind: code
+title:
+  en: "Feedback database and low-rating query"
+  vi: "Tạo bảng feedback và truy vấn điểm thấp"
+difficulty: 2
+tags: [sql]
+hints:
+  en:
+    - |
+      This combines `CREATE TABLE` (§1), `executemany` with `?` placeholders inside `with conn:` (§2), and `SELECT` with `WHERE ... <= ?` and `ORDER BY` (§3). For `[("binh", "mini", 2), ("an", "gpt-4o", 3), ("an", "mini", 1)]`, `low_rated_users(conn, 2)` must return `["an", "binh"]`.
+    - |
+      Follow these steps across the two functions:
+      1. In `create_feedback_db(rows)`: open `sqlite3.connect(":memory:")`, create `feedback(user TEXT, model TEXT, rating INTEGER)`, insert all `rows` with `executemany` and `?` placeholders inside `with conn:`, and return `conn`.
+      2. In `low_rated_users(conn, max_rating)`: run `SELECT DISTINCT user FROM feedback WHERE rating <= ? ORDER BY user ASC` with `(max_rating,)`.
+      3. Extract `[row[0] for row in ...]` from `.fetchall()` and return the list of strings.
+    - |
+      Function skeletons:
+      ```python
+      def create_feedback_db(rows: list[tuple[str, str, int]]) -> sqlite3.Connection:
+          conn = sqlite3.connect(":memory:")
+          conn.execute("CREATE TABLE feedback (user TEXT, model TEXT, rating INTEGER)")
+          with conn:
+              conn.executemany(
+                  "INSERT INTO feedback (user, model, rating) VALUES (?, ?, ?)",
+                  ...,
+              )
+          return conn
+
+      def low_rated_users(conn: sqlite3.Connection, max_rating: int) -> list[str]:
+          found = conn.execute(
+              "SELECT DISTINCT user FROM feedback WHERE rating <= ? ORDER BY ...",
+              (...,),
+          ).fetchall()
+          return [row[0] for row in found]
+      ```
+      Fill in the three `...` gaps.
+  vi:
+    - |
+      Bài này kết hợp `CREATE TABLE` ở §1, `executemany` với placeholder `?` trong `with conn:` ở §2 và `SELECT` kèm `WHERE ... <= ?`, `ORDER BY` ở §3. Với `[("binh", "mini", 2), ("an", "gpt-4o", 3), ("an", "mini", 1)]`, `low_rated_users(conn, 2)` phải trả về `["an", "binh"]`.
+    - |
+      Thực hiện theo các bước sau cho hai hàm:
+      1. Trong `create_feedback_db(rows)`: mở `sqlite3.connect(":memory:")`, tạo bảng `feedback(user TEXT, model TEXT, rating INTEGER)`, chèn `rows` bằng `executemany` và placeholder `?` bên trong `with conn:`, rồi trả về `conn`.
+      2. Trong `low_rated_users(conn, max_rating)`: chạy `SELECT DISTINCT user FROM feedback WHERE rating <= ? ORDER BY user ASC` với `(max_rating,)`.
+      3. Tách `[row[0] for row in ...]` từ `.fetchall()` rồi trả về list chuỗi.
+    - |
+      Khung hai hàm:
+      ```python
+      def create_feedback_db(rows: list[tuple[str, str, int]]) -> sqlite3.Connection:
+          conn = sqlite3.connect(":memory:")
+          conn.execute("CREATE TABLE feedback (user TEXT, model TEXT, rating INTEGER)")
+          with conn:
+              conn.executemany(
+                  "INSERT INTO feedback (user, model, rating) VALUES (?, ?, ?)",
+                  ...,
+              )
+          return conn
+
+      def low_rated_users(conn: sqlite3.Connection, max_rating: int) -> list[str]:
+          found = conn.execute(
+              "SELECT DISTINCT user FROM feedback WHERE rating <= ? ORDER BY ...",
+              (...,),
+          ).fetchall()
+          return [row[0] for row in found]
+      ```
+      Hãy điền vào ba chỗ `...`.

@@ -1,0 +1,31 @@
+id: p4-05-sql
+phase: p4
+order: 5
+kind: lesson
+title:
+  en: "SQL basics with SQLite"
+  vi: "SQL cơ bản với SQLite"
+summary:
+  en: "Create tables and insert rows safely with sqlite3, query and aggregate data with SELECT, WHERE, ORDER BY, and GROUP BY, and load SQL results straight into pandas DataFrames."
+  vi: "Tạo bảng và thêm dữ liệu an toàn bằng sqlite3, truy vấn và tổng hợp với SELECT, WHERE, ORDER BY và GROUP BY, rồi đưa kết quả SQL thẳng vào pandas DataFrame."
+level: beginner
+tags: [sql, pandas, data]
+prerequisites: [p4-02-pandas]
+duration_min: 11
+outcomes:
+  en:
+    - "Create a table and insert rows with sqlite3"
+    - "SELECT with WHERE, ORDER BY and GROUP BY"
+    - "Load query results into pandas"
+    - "Use parameterized queries to handle quotes and prevent SQL injection"
+  vi:
+    - "Tạo bảng và thêm dòng bằng sqlite3"
+    - "SELECT với WHERE, ORDER BY và GROUP BY"
+    - "Đưa kết quả truy vấn vào pandas"
+    - "Dùng parameterized query để xử lý dấu nháy và tránh SQL injection"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "Python sqlite3 documentation", vi: "Python sqlite3 documentation (EN)" }
+    url: "https://docs.python.org/3/library/sqlite3.html"
+  - title: { en: "SQL As Understood By SQLite", vi: "SQL As Understood By SQLite (EN)" }
+    url: "https://sqlite.org/lang.html"

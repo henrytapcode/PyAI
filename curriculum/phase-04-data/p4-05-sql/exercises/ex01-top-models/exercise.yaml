@@ -1,0 +1,52 @@
+id: p4-05-ex01
+kind: fill
+title:
+  en: "Fill in: rank top models with GROUP BY"
+  vi: "Điền vào: xếp hạng model hàng đầu bằng GROUP BY"
+difficulty: 1
+tags: [sql]
+hints:
+  en:
+    - |
+      This uses `ROUND(AVG(...), 2)`, `GROUP BY`, `HAVING`, and `ORDER BY` from §4. For a `runs` table where `"gpt-4o"` averages `0.90` (3 runs), `"claude"` averages `0.88` (2 runs), and `"mini"` averages `0.95` (1 run), `top_models(conn, 2)` must return `[("gpt-4o", 0.9), ("claude", 0.88)]`.
+    - |
+      Fill the four blanks in order:
+      1. Pass `2` as the second argument to `ROUND(...)` so average scores round to two decimal places.
+      2. Group rows by the `model` column after `GROUP BY`.
+      3. Put `?` after `HAVING COUNT(*) >=` so `min_runs` is bound safely via the parameter tuple.
+      4. Sort by `avg_score` descending before the `model ASC` tie-breaker.
+    - |
+      Shape of the SQL query inside `top_models`:
+      ```python
+      sql = """
+          SELECT model, ROUND(AVG(score), ...) AS avg_score
+          FROM runs
+          GROUP BY ...
+          HAVING COUNT(*) >= ?
+          ORDER BY ... DESC, model ASC
+      """
+      return conn.execute(sql, (min_runs,)).fetchall()
+      ```
+      Fill in the three `...` parts and the `?` placeholder in `starter.py`.
+  vi:
+    - |
+      Bài này dùng `ROUND(AVG(...), 2)`, `GROUP BY`, `HAVING` và `ORDER BY` ở §4. Với bảng `runs` trong đó `"gpt-4o"` trung bình `0.90` (3 lượt), `"claude"` trung bình `0.88` (2 lượt) và `"mini"` trung bình `0.95` (1 lượt), `top_models(conn, 2)` cần trả về `[("gpt-4o", 0.9), ("claude", 0.88)]`.
+    - |
+      Điền lần lượt bốn chỗ trống:
+      1. Truyền `2` làm đối số thứ hai của `ROUND(...)` để làm tròn điểm trung bình tới 2 chữ số thập phân.
+      2. Gom nhóm các dòng theo cột `model` sau `GROUP BY`.
+      3. Đặt dấu `?` sau `HAVING COUNT(*) >=` để gắn `min_runs` an toàn qua tuple tham số.
+      4. Sắp xếp theo `avg_score` giảm dần trước tiêu chí phụ `model ASC`.
+    - |
+      Hình dạng câu SQL trong `top_models`:
+      ```python
+      sql = """
+          SELECT model, ROUND(AVG(score), ...) AS avg_score
+          FROM runs
+          GROUP BY ...
+          HAVING COUNT(*) >= ?
+          ORDER BY ... DESC, model ASC
+      """
+      return conn.execute(sql, (min_runs,)).fetchall()
+      ```
+      Hãy điền ba phần `...` và placeholder `?` vào các ô `___` trong `starter.py`.

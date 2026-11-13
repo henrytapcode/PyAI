@@ -1,0 +1,411 @@
+questions:
+  - id: p4-05-q01
+    type: mcq
+    tags: [sql]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What does `sqlite3.connect(\":memory:\")` create?"
+      options:
+        - "A permanent database file named `memory.db` in the current folder"
+        - "A temporary SQLite database in RAM that disappears when the connection closes or the program exits"
+        - "A connection to a remote PostgreSQL server"
+        - "A pandas DataFrame stored on disk"
+      explanation: "`\":memory:\"` tells SQLite to keep the database only in RAM for the lifetime of that connection; real apps pass a file path like `\"app.db\"` to persist data."
+    vi:
+      prompt: "`sqlite3.connect(\":memory:\")` tạo ra thứ gì?"
+      options:
+        - "Một file database vĩnh viễn tên `memory.db` trong thư mục hiện tại"
+        - "Một database SQLite tạm thời trên RAM, tự biến mất khi đóng kết nối hoặc kết thúc chương trình"
+        - "Một kết nối tới máy chủ PostgreSQL từ xa"
+        - "Một pandas DataFrame lưu trên ổ đĩa"
+      explanation: "`\":memory:\"` bảo SQLite giữ database chỉ trong RAM trong suốt vòng đời kết nối; ứng dụng thật truyền đường dẫn file như `\"app.db\"` để lưu lâu dài."
+
+  - id: p4-05-q02
+    type: output
+    tags: [sql]
+    difficulty: 1
+    code: |
+      import sqlite3
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE models (id INTEGER PRIMARY KEY, name TEXT)")
+      with conn:
+          conn.executemany(
+              "INSERT INTO models (name) VALUES (?)",
+              [("mini",), ("gpt-4o",), ("claude",)],
+          )
+      print(conn.execute("SELECT COUNT(*) FROM models").fetchone())
+      conn.close()
+    answer: "(3,)"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Three rows are inserted into `models`, and `.fetchone()` on `SELECT COUNT(*)` returns a 1-element tuple `(3,)`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Ba dòng được chèn vào bảng `models`, và `.fetchone()` trên `SELECT COUNT(*)` trả về tuple một phần tử `(3,)`."
+
+  - id: p4-05-q03
+    type: fill
+    tags: [sql]
+    difficulty: 1
+    code: |
+      import sqlite3
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE logs (user TEXT, tokens INTEGER)")
+      with conn:
+          conn.execute("INSERT INTO logs (user, tokens) VALUES (___, ___)", ("an", 120))
+      print(conn.execute("SELECT user, tokens FROM logs").fetchall())
+      conn.close()
+    answer: ["?", "?"]
+    en:
+      prompt: "Fill in the SQLite placeholder character used twice in `VALUES (...)`."
+      explanation: "Python's `sqlite3` module uses `?` as the parameter placeholder, matching the order of values in the tuple `(\"an\", 120)`."
+    vi:
+      prompt: "Điền ký tự placeholder của SQLite được dùng hai lần trong `VALUES (...)`."
+      explanation: "Module `sqlite3` của Python dùng dấu `?` làm placeholder cho tham số, khớp đúng thứ tự các giá trị trong tuple `(\"an\", 120)`."
+
+  - id: p4-05-q04
+    type: mcq
+    tags: [sql]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "In `CREATE TABLE messages (id INTEGER PRIMARY KEY, user TEXT, text TEXT)`, what does `PRIMARY KEY` guarantee for `id`?"
+      options:
+        - "Every `text` value must be shorter than 255 characters"
+        - "SQLite automatically sorts every `SELECT` query by `user`"
+        - "Each row has a unique `id` that identifies that record and cannot be duplicated"
+        - "The `id` column stores floating-point decimals"
+      explanation: "A `PRIMARY KEY` uniquely identifies each row in a table, and SQLite auto-assigns sequential integers for `INTEGER PRIMARY KEY` when `id` is omitted on insert."
+    vi:
+      prompt: "Trong `CREATE TABLE messages (id INTEGER PRIMARY KEY, user TEXT, text TEXT)`, `PRIMARY KEY` đảm bảo điều gì cho cột `id`?"
+      options:
+        - "Mọi giá trị `text` phải ngắn hơn 255 ký tự"
+        - "SQLite tự động sắp xếp mọi câu `SELECT` theo `user`"
+        - "Mỗi dòng có một `id` duy nhất để định danh bản ghi đó và không thể trùng lặp"
+        - "Cột `id` dùng để lưu số thực dấu phẩy động"
+      explanation: "`PRIMARY KEY` định danh duy nhất từng dòng trong bảng, và với `INTEGER PRIMARY KEY` SQLite tự cấp số nguyên tăng dần khi bạn bỏ qua `id` lúc `INSERT`."
+
+  - id: p4-05-q05
+    type: output
+    tags: [sql]
+    difficulty: 1
+    code: |
+      import sqlite3
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE scores (model TEXT, score REAL)")
+      with conn:
+          conn.executemany(
+              "INSERT INTO scores (model, score) VALUES (?, ?)",
+              [("mini", 0.72), ("gpt-4o", 0.91), ("claude", 0.88)],
+          )
+      rows = conn.execute(
+          "SELECT model FROM scores WHERE score >= 0.80 ORDER BY score DESC"
+      ).fetchall()
+      print(rows)
+      conn.close()
+    answer: "[('gpt-4o',), ('claude',)]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`WHERE score >= 0.80` keeps `gpt-4o` (0.91) and `claude` (0.88), and `ORDER BY score DESC` puts `gpt-4o` first; each row is a 1-tuple."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`WHERE score >= 0.80` giữ lại `gpt-4o` (0.91) và `claude` (0.88), và `ORDER BY score DESC` xếp `gpt-4o` trước; mỗi dòng là một tuple 1 phần tử."
+
+  - id: p4-05-q06
+    type: fill
+    tags: [sql]
+    difficulty: 2
+    code: |
+      import sqlite3
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE logs (user TEXT, note TEXT)")
+      with conn:
+          conn.executemany("INSERT INTO logs (user, note) VALUES (?, ?)", [("an", None), ("binh", "ok")])
+      rows = conn.execute("SELECT user FROM logs WHERE note ___ NULL ORDER BY user").fetchall()
+      print(rows)
+      conn.close()
+    answer: ["IS"]
+    en:
+      prompt: "Fill in the SQL keyword to match rows where `note` is `NULL`."
+      explanation: "In SQL, `= NULL` is never true because `NULL` means unknown; always test for missing values with `IS NULL`."
+    vi:
+      prompt: "Điền từ khóa SQL để lọc các dòng có cột `note` mang giá trị `NULL`."
+      explanation: "Trong SQL, `= NULL` không bao giờ đúng vì `NULL` nghĩa là chưa biết; hãy luôn kiểm tra giá trị trống bằng `IS NULL`."
+
+  - id: p4-05-q07
+    type: parsons
+    tags: [sql]
+    difficulty: 2
+    lines:
+      - "import sqlite3"
+      - 'conn = sqlite3.connect(":memory:")'
+      - 'conn.execute("CREATE TABLE users (name TEXT)")'
+      - 'conn.execute("INSERT INTO users (name) VALUES (?)", ("an",))'
+      - 'print(conn.execute("SELECT name FROM users").fetchall())'
+    en:
+      prompt: "Put the lines in order to create a table, insert one row safely, and print `[('an',)]`."
+      explanation: "Import `sqlite3`, connect to `:memory:`, create the `users` table before inserting a row, then query and print the result."
+    vi:
+      prompt: "Sắp xếp các dòng để tạo bảng, thêm một dòng an toàn rồi in ra `[('an',)]`."
+      explanation: "Import `sqlite3`, kết nối `:memory:`, tạo bảng `users` trước khi chèn dòng, rồi truy vấn và in kết quả."
+
+  - id: p4-05-q08
+    type: mcq
+    tags: [sql]
+    difficulty: 2
+    answer: 0
+    code: |
+      import sqlite3
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE users (name TEXT)")
+      conn.execute("SELECT * FROM users WHERE name = ?", ("ab"))
+    en:
+      prompt: "Why does `conn.execute(\"SELECT * FROM users WHERE name = ?\", (\"ab\"))` raise `sqlite3.ProgrammingError`?"
+      options:
+        - "Because `(\"ab\")` without a trailing comma is a 2-character string, so SQLite sees 2 bindings (`'a'` and `'b'`) for 1 `?`; write `(\"ab\",)`"
+        - "Because `SELECT *` cannot be used with a `WHERE` clause"
+        - "Because SQLite requires double quotes around `?` like `\"?\"`"
+        - "Because `:memory:` databases do not support `SELECT` queries"
+      explanation: "In Python, parentheses alone do not make a tuple: `(\"ab\")` is just `\"ab\"` (length 2). Adding a trailing comma `(\"ab\",)` creates a 1-element tuple."
+    vi:
+      prompt: "Vì sao `conn.execute(\"SELECT * FROM users WHERE name = ?\", (\"ab\"))` báo lỗi `sqlite3.ProgrammingError`?"
+      options:
+        - "Vì `(\"ab\")` thiếu dấu phẩy là một chuỗi 2 ký tự, nên SQLite nhận 2 giá trị (`'a'` và `'b'`) cho 1 dấu `?`; phải viết `(\"ab\",)`"
+        - "Vì `SELECT *` không dùng chung được với mệnh đề `WHERE`"
+        - "Vì SQLite bắt buộc bọc `?` trong ngoặc kép thành `\"?\"`"
+        - "Vì database `:memory:` không hỗ trợ câu lệnh `SELECT`"
+      explanation: "Trong Python, cặp ngoặc tròn đơn thuần không tạo tuple: `(\"ab\")` chỉ là chuỗi `\"ab\"` (độ dài 2). Thêm dấu phẩy `(\"ab\",)` mới tạo tuple một phần tử."
+
+  - id: p4-05-q09
+    type: fill
+    tags: [sql, pandas]
+    difficulty: 2
+    code: |
+      import sqlite3
+      import pandas as pd
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE runs (model TEXT, score REAL)")
+      with conn:
+          conn.execute("INSERT INTO runs (model, score) VALUES (?, ?)", ("gpt-4o", 0.92))
+      df = pd.___("SELECT model, score FROM runs WHERE score >= ?", conn, params=(0.9,))
+      print(len(df))
+      conn.close()
+    answer: ["read_sql_query"]
+    en:
+      prompt: "Fill in the pandas function that executes a SQL `SELECT` query and returns a `DataFrame`."
+      explanation: "`pd.read_sql_query(sql, conn, params=...)` runs the query on `conn` and returns the results as a pandas `DataFrame`."
+    vi:
+      prompt: "Điền tên hàm của pandas dùng để chạy câu truy vấn `SELECT` và trả về một `DataFrame`."
+      explanation: "`pd.read_sql_query(sql, conn, params=...)` thực thi truy vấn trên `conn` rồi trả kết quả về dưới dạng pandas `DataFrame`."
+
+  - id: p4-05-q10
+    type: output
+    tags: [sql]
+    difficulty: 2
+    code: |
+      import sqlite3
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE feedback (model TEXT, rating INTEGER)")
+      with conn:
+          conn.executemany(
+              "INSERT INTO feedback (model, rating) VALUES (?, ?)",
+              [("gpt-4o", 5), ("gpt-4o", 4), ("mini", 3), ("claude", 5)],
+          )
+      rows = conn.execute("""
+          SELECT model, ROUND(AVG(rating), 2)
+          FROM feedback
+          GROUP BY model
+          HAVING COUNT(*) >= 2
+          ORDER BY model ASC
+      """).fetchall()
+      print(rows)
+      conn.close()
+    answer: "[('gpt-4o', 4.5)]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Only `gpt-4o` has `COUNT(*) >= 2` (ratings 5 and 4, average `4.5`). `mini` and `claude` each have 1 row, so `HAVING` filters them out."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Chỉ `gpt-4o` có `COUNT(*) >= 2` (điểm 5 và 4, trung bình `4.5`). `mini` và `claude` chỉ có 1 dòng nên bị `HAVING` loại."
+
+  - id: p4-05-q11
+    type: mcq
+    tags: [sql]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Why does `WHERE` reject aggregate functions like `COUNT(*)` while `HAVING` allows them?"
+      options:
+        - "Because `WHERE` only works on `TEXT` columns and `HAVING` only works on `INTEGER` columns"
+        - "Because SQL runs `WHERE` on individual rows before `GROUP BY` forms groups, whereas `HAVING` runs after `GROUP BY`"
+        - "Because `HAVING` is just a pandas method, not a SQL clause"
+        - "Because `WHERE` runs after `LIMIT` when the count is already forgotten"
+      explanation: "SQL's execution order is `FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`. Group aggregates exist only after `GROUP BY`, so `HAVING` can filter on them."
+    vi:
+      prompt: "Vì sao `WHERE` không dùng được hàm tổng hợp như `COUNT(*)` còn `HAVING` thì được?"
+      options:
+        - "Vì `WHERE` chỉ chạy trên cột `TEXT`, còn `HAVING` chỉ chạy trên cột `INTEGER`"
+        - "Vì SQL chạy `WHERE` trên từng dòng riêng lẻ trước khi `GROUP BY` tạo nhóm, còn `HAVING` chạy sau `GROUP BY`"
+        - "Vì `HAVING` là phương thức của pandas chứ không phải mệnh đề SQL"
+        - "Vì `WHERE` chạy sau `LIMIT` khi kết quả đếm đã bị xóa"
+      explanation: "Thứ tự chạy của SQL là `FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`. Giá trị tổng hợp chỉ tồn tại sau `GROUP BY`, nên `HAVING` mới lọc được theo chúng."
+
+  - id: p4-05-q12
+    type: fill
+    tags: [sql]
+    difficulty: 2
+    code: |
+      import sqlite3
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE chats (model TEXT)")
+      with conn:
+          conn.executemany("INSERT INTO chats (model) VALUES (?)", [("gpt-4o",), ("gpt-4o-mini",), ("claude",)])
+      rows = conn.execute("SELECT model FROM chats WHERE model ___ 'gpt%' ORDER BY model ASC").fetchall()
+      print(rows)
+      conn.close()
+    answer: ["LIKE"]
+    en:
+      prompt: "Fill in the SQL operator that matches string patterns such as `'gpt%'`."
+      explanation: "`LIKE` compares text against a pattern where `%` matches any sequence of zero or more characters."
+    vi:
+      prompt: "Điền toán tử SQL dùng để khớp mẫu chuỗi như `'gpt%'`."
+      explanation: "`LIKE` so khớp chuỗi theo mẫu, trong đó `%` đại diện cho chuỗi ký tự bất kỳ (kể cả rỗng)."
+
+  - id: p4-05-q13
+    type: parsons
+    tags: [sql]
+    difficulty: 2
+    lines:
+      - "import sqlite3"
+      - 'conn = sqlite3.connect(":memory:")'
+      - 'conn.execute("CREATE TABLE runs (model TEXT, score REAL)")'
+      - 'conn.executemany("INSERT INTO runs VALUES (?, ?)", [("a", 0.7), ("b", 0.9)])'
+      - 'rows = conn.execute("SELECT model FROM runs WHERE score > 0.8 ORDER BY model").fetchall()'
+      - "print(rows)"
+    en:
+      prompt: "Put the lines in order to create `runs`, insert two rows, query models with `score > 0.8`, and print `[('b',)]`."
+      explanation: "Import `sqlite3`, connect, create `runs`, insert rows before running the `SELECT` query, store `rows`, and print `rows`."
+    vi:
+      prompt: "Sắp xếp các dòng để tạo bảng `runs`, thêm hai dòng, lọc model có `score > 0.8` rồi in `[('b',)]`."
+      explanation: "Import `sqlite3`, kết nối, tạo bảng `runs`, chèn dữ liệu trước khi chạy `SELECT`, lưu vào `rows` rồi in `rows`."
+
+  - id: p4-05-q14
+    type: mcq
+    tags: [sql]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "What happens if you build a SQL query with an f-string like `f\"SELECT * FROM users WHERE name = '{name}'\"` instead of using a `?` placeholder?"
+      options:
+        - "SQLite automatically escapes quotes so it behaves identically to `?`"
+        - "It runs faster because SQLite skips parsing the SQL statement"
+        - "SQLite converts the query into a pandas DataFrame automatically"
+        - "Apostrophes like `O'Brien` cause a syntax error, and malicious input can trigger SQL injection to alter the query"
+      explanation: "Interpolating untrusted text into SQL mixes code and data: single quotes break syntax, and crafted input can inject arbitrary SQL commands. Using `?` placeholders separates SQL syntax from data."
+    vi:
+      prompt: "Điều gì xảy ra nếu bạn ghép câu SQL bằng f-string như `f\"SELECT * FROM users WHERE name = '{name}'\"` thay vì dùng placeholder `?`?"
+      options:
+        - "SQLite tự động xử lý dấu nháy nên chạy y hệt như dùng `?`"
+        - "Câu lệnh chạy nhanh hơn vì SQLite bỏ qua bước phân tích cú pháp SQL"
+        - "SQLite tự động chuyển kết quả sang pandas DataFrame"
+        - "Chuỗi có dấu nháy như `O'Brien` sẽ gây lỗi cú pháp, và đầu vào độc hại có thể gây SQL injection làm thay đổi cấu trúc truy vấn"
+      explanation: "Nhúng thẳng text vào chuỗi SQL làm trộn lẫn code và dữ liệu: dấu nháy đơn phá vỡ cú pháp, còn chuỗi độc hại có thể chèn lệnh SQL ngoài ý muốn. Placeholder `?` tách biệt hoàn toàn cú pháp và dữ liệu."
+
+  - id: p4-05-q15
+    type: output
+    tags: [sql, pandas]
+    difficulty: 3
+    code: |
+      import sqlite3
+      import pandas as pd
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE evals (model TEXT, score REAL)")
+      with conn:
+          conn.executemany(
+              "INSERT INTO evals (model, score) VALUES (?, ?)",
+              [("mini", 0.70), ("gpt-4o", 0.90), ("claude", 0.85), ("mini", 0.80)],
+          )
+      df = pd.read_sql_query(
+          "SELECT model, score FROM evals WHERE score >= ? ORDER BY score DESC, model ASC LIMIT 2",
+          conn,
+          params=(0.75,),
+      )
+      print(list(df["model"]))
+      conn.close()
+    answer: "['gpt-4o', 'claude']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`WHERE score >= 0.75` keeps 0.90 (`gpt-4o`), 0.85 (`claude`), and 0.80 (`mini`); `ORDER BY score DESC` + `LIMIT 2` selects the top two models."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`WHERE score >= 0.75` giữ lại 0.90 (`gpt-4o`), 0.85 (`claude`) và 0.80 (`mini`); `ORDER BY score DESC` cùng `LIMIT 2` lấy hai model đứng đầu."
+
+  - id: p4-05-q16
+    type: parsons
+    tags: [sql]
+    difficulty: 3
+    lines:
+      - "import sqlite3"
+      - 'conn = sqlite3.connect(":memory:")'
+      - 'conn.execute("CREATE TABLE fb (model TEXT, rating INTEGER)")'
+      - 'conn.executemany("INSERT INTO fb VALUES (?, ?)", [("a", 4), ("a", 5), ("b", 3)])'
+      - 'res = conn.execute("SELECT model, ROUND(AVG(rating), 2) FROM fb GROUP BY model HAVING COUNT(*) >= 2 ORDER BY model").fetchall()'
+      - "print(res)"
+    en:
+      prompt: "Put the lines in order to create `fb`, insert three ratings, keep only models with at least 2 ratings, and print `[('a', 4.5)]`."
+      explanation: "Import `sqlite3`, connect, create `fb`, insert the three rows first, then run the `GROUP BY` + `HAVING COUNT(*) >= 2` query and print `res`."
+    vi:
+      prompt: "Sắp xếp các dòng để tạo bảng `fb`, chèn ba đánh giá, chỉ giữ model có ít nhất 2 lượt và in `[('a', 4.5)]`."
+      explanation: "Import `sqlite3`, kết nối, tạo bảng `fb`, chèn ba dòng trước, rồi chạy truy vấn `GROUP BY` + `HAVING COUNT(*) >= 2` và in `res`."
+
+flashcards:
+  - id: p4-05-f01
+    tags: [sql]
+    code: |
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, name TEXT)")
+    en: { front: "How do you open an in-memory SQLite database and create a table?", back: "Call `sqlite3.connect(\":memory:\")`, then run `conn.execute(\"CREATE TABLE ...\")` with column types (`INTEGER`, `TEXT`, `REAL`) and optional `PRIMARY KEY`." }
+    vi: { front: "Làm sao mở database SQLite trong bộ nhớ và tạo bảng?", back: "Gọi `sqlite3.connect(\":memory:\")`, rồi chạy `conn.execute(\"CREATE TABLE ...\")` với kiểu cột (`INTEGER`, `TEXT`, `REAL`) và tùy chọn `PRIMARY KEY`." }
+  - id: p4-05-f02
+    tags: [sql]
+    code: |
+      with conn:
+          conn.executemany("INSERT INTO users (name) VALUES (?)", [("an",), ("O'Brien",)])
+    en: { front: "Why should you wrap inserts in `with conn:` and use `?` placeholders?", back: "`with conn:` auto-commits on success (or rolls back on error), and `?` placeholders handle quotes safely and prevent SQL injection. Don't forget the comma in 1-item tuples like `(\"an\",)`." }
+    vi: { front: "Vì sao nên bọc thao tác chèn trong `with conn:` và dùng placeholder `?`?", back: "`with conn:` tự động commit khi thành công (hoặc rollback khi lỗi), còn placeholder `?` xử lý dấu nháy an toàn và chặn SQL injection. Đừng quên dấu phẩy ở tuple 1 phần tử như `(\"an\",)`." }
+  - id: p4-05-f03
+    tags: [sql]
+    code: |
+      SELECT model, score
+      FROM runs
+      WHERE score > 0.8 AND model LIKE 'gpt%'
+      ORDER BY score DESC
+      LIMIT 5
+    en: { front: "What is the difference between `.fetchall()` and `.fetchone()`, and why add `ORDER BY`?", back: "`.fetchall()` returns a list of row tuples; `.fetchone()` returns the first tuple or `None`. Add `ORDER BY` whenever row order matters because SQL tables are unordered." }
+    vi: { front: "`.fetchall()` và `.fetchone()` khác nhau thế nào, và vì sao cần thêm `ORDER BY`?", back: "`.fetchall()` trả về list các tuple dòng; `.fetchone()` trả về tuple đầu tiên hoặc `None`. Luôn thêm `ORDER BY` khi cần thứ tự xác định vì bảng SQL không có thứ tự mặc định." }
+  - id: p4-05-f04
+    tags: [sql]
+    code: |
+      SELECT model, COUNT(*), ROUND(AVG(rating), 2)
+      FROM feedback
+      GROUP BY model
+      HAVING COUNT(*) >= 2
+      ORDER BY model ASC
+    en: { front: "How do `WHERE` and `HAVING` differ in SQL?", back: "`WHERE` filters individual rows *before* `GROUP BY` forms groups; `HAVING` filters whole groups *after* `GROUP BY` computes aggregates like `COUNT(*)` and `AVG(...)`." }
+    vi: { front: "`WHERE` và `HAVING` khác nhau thế nào trong SQL?", back: "`WHERE` lọc từng dòng *trước khi* `GROUP BY` gom nhóm; `HAVING` lọc cả nhóm *sau khi* `GROUP BY` đã tính các hàm tổng hợp như `COUNT(*)` và `AVG(...)`." }
+  - id: p4-05-f05
+    tags: [sql, pandas]
+    code: 'df = pd.read_sql_query("SELECT * FROM runs WHERE score >= ?", conn, params=(0.8,))'
+    en: { front: "How do you load a parameterized SQL query straight into a pandas `DataFrame`?", back: "Call `pd.read_sql_query(sql, conn, params=(...,))`. Filtering or grouping in SQL first reduces the data loaded into pandas." }
+    vi: { front: "Làm sao đưa kết quả truy vấn SQL có tham số thẳng vào pandas `DataFrame`?", back: "Gọi `pd.read_sql_query(sql, conn, params=(...,))`. Lọc hoặc gom nhóm ngay trong SQL trước giúp giảm lượng dữ liệu phải nạp vào pandas." }
+  - id: p4-05-f06
+    tags: [sql]
+    code: "# FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY -> LIMIT"
+    en: { front: "In what order does SQL actually execute a query's clauses?", back: "`FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`." }
+    vi: { front: "SQL thực sự thực thi các mệnh đề theo thứ tự nào?", back: "`FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`." }

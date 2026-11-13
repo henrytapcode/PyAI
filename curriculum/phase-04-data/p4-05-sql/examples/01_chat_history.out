@@ -1,0 +1,8 @@
+An's chat:
+  #1 [user] Summarise this PDF.
+  #2 [assistant] Here are three key points.
+  #4 [user] Make it shorter.
+  #5 [assistant] One-sentence summary ready.
+Counts by role:
+  assistant: 2
+  user: 3

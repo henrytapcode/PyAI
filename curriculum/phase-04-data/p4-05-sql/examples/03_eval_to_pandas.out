@@ -1,0 +1,4 @@
+    model  score
+0  gpt-4o   0.90
+1  claude   0.88
+2    mini   0.78
