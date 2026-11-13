@@ -1,0 +1,433 @@
+id: p4-phase-test
+kind: phase_test
+phase: p4
+title:
+  en: "Phase 4 test: Data"
+  vi: "Bài kiểm tra Phase 4: Dữ liệu"
+description:
+  en: "18 questions covering NumPy, pandas, data cleaning, plotting, and SQL."
+  vi: "18 câu hỏi về NumPy, pandas, làm sạch dữ liệu, biểu đồ và SQL."
+duration_min: 25
+pass_score: 0.7
+questions:
+  # ---- numpy
+  - id: p4-test-q01
+    type: mcq
+    tags: [numpy, lists]
+    difficulty: 1
+    answer: 2
+    code: |
+      import numpy as np
+
+      py_a = [1, 2]
+      py_b = [3, 4]
+      np_a = np.array([1, 2])
+      np_b = np.array([3, 4])
+    en:
+      prompt: "What is the difference between `py_a + py_b` and `np_a + np_b`?"
+      options:
+        - "`py_a + py_b` adds element by element (`[4, 6]`), whereas `np_a + np_b` joins the two arrays (`[1 2 3 4]`)"
+        - "Both `py_a + py_b` and `np_a + np_b` return `[4, 6]`"
+        - "`py_a + py_b` joins the two lists (`[1, 2, 3, 4]`), whereas `np_a + np_b` adds element by element (`[4 6]`)"
+        - "`np_a + np_b` raises a `TypeError` because arrays cannot use `+`"
+      explanation: "On Python `list` objects, `+` concatenates them end to end. On NumPy arrays, `+` performs vectorised element-wise addition."
+    vi:
+      prompt: "Sự khác nhau giữa `py_a + py_b` và `np_a + np_b` là gì?"
+      options:
+        - "`py_a + py_b` cộng từng phần tử (`[4, 6]`), còn `np_a + np_b` nối hai mảng (`[1 2 3 4]`)"
+        - "Hai biểu thức `py_a + py_b` và `np_a + np_b` đều cho ra `[4, 6]`"
+        - "`py_a + py_b` nối hai list lại (`[1, 2, 3, 4]`), còn `np_a + np_b` cộng từng phần tử tương ứng (`[4 6]`)"
+        - "`np_a + np_b` gây lỗi `TypeError` vì mảng không dùng được toán tử `+`"
+      explanation: "Trên `list` Python, toán tử `+` ghép hai danh sách nối tiếp nhau. Trên mảng NumPy, `+` thực hiện phép cộng vector hóa theo từng phần tử."
+
+  - id: p4-test-q02
+    type: fill
+    tags: [numpy, data]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      # 3 days (rows) x 2 models (columns)
+      tokens = np.array([[100, 300], [200, 400], [150, 250]])
+      per_model = tokens.sum(axis=___)
+      print(per_model.tolist())  # [450, 950]
+    answer: ["0"]
+    en:
+      prompt: "Fill in the `axis` value to compute the total tokens for each of the 2 models (`[450, 950]`)."
+      explanation: "Because the 2 models are columns, `axis=0` aggregates down each column (collapsing the 3 day rows) to return `[450, 950]`. `axis=1` would sum across each day instead."
+    vi:
+      prompt: "Điền giá trị `axis` để tính tổng token cho từng trong 2 model (`[450, 950]`)."
+      explanation: "Vì 2 model nằm ở các cột nên `axis=0` cộng dọc theo từng cột (gộp 3 hàng ngày) để trả về `[450, 950]`. Dùng `axis=1` sẽ cộng ngang theo từng ngày."
+
+  - id: p4-test-q03
+    type: output
+    tags: [numpy, booleans]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      latencies = np.array([120, 250, 410, 180, 520])
+      kept = latencies[(latencies >= 150) & (latencies <= 450)]
+      print(kept.tolist())
+    answer: "[250, 410, 180]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Each comparison is wrapped in parentheses and combined with `&`, producing a boolean mask that keeps values between `150` and `450` inclusive: `250`, `410`, and `180`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mỗi phép so sánh được bọc trong ngoặc đơn và nối bằng `&`, tạo boolean mask giữ lại các giá trị từ `150` đến `450` (tính cả hai đầu): `250`, `410` và `180`."
+
+  # ---- pandas
+  - id: p4-test-q04
+    type: output
+    tags: [pandas]
+    difficulty: 3
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "model": ["mini", "base", "pro"],
+          "score": [0.60, 0.90, 0.85],
+      })
+      top = df[df["score"] >= 0.80].sort_values("score")
+      print(top.iloc[0]["model"], top.loc[1, "model"])
+    answer: "pro base"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Filtering keeps labels `1` (`base`, `0.90`) and `2` (`pro`, `0.85`), and sorting ascending puts `pro` at integer position `0` (`iloc[0]`) while `base` still keeps its original label `1` (`loc[1]`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Phép lọc giữ lại nhãn `1` (`base`, `0.90`) và `2` (`pro`, `0.85`), rồi sắp xếp tăng dần đưa `pro` lên vị trí số `0` (`iloc[0]`) trong khi `base` vẫn giữ nhãn gốc `1` (`loc[1]`)."
+
+  - id: p4-test-q05
+    type: mcq
+    tags: [pandas, data]
+    difficulty: 2
+    answer: 1
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "model": ["mini", "pro", "mini"],
+          "tokens": [100, 400, 300],
+      })
+      summary = df.groupby("model")["tokens"].agg(["count", "mean"])
+    en:
+      prompt: "What is stored in `summary`?"
+      options:
+        - "A 3-row DataFrame matching `df`'s original rows with two extra columns"
+        - "A 2-row DataFrame indexed by `model` (`mini`, `pro`) with columns `count` and `mean`"
+        - "A 1D Series containing four numbers in a single list"
+        - "It raises `ValueError` because `agg()` only accepts one aggregation name"
+      explanation: "`groupby(\"model\")[\"tokens\"].agg([\"count\", \"mean\"])` splits rows by unique `model`, applies both functions to each group's `tokens`, and combines the results into a table with one row per model and columns `count` and `mean`."
+    vi:
+      prompt: "Biến `summary` lưu kết quả gì?"
+      options:
+        - "Một DataFrame 3 hàng giữ nguyên các hàng gốc của `df` kèm thêm hai cột mới"
+        - "Một DataFrame 2 hàng có index là `model` (`mini`, `pro`) cùng hai cột `count` và `mean`"
+        - "Một Series 1 chiều chứa bốn con số trong một list duy nhất"
+        - "Gây lỗi `ValueError` vì `agg()` chỉ nhận một tên hàm tổng hợp mỗi lần"
+      explanation: "`groupby(\"model\")[\"tokens\"].agg([\"count\", \"mean\"])` tách các hàng theo từng `model` duy nhất, áp dụng cả hai phép tính lên cột `tokens` của mỗi nhóm rồi gộp thành bảng có một hàng cho mỗi model với hai cột `count` và `mean`."
+
+  - id: p4-test-q06
+    type: fill
+    tags: [pandas]
+    difficulty: 1
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({"latency_ms": [250, 1500]})
+      df["latency_s"] = df["latency_ms"] ___ 1000
+      print(df["latency_s"].tolist())
+    answer: ["/"]
+    en:
+      prompt: "Fill in the operator to add a vectorised `latency_s` column in seconds (`[0.25, 1.5]`)."
+      explanation: "Dividing the `latency_ms` Series by `1000` applies `/` to every row at once without a Python loop, creating `[0.25, 1.5]`."
+    vi:
+      prompt: "Điền toán tử để tạo cột mới `latency_s` tính theo giây bằng phép tính vector hóa (`[0.25, 1.5]`)."
+      explanation: "Chia Series `latency_ms` cho `1000` áp dụng phép `/` lên toàn bộ các hàng cùng lúc mà không cần vòng lặp Python, tạo ra `[0.25, 1.5]`."
+
+  # ---- cleaning
+  - id: p4-test-q07
+    type: mcq
+    tags: [data-cleaning, pandas, conversion]
+    difficulty: 2
+    answer: 3
+    code: |
+      import pandas as pd
+
+      s = pd.Series(["1,200", "300"])
+      nums = pd.to_numeric(s, errors="coerce")
+    en:
+      prompt: "What values end up in `nums`?"
+      options:
+        - "`[1200.0, 300.0]`, because `errors=\"coerce\"` strips commas automatically"
+        - "It raises `ValueError` when it sees `\"1,200\"`"
+        - "`[\"1,200\", \"300\"]`, left unchanged as strings"
+        - "`[NaN, 300.0]`, because `pd.to_numeric` does not parse commas and `errors=\"coerce\"` turns `\"1,200\"` into `NaN`"
+      explanation: "`pd.to_numeric` expects plain number strings; with `errors=\"coerce\"`, any string it cannot parse (including `\"1,200\"`) becomes `NaN` instead of crashing. Remove commas with `.str.replace(\",\", \"\", regex=False)` first."
+    vi:
+      prompt: "Biến `nums` sẽ chứa các giá trị nào?"
+      options:
+        - "`[1200.0, 300.0]`, vì `errors=\"coerce\"` tự động xóa dấu phẩy"
+        - "Báo lỗi `ValueError` ngay khi gặp `\"1,200\"`"
+        - "`[\"1,200\", \"300\"]`, giữ nguyên dạng chuỗi"
+        - "`[NaN, 300.0]`, vì `pd.to_numeric` không tự hiểu dấu phẩy và `errors=\"coerce\"` biến `\"1,200\"` thành `NaN`"
+      explanation: "`pd.to_numeric` chỉ nhận chuỗi số thuần; với `errors=\"coerce\"`, mọi chuỗi không đọc được (kể cả `\"1,200\"`) đều thành `NaN` thay vì làm sập chương trình. Cần xóa dấu phẩy bằng `.str.replace(\",\", \"\", regex=False)` trước."
+
+  - id: p4-test-q08
+    type: output
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "user": ["an", None, "chi"],
+          "score": [4, 5, 3],
+      })
+      df.dropna(subset=["user"])
+      print(len(df))
+    answer: "3"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`df.dropna(...)` returns a new DataFrame and leaves `df` unchanged because the result was not assigned back (`df = df.dropna(...)`). Therefore `df` still has all `3` rows."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`df.dropna(...)` trả về một DataFrame mới và giữ nguyên `df` vì kết quả không được gán lại (`df = df.dropna(...)`). Do đó `df` vẫn còn đủ `3` hàng."
+
+  - id: p4-test-q09
+    type: parsons
+    tags: [data-cleaning, pandas]
+    difficulty: 3
+    lines:
+      - "import pandas as pd"
+      - 'df = pd.DataFrame({"user": ["an", "an", "an"], "score": [9, 4, 2]})'
+      - 'df = df[df["score"].between(1, 5)]'
+      - 'df = df.drop_duplicates(subset=["user"], keep="first")'
+      - 'print(df["score"].tolist())'
+    en:
+      prompt: "Put the lines in order to discard scores outside `1..5` before keeping the first entry per user, printing `[4]`."
+      explanation: "Filter valid scores (`1..5`) **before** calling `drop_duplicates(subset=[\"user\"], keep=\"first\")`. If you deduplicate first, the invalid score `9` is kept as `\"an\"`'s only row and then removed by `between(1, 5)`, leaving `[]`."
+    vi:
+      prompt: "Sắp xếp các dòng để loại bỏ điểm ngoài khoảng `1..5` trước khi giữ dòng đầu tiên của mỗi người dùng, in ra `[4]`."
+      explanation: "Hãy lọc khoảng điểm hợp lệ (`1..5`) **trước** khi gọi `drop_duplicates(subset=[\"user\"], keep=\"first\")`. Nếu loại trùng trước, giá trị sai `9` sẽ được giữ làm dòng duy nhất của `\"an\"` rồi bị `between(1, 5)` xóa mất, khiến kết quả thành `[]`."
+
+  # ---- plotting
+  - id: p4-test-q10
+    type: mcq
+    tags: [plotting]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "You want to show how validation loss changes across training epochs `1` through `10`. Which plot method fits best?"
+      options:
+        - "`ax.plot(epochs, val_loss)`"
+        - "`ax.barh(epochs, val_loss)`"
+        - "`ax.scatter(epochs, val_loss)`"
+        - "`ax.legend()`"
+      explanation: "A line chart (`ax.plot`) connects consecutive epochs in order so the downward or upward trend over training steps is immediately visible. `ax.barh` is for category comparisons and `ax.scatter` leaves points unconnected."
+    vi:
+      prompt: "Bạn muốn thể hiện sự thay đổi của validation loss qua các epoch từ `1` đến `10`. Phương thức vẽ nào phù hợp nhất?"
+      options:
+        - "`ax.plot(epochs, val_loss)`"
+        - "`ax.barh(epochs, val_loss)`"
+        - "`ax.scatter(epochs, val_loss)`"
+        - "`ax.legend()`"
+      explanation: "Biểu đồ đường (`ax.plot`) nối liên tiếp các epoch theo thứ tự để nhìn rõ xu hướng tăng hay giảm qua từng bước huấn luyện. `ax.barh` dùng để so sánh các nhóm rời rạc, còn `ax.scatter` để các điểm tách rời nhau."
+
+  - id: p4-test-q11
+    type: fill
+    tags: [plotting]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+
+      fig, ax = plt.subplots()
+      ax.plot([1, 2, 3], [0.8, 0.5, 0.3])
+      ax.___("epoch")
+      print(ax.get_xlabel())
+    answer: ["set_xlabel"]
+    en:
+      prompt: "Fill in the `Axes` method that sets the x-axis label to `\"epoch\"`."
+      explanation: "On an `Axes` object `ax`, axis labels are set with `ax.set_xlabel(...)` and `ax.set_ylabel(...)` (unlike the top-level `plt.xlabel(...)` shortcut)."
+    vi:
+      prompt: "Điền tên phương thức của `Axes` để đặt nhãn trục x là `\"epoch\"`."
+      explanation: "Trên đối tượng `Axes` `ax`, nhãn các trục được đặt bằng `ax.set_xlabel(...)` và `ax.set_ylabel(...)` (khác với hàm tắt `plt.xlabel(...)`)."
+
+  - id: p4-test-q12
+    type: output
+    tags: [plotting, pandas]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+      import pandas as pd
+
+      hist = pd.DataFrame({
+          "epoch": [1, 2, 3],
+          "train": [0.9, 0.5, 0.3],
+          "val": [0.95, 0.6, 0.5],
+      })
+      fig, ax = plt.subplots()
+      hist.plot(x="epoch", y=["train", "val"], ax=ax)
+      ax.set_title("Loss curve")
+      print(ax.get_title(), len(ax.lines))
+    answer: "Loss curve 2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`ax.set_title(\"Loss curve\")` sets the title returned by `ax.get_title()`, and passing `y=[\"train\", \"val\"]` draws `2` line artists into `ax.lines`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`ax.set_title(\"Loss curve\")` đặt tiêu đề được `ax.get_title()` đọc lại, và truyền `y=[\"train\", \"val\"]` vẽ `2` đường vào `ax.lines`."
+
+  # ---- sql
+  - id: p4-test-q13
+    type: mcq
+    tags: [sql]
+    difficulty: 2
+    answer: 2
+    code: |
+      import sqlite3
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE runs (model TEXT, score REAL)")
+      target = "gpt-4o"
+    en:
+      prompt: "Which statement safely queries rows where `model` equals `target` using a SQLite parameter?"
+      options:
+        - "`conn.execute(\"SELECT score FROM runs WHERE model = ?\", target)`"
+        - "`conn.execute(\"SELECT score FROM runs WHERE model = ?\", (target))`"
+        - "`conn.execute(\"SELECT score FROM runs WHERE model = ?\", (target,))`"
+        - "`conn.execute(f\"SELECT score FROM runs WHERE model = '{target}'\")`"
+      explanation: "SQLite's `?` placeholder expects a sequence (such as a tuple) of parameters. Without the trailing comma, `(target)` is just the string `\"gpt-4o\"` (6 characters for 1 `?`), causing `ProgrammingError`; `(target,)` is a 1-element tuple, and f-strings risk syntax errors or SQL injection."
+    vi:
+      prompt: "Câu lệnh nào truy vấn an toàn các dòng có `model` bằng `target` bằng tham số của SQLite?"
+      options:
+        - "`conn.execute(\"SELECT score FROM runs WHERE model = ?\", target)`"
+        - "`conn.execute(\"SELECT score FROM runs WHERE model = ?\", (target))`"
+        - "`conn.execute(\"SELECT score FROM runs WHERE model = ?\", (target,))`"
+        - "`conn.execute(f\"SELECT score FROM runs WHERE model = '{target}'\")`"
+      explanation: "Placeholder `?` của SQLite yêu cầu một tuple (hoặc chuỗi phần tử) chứa tham số. Thiếu dấu phẩy, `(target)` chỉ là chuỗi `\"gpt-4o\"` (6 ký tự cho 1 dấu `?`), gây lỗi `ProgrammingError`; `(target,)` mới là tuple một phần tử, còn f-string dễ lỗi cú pháp và dính SQL injection."
+
+  - id: p4-test-q14
+    type: mcq
+    tags: [sql]
+    difficulty: 3
+    answer: 1
+    code: |
+      SELECT model, ROUND(AVG(score), 2)
+      FROM runs
+      WHERE score >= 0.5
+      GROUP BY model
+      HAVING COUNT(*) >= 2
+      ORDER BY model
+    en:
+      prompt: "You want to exclude individual runs with `score < 0.5`, then report only models that still have at least 2 runs. Why must `score >= 0.5` stay in `WHERE` and `COUNT(*) >= 2` go in `HAVING`?"
+      options:
+        - "`HAVING` runs before `WHERE`, so `COUNT(*)` is ready for `WHERE` to use"
+        - "`WHERE` filters individual rows before `GROUP BY` builds the groups, whereas `HAVING` filters whole groups after `COUNT(*)` is calculated"
+        - "`WHERE` only accepts numeric comparisons and `HAVING` only accepts `>=`"
+        - "Moving `COUNT(*) >= 2` into `WHERE` gives the exact same result"
+      explanation: "SQL executes `FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY`. Filtering out bad rows in `WHERE` happens before grouping, while `HAVING` can inspect group aggregates like `COUNT(*)`."
+    vi:
+      prompt: "Bạn muốn loại bỏ từng lần chạy có `score < 0.5`, rồi chỉ báo cáo những model còn ít nhất 2 lần chạy. Vì sao `score >= 0.5` phải đặt trong `WHERE` còn `COUNT(*) >= 2` phải đặt trong `HAVING`?"
+      options:
+        - "`HAVING` chạy trước `WHERE`, nên `COUNT(*)` đã có sẵn cho `WHERE` dùng"
+        - "`WHERE` lọc từng dòng riêng lẻ trước khi `GROUP BY` tạo nhóm, còn `HAVING` lọc cả nhóm sau khi đã tính `COUNT(*)`"
+        - "`WHERE` chỉ nhận phép so sánh số, còn `HAVING` chỉ nhận dấu `>=`"
+        - "Chuyển `COUNT(*) >= 2` vào `WHERE` vẫn cho kết quả y hệt"
+      explanation: "SQL chạy theo thứ tự `FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY`. Lọc dòng hỏng ở `WHERE` diễn ra trước khi gom nhóm, còn `HAVING` kiểm tra các hàm tổng hợp của nhóm như `COUNT(*)`."
+
+  - id: p4-test-q15
+    type: output
+    tags: [sql]
+    difficulty: 1
+    code: |
+      import sqlite3
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE chats (id INTEGER, rating INTEGER)")
+      conn.executemany(
+          "INSERT INTO chats (id, rating) VALUES (?, ?)",
+          [(1, 5), (2, None), (3, 4)],
+      )
+      rows = conn.execute(
+          "SELECT id FROM chats WHERE rating IS NULL ORDER BY id"
+      ).fetchall()
+      print(rows)
+      conn.close()
+    answer: "[(2,)]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Python `None` becomes SQL `NULL`, and `WHERE rating IS NULL` matches only row `2`, returning a list with the 1-element tuple `[(2,)]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`None` trong Python trở thành `NULL` trong SQL, và `WHERE rating IS NULL` chỉ khớp với dòng `2`, trả về list chứa tuple một phần tử `[(2,)]`."
+
+  # ---- mini-project
+  - id: p4-test-q16
+    type: parsons
+    tags: [pandas, data-cleaning]
+    difficulty: 3
+    lines:
+      - "import io, pandas as pd"
+      - 'df = pd.read_csv(io.StringIO("model,score\n a ,80\n a ,bad\na,90"))'
+      - 'df["score"] = pd.to_numeric(df["score"], errors="coerce")'
+      - 'clean = df.dropna(subset=["score"]).copy()'
+      - 'clean["model"] = clean["model"].str.strip().str.lower()'
+      - 'print(float(clean.groupby("model")["score"].mean()["a"]))'
+    en:
+      prompt: "Put the lines in order to parse a messy CSV, coerce invalid scores, drop missing rows, normalise model names, and print `85.0`."
+      explanation: "Read the CSV first, coerce `score` to numeric so `\"bad\"` becomes `NaN` before `dropna`, create `clean` before modifying `clean[\"model\"]`, and normalise `\" a \"` to `\"a\"` before grouping so `80` and `90` average to `85.0`."
+    vi:
+      prompt: "Sắp xếp các dòng để đọc CSV bẩn, ép kiểu số cho `score`, bỏ dòng thiếu, chuẩn hóa tên model và in ra `85.0`."
+      explanation: "Đọc CSV trước, ép `score` sang số để `\"bad\"` thành `NaN` trước khi `dropna`, tạo `clean` rồi mới chuẩn hóa `clean[\"model\"]`, và phải gộp `\" a \"` thành `\"a\"` trước khi `groupby` để trung bình của `80` và `90` ra `85.0`."
+
+  - id: p4-test-q17
+    type: mcq
+    tags: [sql]
+    difficulty: 2
+    answer: 3
+    code: |
+      SELECT model, ROUND(AVG(status = 'error'), 2) AS error_rate
+      FROM reqs
+      GROUP BY model
+      ORDER BY model
+    en:
+      prompt: "Why does `AVG(status = 'error')` compute the error rate in SQLite when `status` holds `'ok'`, `'error'`, or `'timeout'`?"
+      options:
+        - "`AVG` automatically counts how many unique strings appear in `status`"
+        - "SQLite treats `'ok'` as `NULL` and averages only `'error'` rows"
+        - "`status = 'error'` filters out non-error rows like a `WHERE` clause"
+        - "`status = 'error'` evaluates to `1` for `'error'` rows and `0` for other non-null statuses, so averaging `1`s and `0`s gives the error fraction"
+      explanation: "In SQLite, a boolean comparison returns `1` when true and `0` when false. Taking `AVG` of `1`s and `0`s sums the errors and divides by total rows, yielding the exact error rate."
+    vi:
+      prompt: "Vì sao `AVG(status = 'error')` tính được tỉ lệ lỗi trong SQLite khi cột `status` chứa `'ok'`, `'error'` hoặc `'timeout'`?"
+      options:
+        - "`AVG` tự động đếm số chuỗi khác nhau có trong cột `status`"
+        - "SQLite coi `'ok'` là `NULL` và chỉ tính trung bình trên các dòng `'error'`"
+        - "`status = 'error'` lọc bỏ các dòng không lỗi giống như mệnh đề `WHERE`"
+        - "`status = 'error'` trả về `1` cho dòng `'error'` và `0` cho các trạng thái khác không rỗng, nên trung bình của dãy `1` và `0` chính là tỉ lệ lỗi"
+      explanation: "Trong SQLite, phép so sánh trả về `1` khi đúng và `0` khi sai. Lấy `AVG` của các số `1` và `0` tương đương tổng số lỗi chia cho tổng số dòng, cho ra đúng tỉ lệ lỗi."
+
+  - id: p4-test-q18
+    type: mcq
+    tags: [pandas, sql]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "You receive a messy 5,000-row CSV export with `\"1,200\"` strings, inconsistent casing in model names, and out-of-range ratings, and need to clean it before plotting a Matplotlib bar chart. Which tool should do the cleaning?"
+      options:
+        - "pandas, because `.str` methods, `pd.to_numeric(..., errors=\"coerce\")`, and `.where(...)` are built for cleaning raw CSV data and feed straight into Matplotlib"
+        - "SQLite, because `CREATE TABLE` automatically removes thousands commas and normalises text"
+        - "SQLite, because pandas cannot compute group means on cleaned columns"
+        - "Pure Python lists only, because neither pandas nor SQLite supports missing values"
+      explanation: "pandas excels at cleaning messy CSV exports with vectorised string and numeric helpers and passes cleaned summaries straight to Matplotlib. SQL shines when data already lives in a database and you want to filter or aggregate before loading rows into Python."
+    vi:
+      prompt: "Bạn nhận một file CSV 5.000 dòng lộn xộn với chuỗi `\"1,200\"`, tên model viết hoa thường lẫn lộn và rating ngoài khoảng hợp lệ, cần làm sạch rồi vẽ biểu đồ cột Matplotlib. Nên dùng công cụ nào để làm sạch?"
+      options:
+        - "pandas, vì các phương thức `.str`, `pd.to_numeric(..., errors=\"coerce\")` và `.where(...)` được thiết kế để làm sạch CSV thô và đưa thẳng sang Matplotlib"
+        - "SQLite, vì `CREATE TABLE` tự động xóa dấu phẩy hàng nghìn và chuẩn hóa chữ"
+        - "SQLite, vì pandas không tính được trung bình theo nhóm trên các cột đã làm sạch"
+        - "Chỉ dùng list Python thuần, vì cả pandas lẫn SQLite đều không xử lý được giá trị thiếu"
+      explanation: "pandas rất mạnh trong việc làm sạch file CSV lộn xộn nhờ các công cụ chuỗi và số vector hóa, rồi chuyển bảng tổng hợp thẳng sang Matplotlib. SQL phát huy thế mạnh khi dữ liệu đã nằm sẵn trong database và bạn muốn lọc hoặc gom nhóm trước khi nạp vào Python."
