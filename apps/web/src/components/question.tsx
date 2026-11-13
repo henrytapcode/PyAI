@@ -41,19 +41,24 @@ export function QuestionView({
   const correct = revealed ? grade(question, answer) : null;
 
   // Cabinet keys: A to D (or 1 to 4) pick an option while no field has focus.
-  const optionCount = question.type === "mcq" ? (qt.options ?? []).length : 0;
+  const options = qt.options ?? [];
+  const optionCount = question.type === "mcq" ? options.length : 0;
+  const order = useMemo(() => {
+    const indices = Array.from({ length: optionCount }, (_, i) => i);
+    return question.shuffle_options === false ? indices : shuffle(indices, seedOf(question.id));
+  }, [question.id, question.shuffle_options, optionCount]);
   useEffect(() => {
     if (question.type !== "mcq" || revealed) return;
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (e.metaKey || e.ctrlKey || e.altKey || el instanceof HTMLElement && el.closest("input, textarea, select, [contenteditable=true], .monaco-editor")) return;
       const k = e.key.toLowerCase();
-      const i = k >= "a" && k <= "d" ? k.charCodeAt(0) - 97 : k >= "1" && k <= "4" ? Number(k) - 1 : -1;
-      if (i >= 0 && i < optionCount) onChange({ type: "mcq", choice: i });
+      const pos = k >= "a" && k <= "d" ? k.charCodeAt(0) - 97 : k >= "1" && k <= "4" ? Number(k) - 1 : -1;
+      if (pos >= 0 && pos < order.length) onChange({ type: "mcq", choice: order[pos] });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [question.type, revealed, optionCount, onChange]);
+  }, [question.type, revealed, order, onChange]);
 
   return (
     <div className="space-y-4">
@@ -73,7 +78,8 @@ export function QuestionView({
 
       {question.type === "mcq" && answer.type === "mcq" && (
         <div className="grid gap-2">
-          {(qt.options ?? []).map((opt, i) => {
+          {order.map((i, pos) => {
+            const opt = options[i];
             const chosen = answer.choice === i;
             const isRight = i === question.answer;
             return (
@@ -102,7 +108,7 @@ export function QuestionView({
                   )}
                   aria-hidden="true"
                 >
-                  {String.fromCharCode(65 + i)}
+                  {String.fromCharCode(65 + pos)}
                 </span>
                 <span className="min-w-0 flex-1">
                   <Inline text={opt} />
