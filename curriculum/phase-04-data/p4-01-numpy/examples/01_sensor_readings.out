@@ -1,0 +1,6 @@
+min: -5.0
+max: 41.8
+mean: 21.16
+outliers: [41.8 -5. ]
+normal count: 5
+clean mean: 22.26

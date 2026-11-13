@@ -1020,6 +1020,72 @@ terms:
       vi: "Embedding, ảnh và đầu vào của model là NumPy array hoặc tensor, và tính toán trên cả mảng thay cho vòng lặp Python chậm."
     related: [vector, DataFrame, list]
 
+  - term: dtype
+    vi_term: dtype (kiểu dữ liệu phần tử)
+    tags: [numpy]
+    en: "The single data type shared by every element in a NumPy array, such as int64, float64 or bool."
+    vi: "Kiểu dữ liệu duy nhất mà mọi phần tử trong một mảng NumPy dùng chung, như int64, float64 hay bool."
+    example: "import numpy as np\nnp.array([1, 2, 3]).dtype  # dtype('int64')"
+    in_practice:
+      en: "Checking dtype catches silent truncation (like assigning 2.7 into an int64 array) and lets you shrink memory by switching float64 to float32."
+      vi: "Kiểm tra dtype giúp phát hiện lỗi cắt mất phần thập phân (như gán 2.7 vào mảng int64) và giảm bộ nhớ khi đổi float64 sang float32."
+    related: [array, data type, shape]
+
+  - term: shape
+    vi_term: shape (hình dạng / kích thước mảng)
+    tags: [numpy]
+    en: "A tuple showing the number of elements along each dimension of an array, such as (4, 3) for 4 rows and 3 columns."
+    vi: "Tuple cho biết số phần tử theo từng chiều của mảng, như (4, 3) cho 4 hàng và 3 cột."
+    example: "import numpy as np\ngrid = np.zeros((2, 3))\ngrid.shape  # (2, 3)"
+    in_practice:
+      en: "Half of NumPy and model debugging starts with printing .shape to confirm you have (batch_size, features) and not the transposed shape."
+      vi: "Một nửa công việc debug NumPy và mô hình bắt đầu bằng việc in .shape để chắc chắn bạn có (batch_size, features) chứ không bị ngược chiều."
+    related: [array, dtype, axis]
+
+  - term: vectorization
+    vi_term: vectorization (tính toán vector hóa)
+    tags: [numpy, performance]
+    en: "Applying an operation to an entire array at once instead of looping over elements in Python."
+    vi: "Áp dụng phép tính lên toàn bộ mảng cùng lúc thay vì viết vòng lặp Python qua từng phần tử."
+    example: "import numpy as np\nprices = np.array([10, 20, 30])\nwith_tax = prices * 1.1"
+    in_practice:
+      en: "Vectorized NumPy code runs in compiled C loops, making feature scaling and similarity scoring tens or hundreds of times faster than Python loops."
+      vi: "Code NumPy vector hóa chạy bằng vòng lặp C biên dịch sẵn, giúp chuẩn hóa dữ liệu hay tính độ tương đồng nhanh hơn vòng lặp Python hàng chục đến hàng trăm lần."
+    related: [array, broadcasting, loop]
+
+  - term: broadcasting
+    vi_term: broadcasting (trải kích thước)
+    tags: [numpy]
+    en: "NumPy's rule for matching arrays of different shapes during arithmetic, such as stretching a single number across every item of an array."
+    vi: "Quy tắc của NumPy để khớp các mảng khác kích thước khi tính toán, chẳng hạn tự trải một con số đơn lẻ ra mọi phần tử của mảng."
+    example: "import numpy as np\nscores = np.array([10, 20, 30])\nscores - scores.mean()  # [-10.   0.  10.]"
+    in_practice:
+      en: "Normalizing features (values - mean) or adding a bias vector to every row of a batch relies on broadcasting without copying data."
+      vi: "Chuẩn hóa dữ liệu (values - mean) hay cộng vector bias vào mọi hàng của một lô dữ liệu đều dựa vào broadcasting mà không cần nhân bản dữ liệu."
+    related: [vectorization, shape, array]
+
+  - term: boolean mask
+    vi_term: boolean mask (mặt nạ boolean)
+    tags: [numpy, booleans]
+    en: "An array of True and False values used inside [...] to filter or count matching elements."
+    vi: "Mảng gồm các giá trị True và False đặt trong [...] để lọc hoặc đếm các phần tử thỏa điều kiện."
+    example: "import numpy as np\na = np.array([1, 5, 2, 8])\na[a > 3]  # array([5, 8])"
+    in_practice:
+      en: "You use boolean masks to drop outlier readings, mask out padding tokens, or count predictions above a confidence threshold."
+      vi: "Bạn dùng boolean mask để bỏ các điểm ngoại lai, che các token đệm hoặc đếm số dự đoán vượt ngưỡng tin cậy."
+    related: [array, boolean, condition]
+
+  - term: axis
+    vi_term: axis (trục)
+    tags: [numpy]
+    en: "A dimension index along which a NumPy operation runs: in 2D, axis=0 goes down columns and axis=1 goes across rows."
+    vi: "Chỉ số chiều mà phép toán NumPy chạy theo: ở mảng 2D, axis=0 đi dọc theo cột còn axis=1 đi ngang theo hàng."
+    example: "import numpy as np\ngrid = np.array([[1, 2], [3, 4]])\ngrid.mean(axis=0)  # array([2., 3.])"
+    in_practice:
+      en: "You pick axis=0 to compute the mean of each feature column, and axis=1 to pick argmax across class probabilities for each sample row."
+      vi: "Bạn chọn axis=0 để tính trung bình từng cột đặc trưng, và axis=1 để lấy argmax qua các xác suất lớp cho từng hàng mẫu."
+    related: [shape, array, vectorization]
+
   - term: DataFrame
     vi_term: DataFrame
     tags: [data]

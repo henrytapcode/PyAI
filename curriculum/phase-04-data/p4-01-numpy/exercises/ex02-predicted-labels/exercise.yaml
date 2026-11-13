@@ -1,0 +1,46 @@
+id: p4-01-ex02
+kind: code
+title:
+  en: "Write: predicted labels with confidence threshold"
+  vi: "Viết hàm: dự đoán nhãn kèm ngưỡng tin cậy"
+difficulty: 2
+tags: [numpy, lists]
+hints:
+  en:
+    - |
+      This builds on `argmax(axis=1)` and `max(axis=1)` from §3 and §4. For `probs = np.array([[0.1, 0.9], [0.55, 0.45]])`, `labels = ["no", "yes"]`, and `threshold = 0.6`, the first row has max `0.9` at index `1` (`"yes"`), and the second row has max `0.55 < 0.6` (`"unsure"`), so return `["yes", "unsure"]`.
+    - |
+      The plan:
+      1. Get the winning column index for every row with `probs.argmax(axis=1)`.
+      2. Get the winning probability for every row with `probs.max(axis=1)`.
+      3. Loop over both arrays together (`zip`) and pick `labels[int(idx)]` when `prob >= threshold`, otherwise `"unsure"`.
+    - |
+      The shape:
+      ```python
+      best_ids = probs.argmax(axis=1)
+      best_probs = probs.max(axis=1)
+      return [
+          labels[int(idx)] if ... else "unsure"
+          for idx, prob in zip(best_ids, best_probs)
+      ]
+      ```
+      What comparison checks whether `prob` meets the `threshold`?
+  vi:
+    - |
+      Bài này dựa trên `argmax(axis=1)` và `max(axis=1)` ở §3 và §4. Với `probs = np.array([[0.1, 0.9], [0.55, 0.45]])`, `labels = ["no", "yes"]` và `threshold = 0.6`, hàng đầu có max `0.9` ở chỉ số `1` (`"yes"`), hàng hai có max `0.55 < 0.6` (`"unsure"`), nên hàm trả về `["yes", "unsure"]`.
+    - |
+      Kế hoạch:
+      1. Lấy chỉ số cột thắng của từng hàng bằng `probs.argmax(axis=1)`.
+      2. Lấy xác suất lớn nhất của từng hàng bằng `probs.max(axis=1)`.
+      3. Lặp song song hai mảng (`zip`) và chọn `labels[int(idx)]` nếu `prob >= threshold`, ngược lại chọn `"unsure"`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      best_ids = probs.argmax(axis=1)
+      best_probs = probs.max(axis=1)
+      return [
+          labels[int(idx)] if ... else "unsure"
+          for idx, prob in zip(best_ids, best_probs)
+      ]
+      ```
+      Phép so sánh nào kiểm tra xem `prob` có đạt ngưỡng `threshold` hay không?

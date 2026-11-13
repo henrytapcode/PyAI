@@ -1,0 +1,31 @@
+id: p4-01-numpy
+phase: p4
+order: 1
+kind: lesson
+title:
+  en: "NumPy arrays"
+  vi: "Mảng NumPy"
+summary:
+  en: "Create NumPy arrays, inspect shape and dtype, run fast vectorised math, and filter data with boolean masks."
+  vi: "Tạo mảng NumPy, kiểm tra shape và dtype, tính toán vector hóa nhanh gọn và lọc dữ liệu bằng boolean mask."
+level: beginner
+tags: [numpy, data]
+prerequisites: [p2-01-comprehensions]
+duration_min: 11
+outcomes:
+  en:
+    - "Create arrays and read shape and dtype"
+    - "Vectorised math instead of loops"
+    - "Index, slice and filter with boolean masks"
+    - "Use axis=0 and axis=1 for 2D summary functions"
+  vi:
+    - "Tạo mảng, đọc shape và dtype"
+    - "Tính toán vector hóa thay cho vòng lặp"
+    - "Index, slice và lọc bằng boolean mask"
+    - "Dùng axis=0 và axis=1 cho các hàm tổng hợp trên mảng 2D"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "NumPy: the absolute basics for beginners", vi: "NumPy: kiến thức nền tảng cho người mới (EN)" }
+    url: "https://numpy.org/doc/stable/user/absolute_beginners.html"
+  - title: { en: "NumPy: Broadcasting", vi: "NumPy: Broadcasting (EN)" }
+    url: "https://numpy.org/doc/stable/user/basics.broadcasting.html"

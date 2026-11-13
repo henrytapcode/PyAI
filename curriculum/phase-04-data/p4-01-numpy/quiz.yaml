@@ -1,0 +1,313 @@
+questions:
+  - id: p4-01-q01
+    type: mcq
+    tags: [numpy, types]
+    difficulty: 1
+    answer: 1
+    code: |
+      import numpy as np
+      a = np.array([1, 2.5, 3])
+    en:
+      prompt: "What is `a.dtype` after running this code?"
+      options: ["`int64`", "`float64`", "`object`", "`str`"]
+      explanation: "All elements in a NumPy array share one `dtype`. Because `2.5` is a float, NumPy promotes `1` and `3` to floats too (`float64`)."
+    vi:
+      prompt: "`a.dtype` là gì sau khi chạy đoạn code này?"
+      options: ["`int64`", "`float64`", "`object`", "`str`"]
+      explanation: "Mọi phần tử trong mảng NumPy dùng chung một `dtype`. Vì `2.5` là số thực, NumPy nâng cả `1` và `3` lên số thực (`float64`)."
+
+  - id: p4-01-q02
+    type: output
+    tags: [numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+      a = np.array([1, 2, 3])
+      print(a * 2)
+    answer: "[2 4 6]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Multiplying a NumPy array by `2` multiplies each element by `2`, and NumPy prints arrays without commas."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Nhân mảng NumPy với `2` sẽ nhân từng phần tử với `2`, và NumPy in mảng không có dấu phẩy."
+
+  - id: p4-01-q03
+    type: mcq
+    tags: [numpy, lists]
+    difficulty: 1
+    answer: 0
+    code: |
+      import numpy as np
+      xs = [1, 2]
+      arr = np.array([1, 2])
+    en:
+      prompt: "What is the difference between `xs * 2` and `arr * 2`?"
+      options:
+        - "`xs * 2` repeats the list (`[1, 2, 1, 2]`), while `arr * 2` multiplies each number (`[2 4]`)"
+        - "`xs * 2` multiplies each number, while `arr * 2` repeats the array"
+        - "`xs * 2` and `arr * 2` produce the exact same result `[2, 4]`"
+        - "`xs * 2` raises a `TypeError`"
+      explanation: "On a Python `list`, `* 2` concatenates the list with itself. On a NumPy `array`, `* 2` applies element-wise multiplication."
+    vi:
+      prompt: "Sự khác nhau giữa `xs * 2` và `arr * 2` là gì?"
+      options:
+        - "`xs * 2` lặp lại list (`[1, 2, 1, 2]`), còn `arr * 2` nhân từng số (`[2 4]`)"
+        - "`xs * 2` nhân từng số, còn `arr * 2` lặp lại mảng"
+        - "`xs * 2` và `arr * 2` đều cho ra kết quả giống nhau là `[2, 4]`"
+        - "`xs * 2` gây lỗi `TypeError`"
+      explanation: "Trên `list` Python, `* 2` nối list với chính nó. Trên `array` NumPy, `* 2` nhân từng phần tử với 2."
+
+  - id: p4-01-q04
+    type: fill
+    tags: [numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+      a = np.array([10, 20, 30])
+      print(a.___)  # (3,)
+    answer: ["shape"]
+    en:
+      prompt: "Fill in the blank to print the dimensions tuple `(3,)` of array `a`."
+      explanation: "`.shape` is the attribute that holds the size of an array along each dimension as a tuple."
+    vi:
+      prompt: "Điền vào chỗ trống để in ra tuple kích thước `(3,)` của mảng `a`."
+      explanation: "`.shape` là thuộc tính lưu kích thước của mảng theo từng chiều dưới dạng tuple."
+
+  - id: p4-01-q05
+    type: mcq
+    tags: [numpy]
+    difficulty: 1
+    answer: 1
+    code: |
+      import numpy as np
+      scores = np.array([0.2, 0.9, 0.5])
+      res = scores.argmax()
+    en:
+      prompt: "What value is stored in `res`?"
+      options: ["`0.9`", "`1`", "`2`", "`True`"]
+      explanation: "`argmax()` returns the **index** of the largest element, not the element itself. `0.9` is at index `1`."
+    vi:
+      prompt: "Giá trị nào được lưu trong `res`?"
+      options: ["`0.9`", "`1`", "`2`", "`True`"]
+      explanation: "`argmax()` trả về **chỉ số** của phần tử lớn nhất, không phải bản thân giá trị đó. `0.9` nằm ở chỉ số `1`."
+
+  - id: p4-01-q06
+    type: output
+    tags: [numpy, data]
+    difficulty: 2
+    code: |
+      import numpy as np
+      grid = np.array([[10, 20, 30], [40, 50, 60]])
+      print(grid[:, 1])
+    answer: "[20 50]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`:` selects all rows and `1` selects column index `1`, giving `[20 50]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`:` chọn mọi hàng và `1` chọn cột có chỉ số `1`, cho kết quả `[20 50]`."
+
+  - id: p4-01-q07
+    type: mcq
+    tags: [numpy, data]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "A 2D array `scores` has shape `(4, 3)` for 4 students and 3 quizzes. Which call computes each student's average score?"
+      options: ["`scores.mean(axis=1)`", "`scores.mean(axis=0)`", "`scores.mean()`", "`scores.argmax(axis=1)`"]
+      explanation: "`axis=1` aggregates across columns (one result per row, i.e. per student). `axis=0` gives one average per quiz, and no `axis` gives one overall number."
+    vi:
+      prompt: "Mảng 2D `scores` có shape `(4, 3)` cho 4 học viên và 3 bài kiểm tra. Lệnh nào tính điểm trung bình của từng học viên?"
+      options: ["`scores.mean(axis=1)`", "`scores.mean(axis=0)`", "`scores.mean()`", "`scores.argmax(axis=1)`"]
+      explanation: "`axis=1` tổng hợp ngang qua các cột (một kết quả cho mỗi hàng, tức mỗi học viên). `axis=0` tính theo từng bài kiểm tra, còn không truyền `axis` thì ra một số chung."
+
+  - id: p4-01-q08
+    type: fill
+    tags: [numpy, booleans]
+    difficulty: 2
+    code: |
+      import numpy as np
+      a = np.array([3, 5, 7, 9])
+      count = int((a ___ 5).sum())
+      print(count)  # 2
+    answer: [">"]
+    en:
+      prompt: "Fill in the operator to count how many elements in `a` are strictly greater than `5` (`2`)."
+      explanation: "`a > 5` creates `[False False  True  True]`. Summing a boolean mask counts `True` as `1`, giving `2`."
+    vi:
+      prompt: "Điền toán tử để đếm có bao nhiêu phần tử trong `a` lớn hơn hẳn `5` (`2`)."
+      explanation: "`a > 5` tạo ra `[False False  True  True]`. Lấy tổng của boolean mask sẽ đếm `True` là `1`, cho kết quả `2`."
+
+  - id: p4-01-q09
+    type: output
+    tags: [numpy, booleans]
+    difficulty: 2
+    code: |
+      import numpy as np
+      a = np.array([1, 5, 2, 8])
+      print(a[a > 3] * 10)
+    answer: "[50 80]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`a > 3` selects `[5, 8]`, and multiplying by `10` scales each kept element to `[50 80]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`a > 3` lọc ra `[5, 8]`, và nhân với `10` biến các phần tử được giữ lại thành `[50 80]`."
+
+  - id: p4-01-q10
+    type: parsons
+    tags: [numpy, data]
+    difficulty: 2
+    lines:
+      - "import numpy as np"
+      - "a = np.arange(6).reshape(2, 3)"
+      - "col = a[:, 1]"
+      - "print(col.sum())"
+    en:
+      prompt: "Put the lines in order so the program creates a `(2, 3)` array and prints the sum of its middle column (`5`)."
+      explanation: "First import `numpy`, then build and reshape `a`, slice column `1` into `col`, and finally print `col.sum()`."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình tạo mảng `(2, 3)` và in tổng cột ở giữa (`5`)."
+      explanation: "Đầu tiên import `numpy`, tiếp theo tạo và đổi hình dạng `a`, cắt cột `1` vào `col`, và cuối cùng in `col.sum()`."
+
+  - id: p4-01-q11
+    type: mcq
+    tags: [numpy]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Which call produces the array `[0.   0.25 0.5  0.75 1.  ]`?"
+      options: ["`np.linspace(0, 1, 5)`", "`np.arange(0, 1, 5)`", "`np.zeros(5)`", "`np.arange(0, 5, 0.25)`"]
+      explanation: "`np.linspace(start, stop, count)` creates `5` evenly spaced numbers from `0` to `1` inclusive."
+    vi:
+      prompt: "Lời gọi nào tạo ra mảng `[0.   0.25 0.5  0.75 1.  ]`?"
+      options: ["`np.linspace(0, 1, 5)`", "`np.arange(0, 1, 5)`", "`np.zeros(5)`", "`np.arange(0, 5, 0.25)`"]
+      explanation: "`np.linspace(start, stop, count)` tạo `5` số chia đều từ `0` đến `1` tính cả hai đầu."
+
+  - id: p4-01-q12
+    type: parsons
+    tags: [numpy, booleans]
+    difficulty: 2
+    lines:
+      - "import numpy as np"
+      - "scores = np.array([0.4, 0.9, 0.7])"
+      - "mask = scores >= 0.5"
+      - "passed = scores[mask]"
+      - "print(int(mask.sum()), float(passed.mean()))"
+    en:
+      prompt: "Put the lines in order so the program counts passing scores and prints their average (`2 0.8`)."
+      explanation: "Import `numpy`, define `scores`, build `mask` from `scores`, filter `passed` with `mask`, then print the count and mean."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình đếm số điểm đạt và in trung bình của chúng (`2 0.8`)."
+      explanation: "Import `numpy`, tạo `scores`, tạo `mask` từ `scores`, lọc `passed` bằng `mask`, rồi in số lượng và trung bình."
+
+  - id: p4-01-q13
+    type: fill
+    tags: [numpy, booleans]
+    difficulty: 2
+    code: |
+      import numpy as np
+      a = np.array([1, 4, 6, 9])
+      print(a[(a > 2) ___ (a < 8)])  # [4 6]
+    answer: ["&"]
+    en:
+      prompt: "Fill in the operator to keep elements that are both greater than `2` and less than `8`."
+      explanation: "NumPy uses `&` (with parentheses around each condition) for element-wise 'and', not the Python keyword `and`."
+    vi:
+      prompt: "Điền toán tử để giữ các phần tử vừa lớn hơn `2` vừa nhỏ hơn `8`."
+      explanation: "NumPy dùng `&` (kèm ngoặc đơn quanh mỗi điều kiện) cho phép 'và' theo từng phần tử, không dùng từ khóa `and` của Python."
+
+  - id: p4-01-q14
+    type: mcq
+    tags: [numpy, booleans]
+    difficulty: 3
+    answer: 0
+    code: |
+      import numpy as np
+      a = np.array([0, 3, 6])
+      a[a > 1 & a < 5]
+    en:
+      prompt: "Why does `a[a > 1 & a < 5]` fail?"
+      options:
+        - "`&` runs before `>` and `<`, so parentheses are required around each comparison"
+        - "NumPy arrays cannot be filtered with two conditions at once"
+        - "`&` only works on strings, not numbers"
+        - "Indexing with `[...]` only accepts integer indices"
+      explanation: "In Python, `&` has higher precedence than `<` and `>`, so `a > 1 & a < 5` is parsed incorrectly. Writing `(a > 1) & (a < 5)` fixes it."
+    vi:
+      prompt: "Vì sao `a[a > 1 & a < 5]` bị lỗi?"
+      options:
+        - "`&` được tính trước `>` và `<`, nên cần dấu ngoặc đơn quanh mỗi phép so sánh"
+        - "Mảng NumPy không lọc được bằng hai điều kiện cùng lúc"
+        - "`&` chỉ dùng cho chuỗi, không dùng cho số"
+        - "Truy cập bằng `[...]` chỉ nhận chỉ số nguyên"
+      explanation: "Trong Python, `&` có độ ưu tiên cao hơn `<` và `>`, nên `a > 1 & a < 5` bị hiểu sai thứ tự. Viết `(a > 1) & (a < 5)` sẽ sửa được lỗi."
+
+  - id: p4-01-q15
+    type: output
+    tags: [numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+      a = np.array([10, 20, 30, 40])
+      b = a[1:3]
+      b[0] = 99
+      print(a.tolist())
+    answer: "[10, 99, 30, 40]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Slicing a NumPy array returns a **view** sharing the same memory, not a copy. Changing `b[0]` updates `a[1]` to `99`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Cắt slice từ mảng NumPy trả về một **view** dùng chung bộ nhớ chứ không phải bản sao. Sửa `b[0]` làm `a[1]` đổi thành `99`."
+
+  - id: p4-01-q16
+    type: parsons
+    tags: [numpy, performance]
+    difficulty: 3
+    lines:
+      - "import numpy as np"
+      - "raw = np.array([10, 20, 30, 40])"
+      - "part = raw[1:3].copy()"
+      - "part[0] = 99"
+      - "scaled = part * 2"
+      - "print(raw.tolist(), scaled.tolist())"
+    en:
+      prompt: "Put the lines in order so `raw` stays unchanged while `scaled` becomes `[198, 60]`."
+      explanation: "Import `numpy`, create `raw`, copy the slice before editing `part[0]`, multiply `part` by `2`, and print both lists at the end."
+    vi:
+      prompt: "Sắp xếp các dòng để `raw` không đổi còn `scaled` thành `[198, 60]`."
+      explanation: "Import `numpy`, tạo `raw`, sao chép slice trước khi sửa `part[0]`, nhân `part` với `2`, và cuối cùng in cả hai list."
+
+flashcards:
+  - id: p4-01-f01
+    tags: [numpy]
+    code: "a.shape, a.dtype, a.ndim"
+    en: { front: "What do `.shape`, `.dtype`, and `.ndim` tell you about a NumPy array?", back: "`.shape` is the tuple of sizes per dimension, `.dtype` is the single data type of all elements, and `.ndim` is the number of dimensions." }
+    vi: { front: "`.shape`, `.dtype` và `.ndim` cho biết điều gì về một mảng NumPy?", back: "`.shape` là tuple kích thước từng chiều, `.dtype` là kiểu dữ liệu chung của mọi phần tử, và `.ndim` là số chiều của mảng." }
+  - id: p4-01-f02
+    tags: [numpy, performance]
+    code: "a * 2 + 1"
+    en: { front: "What is vectorization (and scalar broadcasting) in NumPy?", back: "Writing math directly on whole arrays without Python loops. Scalar broadcasting stretches a single number across every element." }
+    vi: { front: "Vectorization (và scalar broadcasting) trong NumPy là gì?", back: "Là viết phép toán trực tiếp trên cả mảng mà không cần vòng lặp Python. Scalar broadcasting tự trải một con số ra mọi phần tử." }
+  - id: p4-01-f03
+    tags: [numpy]
+    code: "grid.mean(axis=0), grid.mean(axis=1)"
+    en: { front: "In a 2D array, what is the difference between `axis=0` and `axis=1`?", back: "`axis=0` aggregates down each column (collapsing rows). `axis=1` aggregates across each row (collapsing columns)." }
+    vi: { front: "Trên mảng 2D, `axis=0` và `axis=1` khác nhau thế nào?", back: "`axis=0` tổng hợp dọc theo từng cột (gộp các hàng). `axis=1` tổng hợp ngang theo từng hàng (gộp các cột)." }
+  - id: p4-01-f04
+    tags: [numpy, booleans]
+    code: "a[(a > 2) & (a < 8)]"
+    en: { front: "How do you combine two conditions in a NumPy boolean mask?", back: "Use `&` (and) or `|` (or) instead of `and`/`or`, and wrap every comparison in parentheses `( ... )`." }
+    vi: { front: "Làm sao kết hợp hai điều kiện trong một boolean mask của NumPy?", back: "Dùng `&` (và) hoặc `|` (hoặc) thay cho `and`/`or`, và bọc mỗi phép so sánh trong ngoặc đơn `( ... )`." }
+  - id: p4-01-f05
+    tags: [numpy]
+    code: "scores.argmax()"
+    en: { front: "What does `argmax()` return?", back: "The **index** of the largest element (the first index if there is a tie), not the value itself." }
+    vi: { front: "`argmax()` trả về gì?", back: "**Chỉ số** (index) của phần tử lớn nhất (chỉ số đầu tiên nếu hòa điểm), không phải giá trị đó." }
+  - id: p4-01-f06
+    tags: [numpy]
+    code: "part = a[1:3].copy()"
+    en: { front: "Why might changing a NumPy slice change the original array?", back: "Slicing returns a **view** sharing the same memory. Call `.copy()` when you want an independent array you can mutate safely." }
+    vi: { front: "Vì sao sửa một slice của NumPy có thể làm đổi mảng gốc?", back: "Phép cắt slice trả về một **view** dùng chung bộ nhớ. Hãy gọi `.copy()` khi cần bản sao độc lập để sửa an toàn." }

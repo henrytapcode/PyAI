@@ -1,0 +1,40 @@
+id: p4-01-ex01
+kind: fill
+title:
+  en: "Fill in: min-max scale an array"
+  vi: "Điền khuyết: chuẩn hóa min-max một mảng"
+difficulty: 1
+tags: [numpy, data-prep]
+hints:
+  en:
+    - |
+      This uses summary methods from §3 and scalar broadcasting from §2. For `np.array([10, 20, 30])`, the smallest value is `10` and the largest is `30`, so `(values - 10) / (30 - 10)` gives `array([0.0, 0.5, 1.0])`.
+    - |
+      The plan:
+      1. Find the minimum of `values` using `.min()` and store it in `low`.
+      2. Find the maximum of `values` using `.max()` and store it in `high`.
+      3. Subtract `low` from `values` and divide by `high - low`.
+    - |
+      The shape:
+      ```python
+      low = values.min()
+      high = values.max()
+      return (values - ...) / (high - ...)
+      ```
+      What variable holds the smallest value to subtract in both places?
+  vi:
+    - |
+      Bài này dùng các phương thức tổng hợp ở §3 và phép tính với scalar ở §2. Với `np.array([10, 20, 30])`, giá trị nhỏ nhất là `10` và lớn nhất là `30`, nên `(values - 10) / (30 - 10)` cho kết quả `array([0.0, 0.5, 1.0])`.
+    - |
+      Kế hoạch:
+      1. Tìm giá trị nhỏ nhất của `values` bằng `.min()` và lưu vào `low`.
+      2. Tìm giá trị lớn nhất của `values` bằng `.max()` và lưu vào `high`.
+      3. Lấy `values` trừ `low` rồi chia cho `high - low`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      low = values.min()
+      high = values.max()
+      return (values - ...) / (high - ...)
+      ```
+      Biến nào giữ giá trị nhỏ nhất cần đem trừ ở cả hai chỗ?

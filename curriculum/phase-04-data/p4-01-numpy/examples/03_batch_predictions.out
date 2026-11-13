@@ -1,0 +1,4 @@
+predicted ids: [2 0 1 0]
+predicted labels: ['positive', 'negative', 'neutral', 'negative']
+top confidence: [0.85 0.72 0.82 0.45]
+confident (>= 0.8): 2
