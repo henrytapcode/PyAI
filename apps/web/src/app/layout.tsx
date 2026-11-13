@@ -1,12 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Bungee, Chivo, JetBrains_Mono, Silkscreen } from "next/font/google";
+import { Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const chivo = Chivo({ subsets: ["latin", "vietnamese"], variable: "--font-chivo", display: "swap" });
-const bungee = Bungee({ subsets: ["latin", "vietnamese"], weight: "400", variable: "--font-bungee", display: "swap" });
-const pixel = Silkscreen({ subsets: ["latin"], weight: "700", variable: "--font-silkscreen", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin", "vietnamese"], variable: "--font-mono-face", display: "swap" });
+const beVietnam = Be_Vietnam_Pro({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "700"],
+  variable: "--font-sans-face",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500"],
+  variable: "--font-mono-face",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "PyAI Path · Python for AI Engineers",
@@ -16,14 +25,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f5fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#282a36" },
+    { media: "(prefers-color-scheme: light)", color: "#faf7ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#040807" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" suppressHydrationWarning className={`${chivo.variable} ${bungee.variable} ${pixel.variable} ${mono.variable}`}>
+    <html lang="vi" suppressHydrationWarning className={`${beVietnam.variable} ${mono.variable}`}>
       <body className="font-sans antialiased">
         <Providers>{children}</Providers>
       </body>

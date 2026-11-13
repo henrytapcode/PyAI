@@ -363,13 +363,13 @@ function RagChatInner({
         aria-controls="rag-chat-panel"
         aria-label={isOpen ? t("close") : t("open")}
         className={cn(
-          "fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full border-2 border-edge px-4 py-2.5 font-bold shadow-xl transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full px-4 py-2.5 font-bold shadow-[var(--shadow-lift)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           isOpen ? "bg-muted text-foreground" : "bg-primary text-primary-foreground",
         )}
       >
-        <Bot className="size-5 shrink-0" />
+        <Bot className="size-5 shrink-0" aria-hidden="true" />
         <span className="hidden sm:inline">{t("open")}</span>
-        {isOnline === false && <span className="size-2 rounded-full bg-danger animate-pulse" />}
+        {isOnline === false && <span className="size-2 rounded-full bg-danger" aria-hidden="true" />}
       </button>
 
       {/* Floating Chat Panel */}
@@ -378,7 +378,7 @@ function RagChatInner({
           id="rag-chat-panel"
           aria-label={t("title")}
           className={cn(
-            "fixed z-50 flex flex-col rounded-lg border-2 border-border bg-card shadow-2xl transition-all duration-200 animate-rise",
+            "fixed z-50 flex flex-col rounded-lg bg-popover shadow-[var(--shadow-lift)] transition-opacity duration-200 animate-rise",
             "bottom-4 right-3 sm:bottom-5 sm:right-5",
             isExpanded
               ? "h-[90vh] w-[96vw] sm:w-[680px]"
@@ -386,10 +386,10 @@ function RagChatInner({
           )}
         >
           {/* Header */}
-          <header className="flex items-center justify-between border-b px-4 py-3 bg-muted/40">
+          <header className="flex items-center justify-between border-b border-border/60 px-4 py-3 bg-muted/40 rounded-t-lg">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-[4px] bg-primary/10 text-primary">
-                <Sparkles className="size-4" />
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-primary">
+                <Sparkles className="size-4" aria-hidden="true" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
@@ -397,12 +397,13 @@ function RagChatInner({
                   <span
                     className={cn(
                       "size-2 shrink-0 rounded-full",
-                      isOnline === true ? "bg-success" : isOnline === false ? "bg-danger" : "bg-muted-foreground",
+                      isOnline === true ? "bg-primary" : isOnline === false ? "bg-danger" : "bg-muted-foreground",
                     )}
+                    aria-hidden="true"
                     title={isOnline === false ? t("offline") : "Online"}
                   />
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">
+                <p className="text-xs text-muted-foreground truncate leading-tight mt-0.5">
                   {exerciseId ? `Bài tập: ${exerciseId}` : `Bài học: ${lessonId}`}
                 </p>
               </div>
@@ -413,7 +414,7 @@ function RagChatInner({
               <select
                 value={provider}
                 onChange={(e) => setProvider(e.target.value as ProviderChoice)}
-                className="h-7 rounded-[2px] border border-border bg-background px-2 text-xs font-medium text-foreground focus:outline-none"
+                className="h-8 rounded-md border border-border bg-background px-2 text-xs font-medium text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 title={t("provider")}
                 aria-label={t("provider")}
               >
@@ -431,7 +432,7 @@ function RagChatInner({
                   title={t("clearChat")}
                   aria-label={t("clearChat")}
                 >
-                  <Trash2 className="size-3.5" />
+                  <Trash2 className="size-3.5" aria-hidden="true" />
                 </Button>
               )}
 
@@ -441,10 +442,10 @@ function RagChatInner({
                 size="icon-sm"
                 className="hidden sm:inline-flex"
                 onClick={() => setIsExpanded((prev) => !prev)}
-                title={isExpanded ? "Thu nhỏ" : "Mở rộng"}
-                aria-label={isExpanded ? "Thu nhỏ" : "Mở rộng"}
+                title={isExpanded ? t("minimize") : t("expand")}
+                aria-label={isExpanded ? t("minimize") : t("expand")}
               >
-                {isExpanded ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
+                {isExpanded ? <Minimize2 className="size-3.5" aria-hidden="true" /> : <Maximize2 className="size-3.5" aria-hidden="true" />}
               </Button>
 
               {/* Close */}
@@ -455,24 +456,24 @@ function RagChatInner({
                 title={t("close")}
                 aria-label={t("close")}
               >
-                <X className="size-4" />
+                <X className="size-4" aria-hidden="true" />
               </Button>
             </div>
           </header>
 
           {/* Offline notice banner */}
           {isOnline === false && (
-            <div className="flex items-center justify-between gap-2 border-b border-warning/30 bg-warning-soft px-3 py-2 text-xs text-warning">
+            <div className="flex items-center justify-between gap-2 border-b border-warning/30 bg-warning-soft px-3 py-2 text-xs text-warning-ink">
               <div className="flex items-center gap-1.5 min-w-0">
-                <AlertCircle className="size-3.5 shrink-0" />
+                <AlertCircle className="size-3.5 shrink-0 text-warning" aria-hidden="true" />
                 <span className="truncate">{t("offline")}</span>
               </div>
               <button
                 type="button"
                 onClick={() => void verifyHealth()}
-                className="flex items-center gap-1 underline font-bold shrink-0 hover:opacity-80"
+                className="flex items-center gap-1 underline font-bold shrink-0 text-warning-ink hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
-                <RefreshCw className="size-3" /> {t("retryConnection")}
+                <RefreshCw className="size-3" aria-hidden="true" /> {t("retryConnection")}
               </button>
             </div>
           )}
@@ -481,7 +482,7 @@ function RagChatInner({
           <div className="flex-1 overflow-y-auto p-4 space-y-4 text-sm" aria-live="polite">
             {messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center p-6 text-center text-muted-foreground">
-                <Bot className="size-12 mb-3 text-muted-foreground/40 stroke-1" />
+                <Bot className="size-12 mb-3 text-muted-foreground/40 stroke-1" aria-hidden="true" />
                 <p className="max-w-[280px] text-xs leading-relaxed">{t("emptyNotice")}</p>
               </div>
             ) : (
@@ -492,22 +493,22 @@ function RagChatInner({
                 >
                   {/* User message */}
                   {msg.role === "user" ? (
-                    <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-3.5 py-2 text-sm text-primary-foreground whitespace-pre-wrap break-words">
+                    <div className="max-w-[85%] rounded-lg bg-primary px-3.5 py-2 text-sm text-primary-foreground whitespace-pre-wrap break-words">
                       {msg.content}
                     </div>
                   ) : (
                     /* Assistant message */
-                    <div className="max-w-[95%] space-y-3 rounded-2xl rounded-tl-sm border border-border bg-muted/40 p-3.5 text-sm">
+                    <div className="max-w-[95%] space-y-3 rounded-lg border border-border bg-muted/40 p-3.5 text-sm">
                       {/* Refused notice */}
                       {msg.refused ? (
-                        <div className="flex items-start gap-2 rounded-[4px] border border-warning/40 bg-warning-soft p-3 text-xs text-warning">
-                          <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning-soft p-3 text-xs text-warning-ink">
+                          <AlertCircle className="size-4 shrink-0 mt-0.5 text-warning" aria-hidden="true" />
                           <span>{t("refused")}</span>
                         </div>
                       ) : msg.error ? (
                         /* Error message */
-                        <div className="flex items-start gap-2 rounded-[4px] border border-danger/40 bg-danger-soft p-3 text-xs text-danger">
-                          <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-2 rounded-md border border-danger/30 bg-danger-soft p-3 text-xs text-danger">
+                          <AlertCircle className="size-4 shrink-0 mt-0.5" aria-hidden="true" />
                           <span>{msg.error}</span>
                         </div>
                       ) : (
@@ -541,8 +542,9 @@ function RagChatInner({
                                       <button
                                         type="button"
                                         onClick={() => scrollToSource(msg.id, n)}
-                                        className="mx-0.5 inline-flex items-center justify-center rounded bg-primary/15 px-1.5 py-0.2 font-mono text-xs font-bold text-primary align-baseline transition hover:bg-primary/25 cursor-pointer"
-                                        title={`Xem nguồn [${n}]`}
+                                        className="mx-0.5 inline-flex items-center justify-center rounded-full bg-accent px-1.5 py-0.2 font-mono text-xs font-bold text-primary align-baseline transition-colors hover:bg-accent/80 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                                        title={t("viewSource", { n })}
+                                        aria-label={t("viewSource", { n })}
                                       >
                                         [{n}]
                                       </button>
@@ -568,7 +570,7 @@ function RagChatInner({
                           {/* Tier label badge if available */}
                           {msg.tier && (
                             <div className="pt-1">
-                              <Badge variant="outline" className="text-[11px]">
+                              <Badge variant="outline" className="text-xs">
                                 {getTierLabel(msg.tier) ?? t("tier", { n: msg.tier })}
                               </Badge>
                             </div>
@@ -586,8 +588,8 @@ function RagChatInner({
                                       key={src.n}
                                       id={`source-${msg.id}-${src.n}`}
                                       className={cn(
-                                        "flex items-start gap-1.5 rounded p-1 transition-all",
-                                        isTargeted && "bg-primary/15 ring-1 ring-primary",
+                                        "flex items-start gap-1.5 rounded-md p-1 transition-colors",
+                                        isTargeted && "bg-accent border border-primary",
                                       )}
                                     >
                                       <span className="font-mono font-bold text-primary shrink-0">[{src.n}]</span>
@@ -598,7 +600,7 @@ function RagChatInner({
                                             className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
                                           >
                                             <span className="truncate">{src.title}</span>
-                                            <ArrowUpRight className="size-3 shrink-0" />
+                                            <ArrowUpRight className="size-3 shrink-0" aria-hidden="true" />
                                           </Link>
                                         ) : src.url ? (
                                           <a
@@ -608,7 +610,7 @@ function RagChatInner({
                                             className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
                                           >
                                             <span className="truncate">{src.title}</span>
-                                            <ExternalLink className="size-3 shrink-0" />
+                                            <ExternalLink className="size-3 shrink-0" aria-hidden="true" />
                                           </a>
                                         ) : (
                                           <span className="font-medium text-foreground">{src.title}</span>
@@ -637,7 +639,7 @@ function RagChatInner({
                                   disabled={isLoading || retryCountdown > 0}
                                   className="h-7 text-xs"
                                 >
-                                  <Lightbulb className="size-3 text-warning" />
+                                  <Lightbulb className="size-3 text-warning" aria-hidden="true" />
                                   {t("nextHint")}
                                 </Button>
                               )}
@@ -653,13 +655,13 @@ function RagChatInner({
 
             {/* Thinking / Loading indicator */}
             {isLoading && (
-              <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-                <RefreshCw className="size-3.5 animate-spin text-primary" />
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+                <RefreshCw className="size-3.5 animate-spin text-primary" aria-hidden="true" />
                 <span>{t("thinking")}</span>
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="ml-auto underline font-bold text-foreground hover:text-danger"
+                  className="ml-auto underline font-bold text-foreground hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                   {tc("cancel")}
                 </button>
@@ -670,10 +672,10 @@ function RagChatInner({
           </div>
 
           {/* Input Footer */}
-          <footer className="border-t p-3 bg-muted/20 space-y-2">
+          <footer className="border-t border-border/60 p-3 bg-muted/20 space-y-2 rounded-b-lg">
             {/* Rate-limit warning countdown if active */}
             {retryCountdown > 0 && (
-              <div className="rounded bg-warning-soft px-2.5 py-1 text-xs text-warning font-medium">
+              <div className="rounded-md border border-warning/30 bg-warning-soft px-2.5 py-1 text-xs text-warning-ink font-medium">
                 {t("err429", { seconds: retryCountdown })}
               </div>
             )}
@@ -693,7 +695,7 @@ function RagChatInner({
                 placeholder={t("placeholder")}
                 rows={2}
                 maxLength={1000}
-                className="w-full resize-none rounded-[4px] border border-border bg-background p-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                className="w-full resize-none rounded-md border border-border bg-background p-2 text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
               />
               <Button
                 type="button"
@@ -705,14 +707,14 @@ function RagChatInner({
                 aria-label={t("send")}
                 className="size-9 shrink-0"
               >
-                <Send className="size-4" />
+                <Send className="size-4" aria-hidden="true" />
               </Button>
             </div>
 
             {/* Character count */}
-            <div className="flex justify-between items-center text-[10px] text-muted-foreground px-0.5">
+            <div className="flex justify-between items-center text-xs text-muted-foreground px-0.5">
               <span>Enter gửi · Shift+Enter xuống dòng</span>
-              <span className={cn(input.length > 900 && "text-warning font-bold", input.length >= 1000 && "text-danger")}>
+              <span className={cn(input.length > 900 && "text-warning-ink font-bold", input.length >= 1000 && "text-danger")}>
                 {input.length}/1000
               </span>
             </div>

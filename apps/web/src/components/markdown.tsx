@@ -47,9 +47,9 @@ function textOf(node: HastNode | undefined): string {
 }
 
 const CALLOUT_STYLE = {
-  tip: { icon: Lightbulb, cls: "border-success/30 bg-success-soft/60", iconCls: "text-success" },
-  note: { icon: Info, cls: "border-primary/25 bg-accent/60", iconCls: "text-primary" },
-  warning: { icon: AlertTriangle, cls: "border-warning/40 bg-warning-soft/70", iconCls: "text-warning" },
+  tip: { icon: Lightbulb, cls: "border-l-primary bg-accent text-foreground", iconCls: "text-primary" },
+  note: { icon: Info, cls: "border-l-muted-foreground/40 bg-muted text-foreground", iconCls: "text-muted-foreground" },
+  warning: { icon: AlertTriangle, cls: "border-l-warning bg-warning-soft text-foreground", iconCls: "text-warning-ink" },
 } as const;
 
 export function CodeBlock({
@@ -77,39 +77,65 @@ export function CodeBlock({
     }
   };
   return (
-    <div className="group relative overflow-hidden rounded-[4px] border bg-code">
-      <div className="flex items-center justify-between border-b px-3 py-1.5 text-xs text-muted-foreground">
+    <div className="group relative overflow-hidden rounded-lg border border-border bg-code">
+      <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-xs text-muted-foreground">
         <span className="font-mono">{language ?? "python"}</span>
         <div className="flex items-center gap-1">
-          <button onClick={copy} className="inline-flex items-center gap-1 rounded-[2px] px-2 py-1 hover:bg-muted hover:text-foreground">
-            {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
-            {copied ? t("common.copied") : t("common.copy")}
+          <button
+            type="button"
+            onClick={copy}
+            aria-label={copied ? t("common.copied") : t("common.copy")}
+            className="hit inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            {copied ? <Check className="size-3.5 text-primary" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+            <span>{copied ? t("common.copied") : t("common.copy")}</span>
           </button>
           {canVisualize && (
             <button
+              type="button"
               onClick={() => visualize(code)}
-              className="inline-flex items-center gap-1 rounded-[2px] px-2 py-1 font-medium hover:bg-muted hover:text-foreground"
+              aria-label={t("lesson.visualize")}
+              className="hit inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              <Eye className="size-3.5" />
-              {t("lesson.visualize")}
+              <Eye className="size-3.5" aria-hidden="true" />
+              <span>{t("lesson.visualize")}</span>
             </button>
           )}
           {onTry && (
             <button
+              type="button"
               onClick={() => onTry(code)}
-              className="inline-flex items-center gap-1 rounded-[2px] bg-primary/10 px-2 py-1 font-medium text-primary hover:bg-primary/15"
+              aria-label={t("lesson.tryIt")}
+              className="hit inline-flex items-center gap-1 rounded-md bg-accent px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              <Play className="size-3.5" />
-              {t("lesson.tryIt")}
+              <Play className="size-3.5" aria-hidden="true" />
+              <span>{t("lesson.tryIt")}</span>
             </button>
           )}
         </div>
       </div>
-      <pre className="overflow-x-auto p-4 font-mono text-[13.5px] leading-relaxed">
+      <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed">
         <code className="hljs">{children ?? code}</code>
       </pre>
     </div>
   );
+}
+
+function cssColorToHex(cssColor: string): string {
+  if (typeof document === "undefined" || !cssColor) return cssColor;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return cssColor;
+    ctx.fillStyle = cssColor.trim();
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
+  } catch {
+    return cssColor;
+  }
 }
 
 /** Flow diagrams from ```mermaid fences. Loaded lazily; falls back to the source if it fails to parse. */
@@ -123,7 +149,28 @@ function MermaidDiagram({ chart }: { chart: string }) {
     (async () => {
       try {
         const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({ startOnLoad: false, theme: resolvedTheme === "dark" ? "dark" : "neutral", securityLevel: "strict" });
+        const style = getComputedStyle(document.documentElement);
+        const readColor = (prop: string) => cssColorToHex(style.getPropertyValue(prop));
+
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: "strict",
+          theme: "base",
+          themeVariables: {
+            background: readColor("--card"),
+            primaryColor: readColor("--muted"),
+            primaryBorderColor: readColor("--primary"),
+            primaryTextColor: readColor("--foreground"),
+            secondaryColor: readColor("--accent"),
+            tertiaryColor: readColor("--card"),
+            lineColor: readColor("--muted-foreground"),
+            textColor: readColor("--foreground"),
+            edgeLabelBackground: readColor("--card"),
+            clusterBkg: readColor("--muted"),
+            clusterBorder: readColor("--border"),
+            fontFamily: "var(--font-sans)",
+          },
+        });
         const out = await mermaid.render(id, chart);
         if (alive) setSvg(out.svg);
       } catch {
@@ -137,7 +184,7 @@ function MermaidDiagram({ chart }: { chart: string }) {
   if (failed) return <CodeBlock code={chart} language="mermaid" />;
   return (
     <div
-      className="my-4 flex justify-center overflow-x-auto rounded-[4px] border bg-card p-4 [&_svg]:h-auto [&_svg]:max-w-full"
+      className="my-4 flex justify-center overflow-x-auto rounded-lg border border-border bg-card p-4 [&_svg]:h-auto [&_svg]:max-w-full"
       role="img"
       aria-label="diagram"
       dangerouslySetInnerHTML={svg ? { __html: svg } : undefined}
@@ -166,8 +213,8 @@ export function Markdown({ text, onTryCode, className }: { text: string; onTryCo
       const style = CALLOUT_STYLE[kind] ?? CALLOUT_STYLE.note;
       const Icon = style.icon;
       return (
-        <aside className={cn("flex gap-3 rounded-[4px] border px-4 py-3 text-[0.95rem] [&_p]:m-0", style.cls)}>
-          <Icon className={cn("mt-1 size-[18px] shrink-0", style.iconCls)} />
+        <aside className={cn("flex gap-3 rounded-r-lg border-l-[3px] px-4 py-3 text-sm [&_p]:m-0", style.cls)}>
+          <Icon className={cn("mt-0.5 size-4 shrink-0", style.iconCls)} aria-hidden="true" />
           <div className="min-w-0 space-y-2">{children}</div>
         </aside>
       );

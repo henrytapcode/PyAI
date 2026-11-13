@@ -12,7 +12,7 @@ import { authEnabled, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const inputClass =
-  "h-10 w-full rounded-[4px] border bg-card px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50";
+  "h-10 w-full rounded-md border border-border bg-card px-3 text-sm outline-none focus-visible:outline-2 focus-visible:outline-ring";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
@@ -64,9 +64,9 @@ export default function LoginPage() {
         </div>
 
         {!authEnabled ? (
-          <p className="rounded-[4px] border bg-card p-4 text-sm text-muted-foreground">{t("notConfigured")}</p>
+          <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">{t("notConfigured")}</p>
         ) : (
-          <div className="space-y-4 rounded-[4px] border bg-card p-5">
+          <div className="space-y-4 rounded-lg border border-border bg-card p-5">
             <Button variant="outline" className="w-full" disabled={busy} onClick={google}>
               <GoogleMark /> {t("google")}
             </Button>
@@ -82,6 +82,7 @@ export default function LoginPage() {
                   type="email"
                   required
                   autoComplete="email"
+                  aria-label={t("email")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputClass}
@@ -94,14 +95,25 @@ export default function LoginPage() {
                   required
                   minLength={8}
                   autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                  aria-label={t("password")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={inputClass}
                 />
               </label>
-              {message && <p className={cn("text-sm", message.ok ? "text-success" : "text-danger")}>{message.text}</p>}
+              {message && (
+                <p
+                  role="alert"
+                  className={cn(
+                    "rounded-md px-3 py-2 text-sm",
+                    message.ok ? "bg-success-soft text-foreground" : "bg-danger-soft text-danger",
+                  )}
+                >
+                  {message.text}
+                </p>
+              )}
               <Button type="submit" className="w-full" disabled={busy}>
-                <Mail /> {mode === "signin" ? t("signIn") : t("signUp")}
+                <Mail aria-hidden /> {mode === "signin" ? t("signIn") : t("signUp")}
               </Button>
             </form>
             <button

@@ -42,7 +42,7 @@ export function LessonQuiz({ lessonId, questions, flashcards, onDone }: { lesson
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center animate-rise">
         <Ring value={best ?? 0} size={88} stroke={7}>
-          <span className="text-base">{best !== undefined ? percent(best) : <Target className="size-6 text-primary" />}</span>
+          <span className="text-base font-mono tabular-nums">{best !== undefined ? percent(best) : <Target className="size-6 text-primary" aria-hidden="true" />}</span>
         </Ring>
         <div>
           <h2 className="text-xl font-bold">{t("title")}</h2>
@@ -50,7 +50,7 @@ export function LessonQuiz({ lessonId, questions, flashcards, onDone }: { lesson
           {best !== undefined && <p className="mt-1 text-sm text-muted-foreground">{tl("quizBest", { score: percent(best) })}</p>}
         </div>
         <Button size="lg" onClick={start}>
-          {tl("startQuiz")} <ArrowRight />
+          {tl("startQuiz")} <ArrowRight aria-hidden="true" />
         </Button>
       </div>
     );
@@ -61,16 +61,16 @@ export function LessonQuiz({ lessonId, questions, flashcards, onDone }: { lesson
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center animate-rise">
         <Ring value={score} size={110} stroke={8}>
-          <span className="text-xl">{percent(score)}</span>
+          <span className="text-xl font-mono tabular-nums">{percent(score)}</span>
         </Ring>
-        {passed && <PartyPopper className="size-7 text-warning" />}
+        {passed && <PartyPopper className="size-7 text-warning" aria-hidden="true" />}
         <div>
           <h2 className="text-xl font-bold">{t("result", { score: percent(score) })}</h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">{passed ? t("resultPass") : t("resultFail", { score: percent(QUIZ_PASS) })}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={start}>
-            <RotateCcw /> {t("restart")}
+            <RotateCcw aria-hidden="true" /> {t("restart")}
           </Button>
           {onDone && <Button onClick={onDone}>{t("backToLesson")}</Button>}
         </div>
@@ -97,7 +97,7 @@ export function LessonQuiz({ lessonId, questions, flashcards, onDone }: { lesson
           </Button>
         ) : last ? (
           <Button onClick={finish}>
-            {t("finish")} <ArrowRight />
+            {t("finish")} <ArrowRight aria-hidden="true" />
           </Button>
         ) : (
           <Button
@@ -106,7 +106,7 @@ export function LessonQuiz({ lessonId, questions, flashcards, onDone }: { lesson
               setRevealed(false);
             }}
           >
-            {t("next")} <ArrowRight />
+            {t("next")} <ArrowRight aria-hidden="true" />
           </Button>
         )}
       </div>

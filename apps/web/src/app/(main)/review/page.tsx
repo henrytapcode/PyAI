@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Layers, PartyPopper, RotateCcw } from "lucide-react";
+import { CheckCircle2, Layers, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -67,31 +67,37 @@ export default function ReviewPage() {
         title={t("title")}
         subtitle={t("subtitle")}
         actions={
-          <Badge variant="muted">
-            <Layers /> {t("deckSize", { count: deckSize })}
+          <Badge variant="muted" className="tabular-nums">
+            <Layers aria-hidden="true" />
+            {t("deckSize", { count: deckSize })}
           </Badge>
         }
       />
 
       {!entry ? (
         <Card className="animate-rise">
-          <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
-            {reviewed > 0 ? <PartyPopper className="size-10 text-warning" /> : <CheckCircle2 className="size-10 text-success" />}
+          <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:p-8">
+            <CheckCircle2 className="size-8 text-primary" aria-hidden="true" />
             <div>
               <h2 className="text-lg font-bold">{reviewed > 0 ? t("sessionDone") : t("due", { count: 0 })}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{reviewed > 0 ? t("reviewed", { count: reviewed }) : t("empty")}</p>
             </div>
-            {deckSize > 0 && (
-              <Button variant="outline" onClick={practice}>
-                <RotateCcw /> {t("practice")}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Button asChild>
+                <Link href="/learn/">{t("goToLessons")}</Link>
               </Button>
-            )}
+              {deckSize > 0 && (
+                <Button variant="outline" onClick={practice}>
+                  <RotateCcw aria-hidden="true" /> {t("practice")}
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       ) : (
         <>
-          <div className="mb-4 flex items-center gap-3 text-sm text-muted-foreground">
-            <span className="tabular-nums">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="font-mono text-sm font-medium tabular-nums text-foreground">
               {Math.min(pos + 1, queue.length)}/{queue.length}
             </span>
             <Progress value={pos / queue.length} className="flex-1" />
@@ -115,7 +121,10 @@ function SourceLine({ lessonId, label }: { lessonId?: string; label: string }) {
     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
       <Badge variant="muted">{label}</Badge>
       {lesson && (
-        <Link href={`/lesson/${lesson.id}/`} className="hover:text-foreground hover:underline">
+        <Link
+          href={`/lesson/${lesson.id}/`}
+          className="hit rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+        >
           {t("fromLesson", { lesson: loc.t(lesson.title) })}
         </Link>
       )}
@@ -126,24 +135,29 @@ function SourceLine({ lessonId, label }: { lessonId?: string; label: string }) {
 function GradeButtons({ cardKey, onGrade, suggest }: { cardKey: string; onGrade: (g: Grade) => void; suggest?: Grade }) {
   const t = useTranslations("review");
   const card = useProgress((s) => s.srs[cardKey]) ?? newCard();
-  const grades: { g: Grade; cls: string }[] = [
-    { g: "again", cls: "border-danger/40 text-danger hover:bg-danger-soft" },
-    { g: "hard", cls: "border-warning/50 text-warning hover:bg-warning-soft" },
-    { g: "good", cls: "border-primary/40 text-primary hover:bg-accent" },
-    { g: "easy", cls: "border-success/40 text-success hover:bg-success-soft" },
-  ];
+  const grades: Grade[] = ["again", "hard", "good", "easy"];
   return (
-    <div className="grid grid-cols-4 gap-2 animate-rise">
-      {grades.map(({ g, cls }) => (
-        <button
-          key={g}
-          onClick={() => onGrade(g)}
-          className={cn("flex flex-col items-center gap-0.5 rounded-[4px] border bg-card px-2 py-2.5 text-sm font-medium transition", cls, suggest === g && "ring-2 ring-current")}
-        >
-          {t(g)}
-          <span className="text-[11px] font-normal text-muted-foreground">{t("inDays", { count: previewInterval(card, g) })}</span>
-        </button>
-      ))}
+    <div className="grid grid-cols-4 gap-1.5 animate-rise">
+      {grades.map((g) => {
+        const interval = t("inDays", { count: previewInterval(card, g) });
+        const label = t(g);
+        return (
+          <Button
+            key={g}
+            type="button"
+            variant="outline"
+            onClick={() => onGrade(g)}
+            aria-label={`${label} · ${interval}`}
+            className={cn(
+              "h-auto flex-col gap-0.5 px-1 py-2.5 sm:px-2",
+              suggest === g && "border-primary bg-accent text-primary",
+            )}
+          >
+            <span className="text-sm font-medium">{label}</span>
+            <span className="text-xs font-mono tabular-nums text-muted-foreground">{interval}</span>
+          </Button>
+        );
+      })}
     </div>
   );
 }
@@ -156,7 +170,7 @@ function FlashcardView({ card, cardKey, onGrade }: { card: Flashcard; cardKey: s
   return (
     <div className="space-y-4">
       <Card className="animate-rise">
-        <CardContent className="space-y-5 p-8">
+        <CardContent className="space-y-5 p-6 sm:p-8">
           <SourceLine lessonId={card.lessonId} label={t("flashcard")} />
           <div className="text-xl font-bold">
             <Markdown text={side.value!.front} className="[&_p]:m-0" />
@@ -164,7 +178,7 @@ function FlashcardView({ card, cardKey, onGrade }: { card: Flashcard; cardKey: s
           </div>
           {card.code && <StaticCode code={card.code} />}
           {flipped && (
-            <div className="border-t pt-5 animate-rise">
+            <div className="border-t border-border pt-5 animate-rise">
               <Markdown text={side.value!.back} />
             </div>
           )}
@@ -173,7 +187,7 @@ function FlashcardView({ card, cardKey, onGrade }: { card: Flashcard; cardKey: s
       {flipped ? (
         <GradeButtons cardKey={cardKey} onGrade={onGrade} />
       ) : (
-        <Button size="lg" className="w-full" onClick={() => setFlipped(true)}>
+        <Button size="lg" type="button" className="w-full" onClick={() => setFlipped(true)}>
           {t("showAnswer")}
         </Button>
       )}
@@ -190,7 +204,7 @@ function QuestionReview({ question, cardKey, onGrade }: { question: Question; ca
   return (
     <div className="space-y-4">
       <Card className="animate-rise">
-        <CardContent className="space-y-4 p-8">
+        <CardContent className="space-y-4 p-6 sm:p-8">
           <SourceLine lessonId={question.lessonId} label={t("missedQuestion")} />
           <QuestionView question={question} answer={answer} onChange={setAnswer} revealed={revealed} showType={false} />
         </CardContent>
@@ -198,7 +212,7 @@ function QuestionReview({ question, cardKey, onGrade }: { question: Question; ca
       {revealed ? (
         <GradeButtons cardKey={cardKey} onGrade={onGrade} suggest={correct ? "good" : "again"} />
       ) : (
-        <Button size="lg" className="w-full" disabled={!isAnswered(question, answer)} onClick={() => setRevealed(true)}>
+        <Button size="lg" type="button" className="w-full" disabled={!isAnswered(question, answer)} onClick={() => setRevealed(true)}>
           {tq("check")}
         </Button>
       )}

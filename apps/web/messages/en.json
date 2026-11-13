@@ -184,6 +184,7 @@
     "playgroundTitle": "Playground",
     "playgroundSubtitle": "A scratchpad with real Python in your browser. NumPy and Pandas load on first import.",
     "templates": "Templates",
+    "templatesLabel": "Templates:",
     "loading": "Loading editor…"
   },
   "quiz": {
@@ -230,7 +231,8 @@
     "sessionDone": "Review session done!",
     "reviewed": "{count} reviewed",
     "deckSize": "Deck: {count} cards",
-    "practice": "Practice anyway"
+    "practice": "Practice anyway",
+    "goToLessons": "Go to lessons"
   },
   "exam": {
     "title": "Exams",
@@ -242,6 +244,7 @@
     "duration": "{count} min",
     "passScore": "Pass {score}",
     "best": "Best {score}",
+    "notTaken": "Not taken",
     "attempts": "{count, plural, =0 {Not taken} one {# attempt} other {# attempts}}",
     "timeLeft": "Time left",
     "submit": "Submit exam",
@@ -260,7 +263,16 @@
     "rules": "The timer starts when you press Start. You can move between questions freely. Answers are checked when you submit.",
     "answered": "{done}/{total} answered",
     "history": "History",
-    "lockedMock": "The final mock exam unlocks with more phases."
+    "lockedMock": "The final mock exam unlocks with more phases.",
+    "colExam": "Exam",
+    "colQuestions": "Questions",
+    "colMinutes": "Minutes",
+    "colPass": "Pass mark",
+    "colBest": "Best score",
+    "colAttempts": "Attempts",
+    "questionNumber": "Question {n}",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
   },
   "placement": {
     "title": "Placement test",
@@ -325,16 +337,21 @@
     "title": "Settings",
     "subtitle": "Your progress lives in this browser only. Export it regularly as a backup.",
     "appearance": "Appearance",
+    "appearanceDesc": "Language and theme preferences",
     "learning": "Learning",
+    "learningDesc": "Learning track and daily XP target",
     "track": "Track",
     "trackA": "A · Beginner",
     "trackB": "B · Knows basics",
     "dailyGoal": "Daily goal",
     "data": "Your data",
+    "dataDesc": "Backup and restore your progress on this device",
     "export": "Export progress (JSON)",
     "import": "Import progress",
     "importOk": "Progress imported.",
     "importFail": "That file is not a valid progress export.",
+    "dangerZone": "Danger zone",
+    "dangerZoneDesc": "Reset progress or restart onboarding",
     "reset": "Reset all progress",
     "resetConfirm": "This deletes all progress on this device. Export first if you want a backup. Continue?",
     "resetDone": "Progress reset.",
@@ -426,6 +443,9 @@
     "err500": "An internal error occurred while processing your request.",
     "err503": "Assistant service is temporarily unavailable. Please try again later.",
     "clearChat": "Clear conversation",
+    "expand": "Expand",
+    "minimize": "Minimize",
+    "viewSource": "View source [{n}]",
     "emptyNotice": "Ask anything about this lesson or exercise to get guidance without spoiling solutions!"
   }
 }

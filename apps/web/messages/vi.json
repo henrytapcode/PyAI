@@ -184,6 +184,7 @@
     "playgroundTitle": "Sân chơi code",
     "playgroundSubtitle": "Nháp code với Python thật ngay trong trình duyệt. NumPy và Pandas tự tải khi import lần đầu.",
     "templates": "Mẫu",
+    "templatesLabel": "Mẫu:",
     "loading": "Đang tải editor…"
   },
   "quiz": {
@@ -230,7 +231,8 @@
     "sessionDone": "Xong phiên ôn tập!",
     "reviewed": "Đã ôn {count}",
     "deckSize": "Bộ thẻ: {count}",
-    "practice": "Vẫn luyện thêm"
+    "practice": "Vẫn luyện thêm",
+    "goToLessons": "Sang lộ trình bài học"
   },
   "exam": {
     "title": "Kiểm tra",
@@ -242,6 +244,7 @@
     "duration": "{count} phút",
     "passScore": "Đạt {score}",
     "best": "Cao nhất {score}",
+    "notTaken": "Chưa làm",
     "attempts": "{count, plural, =0 {Chưa làm} other {# lần làm}}",
     "timeLeft": "Còn lại",
     "submit": "Nộp bài",
@@ -260,7 +263,16 @@
     "rules": "Đồng hồ chạy khi bấm Bắt đầu. Bạn có thể chuyển qua lại giữa các câu. Đáp án được chấm khi nộp bài.",
     "answered": "Đã trả lời {done}/{total}",
     "history": "Lịch sử",
-    "lockedMock": "Mock exam tổng sẽ mở khi có thêm phase."
+    "lockedMock": "Mock exam tổng sẽ mở khi có thêm phase.",
+    "colExam": "Đề thi",
+    "colQuestions": "Số câu",
+    "colMinutes": "Thời gian (phút)",
+    "colPass": "Điểm đạt",
+    "colBest": "Điểm cao nhất",
+    "colAttempts": "Số lượt",
+    "questionNumber": "Câu {n}",
+    "correct": "Đúng",
+    "incorrect": "Chưa đúng"
   },
   "placement": {
     "title": "Placement test",
@@ -325,16 +337,21 @@
     "title": "Cài đặt",
     "subtitle": "Tiến độ chỉ lưu trong trình duyệt này. Hãy export thường xuyên để sao lưu.",
     "appearance": "Giao diện",
+    "appearanceDesc": "Tùy chọn ngôn ngữ và giao diện",
     "learning": "Học tập",
+    "learningDesc": "Lộ trình học và mục tiêu XP mỗi ngày",
     "track": "Track",
     "trackA": "A · Người mới",
     "trackB": "B · Biết cơ bản",
     "dailyGoal": "Mục tiêu mỗi ngày",
     "data": "Dữ liệu của bạn",
+    "dataDesc": "Sao lưu và khôi phục tiến độ trên thiết bị này",
     "export": "Export tiến độ (JSON)",
     "import": "Import tiến độ",
     "importOk": "Đã import tiến độ.",
     "importFail": "File này không phải bản export tiến độ hợp lệ.",
+    "dangerZone": "Vùng nguy hiểm",
+    "dangerZoneDesc": "Làm lại màn hình chào hoặc xóa toàn bộ tiến độ",
     "reset": "Xóa toàn bộ tiến độ",
     "resetConfirm": "Thao tác này xóa mọi tiến độ trên máy này. Hãy export trước nếu muốn sao lưu. Tiếp tục?",
     "resetDone": "Đã xóa tiến độ.",
@@ -426,6 +443,9 @@
     "err500": "Đã xảy ra lỗi nội bộ khi xử lý câu hỏi.",
     "err503": "Dịch vụ trợ giảng tạm thời không khả dụng. Vui lòng thử lại sau.",
     "clearChat": "Xóa hội thoại",
+    "expand": "Mở rộng",
+    "minimize": "Thu nhỏ",
+    "viewSource": "Xem nguồn [{n}]",
     "emptyNotice": "Đặt câu hỏi về lý thuyết hoặc bài tập để nhận gợi ý từng bước mà không lo lộ đáp án!"
   }
 }

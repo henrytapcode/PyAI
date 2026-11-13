@@ -61,25 +61,43 @@ export default function PlaygroundPage() {
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col lg:h-dvh">
-      <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3 sm:px-6">
+      <div className="flex shrink-0 flex-col gap-3 border-b border-border bg-muted px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="min-w-0 flex-1">
-          <h1 className="font-bold">{t("playgroundTitle")}</h1>
-          <p className="truncate text-xs text-muted-foreground">{t("playgroundSubtitle")}</p>
+          <h1 className="text-lg font-bold tracking-tight">{t("playgroundTitle")}</h1>
+          <p className="line-clamp-2 text-sm text-muted-foreground">{t("playgroundSubtitle")}</p>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">{t("templates")}:</span>
+        <div
+          role="group"
+          aria-label={t("templates")}
+          className="flex flex-wrap items-center gap-1.5"
+        >
+          <span className="text-sm text-muted-foreground">{t("templatesLabel")}</span>
           {Object.keys(TEMPLATES).map((k) => (
             <button
               key={k}
+              type="button"
+              aria-pressed={code === TEMPLATES[k]}
               onClick={() => update(TEMPLATES[k])}
-              className={cn("rounded-[2px] border px-2 py-1 font-mono text-xs hover:bg-muted", code === TEMPLATES[k] && "border-primary text-primary")}
+              className={cn(
+                "relative inline-flex h-9 items-center justify-center rounded-md border px-3 font-mono text-xs transition-colors",
+                "after:absolute after:-inset-1 after:content-['']",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                code === TEMPLATES[k]
+                  ? "border-primary bg-accent font-bold text-primary"
+                  : "border-border bg-card text-foreground hover:bg-accent",
+              )}
             >
               {k}
             </button>
           ))}
         </div>
       </div>
-      <Workbench code={code} onCodeChange={update} title={<span className="font-mono text-muted-foreground">playground.py</span>} className="min-h-0 flex-1" />
+      <Workbench
+        code={code}
+        onCodeChange={update}
+        title={<span className="font-mono text-sm text-muted-foreground">playground.py</span>}
+        className="min-h-0 flex-1"
+      />
     </div>
   );
 }

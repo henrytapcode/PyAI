@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Eye, Loader2, Pause, Play } from "lucide-react";
+import { ArrowRight, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Eye, Loader2, Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -105,7 +105,7 @@ function Visualizer({ code }: { code: string }) {
   return (
     <>
       <div className="flex flex-wrap items-center gap-3 border-b px-5 py-3 pr-12">
-        <Eye className="size-5 text-primary" />
+        <Eye className="size-5 text-primary" aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <DialogTitle className="text-base">{t("title")}</DialogTitle>
           <DialogDescription className="text-xs">{t("subtitle")}</DialogDescription>
@@ -118,15 +118,15 @@ function Visualizer({ code }: { code: string }) {
       {!result ? (
         <div className="grid flex-1 place-items-center text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
-            <Loader2 className="size-4 animate-spin" /> {t("tracing")}
+            <Loader2 className="size-4 animate-spin text-primary" aria-hidden="true" /> {t("tracing")}
           </span>
         </div>
       ) : result.timedOut ? (
-        <p className="m-5 rounded-[4px] bg-danger-soft p-3 text-sm text-danger">{t("timedOut")}</p>
+        <p className="m-5 rounded-md border border-danger/20 bg-danger-soft p-3 text-sm text-danger">{t("timedOut")}</p>
       ) : steps.length === 0 ? (
         <div className="m-5 space-y-2">
           {result.error ? (
-            <pre className="whitespace-pre-wrap rounded-[4px] bg-danger-soft p-3 font-mono text-sm text-danger">
+            <pre className="whitespace-pre-wrap rounded-md border border-danger/20 bg-danger-soft p-3 font-mono text-xs text-danger">
               {result.error.type}: {result.error.message}
               {result.error.line ? ` (${t("line", { line: result.error.line })})` : ""}
             </pre>
@@ -137,7 +137,7 @@ function Visualizer({ code }: { code: string }) {
       ) : (
         <div className="grid min-h-0 flex-1 gap-0 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           {/* Code with the current line */}
-          <div className="min-h-0 overflow-auto border-b bg-code py-3 font-mono text-[13px] leading-6 md:border-b-0 md:border-r">
+          <div className="min-h-0 overflow-auto border-b bg-code py-3 font-mono text-xs leading-6 md:border-b-0 md:border-r">
             {lines.map((text, i) => {
               const n = i + 1;
               const current = step?.line === n;
@@ -147,12 +147,12 @@ function Visualizer({ code }: { code: string }) {
                   key={n}
                   ref={current ? lineRef : undefined}
                   className={cn(
-                    "flex gap-3 px-3",
-                    current && (step?.event === "exception" ? "bg-danger-soft" : "bg-primary/15"),
-                    previous && "bg-muted",
+                    "flex gap-3 px-3 border-l-[3px] border-transparent transition-colors",
+                    current && (step?.event === "exception" ? "bg-danger-soft border-l-danger text-danger" : "bg-accent border-l-primary text-primary font-medium"),
+                    previous && "bg-muted/40",
                   )}
                 >
-                  <span className="w-5 shrink-0 select-none text-right text-muted-foreground/70">{current ? "➜" : n}</span>
+                  <span className="flex items-center justify-end w-5 shrink-0 select-none font-mono text-xs text-muted-foreground/70">{current ? <ArrowRight className="size-3.5 text-primary" aria-hidden="true" /> : n}</span>
                   <span className="whitespace-pre">{text || " "}</span>
                 </div>
               );
@@ -161,27 +161,27 @@ function Visualizer({ code }: { code: string }) {
 
           {/* State */}
           <div className="flex min-h-0 flex-col overflow-auto p-4">
-            <p className={cn("mb-3 rounded-[4px] px-3 py-2 text-sm", step?.event === "exception" ? "bg-danger-soft text-danger" : "bg-accent/60")}>{caption}</p>
+            <p className={cn("mb-3 rounded-md border px-3 py-2 text-sm", step?.event === "exception" ? "border-danger/20 bg-danger-soft text-danger" : "border-border bg-accent/60 text-foreground")}>{caption}</p>
             <div className="space-y-3">
               {step?.stack.map((frame, fi) => {
                 const before = prev?.stack[fi]?.name === frame.name ? prev.stack[fi] : undefined;
                 return (
-                  <div key={`${fi}-${frame.name}`} className={cn("rounded-[4px] border", fi === step.stack.length - 1 && "border-primary/50")}>
-                    <div className="flex items-center gap-2 border-b px-3 py-1.5 text-xs font-bold">
+                  <div key={`${fi}-${frame.name}`} className={cn("rounded-lg border border-border bg-card overflow-hidden", fi === step.stack.length - 1 && "border-primary")}>
+                    <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-3 py-1.5 text-xs font-bold text-foreground">
                       {frame.name === "global" ? t("globals") : t("frame", { name: frame.name })}
                     </div>
                     {frame.vars.length === 0 ? (
                       <p className="px-3 py-2 text-xs text-muted-foreground">{t("noVars")}</p>
                     ) : (
-                      <table className="w-full text-sm">
+                      <table className="w-full text-xs font-mono">
                         <tbody>
                           {frame.vars.map((v) => {
                             const old = before?.vars.find((x) => x.name === v.name);
                             const changed = !old || old.repr !== v.repr;
                             return (
-                              <tr key={v.name} className={cn("border-b last:border-0", changed && index > 0 && "bg-warning-soft/70 transition-colors")}>
-                                <td className="w-1/3 px-3 py-1.5 font-mono text-[13px] font-medium">{v.name}</td>
-                                <td className="px-3 py-1.5 font-mono text-[13px] break-all">{v.repr}</td>
+                              <tr key={v.name} className={cn("border-b border-border/50 last:border-0", changed && index > 0 && "bg-warning-soft text-warning-ink transition-colors")}>
+                                <td className="w-1/3 px-3 py-1.5 font-medium">{v.name}</td>
+                                <td className="px-3 py-1.5 break-all">{v.repr}</td>
                                 <td className="w-0 px-3 py-1.5 text-right">
                                   <Badge variant="muted" className="font-mono">
                                     {v.type}
@@ -199,13 +199,13 @@ function Visualizer({ code }: { code: string }) {
             </div>
             <div className="mt-4">
               <div className="mb-1 text-xs font-bold text-muted-foreground">{t("output")}</div>
-              <pre className="min-h-10 whitespace-pre-wrap rounded-[4px] border bg-code p-2 font-mono text-[13px]">{output || " "}</pre>
+              <pre className="min-h-10 whitespace-pre-wrap rounded-lg border border-border bg-code p-2 font-mono text-xs">{output || " "}</pre>
               {atEnd && result.error && (
-                <pre className="mt-2 whitespace-pre-wrap rounded-[4px] bg-danger-soft p-2 font-mono text-[13px] text-danger">
+                <pre className="mt-2 whitespace-pre-wrap rounded-lg border border-danger/20 bg-danger-soft p-2 font-mono text-xs text-danger">
                   {result.error.type}: {result.error.message}
                 </pre>
               )}
-              {atEnd && result.truncated && <p className="mt-2 text-xs text-warning">{t("truncated", { count: steps.length })}</p>}
+              {atEnd && result.truncated && <p className="mt-2 text-xs text-warning-ink">{t("truncated", { count: steps.length })}</p>}
             </div>
           </div>
         </div>
@@ -214,20 +214,20 @@ function Visualizer({ code }: { code: string }) {
       {steps.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
           <Button variant="ghost" size="icon-sm" onClick={() => go(0)} disabled={index === 0} aria-label={t("first")}>
-            <ChevronFirst />
+            <ChevronFirst aria-hidden="true" />
           </Button>
           <Button variant="outline" size="sm" onClick={() => go(index - 1)} disabled={index === 0}>
-            <ChevronLeft /> {t("back")}
+            <ChevronLeft aria-hidden="true" /> {t("back")}
           </Button>
           <Button size="sm" onClick={() => setPlaying((p) => !p)} disabled={atEnd && !playing}>
-            {playing ? <Pause /> : <Play />}
+            {playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
             {playing ? t("pause") : t("play")}
           </Button>
           <Button variant="outline" size="sm" onClick={() => go(index + 1)} disabled={atEnd}>
-            {t("forward")} <ChevronRight />
+            {t("forward")} <ChevronRight aria-hidden="true" />
           </Button>
           <Button variant="ghost" size="icon-sm" onClick={() => go(last)} disabled={atEnd} aria-label={t("last")}>
-            <ChevronLast />
+            <ChevronLast aria-hidden="true" />
           </Button>
           <input
             type="range"

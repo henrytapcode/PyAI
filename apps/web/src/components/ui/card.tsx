@@ -10,7 +10,7 @@ export function CardHeader({ className, ...props }: React.ComponentProps<"div">)
 }
 
 export function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
-  return <h3 className={cn("text-lg font-black leading-tight tracking-tight", className)} {...props} />;
+  return <h3 className={cn("text-lg font-bold leading-tight tracking-tight", className)} {...props} />;
 }
 
 export function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
