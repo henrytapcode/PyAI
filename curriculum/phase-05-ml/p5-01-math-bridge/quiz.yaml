@@ -1,0 +1,382 @@
+questions:
+  - id: p5-01-q01
+    type: mcq
+    tags: [ml-math, numpy]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "What does `np.linalg.norm(v)` compute for a 1D vector `v`?"
+      options:
+        - "The length of the arrow from the origin to `v`"
+        - "The sum of all elements in `v`"
+        - "The largest element in `v`"
+        - "The dot product of `v` with `[1, 1, ...]`"
+      explanation: "`np.linalg.norm(v)` computes `sqrt(sum(v ** 2))`, which is the straight-line distance from `(0, 0)` to the tip of the vector."
+    vi:
+      prompt: "`np.linalg.norm(v)` tính gì cho một vector 1 chiều `v`?"
+      options:
+        - "Độ dài mũi tên từ gốc tọa độ tới điểm `v`"
+        - "Tổng tất cả các phần tử trong `v`"
+        - "Phần tử lớn nhất trong `v`"
+        - "Tích vô hướng của `v` với `[1, 1, ...]`"
+      explanation: "`np.linalg.norm(v)` tính `sqrt(sum(v ** 2))`, tức là khoảng cách đường thẳng từ gốc `(0, 0)` đến đầu mũi tên của vector."
+
+  - id: p5-01-q02
+    type: output
+    tags: [ml-math, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      v = np.array([3.0, 4.0])
+      print(round(float(np.linalg.norm(v)), 3))
+    answer: "5.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The length of `[3.0, 4.0]` is `sqrt(3**2 + 4**2) = sqrt(25) = 5.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Độ dài của `[3.0, 4.0]` là `sqrt(3**2 + 4**2) = sqrt(25) = 5.0`."
+
+  - id: p5-01-q03
+    type: output
+    tags: [ml-math, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      a = np.array([2.0, 3.0, 4.0])
+      b = np.array([1.0, 0.5, 2.0])
+      print(round(float(a @ b), 3))
+    answer: "11.5"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`a @ b` multiplies matching pairs and sums them: `2.0*1.0 + 3.0*0.5 + 4.0*2.0 = 2.0 + 1.5 + 8.0 = 11.5`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`a @ b` nhân từng cặp tương ứng rồi cộng lại: `2.0*1.0 + 3.0*0.5 + 4.0*2.0 = 2.0 + 1.5 + 8.0 = 11.5`."
+
+  - id: p5-01-q04
+    type: fill
+    tags: [ml-math, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      features = np.array([10.0, 2.0])
+      weights = np.array([0.5, 1.5])
+      score = features ___ weights
+      print(round(float(score), 3))
+    answer: ["@"]
+    en:
+      prompt: "Fill in the operator that computes the dot product of `features` and `weights`."
+      explanation: "In NumPy, `@` computes the dot product (`10.0*0.5 + 2.0*1.5 = 8.0`), whereas `*` would multiply element by element and return an array."
+    vi:
+      prompt: "Điền toán tử dùng để tính tích vô hướng giữa `features` và `weights`."
+      explanation: "Trong NumPy, `@` tính tích vô hướng (`10.0*0.5 + 2.0*1.5 = 8.0`), còn `*` sẽ nhân từng phần tử và trả về một mảng."
+
+  - id: p5-01-q05
+    type: mcq
+    tags: [ml-math]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Why does mean squared error (`MSE`) square `(pred - y)` instead of just averaging `pred - y`?"
+      options:
+        - "Because NumPy cannot compute the mean of negative numbers"
+        - "So positive and negative errors do not cancel out, and larger misses are penalised more"
+        - "Because squaring converts the answer into a Python `float`"
+        - "So the learning rate can be set above `1.0`"
+      explanation: "If one prediction is `+5` too high and another is `-5` too low, their raw average is `0`. Squaring makes every error non-negative and amplifies large mistakes."
+    vi:
+      prompt: "Vì sao mean squared error (`MSE`) bình phương `(pred - y)` thay vì lấy trung bình trực tiếp của `pred - y`?"
+      options:
+        - "Vì NumPy không tính được trung bình của số âm"
+        - "Để sai số âm và dương không triệt tiêu nhau, đồng thời phạt sai lệch lớn nặng hơn"
+        - "Vì bình phương giúp đổi kết quả thành `float` Python"
+        - "Để có thể đặt learning rate lớn hơn `1.0`"
+      explanation: "Nếu một dự đoán cao hơn `+5` và một dự đoán thấp hơn `-5`, trung bình thô sẽ bằng `0`. Bình phương khiến mọi sai số không âm và phạt nặng các lỗi lớn."
+
+  - id: p5-01-q06
+    type: mcq
+    tags: [ml-math, numpy]
+    difficulty: 2
+    answer: 2
+    code: |
+      import numpy as np
+      a = np.array([1.0, 2.0, 3.0])
+      b = np.array([4.0, 5.0])
+      np.dot(a, b)
+    en:
+      prompt: "What happens when you run this code?"
+      options:
+        - "It returns `14.0` using only the first two elements"
+        - "It pads `b` with `0.0` and returns `14.0`"
+        - "It raises a `ValueError` because the vector lengths do not match"
+        - "It returns `np.array([4.0, 10.0])`"
+      explanation: "`np.dot` pairs elements one by one, so vectors of lengths `3` and `2` cannot align and raise `ValueError`."
+    vi:
+      prompt: "Điều gì xảy ra khi bạn chạy đoạn code này?"
+      options:
+        - "Trả về `14.0` bằng cách chỉ lấy hai phần tử đầu"
+        - "Tự đệm `0.0` vào `b` và trả về `14.0`"
+        - "Gây lỗi `ValueError` vì độ dài hai vector không khớp"
+        - "Trả về `np.array([4.0, 10.0])`"
+      explanation: "`np.dot` ghép từng cặp phần tử tương ứng, nên hai vector dài `3` và `2` không khớp chiều nhau và gây lỗi `ValueError`."
+
+  - id: p5-01-q07
+    type: fill
+    tags: [ml-math, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      pred = np.array([2.0, 4.0, 6.0])
+      y = np.array([1.0, 4.0, 8.0])
+      loss = np.mean((pred - y) ___ 2)
+      print(round(float(loss), 3))
+    answer: ["**"]
+    en:
+      prompt: "Fill in the blank to compute the mean squared error (`MSE`) between `pred` and `y`."
+      explanation: "Squaring each error in Python and NumPy uses `** 2`. Here `(1^2 + 0^2 + (-2)^2) / 3 = 5 / 3 = 1.667`."
+    vi:
+      prompt: "Điền vào chỗ trống để tính mean squared error (`MSE`) giữa `pred` và `y`."
+      explanation: "Bình phương từng sai số trong Python và NumPy dùng `** 2`. Ở đây `(1^2 + 0^2 + (-2)^2) / 3 = 5 / 3 = 1.667`."
+
+  - id: p5-01-q08
+    type: output
+    tags: [ml-math, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      pred = np.array([2.0, 5.0])
+      y = np.array([1.0, 3.0])
+      loss = np.mean((pred - y) ** 2)
+      print(round(float(loss), 3))
+    answer: "2.5"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Errors are `pred - y = [1.0, 2.0]`. Squaring gives `[1.0, 4.0]`, and the mean is `(1.0 + 4.0) / 2 = 2.5`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Sai số là `pred - y = [1.0, 2.0]`. Bình phương được `[1.0, 4.0]`, trung bình là `(1.0 + 4.0) / 2 = 2.5`."
+
+  - id: p5-01-q09
+    type: mcq
+    tags: [ml-math]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "At your current weight `w = 3.5`, the estimated slope of the loss curve is `+22.5`. Which way should gradient descent move `w`?"
+      options:
+        - "Keep `w` unchanged because the slope is not zero"
+        - "Increase `w` by adding `lr * 22.5`"
+        - "Multiply `w` by `22.5`"
+        - "Decrease `w` by subtracting `lr * 22.5`"
+      explanation: "A positive slope means the loss rises as `w` increases, so to go downhill you move `w` left by subtracting `lr * slope`."
+    vi:
+      prompt: "Tại trọng số hiện tại `w = 3.5`, độ dốc ước lượng của đường loss là `+22.5`. Gradient descent cần dịch chuyển `w` theo hướng nào?"
+      options:
+        - "Giữ nguyên `w` vì độ dốc khác 0"
+        - "Tăng `w` bằng cách cộng thêm `lr * 22.5`"
+        - "Nhân `w` với `22.5`"
+        - "Giảm `w` bằng cách trừ đi `lr * 22.5`"
+      explanation: "Độ dốc dương nghĩa là loss tăng khi `w` tăng, nên muốn đi xuống dốc bạn phải giảm `w` bằng phép trừ `w - lr * slope`."
+
+  - id: p5-01-q10
+    type: fill
+    tags: [ml-math]
+    difficulty: 2
+    code: |
+      w = 3.0
+      lr = 0.1
+      slope = 4.0
+      w = w ___ lr * slope
+      print(round(w, 3))
+    answer: ["-"]
+    en:
+      prompt: "Fill in the operator so `w` takes one gradient descent step downhill."
+      explanation: "Gradient descent steps opposite to the slope (`w = w - lr * slope`), giving `3.0 - 0.1 * 4.0 = 2.6`."
+    vi:
+      prompt: "Điền toán tử để `w` thực hiện một bước gradient descent đi xuống dốc."
+      explanation: "Gradient descent bước ngược chiều độ dốc (`w = w - lr * slope`), cho ra `3.0 - 0.1 * 4.0 = 2.6`."
+
+  - id: p5-01-q11
+    type: parsons
+    tags: [ml-math, numpy]
+    difficulty: 2
+    lines:
+      - "import numpy as np"
+      - "x = np.array([1.0, 2.0])"
+      - "pred = 2.0 * x + 1.0"
+      - "loss = np.mean((pred - np.array([3.0, 4.0])) ** 2)"
+      - "print(round(float(loss), 3))"
+    en:
+      prompt: "Arrange these lines in order to compute and print the MSE loss of `y = 2x + 1` against targets `[3.0, 4.0]`."
+      explanation: "Import NumPy first, define `x`, compute `pred` using `x`, compute `loss` using `pred`, and print the rounded result last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tính và in MSE loss của `y = 2x + 1` so với giá trị đúng `[3.0, 4.0]`."
+      explanation: "Import NumPy trước, tạo `x`, tính `pred` từ `x`, tính `loss` từ `pred`, rồi cuối cùng in kết quả đã làm tròn."
+
+  - id: p5-01-q12
+    type: parsons
+    tags: [ml-math, numpy]
+    difficulty: 2
+    lines:
+      - "import numpy as np"
+      - "a = np.array([3.0, 4.0])"
+      - "b = a + np.array([0.0, 4.0])"
+      - "sim = (a @ b) / (np.linalg.norm(a) * np.linalg.norm(b))"
+      - "print(round(float(sim), 3))"
+    en:
+      prompt: "Arrange these lines in order to build `b` from `a` and print their cosine similarity."
+      explanation: "Import NumPy, define `a`, build `b` from `a`, compute `sim` from both vectors, and print the rounded result."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo `b` từ `a` và in ra cosine similarity giữa hai vector."
+      explanation: "Import NumPy, định nghĩa `a`, tạo `b` từ `a`, tính `sim` từ cả hai vector rồi in kết quả đã làm tròn."
+
+  - id: p5-01-q13
+    type: output
+    tags: [ml-math, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      a = np.array([1.0, 0.0])
+      b = np.array([0.0, 5.0])
+      sim = (a @ b) / (np.linalg.norm(a) * np.linalg.norm(b))
+      print(round(float(sim), 3))
+    answer: "0.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The two vectors are perpendicular (`1.0*0.0 + 0.0*5.0 = 0.0`), so their dot product and cosine similarity are both `0.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Hai vector vuông góc với nhau (`1.0*0.0 + 0.0*5.0 = 0.0`), nên cả tích vô hướng lẫn cosine similarity đều bằng `0.0`."
+
+  - id: p5-01-q14
+    type: fill
+    tags: [ml-math, numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      a = np.array([3.0, 4.0])
+      b = np.array([6.0, 8.0])
+      sim = (a @ b) / (np.linalg.___(a) * np.linalg.___(b))
+      print(round(float(sim), 3))
+    answer: ["norm", "norm"]
+    en:
+      prompt: "Fill in both blanks to finish the cosine similarity formula."
+      explanation: "Cosine similarity divides the dot product `a @ b` by the product of both vector lengths: `np.linalg.norm(a) * np.linalg.norm(b)`."
+    vi:
+      prompt: "Điền vào hai chỗ trống để hoàn thiện công thức cosine similarity."
+      explanation: "Cosine similarity chia tích vô hướng `a @ b` cho tích độ dài hai vector: `np.linalg.norm(a) * np.linalg.norm(b)`."
+
+  - id: p5-01-q15
+    type: mcq
+    tags: [ml-math]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "You run gradient descent for 20 steps and watch the MSE loss jump from `30` to `226`, then `1715`, then `12975`. What is the most likely fix?"
+      options:
+        - "Double the learning rate so it reaches zero faster"
+        - "Cut the learning rate down (for example by half or `10x`) because steps are overshooting the valley"
+        - "Change `w - lr * slope` to `w + lr * slope`"
+        - "Replace `np.mean` with `np.sum` in the loss"
+      explanation: "Exploding loss usually means the learning rate `lr` is too large, causing each step to overshoot to a steeper wall on the other side."
+    vi:
+      prompt: "Bạn chạy gradient descent 20 bước và thấy MSE loss nhảy từ `30` lên `226`, rồi `1715`, rồi `12975`. Cách sửa hợp lý nhất là gì?"
+      options:
+        - "Tăng gấp đôi learning rate để chạm đáy nhanh hơn"
+        - "Giảm learning rate xuống (ví dụ chia đôi hoặc giảm 10 lần) vì bước đi đang vọt lố qua đáy thung lũng"
+        - "Đổi `w - lr * slope` thành `w + lr * slope`"
+        - "Thay `np.mean` bằng `np.sum` trong hàm loss"
+      explanation: "Loss phình to liên tục thường do `learning rate` quá lớn, khiến mỗi bước nhảy vọt qua đáy sang sườn dốc cao hơn ở bên kia."
+
+  - id: p5-01-q16
+    type: parsons
+    tags: [ml-math, numpy]
+    difficulty: 3
+    lines:
+      - "import numpy as np"
+      - "xs = np.array([1.0, 2.0])"
+      - "ys = 2.0 * xs + 1.0"
+      - "error = (0.0 * xs + 1.0) - ys"
+      - "grad_w = float(np.mean(2 * error * xs))"
+      - "w = 0.0 - 0.1 * grad_w"
+      - "print(round(w, 3))"
+    en:
+      prompt: "Arrange these lines in order to perform and print one gradient descent update on `w` starting from `0.0` (with `lr = 0.1`)."
+      explanation: "Import NumPy, define `xs`, compute `ys` from `xs`, compute `error` from `ys`, compute `grad_w` from `error`, update `w` from `0.0`, and print `w`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để thực hiện và in ra một bước cập nhật gradient descent cho `w` bắt đầu từ `0.0` (với `lr = 0.1`)."
+      explanation: "Import NumPy, tạo `xs`, tính `ys` từ `xs`, tính `error` từ `ys`, tính `grad_w` từ `error`, cập nhật `w` từ `0.0` rồi in `w`."
+
+flashcards:
+  - id: p5-01-f01
+    tags: [ml-math]
+    code: |
+      import numpy as np
+      request = np.array([320.0, 1.4, 5.0])
+    en:
+      front: "What is a vector in machine learning?"
+      back: "An ordered list of numbers representing one item's features or embedding — stored in Python as a 1D NumPy array."
+    vi:
+      front: "Vector trong machine learning là gì?"
+      back: "Danh sách số có thứ tự mô tả các feature hoặc embedding của một đối tượng — trong Python thường lưu bằng mảng NumPy 1 chiều."
+
+  - id: p5-01-f02
+    tags: [ml-math, numpy]
+    code: |
+      np.linalg.norm(np.array([3.0, 4.0]))  # 5.0
+    en:
+      front: "How do you compute a vector's length in NumPy?"
+      back: "`np.linalg.norm(v)`, which computes `sqrt(sum(v ** 2))` — the straight-line distance from `(0, 0)` to the tip of the arrow."
+    vi:
+      front: "Tính độ dài của một vector trong NumPy bằng cách nào?"
+      back: "Dùng `np.linalg.norm(v)`, tính `sqrt(sum(v ** 2))` — khoảng cách đường thẳng từ gốc `(0, 0)` đến đầu mũi tên."
+
+  - id: p5-01-f03
+    tags: [ml-math, numpy]
+    code: |
+      prediction = weights @ features + bias
+    en:
+      front: "What does the dot product (`a @ b` or `np.dot(a, b)`) compute?"
+      back: "It multiplies matching elements of two same-length vectors and sums them into one number — used for weighted scores and cosine similarity."
+    vi:
+      front: "Tích vô hướng (`a @ b` hoặc `np.dot(a, b)`) tính gì?"
+      back: "Nhân từng cặp phần tử tương ứng của hai vector cùng độ dài rồi cộng lại thành một số — dùng để tính điểm có trọng số và cosine similarity."
+
+  - id: p5-01-f04
+    tags: [ml-math, numpy]
+    code: |
+      mse = np.mean((pred - y) ** 2)
+    en:
+      front: "Why do we measure error with Mean Squared Error (MSE)?"
+      back: "Squaring keeps positive and negative errors from cancelling out and penalises big misses more heavily, turning overall error into one non-negative loss."
+    vi:
+      front: "Vì sao ta đo sai số bằng Mean Squared Error (MSE)?"
+      back: "Bình phương giúp sai số âm và dương không triệt tiêu nhau và phạt lỗi lớn nặng hơn, gom toàn bộ sai lệch thành một số loss không âm."
+
+  - id: p5-01-f05
+    tags: [ml-math]
+    en:
+      front: "What is a gradient intuitively?"
+      back: "The slope of the loss curve: positive means loss goes up as the weight increases (so move left/decrease), negative means move right/increase."
+    vi:
+      front: "Hiểu trực quan thì gradient là gì?"
+      back: "Độ dốc của đường cong loss: dương nghĩa là loss tăng theo trọng số (cần giảm trọng số), âm nghĩa là cần tăng trọng số."
+
+  - id: p5-01-f06
+    tags: [ml-math]
+    code: |
+      w = w - lr * slope
+    en:
+      front: "What do gradient descent and the learning rate (`lr`) do?"
+      back: "Gradient descent repeats small downhill steps `w = w - lr * slope`; `lr` sets the step size (too small is slow, too large overshoots and explodes)."
+    vi:
+      front: "Gradient descent và learning rate (`lr`) làm gì?"
+      back: "Gradient descent lặp lại các bước xuống dốc `w = w - lr * slope`; `lr` chỉnh độ lớn bước đi (quá nhỏ thì chậm, quá lớn thì vọt lố và bùng nổ)."

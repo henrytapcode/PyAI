@@ -1,0 +1,52 @@
+id: p5-01-ex02
+kind: code
+title:
+  en: "Write: MSE loss and gradient descent for a line"
+  vi: "Viết code: hàm loss MSE và gradient descent cho đường thẳng"
+difficulty: 2
+tags: [ml-math, numpy]
+hints:
+  en:
+    - |
+      This follows §3 (MSE loss) and §5 (gradient descent for `w` and `b`). For `xs = np.array([1.0, 2.0])` and `ys = np.array([3.0, 5.0])`, `mse(2.0, 1.0, xs, ys)` is `0.0` because `2.0 * xs + 1.0` matches `ys` exactly.
+    - |
+      The plan:
+      1. Inside `mse`, compute `pred = w * xs + b` and return `float(np.mean((pred - ys) ** 2))`.
+      2. Inside `fit_line`, start with `w = 0.0` and `b = 0.0`.
+      3. Repeat `steps` times: compute `pred`, then `grad_w` and `grad_b` using the formulas in the prompt, then update `w -= lr * grad_w` and `b -= lr * grad_b`.
+      4. Return `(round(float(w), 3), round(float(b), 3))`.
+    - |
+      The shape for `fit_line`:
+      ```python
+      w, b = 0.0, 0.0
+      for _ in range(steps):
+          pred = ...
+          grad_w = ...
+          grad_b = ...
+          w = w - lr * grad_w
+          b = b - lr * grad_b
+      return (round(float(w), 3), round(float(b), 3))
+      ```
+      Remember to also finish `mse(w, b, xs, ys)` above `fit_line` so both functions return built-in Python floats.
+  vi:
+    - |
+      Bài này đi theo §3 (MSE loss) và §5 (gradient descent cho `w` và `b`). Với `xs = np.array([1.0, 2.0])` và `ys = np.array([3.0, 5.0])`, `mse(2.0, 1.0, xs, ys)` bằng `0.0` vì `2.0 * xs + 1.0` khớp hoàn toàn `ys`.
+    - |
+      Kế hoạch:
+      1. Trong `mse`, tính `pred = w * xs + b` rồi trả về `float(np.mean((pred - ys) ** 2))`.
+      2. Trong `fit_line`, khởi tạo `w = 0.0` và `b = 0.0`.
+      3. Lặp `steps` lần: tính `pred`, rồi tính `grad_w` và `grad_b` theo công thức trong đề, rồi cập nhật `w -= lr * grad_w` và `b -= lr * grad_b`.
+      4. Trả về `(round(float(w), 3), round(float(b), 3))`.
+    - |
+      Hình dạng của `fit_line`:
+      ```python
+      w, b = 0.0, 0.0
+      for _ in range(steps):
+          pred = ...
+          grad_w = ...
+          grad_b = ...
+          w = w - lr * grad_w
+          b = b - lr * grad_b
+      return (round(float(w), 3), round(float(b), 3))
+      ```
+      Đừng quên hoàn thiện cả hàm `mse(w, b, xs, ys)` ở trên để cả hai hàm đều trả về `float` Python.

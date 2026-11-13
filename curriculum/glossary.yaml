@@ -1285,6 +1285,61 @@ terms:
       vi: "Hãy thử prompt tốt hơn hoặc RAG trước; fine-tuning đáng làm khi bạn cần phong cách hay định dạng cố định ở quy mô lớn và có hàng trăm ví dụ tốt."
     related: [training, prompt, dataset]
 
+  - term: dot product
+    vi_term: tích vô hướng (dot product)
+    tags: [ml-math, numpy]
+    en: "Multiplying matching elements of two same-length vectors and adding the products into a single number (`a @ b` or `np.dot(a, b)`)."
+    vi: "Nhân từng cặp phần tử tương ứng của hai vector cùng độ dài rồi cộng tất cả lại thành một con số (`a @ b` hoặc `np.dot(a, b)`)."
+    example: "import numpy as np\na = np.array([2.0, 3.0])\nb = np.array([1.0, 4.0])\na @ b  # 14.0"
+    in_practice:
+      en: "Linear models compute weighted scores as `weights @ features + bias`, and semantic search ranks document embeddings via dot products and cosine similarity."
+      vi: "Mô hình tuyến tính tính điểm có trọng số bằng `weights @ features + bias`, còn tìm kiếm ngữ nghĩa xếp hạng embedding tài liệu qua tích vô hướng và cosine similarity."
+    related: [vector, cosine similarity, embedding]
+
+  - term: loss / mean squared error
+    vi_term: loss / mean squared error (sai số bình phương trung bình)
+    tags: [ml-math, ml]
+    en: "A single number measuring how wrong a model's predictions are; mean squared error (`MSE`) averages `(pred - y) ** 2` so errors do not cancel and large misses cost more."
+    vi: "Một con số đo mức độ sai lệch tổng thể của mô hình; mean squared error (`MSE`) lấy trung bình của `(pred - y) ** 2` để sai số không triệt tiêu nhau và lỗi lớn bị phạt nặng hơn."
+    example: "mse = float(np.mean((pred - y) ** 2))"
+    in_practice:
+      en: "Tracking training and validation loss curves tells you whether a model is actually learning, has converged, or is starting to overfit."
+      vi: "Theo dõi đường cong training loss và validation loss cho biết mô hình có đang học thật không, đã hội tụ chưa hay bắt đầu bị overfitting."
+    related: [gradient, gradient descent, overfitting]
+
+  - term: gradient
+    vi_term: gradient (độ dốc)
+    tags: [ml-math, ml]
+    en: "The slope of the loss curve with respect to a weight: it tells you which direction increases the loss so you can step the opposite way."
+    vi: "Độ dốc của đường cong loss theo một trọng số: nó cho biết đi hướng nào làm loss tăng để bạn bước theo chiều ngược lại."
+    example: "slope = (loss(w + 0.001) - loss(w - 0.001)) / 0.002"
+    in_practice:
+      en: "Deep learning frameworks compute gradients for millions of weights automatically during training so the optimiser knows how to adjust each one."
+      vi: "Các framework deep learning tự động tính gradient cho hàng triệu trọng số trong lúc huấn luyện để trình tối ưu biết cần chỉnh mỗi số theo hướng nào."
+    related: [loss / mean squared error, gradient descent, learning rate]
+
+  - term: gradient descent
+    vi_term: gradient descent (hạ dốc theo gradient)
+    tags: [ml-math, ml]
+    en: "An iterative loop that shrinks loss by repeatedly stepping weights opposite to the gradient: `w = w - lr * slope`."
+    vi: "Vòng lặp giúp giảm dần loss bằng cách liên tục cập nhật trọng số ngược chiều gradient: `w = w - lr * slope`."
+    example: "for _ in range(50):\n    w = w - lr * grad_w\n    b = b - lr * grad_b"
+    in_practice:
+      en: "Almost every machine learning and neural network model learns its weights through some variant of gradient descent."
+      vi: "Hầu hết mọi mô hình machine learning và mạng nơ-ron đều học trọng số thông qua một biến thể nào đó của gradient descent."
+    related: [gradient, learning rate, training]
+
+  - term: learning rate
+    vi_term: learning rate (tốc độ học)
+    tags: [ml-math, ml]
+    en: "The step-size multiplier (`lr`) in gradient descent: too small makes training crawl, while too large overshoots the valley and makes loss explode."
+    vi: "Hệ số quyết định độ lớn mỗi bước đi (`lr`) trong gradient descent: quá nhỏ thì học rất chậm, quá lớn thì vọt lố qua đáy thung lũng và làm loss phình to."
+    example: "w = w - 0.05 * slope  # lr = 0.05"
+    in_practice:
+      en: "Picking a good learning rate is the first hyperparameter check when training or fine-tuning a model: if loss diverges, halve `lr`."
+      vi: "Chọn learning rate phù hợp là bước chỉnh siêu tham số đầu tiên khi huấn luyện hoặc fine-tune mô hình: nếu loss tăng vọt, hãy giảm `lr` đi một nửa."
+    related: [gradient descent, gradient, fine-tuning]
+
   # ---------------------------------------------------------- LLM / GenAI
   - term: LLM
     vi_term: LLM (mô hình ngôn ngữ lớn)

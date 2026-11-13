@@ -1,0 +1,31 @@
+id: p5-01-math-bridge
+phase: p5
+order: 1
+kind: lesson
+title:
+  en: "Math bridge: vectors & gradients"
+  vi: "Cầu nối toán: vector & gradient"
+summary:
+  en: "Build visual intuition for vectors, dot products, MSE loss, gradients, and gradient descent in NumPy without derivative proofs."
+  vi: "Xây dựng trực giác bằng hình ảnh về vector, tích vô hướng, hàm loss MSE, gradient và gradient descent trong NumPy mà không cần chứng minh đạo hàm."
+level: beginner
+tags: [ml-math, numpy]
+prerequisites: [p4-01-numpy, p4-04-matplotlib]
+duration_min: 14
+outcomes:
+  en:
+    - "Vectors and the dot product in NumPy"
+    - "A gradient as the downhill direction"
+    - "Gradient descent on a straight line"
+    - "Tune the learning rate by watching how loss changes"
+  vi:
+    - "Vector và tích vô hướng trong NumPy"
+    - "Gradient là hướng xuống dốc"
+    - "Gradient descent cho một đường thẳng"
+    - "Chọn learning rate bằng cách quan sát sự thay đổi của loss"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "3Blue1Brown: Dot products and duality (Essence of linear algebra)", vi: "3Blue1Brown: Dot products and duality (EN)" }
+    url: "https://www.3blue1brown.com/lessons/dot-products"
+  - title: { en: "Google ML Crash Course: Linear regression — Gradient descent", vi: "Google ML Crash Course: Linear regression — Gradient descent (EN)" }
+    url: "https://developers.google.com/machine-learning/crash-course/linear-regression/gradient-descent"

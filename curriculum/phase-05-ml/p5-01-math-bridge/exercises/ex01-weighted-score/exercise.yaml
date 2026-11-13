@@ -1,0 +1,40 @@
+id: p5-01-ex01
+kind: fill
+title:
+  en: "Fill in: weighted score with dot product"
+  vi: "Điền khuyết: điểm có trọng số bằng tích vô hướng"
+difficulty: 1
+tags: [ml-math, numpy]
+hints:
+  en:
+    - |
+      This uses the dot product from §2. For `features = np.array([2.0, 3.0])`, `weights = np.array([0.5, 1.0])`, and `bias = 0.5`, multiplying pairs and adding gives `2.0*0.5 + 3.0*1.0 = 4.0`, plus `0.5` gives `4.5`.
+    - |
+      The plan:
+      1. Compute the dot product of `features` and `weights` (using `np.dot` or `@`).
+      2. Add `bias` to that dot product.
+      3. Convert the NumPy scalar result into a Python `float` and return it.
+    - |
+      The shape:
+      ```python
+      dot = np.dot(features, ...)
+      total = ...
+      return ...
+      ```
+      Remember that `np.dot(...)` still returns a NumPy scalar, so wrap the final value before returning.
+  vi:
+    - |
+      Bài này dùng tích vô hướng ở §2. Với `features = np.array([2.0, 3.0])`, `weights = np.array([0.5, 1.0])` và `bias = 0.5`, nhân từng cặp rồi cộng lại cho `2.0*0.5 + 3.0*1.0 = 4.0`, cộng thêm `0.5` thành `4.5`.
+    - |
+      Kế hoạch:
+      1. Tính tích vô hướng của `features` và `weights` (dùng `np.dot` hoặc `@`).
+      2. Cộng thêm `bias` vào kết quả vừa tính.
+      3. Đổi scalar NumPy sang `float` chuẩn của Python rồi trả về.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      dot = np.dot(features, ...)
+      total = ...
+      return ...
+      ```
+      Nhớ rằng `np.dot(...)` vẫn trả về một scalar của NumPy, nên cần ép kiểu trước khi `return`.
