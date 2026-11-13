@@ -1,0 +1,344 @@
+questions:
+  - id: p4-02-q01
+    type: mcq
+    tags: [pandas, data]
+    difficulty: 1
+    answer: 1
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({"model": ["gpt-4o", "claude"], "score": [0.9, 0.88]})
+      col = df["score"]
+    en:
+      prompt: "What pandas object type is stored in `col`?"
+      options: ["`DataFrame`", "`Series`", "`ndarray`", "`dict`"]
+      explanation: "A DataFrame is a 2D table, and selecting a single column with `df[\"score\"]` returns a 1D `Series`."
+    vi:
+      prompt: "Biến `col` chứa đối tượng kiểu gì của pandas?"
+      options: ["`DataFrame`", "`Series`", "`ndarray`", "`dict`"]
+      explanation: "DataFrame là bảng 2 chiều, và khi chọn một cột đơn lẻ bằng `df[\"score\"]`, kết quả trả về là một `Series` 1 chiều."
+
+  - id: p4-02-q02
+    type: output
+    tags: [pandas, data]
+    difficulty: 1
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({
+          "model": ["gpt-4o", "claude"],
+          "tokens": [400, 300],
+          "score": [0.9, 0.85],
+      })
+      print(df.shape)
+    answer: "(2, 3)"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`.shape` returns `(rows, columns)`. There are 2 rows (each list has 2 items) and 3 columns (`model`, `tokens`, `score`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`.shape` trả về `(số hàng, số cột)`. Bảng có 2 hàng (mỗi list có 2 phần tử) và 3 cột (`model`, `tokens`, `score`)."
+
+  - id: p4-02-q03
+    type: mcq
+    tags: [pandas, numpy]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "How does a pandas `DataFrame` differ from a 2D NumPy `array`?"
+      options:
+        - "A `DataFrame` gives columns names and lets each column have its own `dtype`, whereas an `array` requires one `dtype` for all elements"
+        - "A `DataFrame` can only store text strings, whereas a NumPy `array` stores numbers"
+        - "A `DataFrame` has no row index, whereas a NumPy `array` labels every row by name"
+        - "A `DataFrame` cannot run vectorised arithmetic like `col * 2`"
+      explanation: "DataFrames are built on NumPy so vectorised math still works, while adding named columns, a row index, and per-column dtypes."
+    vi:
+      prompt: "`DataFrame` của pandas khác gì với `array` 2D của NumPy?"
+      options:
+        - "`DataFrame` đặt tên cho cột và cho phép mỗi cột có `dtype` riêng, còn `array` bắt mọi phần tử dùng chung một `dtype`"
+        - "`DataFrame` chỉ lưu được chuỗi văn bản, còn `array` của NumPy chỉ lưu số"
+        - "`DataFrame` không có chỉ mục hàng, còn `array` của NumPy gắn nhãn tên cho mọi hàng"
+        - "`DataFrame` không chạy được phép tính vector hóa như `col * 2`"
+      explanation: "DataFrame xây trên NumPy nên vẫn tính toán vector hóa được, đồng thời thêm tên cột, index hàng và kiểu dữ liệu riêng cho từng cột."
+
+  - id: p4-02-q04
+    type: fill
+    tags: [pandas, json]
+    difficulty: 1
+    code: |
+      import io
+      import pandas as pd
+
+      text = "model,score\ngpt-4o,0.92\nclaude,0.88"
+      df = pd.___(io.StringIO(text))
+      print(len(df))
+    answer: ["read_csv"]
+    en:
+      prompt: "Fill in the pandas function name that parses the CSV text into a DataFrame."
+      explanation: "`pd.read_csv(...)` reads a CSV file path or file-like object such as `io.StringIO(text)` into a DataFrame."
+    vi:
+      prompt: "Điền tên hàm của pandas để đọc chuỗi CSV thành DataFrame."
+      explanation: "`pd.read_csv(...)` đọc đường dẫn file CSV hoặc đối tượng giả file như `io.StringIO(text)` thành DataFrame."
+
+  - id: p4-02-q05
+    type: output
+    tags: [pandas]
+    difficulty: 1
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({
+          "user": ["an", "binh", "chi"],
+          "rating": [5, 2, 4],
+      })
+      print(len(df))
+    answer: "3"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`len(df)` returns the number of rows in the DataFrame, which is `3`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`len(df)` trả về số hàng của DataFrame, tức là `3`."
+
+  - id: p4-02-q06
+    type: mcq
+    tags: [pandas]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What is the main difference between `df.loc[...]` and `df.iloc[...]`?"
+      options:
+        - "`.loc` only selects columns, whereas `.iloc` only selects rows"
+        - "`.loc` selects by row/column **labels**, whereas `.iloc` selects by 0-based integer **positions**"
+        - "`.loc` modifies the DataFrame in place, whereas `.iloc` returns a read-only view"
+        - "`.loc` works only on string columns, whereas `.iloc` works only on integers"
+      explanation: "Think of `loc` as label-based lookup and `iloc` as integer-position lookup (always counting `0, 1, 2, ...` from the top)."
+    vi:
+      prompt: "Sự khác nhau chính giữa `df.loc[...]` và `df.iloc[...]` là gì?"
+      options:
+        - "`.loc` chỉ chọn được cột, còn `.iloc` chỉ chọn được hàng"
+        - "`.loc` chọn theo **nhãn** hàng/cột, còn `.iloc` chọn theo **vị trí** số nguyên bắt đầu từ `0`"
+        - "`.loc` sửa trực tiếp DataFrame tại chỗ, còn `.iloc` trả về bản chỉ đọc"
+        - "`.loc` chỉ dùng cho cột chuỗi, còn `.iloc` chỉ dùng cho số nguyên"
+      explanation: "Hãy nhớ `loc` tra theo nhãn, còn `iloc` tra theo vị trí số nguyên (luôn đếm `0, 1, 2, ...` từ đầu bảng)."
+
+  - id: p4-02-q07
+    type: output
+    tags: [pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({"score": [0.92, 0.88]}, index=["a", "b"])
+      print(df.loc["b", "score"])
+    answer: "0.88"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`df.loc[\"b\", \"score\"]` looks up row label `\"b\"` and column `\"score\"`, returning `0.88`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`df.loc[\"b\", \"score\"]` tra nhãn hàng `\"b\"` và cột `\"score\"`, trả về `0.88`."
+
+  - id: p4-02-q08
+    type: fill
+    tags: [pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({"model": ["gpt-4o", "llama", "claude"]})
+      picked = df[df["model"].___(["gpt-4o", "claude"])]
+      print(len(picked))
+    answer: ["isin"]
+    en:
+      prompt: "Fill in the Series method that checks whether each row's `model` is in the given list."
+      explanation: "`.isin([...])` returns a boolean Series that is `True` wherever the value matches any item in the list."
+    vi:
+      prompt: "Điền phương thức của Series kiểm tra xem giá trị `model` ở mỗi hàng có nằm trong danh sách cho trước hay không."
+      explanation: "`.isin([...])` trả về một Series boolean mang giá trị `True` tại những hàng khớp với bất kỳ phần tử nào trong danh sách."
+
+  - id: p4-02-q09
+    type: parsons
+    tags: [pandas, booleans]
+    difficulty: 2
+    lines:
+      - "import pandas as pd"
+      - 'df = pd.DataFrame({"model": ["a", "b", "c"], "score": [0.5, 0.9, 0.8]})'
+      - 'high = df[df["score"] >= 0.8]'
+      - 'top = high.sort_values("score", ascending=False)'
+      - 'print(top["model"].tolist())'
+    en:
+      prompt: "Put the lines in order so the program keeps rows with `score >= 0.8`, sorts highest-first, and prints `['b', 'c']`."
+      explanation: "Import pandas, build `df`, filter `high`, sort `high` descending into `top`, and print `top[\"model\"].tolist()`."
+    vi:
+      prompt: "Sắp xếp các dòng để giữ các hàng có `score >= 0.8`, xếp từ cao xuống thấp và in `['b', 'c']`."
+      explanation: "Import pandas, tạo `df`, lọc ra `high`, sắp xếp `high` giảm dần thành `top`, rồi in `top[\"model\"].tolist()`."
+
+  - id: p4-02-q10
+    type: mcq
+    tags: [pandas]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "What does calling `.reset_index(drop=True)` after filtering and sorting a DataFrame do?"
+      options:
+        - "Renumbers the row index to `0, 1, 2, ...` and discards the old index labels"
+        - "Deletes the first column of the DataFrame"
+        - "Sorts the DataFrame rows back into their original order"
+        - "Removes duplicate rows from the DataFrame"
+      explanation: "`.reset_index(drop=True)` builds a clean `0, 1, 2, ...` index and uses `drop=True` so the old index is thrown away instead of becoming a new column."
+    vi:
+      prompt: "Gọi `.reset_index(drop=True)` sau khi lọc và sắp xếp DataFrame có tác dụng gì?"
+      options:
+        - "Đánh lại index hàng thành `0, 1, 2, ...` và bỏ luôn nhãn index cũ"
+        - "Xóa cột đầu tiên của DataFrame"
+        - "Sắp xếp lại các hàng DataFrame về thứ tự ban đầu"
+        - "Loại bỏ các hàng bị trùng lặp khỏi DataFrame"
+      explanation: "`.reset_index(drop=True)` tạo lại index sạch từ `0, 1, 2, ...` và dùng `drop=True` để bỏ index cũ thay vì thêm nó thành một cột mới."
+
+  - id: p4-02-q11
+    type: output
+    tags: [pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({"tokens": [100, 250]})
+      df["cost"] = (df["tokens"] * 0.002).round(2)
+      print(df["cost"].tolist())
+    answer: "[0.2, 0.5]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Multiplying `df[\"tokens\"]` by `0.002` gives `[0.2, 0.5]`, and `.round(2)` keeps 2 decimal places."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Nhân `df[\"tokens\"]` với `0.002` cho `[0.2, 0.5]`, và `.round(2)` làm tròn tới 2 chữ số thập phân."
+
+  - id: p4-02-q12
+    type: fill
+    tags: [pandas, booleans]
+    difficulty: 2
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({"a": [1, 3, 5], "b": [2, 4, 6]})
+      res = df[(df["a"] > 1) ___ (df["b"] < 5)]
+      print(len(res))
+    answer: ["&"]
+    en:
+      prompt: "Fill in the operator to keep rows where `a > 1` and `b < 5` are both true."
+      explanation: "pandas uses `&` (with parentheses around each comparison) for element-wise 'and', not the Python keyword `and`."
+    vi:
+      prompt: "Điền toán tử để giữ những hàng thỏa đồng thời `a > 1` và `b < 5`."
+      explanation: "pandas dùng `&` (kèm ngoặc đơn quanh mỗi phép so sánh) cho phép 'và' theo từng phần tử, không dùng từ khóa `and` của Python."
+
+  - id: p4-02-q13
+    type: parsons
+    tags: [pandas, data]
+    difficulty: 2
+    lines:
+      - "import pandas as pd"
+      - 'df = pd.DataFrame({"model": ["a", "b", "a"], "score": [0.8, 0.7, 0.9]})'
+      - 'means = df.groupby("model")["score"].mean()'
+      - 'print(round(float(means["a"]), 2))'
+    en:
+      prompt: "Put the lines in order to group by `\"model\"`, compute mean scores, and print model `\"a\"`'s mean (`0.85`)."
+      explanation: "Import pandas, create `df`, compute group means into `means`, and print `round(float(means[\"a\"]), 2)`."
+    vi:
+      prompt: "Sắp xếp các dòng để gom nhóm theo `\"model\"`, tính điểm trung bình và in kết quả của model `\"a\"` (`0.85`)."
+      explanation: "Import pandas, tạo `df`, tính trung bình theo nhóm vào `means`, rồi in `round(float(means[\"a\"]), 2)`."
+
+  - id: p4-02-q14
+    type: mcq
+    tags: [pandas, debugging]
+    difficulty: 3
+    answer: 0
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({"x": [1, -2, 3], "y": [0, 0, 0]})
+      df[df["x"] > 0]["y"] = 1
+    en:
+      prompt: "Why does `df[df[\"x\"] > 0][\"y\"] = 1` trigger a warning and leave `df` unchanged?"
+      options:
+        - "Chained indexing writes to a temporary copy instead of `df`; fix it with `df.loc[df[\"x\"] > 0, \"y\"] = 1`"
+        - "pandas does not allow updating integer columns to `1`"
+        - "`df[\"x\"] > 0` must be wrapped in `list(...)` before indexing"
+        - "Assigning to a column requires `.reset_index(drop=True)` first"
+      explanation: "Writing two `[...]` operations in a row creates a copy in the first step, so `[\"y\"] = 1` edits the copy and leaves `df` untouched. Use single-step `df.loc[mask, \"y\"] = 1`."
+    vi:
+      prompt: "Vì sao `df[df[\"x\"] > 0][\"y\"] = 1` gây cảnh báo và không làm thay đổi `df`?"
+      options:
+        - "Chained indexing ghi vào một bản sao tạm thay vì `df`; sửa bằng `df.loc[df[\"x\"] > 0, \"y\"] = 1`"
+        - "pandas không cho phép cập nhật cột số nguyên thành `1`"
+        - "Phải bọc `df[\"x\"] > 0` trong `list(...)` trước khi lập chỉ mục"
+        - "Gán giá trị vào cột bắt buộc phải gọi `.reset_index(drop=True)` trước"
+      explanation: "Viết hai cặp `[...]` nối tiếp tạo ra bản sao ở bước đầu, nên `[\"y\"] = 1` chỉ sửa bản sao đó và bỏ mặc `df`. Hãy dùng `df.loc[mask, \"y\"] = 1` trong một bước."
+
+  - id: p4-02-q15
+    type: mcq
+    tags: [pandas, exceptions]
+    difficulty: 3
+    answer: 2
+    code: |
+      import pandas as pd
+      df = pd.DataFrame({"model": ["a", "b", "c"], "score": [0.4, 0.9, 0.8]})
+      high = df[df["score"] >= 0.8]
+      print(high.loc[0, "model"])
+    en:
+      prompt: "Why does `high.loc[0, \"model\"]` raise `KeyError: 0`?"
+      options:
+        - "`loc` does not accept column names as the second argument"
+        - "The `model` column was dropped when filtering `df`"
+        - "Filtering kept the original row labels `[1, 2]`, so label `0` is no longer in `high.index`"
+        - "`0` is reserved for column positions, not row positions"
+      explanation: "Boolean filtering preserves original index labels (`1` and `2`), dropping row `0`. Because `.loc` looks up by label, `0` raises `KeyError`. Use `.iloc[0]` or `.reset_index(drop=True)`."
+    vi:
+      prompt: "Vì sao `high.loc[0, \"model\"]` gây lỗi `KeyError: 0`?"
+      options:
+        - "`.loc` không nhận tên cột làm đối số thứ hai"
+        - "Cột `model` đã bị xóa khi lọc `df`"
+        - "Phép lọc giữ nguyên nhãn hàng gốc `[1, 2]`, nên nhãn `0` không còn trong `high.index`"
+        - "`0` chỉ dùng cho vị trí cột, không dùng cho hàng"
+      explanation: "Lọc boolean giữ nguyên nhãn index gốc (`1` và `2`) và bỏ hàng `0`. Vì `.loc` tra theo nhãn nên `0` gây `KeyError`. Hãy dùng `.iloc[0]` hoặc `.reset_index(drop=True)`."
+
+  - id: p4-02-q16
+    type: parsons
+    tags: [pandas, debugging]
+    difficulty: 3
+    lines:
+      - "import pandas as pd"
+      - 'df = pd.DataFrame({"score": [0.4, 0.9], "tier": ["low", "low"]})'
+      - 'mask = df["score"] >= 0.8'
+      - 'df.loc[mask, "tier"] = "high"'
+      - 'print(df["tier"].tolist())'
+    en:
+      prompt: "Put the lines in order to safely update `tier` to `\"high\"` where `score >= 0.8`, printing `['low', 'high']`."
+      explanation: "Import pandas, create `df`, build `mask`, assign through `df.loc[mask, \"tier\"] = \"high\"` (avoiding chained indexing), and print `df[\"tier\"].tolist()`."
+    vi:
+      prompt: "Sắp xếp các dòng để cập nhật an toàn cột `tier` thành `\"high\"` ở những hàng có `score >= 0.8` và in `['low', 'high']`."
+      explanation: "Import pandas, tạo `df`, tạo `mask`, gán bằng `df.loc[mask, \"tier\"] = \"high\"` (tránh chained indexing), rồi in `df[\"tier\"].tolist()`."
+
+flashcards:
+  - id: p4-02-f01
+    tags: [pandas]
+    code: 'df["score"]  # Series vs DataFrame'
+    en: { front: "How are a `DataFrame` and a `Series` related?", back: "A `DataFrame` is a 2D labelled table of rows and columns; a single column (like `df[\"score\"]`) is a 1D `Series` sharing the same row index." }
+    vi: { front: "`DataFrame` và `Series` liên quan với nhau thế nào?", back: "`DataFrame` là bảng 2 chiều có nhãn hàng và cột; một cột đơn lẻ (như `df[\"score\"]`) là một `Series` 1 chiều dùng chung index hàng." }
+  - id: p4-02-f02
+    tags: [pandas, json]
+    code: "pd.read_csv(io.StringIO(text))"
+    en: { front: "Why wrap a CSV string in `io.StringIO(text)` before passing it to `pd.read_csv`?", back: "`io.StringIO` turns an in-memory string into a file-like object so `pd.read_csv` can parse it without an external file on disk." }
+    vi: { front: "Vì sao bọc chuỗi CSV trong `io.StringIO(text)` trước khi truyền vào `pd.read_csv`?", back: "`io.StringIO` biến chuỗi trong bộ nhớ thành đối tượng giả file để `pd.read_csv` đọc được mà không cần file thật trên ổ đĩa." }
+  - id: p4-02-f03
+    tags: [pandas]
+    code: 'df.loc["r2"] vs df.iloc[1]'
+    en: { front: "When do you use `.loc` versus `.iloc`?", back: "Use `.loc[...]` to select by row/column **labels** (index names and column names), and `.iloc[...]` to select by 0-based integer **positions**." }
+    vi: { front: "Khi nào dùng `.loc` và khi nào dùng `.iloc`?", back: "Dùng `.loc[...]` để chọn theo **nhãn** hàng/cột (tên index và tên cột), còn `.iloc[...]` chọn theo **vị trí** số nguyên đếm từ `0`." }
+  - id: p4-02-f04
+    tags: [pandas]
+    code: 'df.sort_values("score", ascending=False).reset_index(drop=True)'
+    en: { front: "What does `.reset_index(drop=True)` do after filtering or sorting?", back: "It renumbers row labels to `0, 1, 2, ...` and drops the old index instead of inserting it as an extra column." }
+    vi: { front: "`.reset_index(drop=True)` làm gì sau khi lọc hoặc sắp xếp?", back: "Nó đánh lại nhãn hàng thành `0, 1, 2, ...` và vứt bỏ index cũ thay vì chèn thành một cột thừa." }
+  - id: p4-02-f05
+    tags: [pandas, data]
+    code: 'df.groupby("model")["score"].agg(["mean", "count"])'
+    en: { front: "What are the three steps of `groupby`?", back: "**Split** rows into groups by key, **apply** an aggregation (like `mean` or `count`) to each group, and **combine** the results into one table." }
+    vi: { front: "Ba bước của `groupby` là gì?", back: "**Split** (tách) hàng theo khóa nhóm, **apply** (áp dụng) phép tổng hợp như `mean`/`count` lên từng nhóm, và **combine** (ghép) thành một bảng kết quả." }
+  - id: p4-02-f06
+    tags: [pandas, debugging]
+    code: 'df.loc[df["x"] > 0, "y"] = 1'
+    en: { front: "Why should you assign to filtered rows with `df.loc[mask, \"col\"] = value` instead of `df[mask][\"col\"] = value`?", back: "Chained indexing (`df[mask][\"col\"] = ...`) updates a temporary copy and triggers `SettingWithCopyWarning`, leaving `df` unchanged. Single-step `.loc` modifies `df` directly." }
+    vi: { front: "Vì sao nên gán vào hàng đã lọc bằng `df.loc[mask, \"col\"] = value` thay vì `df[mask][\"col\"] = value`?", back: "Chained indexing (`df[mask][\"col\"] = ...`) sửa trên bản sao tạm và bật `SettingWithCopyWarning`, khiến `df` không đổi. Dùng `.loc` một bước sẽ sửa thẳng `df`." }

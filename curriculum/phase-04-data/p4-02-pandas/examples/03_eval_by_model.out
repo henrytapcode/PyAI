@@ -1,0 +1,6 @@
+        mean  count
+model              
+claude  0.91      2
+gpt-4o  0.90      2
+llama   0.78      2
+Best model: claude 0.91

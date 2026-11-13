@@ -1097,6 +1097,39 @@ terms:
       vi: "Bạn nạp CSV vào DataFrame để khám phá, làm sạch và tính thống kê trước khi huấn luyện hay đánh giá."
     related: [CSV, dataset, array]
 
+  - term: Series
+    vi_term: Series (cột dữ liệu)
+    tags: [pandas, data]
+    en: "A one-dimensional labelled column (or row) in pandas, built on top of a NumPy array with an index."
+    vi: "Một cột (hoặc hàng) dữ liệu một chiều có nhãn trong pandas, xây trên mảng NumPy và đi kèm index."
+    example: "import pandas as pd\ndf = pd.DataFrame({\"score\": [0.9, 0.8]})\ns = df[\"score\"]  # Series"
+    in_practice:
+      en: "Every single column you pull out of a DataFrame (df[\"latency\"]) is a Series, so you can call .mean(), .round() or boolean comparisons directly on it."
+      vi: "Mỗi cột bạn rút ra từ DataFrame (df[\"latency\"]) là một Series, nên bạn gọi thẳng .mean(), .round() hay phép so sánh boolean trên nó."
+    related: [DataFrame, index, array]
+
+  - term: groupby
+    vi_term: groupby (gom nhóm)
+    tags: [pandas, data]
+    en: "A pandas operation that splits a DataFrame into groups by a column's values, applies a summary function to each group, and combines the results."
+    vi: "Thao tác trong pandas tách DataFrame thành từng nhóm theo giá trị của một cột, áp dụng hàm tổng hợp cho mỗi nhóm rồi ghép kết quả lại."
+    example: "df.groupby(\"model\")[\"score\"].mean()"
+    in_practice:
+      en: "You use groupby to compare evaluation scores, error rates or token costs across models, prompts or dates in one line."
+      vi: "Bạn dùng groupby để so sánh điểm eval, tỷ lệ lỗi hay chi phí token giữa các mô hình, prompt hoặc ngày chỉ trong một dòng."
+    related: [DataFrame, aggregation, Series]
+
+  - term: aggregation
+    vi_term: aggregation (tổng hợp dữ liệu)
+    tags: [pandas, data]
+    en: "Combining many values into a single summary value, such as mean, sum, count, min or max."
+    vi: "Gộp nhiều giá trị thành một con số tóm tắt duy nhất, như mean, sum, count, min hoặc max."
+    example: "df.groupby(\"model\")[\"score\"].agg([\"mean\", \"count\"])"
+    in_practice:
+      en: "Aggregations turn thousands of raw chatbot logs or eval rows into a small table of averages and totals you can actually read and act on."
+      vi: "Phép tổng hợp biến hàng nghìn dòng log chatbot hoặc kết quả eval thành một bảng nhỏ gồm trung bình và tổng số để bạn đọc và ra quyết định."
+    related: [groupby, DataFrame, Series]
+
   - term: vector
     vi_term: vector
     tags: [data]

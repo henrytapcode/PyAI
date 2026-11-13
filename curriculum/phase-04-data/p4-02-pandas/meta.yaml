@@ -1,0 +1,31 @@
+id: p4-02-pandas
+phase: p4
+order: 2
+kind: lesson
+title:
+  en: "Pandas DataFrames"
+  vi: "DataFrame với Pandas"
+summary:
+  en: "Load tabular data into DataFrames, select with loc and iloc, filter and sort rows, compute new columns, and summarise groups with groupby."
+  vi: "Đưa dữ liệu dạng bảng vào DataFrame, chọn dữ liệu với loc và iloc, lọc và sắp xếp hàng, tính cột mới và tổng hợp theo nhóm bằng groupby."
+level: beginner
+tags: [pandas, data]
+prerequisites: [p4-01-numpy, p1-09-files]
+duration_min: 11
+outcomes:
+  en:
+    - "Build a DataFrame from dicts and CSV"
+    - "Select rows and columns with loc and filters"
+    - "Group and aggregate with groupby"
+    - "Add vectorised columns and avoid chained-indexing bugs"
+  vi:
+    - "Tạo DataFrame từ dict và CSV"
+    - "Chọn hàng, cột bằng loc và bộ lọc"
+    - "Gom nhóm và tổng hợp bằng groupby"
+    - "Thêm cột vector hóa và tránh lỗi chained indexing"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "10 minutes to pandas", vi: "10 minutes to pandas (EN)" }
+    url: "https://pandas.pydata.org/docs/user_guide/10min.html"
+  - title: { en: "Group by: split-apply-combine", vi: "Group by: split-apply-combine (EN)" }
+    url: "https://pandas.pydata.org/docs/user_guide/groupby.html"

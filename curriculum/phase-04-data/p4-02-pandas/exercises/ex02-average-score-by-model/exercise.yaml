@@ -1,0 +1,40 @@
+id: p4-02-ex02
+kind: code
+title:
+  en: "Average score by model"
+  vi: "Điểm trung bình theo mô hình"
+difficulty: 2
+tags: [pandas, data]
+hints:
+  en:
+    - |
+      This combines boolean filtering from §4 with `.groupby()` from §6. For rows `[{"model": "a", "status": "ok", "score": 0.8}, {"model": "a", "status": "ok", "score": 0.9}, {"model": "b", "status": "error", "score": 0.0}]`, return `{"a": 0.85}` (`"b"` is omitted because it has no `"ok"` rows).
+    - |
+      The plan:
+      1. Filter `df` to keep only rows where `status == "ok"`.
+      2. Group the filtered rows by `"model"` and compute the `.mean()` of `"score"`.
+      3. Convert each entry into a plain Python `dict` with `round(float(val), 2)`.
+    - |
+      Structure of the solution:
+      ```python
+      ok_df = df[df["status"] == ...]
+      means = ok_df.groupby(...)["score"].mean()
+      return {str(model): round(float(score), ...) for model, score in means.items()}
+      ```
+      Fill in the status string, grouping column name, and decimal places.
+  vi:
+    - |
+      Bài này kết hợp lọc boolean ở §4 và `.groupby()` ở §6. Với các hàng `[{"model": "a", "status": "ok", "score": 0.8}, {"model": "a", "status": "ok", "score": 0.9}, {"model": "b", "status": "error", "score": 0.0}]`, cần trả về `{"a": 0.85}` (không có `"b"` vì không có hàng `"ok"` nào).
+    - |
+      Kế hoạch:
+      1. Lọc `df` để chỉ giữ các hàng có `status == "ok"`.
+      2. Gom nhóm các hàng đã lọc theo `"model"` và tính `.mean()` của `"score"`.
+      3. Đưa kết quả vào `dict` Python thuần với giá trị `round(float(val), 2)`.
+    - |
+      Khung của lời giải:
+      ```python
+      ok_df = df[df["status"] == ...]
+      means = ok_df.groupby(...)["score"].mean()
+      return {str(model): round(float(score), ...) for model, score in means.items()}
+      ```
+      Hãy điền chuỗi trạng thái, tên cột gom nhóm và số chữ số thập phân.

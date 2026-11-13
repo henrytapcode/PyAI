@@ -1,0 +1,6 @@
+Top 3 most expensive calls:
+    model  total_tokens    cost
+0  gpt-4o          2400  0.0048
+1  claude          1800  0.0036
+2  gpt-4o          1200  0.0024
+Total cost: 0.0136

@@ -1,0 +1,38 @@
+id: p4-02-ex01
+kind: debug
+title:
+  en: "Debug: find slow API requests"
+  vi: "Debug: tìm các request API chậm"
+difficulty: 1
+tags: [pandas, debugging]
+hints:
+  en:
+    - |
+      This uses boolean filtering, sorting, and index resetting from §4. With `limit_ms=200`, a request at `200` ms is NOT slow (strictly `>`), and the result should start at index `0` with the slowest request first.
+    - |
+      Find and fix the three bugs:
+      1. Change the filter comparison so latency is strictly greater than `limit_ms` (not `>=`).
+      2. Sort `latency_ms` from highest to lowest using `ascending=False`.
+      3. Reset the row index starting at `0` without keeping the old index column.
+    - |
+      Structure of the fixed pipeline:
+      ```python
+      slow = df.loc[df["latency_ms"] ... limit_ms, ["endpoint", "latency_ms"]]
+      return slow.sort_values("latency_ms", ascending=...).reset_index(drop=...)
+      ```
+      Fill in the strict comparison operator and the two boolean arguments.
+  vi:
+    - |
+      Bài này dùng lọc boolean, sắp xếp và đánh lại index từ §4. Với `limit_ms=200`, request đúng `200` ms KHÔNG bị tính là chậm (phải lớn hơn hẳn `>`), và kết quả phải đánh số từ `0` với request chậm nhất đứng đầu.
+    - |
+      Tìm và sửa ba bug sau:
+      1. Đổi phép so sánh lọc để `latency_ms` lớn hơn hẳn `limit_ms` (không dùng `>=`).
+      2. Sắp xếp `latency_ms` từ cao xuống thấp bằng `ascending=False`.
+      3. Đánh lại index hàng từ `0` và bỏ cột index cũ.
+    - |
+      Khung của lời giải đã sửa:
+      ```python
+      slow = df.loc[df["latency_ms"] ... limit_ms, ["endpoint", "latency_ms"]]
+      return slow.sort_values("latency_ms", ascending=...).reset_index(drop=...)
+      ```
+      Hãy điền toán tử so sánh chặt và hai giá trị boolean còn thiếu.
