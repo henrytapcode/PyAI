@@ -1,0 +1,52 @@
+id: p5-02-ex02
+kind: code
+title:
+  en: "Write: accuracy and best threshold classifier"
+  vi: "Viết code: accuracy và bộ phân loại một ngưỡng tốt nhất"
+difficulty: 2
+tags: [supervised-learning, evaluation, numpy]
+hints:
+  en:
+    - |
+      This builds directly on §2 (`accuracy`) and §3 (`score >= t`). For `scores = np.array([0.2, 0.6, 0.8])` and `labels = np.array([0, 1, 1])`, `t = 0.6` predicts `[0, 1, 1]` and gives `(0.6, 1.0)`.
+    - |
+      The plan:
+      1. In `accuracy(preds, labels)`, return `0.0` when `len(preds) == 0`; otherwise return `float((preds == labels).mean())`.
+      2. In `best_threshold(scores, labels)`, sort the distinct score values with `np.unique(scores)` so you visit thresholds from smallest to largest.
+      3. For each candidate `t`, compute `preds = (scores >= t).astype("int64")` and its `acc = accuracy(preds, labels)`.
+      4. Update `best_t` and `best_acc` only when `acc > best_acc` (strictly greater) so ties keep the smallest `t`, then return `(float(best_t), round(float(best_acc), 3))`.
+    - |
+      The shape for `best_threshold`:
+      ```python
+      best_t = 0.0
+      best_acc = -1.0
+      for t in np.unique(scores):
+          preds = ...
+          acc = ...
+          if acc > best_acc:
+              ...
+      return (float(best_t), round(float(best_acc), 3))
+      ```
+      Remember to also implement `accuracy(preds, labels)` above `best_threshold` and guard against empty arrays.
+  vi:
+    - |
+      Bài này dựa trực tiếp vào §2 (`accuracy`) và §3 (`score >= t`). Với `scores = np.array([0.2, 0.6, 0.8])` và `labels = np.array([0, 1, 1])`, ngưỡng `t = 0.6` đoán `[0, 1, 1]` và trả về `(0.6, 1.0)`.
+    - |
+      Kế hoạch:
+      1. Trong `accuracy(preds, labels)`, trả về `0.0` nếu `len(preds) == 0`; ngược lại trả về `float((preds == labels).mean())`.
+      2. Trong `best_threshold(scores, labels)`, lấy các giá trị điểm khác nhau đã sắp xếp tăng dần bằng `np.unique(scores)`.
+      3. Với mỗi ngưỡng `t`, tính `preds = (scores >= t).astype("int64")` và `acc = accuracy(preds, labels)`.
+      4. Chỉ cập nhật `best_t` và `best_acc` khi `acc > best_acc` (lớn hơn hẳn) để khi hòa sẽ giữ `t` nhỏ nhất, rồi trả về `(float(best_t), round(float(best_acc), 3))`.
+    - |
+      Hình dạng của `best_threshold`:
+      ```python
+      best_t = 0.0
+      best_acc = -1.0
+      for t in np.unique(scores):
+          preds = ...
+          acc = ...
+          if acc > best_acc:
+              ...
+      return (float(best_t), round(float(best_acc), 3))
+      ```
+      Đừng quên viết cả hàm `accuracy(preds, labels)` ở trên và xử lý trường hợp mảng rỗng.

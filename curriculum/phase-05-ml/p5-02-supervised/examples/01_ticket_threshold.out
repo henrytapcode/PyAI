@@ -1,0 +1,6 @@
+threshold=0.25  accuracy=0.75
+threshold=0.40  accuracy=0.75
+threshold=0.55  accuracy=0.917
+threshold=0.70  accuracy=0.75
+threshold=0.85  accuracy=0.583
+Best threshold: 0.55 (accuracy=0.917)

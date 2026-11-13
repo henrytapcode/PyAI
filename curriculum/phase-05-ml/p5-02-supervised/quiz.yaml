@@ -1,0 +1,387 @@
+questions:
+  - id: p5-02-q01
+    type: mcq
+    tags: [supervised-learning, ml]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What makes a machine learning task **supervised**?"
+      options:
+        - "The model writes its own Python code without any data"
+        - "The dataset contains only input features `X` and no target column"
+        - "Each training example comes with a known ground-truth label `y`"
+        - "A human checks every single prediction manually in production"
+      explanation: "Supervised learning learns patterns from historical examples that already have known answers (`y`), such as spam/not-spam labels or measured latency."
+    vi:
+      prompt: "Điều gì làm cho một bài toán machine learning là **học có giám sát (supervised)**?"
+      options:
+        - "Mô hình tự viết code Python mà không cần dữ liệu"
+        - "Bộ dữ liệu chỉ có feature đầu vào `X` mà không có cột đáp án"
+        - "Mỗi ví dụ huấn luyện đều đi kèm nhãn đáp án chuẩn `y` đã biết"
+        - "Con người tự tay kiểm tra từng dự đoán khi chạy ở production"
+      explanation: "Học có giám sát học quy luật từ những ví dụ lịch sử đã có sẵn đáp án đúng (`y`), chẳng hạn nhãn spam/không spam hay độ trễ đã đo."
+
+  - id: p5-02-q02
+    type: output
+    tags: [supervised-learning, evaluation, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      preds = np.array([1, 0, 1, 1, 0])
+      labels = np.array([1, 0, 0, 1, 0])
+      print(round(float((preds == labels).mean()), 3))
+    answer: "0.8"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Four out of five predictions match `labels` (`[True, True, False, True, True]`), so the mean accuracy is `4 / 5 = 0.8`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Có 4 trên 5 dự đoán khớp với `labels` (`[True, True, False, True, True]`), nên accuracy trung bình là `4 / 5 = 0.8`."
+
+  - id: p5-02-q03
+    type: fill
+    tags: [supervised-learning, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      scores = np.array([0.2, 0.5, 0.8])
+      preds = (scores ___ 0.5).astype("int64")
+      print(preds.tolist())
+    answer: [">="]
+    en:
+      prompt: "Fill in the comparison operator for a threshold classifier that predicts `1` whenever `score` is at least `0.5`."
+      explanation: "Predicting `1` when `score` is at least `t` uses `scores >= 0.5`, giving `[0, 1, 1]`."
+    vi:
+      prompt: "Điền toán tử so sánh cho bộ phân loại ngưỡng đoán `1` bất cứ khi nào `score` từ `0.5` trở lên."
+      explanation: "Đoán `1` khi `score` lớn hơn hoặc bằng `t` dùng `scores >= 0.5`, cho kết quả `[0, 1, 1]`."
+
+  - id: p5-02-q04
+    type: mcq
+    tags: [supervised-learning, ml]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which task is an example of **regression** rather than classification?"
+      options:
+        - "Predicting how many seconds an API request will take to respond"
+        - "Tagging a support ticket as `billing`, `bug`, or `feature`"
+        - "Deciding whether an email is `spam` or `not spam`"
+        - "Identifying whether a user prompt is `English` or `Vietnamese`"
+      explanation: "Regression predicts a continuous number (latency in seconds), whereas the other three assign inputs to discrete categories."
+    vi:
+      prompt: "Bài toán nào sau đây là **regression** chứ không phải classification?"
+      options:
+        - "Dự đoán một request API mất bao nhiêu giây để phản hồi"
+        - "Gắn nhãn ticket hỗ trợ thành `billing`, `bug` hoặc `feature`"
+        - "Quyết định một email là `spam` hay `not spam`"
+        - "Nhận diện câu prompt là tiếng Anh hay tiếng Việt"
+      explanation: "Regression dự đoán một con số liên tục (độ trễ tính bằng giây), còn ba bài toán kia đều xếp đầu vào vào các nhóm rời rạc."
+
+  - id: p5-02-q05
+    type: parsons
+    tags: [supervised-learning, numpy]
+    difficulty: 1
+    lines:
+      - "import numpy as np"
+      - "rng = np.random.default_rng(42)"
+      - "idx = rng.permutation(5)"
+      - "print(idx[:2].tolist())"
+    en:
+      prompt: "Arrange these lines in order to create a seeded generator, shuffle indices `0..4`, and print the first two shuffled indices."
+      explanation: "Import NumPy first, create the seeded `rng`, generate the permutation `idx`, and print the sliced list last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo bộ sinh có seed, xáo chỉ số `0..4` rồi in ra hai chỉ số đầu tiên."
+      explanation: "Import NumPy trước, tạo `rng` có seed, sinh hoán vị `idx` rồi cuối cùng cắt và in danh sách."
+
+  - id: p5-02-q06
+    type: output
+    tags: [supervised-learning, evaluation, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      scores = np.array([0.2, 0.4, 0.6, 0.9])
+      y = np.array([0, 1, 0, 1])
+      preds = (scores >= 0.5).astype("int64")
+      print(preds.tolist(), round(float((preds == y).mean()), 3))
+    answer: "[0, 0, 1, 1] 0.5"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`scores >= 0.5` produces `[0, 0, 1, 1]`, which matches `y = [0, 1, 0, 1]` at index `0` and `3` (`2 / 4 = 0.5`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`scores >= 0.5` tạo ra `[0, 0, 1, 1]`, khớp với `y = [0, 1, 0, 1]` tại vị trí `0` và `3` (`2 / 4 = 0.5`)."
+
+  - id: p5-02-q07
+    type: mcq
+    tags: [supervised-learning, ml]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Your polynomial model gets `train MSE = 0.001` and `test MSE = 0.790`. What is happening?"
+      options:
+        - "Underfitting — the model is too simple to fit the training data"
+        - "Data leakage — the test set was copied into the training set"
+        - "Perfect generalization — low train MSE guarantees a good model"
+        - "Overfitting — the model memorized noise in train and fails on unseen test data"
+      explanation: "A tiny training error paired with a much larger test error is the classic signature of overfitting."
+    vi:
+      prompt: "Mô hình đa thức của bạn đạt `train MSE = 0.001` nhưng `test MSE = 0.790`. Hiện tượng gì đang xảy ra?"
+      options:
+        - "Underfitting — mô hình quá đơn giản nên không khớp được tập train"
+        - "Data leakage — tập test đã bị chép vào tập train"
+        - "Tổng quát hóa hoàn hảo — train MSE nhỏ là đủ đảm bảo mô hình tốt"
+        - "Overfitting — mô hình học thuộc nhiễu ở tập train và sai nặng trên tập test mới"
+      explanation: "Sai số train cực nhỏ đi kèm sai số test cao hơn hẳn là dấu hiệu kinh điển của overfitting."
+
+  - id: p5-02-q08
+    type: fill
+    tags: [supervised-learning, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      x = np.array([0.0, 0.5, 1.0])
+      y = np.array([1.0, 2.0, 3.0])
+      coeffs = np.___(x, y, 1)
+      preds = np.___(coeffs, np.array([0.25]))
+      print(round(float(preds[0]), 3))
+    answer: ["polyfit", "polyval"]
+    en:
+      prompt: "Fill in the two NumPy functions to fit a degree-1 line and evaluate it at `x = 0.25`."
+      explanation: "`np.polyfit(x, y, 1)` returns the fitted line coefficients, and `np.polyval(coeffs, x_new)` evaluates the fitted polynomial at new `x` values (`1.5`)."
+    vi:
+      prompt: "Điền tên hai hàm NumPy để khớp một đường bậc 1 rồi tính giá trị dự đoán tại `x = 0.25`."
+      explanation: "`np.polyfit(x, y, 1)` trả về các hệ số của đường khớp, còn `np.polyval(coeffs, x_new)` tính giá trị đa thức tại các điểm `x` mới (`1.5`)."
+
+  - id: p5-02-q09
+    type: output
+    tags: [supervised-learning, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      X = np.array([[10, 1], [20, 2], [30, 3], [40, 4], [50, 5]])
+      y = np.array([0, 0, 1, 1, 1])
+      rng = np.random.default_rng(42)
+      idx = rng.permutation(len(X))
+      X_test = X[idx[:2]]
+      y_test = y[idx[:2]]
+      print(X_test.shape, y_test.tolist())
+    answer: "(2, 2) [1, 1]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Slicing `idx[:2]` picks 2 rows of `X` (shape `(2, 2)`) and the matching 2 labels from `y`. With seed `42` and length `5`, `idx[:2]` selects `[4, 2]`, giving labels `[1, 1]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Cắt `idx[:2]` lấy 2 hàng của `X` (shape `(2, 2)`) và 2 nhãn tương ứng từ `y`. Với seed `42` và độ dài `5`, `idx[:2]` chọn `[4, 2]`, ứng với nhãn `[1, 1]`."
+
+  - id: p5-02-q10
+    type: mcq
+    tags: [supervised-learning, data-prep]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Your dataset is sorted by label: 50 rows with `y = 0` followed by 50 rows with `y = 1`. What happens if you take the last 20 rows as the test set without shuffling?"
+      options:
+        - "NumPy raises a `ValueError` because labels are sorted"
+        - "The test set contains only class `1`, so it cannot measure how the model handles class `0`"
+        - "Training accuracy automatically becomes `0.0`"
+        - "Each row in `X_test` loses its alignment with `y_test`"
+      explanation: "Taking a slice from sorted data puts only one class in `test` (and skews `train`), so you must shuffle indices with `rng.permutation` before splitting."
+    vi:
+      prompt: "Bộ dữ liệu của bạn đang xếp theo nhãn: 50 dòng `y = 0` đứng trước, 50 dòng `y = 1` đứng sau. Điều gì xảy ra nếu bạn lấy 20 dòng cuối làm tập test mà không xáo trộn?"
+      options:
+        - "NumPy báo lỗi `ValueError` vì nhãn đã sắp xếp"
+        - "Tập test chỉ toàn lớp `1`, nên không đo được mô hình xử lý lớp `0` thế nào"
+        - "Accuracy trên tập train tự động tụt về `0.0`"
+        - "Từng hàng trong `X_test` bị lệch khỏi nhãn `y_test`"
+      explanation: "Cắt trực tiếp trên dữ liệu đã sắp theo nhãn khiến tập test chỉ chứa một lớp, nên bạn phải xáo chỉ số bằng `rng.permutation` trước khi chia."
+
+  - id: p5-02-q11
+    type: parsons
+    tags: [supervised-learning, numpy]
+    difficulty: 2
+    lines:
+      - "import numpy as np"
+      - "X = np.array([[1.0], [2.0], [3.0], [4.0], [5.0]])"
+      - "y = X[:, 0] * 2.0"
+      - "idx = np.random.default_rng(7).permutation(len(y))"
+      - "X_train, y_train = X[idx[:4]], y[idx[:4]]"
+      - "print(len(X_train), round(float(y_train.mean()), 3))"
+    en:
+      prompt: "Arrange these lines in order to build `X` and `y`, shuffle indices with seed `7`, select 4 training rows, and print the training count and mean label."
+      explanation: "Import NumPy, define `X`, compute `y` from `X`, generate `idx` from `len(y)`, slice `X_train` and `y_train` using `idx`, and print last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo `X` và `y`, xáo chỉ số với seed `7`, lấy 4 hàng train rồi in số hàng và giá trị trung bình của `y_train`."
+      explanation: "Import NumPy, tạo `X`, tính `y` từ `X`, sinh `idx` từ `len(y)`, cắt `X_train` và `y_train` bằng `idx`, rồi in ở dòng cuối."
+
+  - id: p5-02-q12
+    type: fill
+    tags: [supervised-learning, data-prep, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      train = np.array([10.0, 20.0, 30.0])
+      test = np.array([40.0])
+      low = ___.min()
+      high = ___.max()
+      scaled_test = (test - low) / (high - low)
+      print(round(float(scaled_test[0]), 3))
+    answer: ["train", "train"]
+    en:
+      prompt: "Fill in the array name so scaling `test` does not cause data leakage."
+      explanation: "To avoid data leakage, compute `low` and `high` from `train` only, then apply those training bounds to `test`, giving `(40 - 10) / (30 - 10) = 1.5`."
+    vi:
+      prompt: "Điền tên mảng phù hợp để phép chuẩn hóa tập `test` không bị data leakage."
+      explanation: "Để tránh data leakage, chỉ tính `low` và `high` từ tập `train`, rồi áp dụng hai mốc đó cho `test`, cho kết quả `(40 - 10) / (30 - 10) = 1.5`."
+
+  - id: p5-02-q13
+    type: mcq
+    tags: [supervised-learning, ml]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Your model has **high error on train** and **high error on test**. Which diagnosis and fix make the most sense?"
+      options:
+        - "Overfitting — remove half of your features"
+        - "Data leakage — pass a different random seed to `default_rng`"
+        - "Underfitting — use a more flexible model or add more informative features"
+        - "Overfitting — collect more rows with the exact same straight-line model"
+      explanation: "High error on both train and test means the model is underfitting (too simple for the pattern), so making the model more expressive or adding better features helps."
+    vi:
+      prompt: "Mô hình của bạn có **sai số cao trên train** lẫn **sai số cao trên test**. Chẩn đoán và cách sửa nào hợp lý nhất?"
+      options:
+        - "Overfitting — bỏ bớt một nửa số feature"
+        - "Data leakage — đổi sang một random seed khác cho `default_rng`"
+        - "Underfitting — dùng mô hình linh hoạt hơn hoặc thêm feature giàu thông tin hơn"
+        - "Overfitting — thu thập thêm dòng dữ liệu cho đúng mô hình đường thẳng cũ"
+      explanation: "Sai số cao ở cả train và test là dấu hiệu underfitting (mô hình quá đơn giản so với quy luật), nên cần mô hình linh hoạt hơn hoặc feature tốt hơn."
+
+  - id: p5-02-q14
+    type: output
+    tags: [supervised-learning, data-prep, numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      train = np.array([0.0, 5.0, 10.0])
+      test = np.array([15.0])
+      low, high = train.min(), train.max()
+      scaled = (test - low) / (high - low)
+      print(round(float(scaled[0]), 3))
+    answer: "1.5"
+    en:
+      prompt: "What does this code print when scaling `test` without data leakage?"
+      explanation: "Using `low = 0.0` and `high = 10.0` from `train` only, `test = 15.0` scales to `(15.0 - 0.0) / (10.0 - 0.0) = 1.5` (notice clean scaling can produce values outside `[0, 1]` on test)."
+    vi:
+      prompt: "Đoạn code này in ra gì khi chuẩn hóa `test` mà không bị data leakage?"
+      explanation: "Dùng `low = 0.0` và `high = 10.0` chỉ từ `train`, giá trị `test = 15.0` quy đổi thành `(15.0 - 0.0) / (10.0 - 0.0) = 1.5` (giá trị test có thể vượt ngoài `[0, 1]` và đó là bình thường)."
+
+  - id: p5-02-q15
+    type: mcq
+    tags: [supervised-learning, evaluation]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "You want to compare degree-1, degree-3, and degree-6 polynomials fairly. Which workflow prevents both overfitting traps and data leakage?"
+      options:
+        - "Shuffle with a fixed seed, split train/test, fit scaling and `np.polyfit` on train only, then compare test MSE"
+        - "Fit `min`/`max` scaling on all data first, split 80/20, and pick the degree with lowest train MSE"
+        - "Pick the degree with lowest train MSE first, then re-split with a new seed until test MSE looks low"
+        - "Fit `np.polyfit` on all rows, then evaluate accuracy on the last 20% of rows"
+      explanation: "Splitting first, fitting all preprocessing and model parameters strictly on train, and selecting based on held-out test error keeps evaluation honest."
+    vi:
+      prompt: "Bạn muốn so sánh công bằng đa thức bậc 1, 3 và 6. Quy trình nào tránh được cả bẫy overfitting lẫn data leakage?"
+      options:
+        - "Xáo bằng seed cố định, chia train/test, tính chuẩn hóa và `np.polyfit` chỉ trên train, rồi so sánh test MSE"
+        - "Tính chuẩn hóa `min`/`max` trên toàn bộ dữ liệu trước, chia 80/20, rồi chọn bậc có train MSE nhỏ nhất"
+        - "Chọn bậc có train MSE nhỏ nhất trước, rồi đổi seed chia lại nhiều lần đến khi test MSE thấp"
+        - "Khớp `np.polyfit` trên toàn bộ các hàng rồi đánh giá accuracy trên 20% hàng cuối"
+      explanation: "Chia dữ liệu trước, chỉ khớp mọi bước tiền xử lý và mô hình trên tập train, rồi chọn mô hình theo sai số trên tập test mới giữ cho đánh giá trung thực."
+
+  - id: p5-02-q16
+    type: parsons
+    tags: [supervised-learning, ml-math, numpy]
+    difficulty: 3
+    lines:
+      - "import numpy as np"
+      - "x_tr = np.array([0.0, 0.5, 1.0])"
+      - "y_tr = 2.0 * x_tr + 1.0"
+      - "coeffs = np.polyfit(x_tr, y_tr, 1)"
+      - "pred = np.polyval(coeffs, np.array([0.25]))"
+      - "test_mse = float(np.mean((pred - np.array([1.5])) ** 2))"
+      - "print(round(test_mse, 3))"
+    en:
+      prompt: "Arrange these lines in order to fit a degree-1 line on `(x_tr, y_tr)` and print the MSE on test point `(0.25, 1.5)`."
+      explanation: "Import NumPy, define `x_tr`, compute `y_tr` from `x_tr`, fit `coeffs` with `np.polyfit`, predict with `np.polyval`, compute `test_mse`, and print the rounded MSE."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để khớp đường thẳng bậc 1 trên `(x_tr, y_tr)` và in MSE tại điểm test `(0.25, 1.5)`."
+      explanation: "Import NumPy, tạo `x_tr`, tính `y_tr` từ `x_tr`, khớp `coeffs` bằng `np.polyfit`, dự đoán bằng `np.polyval`, tính `test_mse` rồi in MSE đã làm tròn."
+
+flashcards:
+  - id: p5-02-f01
+    tags: [supervised-learning, ml]
+    code: |
+      X = df[["tokens", "links"]].to_numpy()  # (rows, features)
+      y = df["is_spam"].to_numpy()            # (rows,)
+    en:
+      front: "What are `X` and `y` in supervised learning?"
+      back: "`X` is the 2D table of input features (one row per example, one column per feature); `y` is the 1D array of known ground-truth labels."
+    vi:
+      front: "`X` và `y` trong học có giám sát là gì?"
+      back: "`X` là bảng 2 chiều chứa feature đầu vào (mỗi hàng một ví dụ, mỗi cột một đặc trưng); `y` là mảng 1 chiều chứa nhãn đáp án chuẩn."
+
+  - id: p5-02-f02
+    tags: [supervised-learning, ml]
+    en:
+      front: "How do regression and classification differ?"
+      back: "Regression predicts a continuous number (evaluated with metrics like MSE); classification predicts a discrete category or class (evaluated with metrics like accuracy)."
+    vi:
+      front: "Regression và classification khác nhau ở điểm nào?"
+      back: "Regression dự đoán một số liên tục (thường đo bằng MSE); classification dự đoán một nhóm hoặc nhãn rời rạc (thường đo bằng accuracy)."
+
+  - id: p5-02-f03
+    tags: [supervised-learning, evaluation]
+    code: |
+      preds = (scores >= t).astype("int64")
+      acc = float((preds == y).mean())
+    en:
+      front: "How does a single-threshold classifier work and how is accuracy computed?"
+      back: "It predicts `1` whenever `score >= t` and `0` otherwise; accuracy is `(preds == y).mean()`, the fraction of predictions matching the true labels."
+    vi:
+      front: "Bộ phân loại một ngưỡng hoạt động ra sao và accuracy tính thế nào?"
+      back: "Nó đoán `1` nếu `score >= t`, ngược lại đoán `0`; accuracy là `(preds == y).mean()`, tức tỉ lệ dự đoán khớp đúng với nhãn thật."
+
+  - id: p5-02-f04
+    tags: [supervised-learning, numpy]
+    code: |
+      rng = np.random.default_rng(42)
+      idx = rng.permutation(len(X))
+    en:
+      front: "Why do we shuffle with a fixed seed before splitting train and test?"
+      back: "Shuffling prevents sorted data from putting only one class into test, and fixing the seed makes every split reproducible."
+    vi:
+      front: "Vì sao ta phải xáo dữ liệu với seed cố định trước khi chia train/test?"
+      back: "Xáo giúp tránh việc dữ liệu đã sắp xếp dồn toàn một lớp vào tập test, còn đặt seed giúp kết quả chia lặp lại được giống hệt nhau."
+
+  - id: p5-02-f05
+    tags: [supervised-learning, ml]
+    en:
+      front: "How do you distinguish underfitting from overfitting?"
+      back: "Underfitting has high error on BOTH train and test (model too simple); overfitting has tiny train error but high test error (model memorized noise)."
+    vi:
+      front: "Phân biệt underfitting và overfitting bằng cách nào?"
+      back: "Underfitting có sai số cao ở CẢ train lẫn test (mô hình quá đơn giản); overfitting có sai số train rất nhỏ nhưng sai số test cao (mô hình học thuộc nhiễu)."
+
+  - id: p5-02-f06
+    tags: [supervised-learning, data-prep]
+    en:
+      front: "What is data leakage during preprocessing, and how do you avoid it?"
+      back: "Data leakage happens when statistics like `min`/`max` are computed across the whole dataset before splitting; avoid it by fitting scalers on `train` only and applying them to `test`."
+    vi:
+      front: "Data leakage khi tiền xử lý là gì và tránh bằng cách nào?"
+      back: "Data leakage xảy ra khi các mốc như `min`/`max` bị tính trên toàn bộ dữ liệu trước lúc chia; tránh bằng cách chỉ tính trên `train` rồi áp dụng lại cho `test`."

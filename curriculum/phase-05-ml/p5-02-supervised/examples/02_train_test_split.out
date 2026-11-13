@@ -1,0 +1,4 @@
+Train IDs: [6, 7, 1, 8, 4, 3, 5, 10]
+Test IDs: [2, 9]
+Fitted line: w=0.57, b=0.208
+Train MSE=0.001, Test MSE=0.002

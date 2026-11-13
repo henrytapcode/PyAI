@@ -1197,6 +1197,17 @@ terms:
     related: [type conversion, missing value / NaN, data cleaning]
 
   # ---------------------------------------------------------- ML
+  - term: supervised learning
+    vi_term: học có giám sát (supervised learning)
+    tags: [supervised-learning, ml]
+    en: "Training a model from labelled examples—each input comes with its known correct answer—so the model can predict answers for new inputs."
+    vi: "Huấn luyện mô hình từ các ví dụ đã gắn nhãn—mỗi đầu vào đi kèm đáp án đúng đã biết—để mô hình dự đoán đáp án cho dữ liệu mới."
+    example: "# Each row has features X and a known label y\nX = df[[\"tokens\", \"links\"]]\ny = df[\"is_spam\"]"
+    in_practice:
+      en: "Spam filters, ticket routing, and latency predictors are all built with supervised learning once you collect enough past examples with labels."
+      vi: "Bộ lọc spam, phân tuyến ticket và mô hình dự đoán độ trễ đều dùng học có giám sát một khi bạn thu thập đủ ví dụ cũ đã gắn nhãn."
+    related: [feature, label, regression, classification]
+
   - term: feature
     vi_term: feature (đặc trưng)
     tags: [ml]
@@ -1273,6 +1284,61 @@ terms:
       en: "The warning sign is a big gap between training and test scores; it also happens when you keep tuning a prompt on the same ten examples."
       vi: "Dấu hiệu cảnh báo là điểm train và test chênh nhau nhiều; nó cũng xảy ra khi bạn cứ chỉnh prompt trên cùng mười ví dụ."
     related: [train/test split, training, eval]
+
+  - term: underfitting
+    vi_term: underfitting (chưa khớp)
+    tags: [supervised-learning, ml]
+    en: "When a model is too simple to capture the real pattern in the data, so both training error and test error stay high."
+    vi: "Khi mô hình quá đơn giản nên không nắm bắt được quy luật thật của dữ liệu, khiến cả sai số trên train lẫn test đều cao."
+    example: "# Fitting a straight line to a U-shaped curve -> high train MSE and high test MSE"
+    in_practice:
+      en: "If your training score is already poor, collecting more data with the same simple model will not help; you need a more expressive model or better features."
+      vi: "Nếu điểm trên tập train vốn đã kém, thu thập thêm dữ liệu cho cùng mô hình đơn giản đó cũng không giúp ích; bạn cần mô hình linh hoạt hơn hoặc feature tốt hơn."
+    related: [overfitting, train/test split, feature]
+
+  - term: regression
+    vi_term: hồi quy (regression)
+    tags: [supervised-learning, ml]
+    en: "A supervised learning task that predicts a continuous numeric value, such as request latency, price, or temperature."
+    vi: "Bài toán học có giám sát nhằm dự đoán một giá trị số liên tục, như độ trễ request, giá nhà hay nhiệt độ."
+    example: "pred_latency = w * tokens + b  # predicts seconds as a float"
+    in_practice:
+      en: "You use regression when estimating response time, monthly token spend, or demand forecasts, and usually evaluate it with metrics like MSE."
+      vi: "Bạn dùng regression khi ước lượng thời gian phản hồi, chi phí token hằng tháng hay dự báo nhu cầu, và thường đánh giá bằng metric như MSE."
+    related: [classification, supervised learning, loss / mean squared error]
+
+  - term: classification
+    vi_term: phân loại (classification)
+    tags: [supervised-learning, ml]
+    en: "A supervised learning task that assigns each input to one of a fixed set of categories or classes, such as spam vs not spam."
+    vi: "Bài toán học có giám sát nhằm gán mỗi đầu vào vào một trong các nhóm hay lớp cố định, ví dụ spam hay không spam."
+    example: "pred_label = (score >= 0.5).astype(\"int64\")  # 1 for spam, 0 otherwise"
+    in_practice:
+      en: "Ticket routing, sentiment tagging, toxicity filtering, and user-intent detection are all classification problems."
+      vi: "Phân tuyến ticket, gắn nhãn cảm xúc, lọc nội dung độc hại và nhận diện ý định người dùng đều là bài toán classification."
+    related: [regression, supervised learning, accuracy]
+
+  - term: accuracy
+    vi_term: accuracy (độ chính xác)
+    tags: [supervised-learning, evaluation]
+    en: "The fraction of classification predictions that match the true labels: correct predictions divided by total examples."
+    vi: "Tỉ lệ dự đoán phân loại khớp với nhãn thật: số lần đoán đúng chia cho tổng số ví dụ."
+    example: "acc = float((preds == y_test).mean())  # e.g. 0.85 means 85% correct"
+    in_practice:
+      en: "Accuracy is a clear starting metric when classes are roughly balanced, though on rare events like 1% fraud you must also inspect precision and recall."
+      vi: "Accuracy là metric khởi đầu rõ ràng khi các lớp khá cân bằng, nhưng với sự kiện hiếm như 1% gian lận bạn cần xem thêm precision và recall."
+    related: [classification, ground truth, eval]
+
+  - term: data leakage
+    vi_term: data leakage (rò rỉ dữ liệu)
+    tags: [supervised-learning, data-prep]
+    en: "When information from the test set accidentally influences training or preprocessing, giving an unrealistically optimistic test score."
+    vi: "Khi thông tin từ tập test vô tình lọt vào quá trình huấn luyện hoặc tiền xử lý, tạo ra điểm test lạc quan giả tạo."
+    example: "# Wrong: scale before split (leaks test min/max)\n# Fix: compute train_min, train_max on X_train only, then scale X_test"
+    in_practice:
+      en: "Computing min/max, mean/std, or vocabulary statistics on the whole dataset before splitting is the most common source of leakage in ML pipelines."
+      vi: "Tính min/max, trung bình/độ lệch chuẩn hoặc từ điển trên toàn bộ dữ liệu trước khi chia train/test là nguồn rò rỉ dữ liệu phổ biến nhất trong pipeline ML."
+    related: [train/test split, overfitting, eval]
 
   - term: fine-tuning
     vi_term: fine-tuning (tinh chỉnh model)

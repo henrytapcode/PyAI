@@ -1,0 +1,35 @@
+id: p5-02-supervised
+phase: p5
+order: 2
+kind: lesson
+title:
+  en: "Supervised learning"
+  vi: "Học có giám sát"
+summary:
+  en: "Separate features X from labels y, compare regression and classification, split data into train and test without leakage, and spot underfitting and overfitting visually."
+  vi: "Tách feature X khỏi label y, phân biệt regression và classification, chia dữ liệu train/test không rò rỉ dữ liệu, và nhận biết underfitting lẫn overfitting qua biểu đồ."
+level: beginner
+tags: [supervised-learning, ml, numpy]
+prerequisites: [p5-01-math-bridge, p4-02-pandas]
+duration_min: 14
+outcomes:
+  en:
+    - "Features, labels and the train/test split"
+    - "Regression versus classification"
+    - "Spot overfitting on a plot"
+    - "Pick a simple threshold classifier and measure accuracy"
+    - "Avoid data leakage and unshuffled splits"
+  vi:
+    - "Feature, label và chia train/test"
+    - "Regression và classification khác nhau thế nào"
+    - "Nhận ra overfitting trên biểu đồ"
+    - "Chọn ngưỡng phân loại đơn giản và đo accuracy"
+    - "Tránh data leakage và lỗi quên xáo dữ liệu"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "Google ML Crash Course: Training and test sets (Dividing the dataset)", vi: "Google ML Crash Course: Training and test sets (EN)" }
+    url: "https://developers.google.com/machine-learning/crash-course/dividing-the-original-dataset"
+  - title: { en: "Google ML Crash Course: Overfitting", vi: "Google ML Crash Course: Overfitting (EN)" }
+    url: "https://developers.google.com/machine-learning/crash-course/overfitting/overfitting"
+  - title: { en: "scikit-learn user guide: Cross-validation (covered in p5-04)", vi: "scikit-learn user guide: Cross-validation (sẽ học ở p5-04) (EN)" }
+    url: "https://scikit-learn.org/stable/modules/cross_validation.html"
