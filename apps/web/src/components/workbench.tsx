@@ -11,7 +11,7 @@ import { python, usePythonStatus } from "@/lib/python";
 import type { TestRunResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type OutLine = { text: string; stream: "stdout" | "stderr" | "error" | "info" };
+type OutLine = { text: string; stream: "stdout" | "stderr" | "error" | "info" | "image" };
 
 export function PythonStatus() {
   const status = usePythonStatus();
@@ -183,19 +183,35 @@ export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, hi
             output.length === 0 ? (
               <p className="font-sans text-sm text-muted-foreground">{status === "loading" ? t("pyLoading") : t("noOutput")}</p>
             ) : (
-              output.map((l, i) => (
-                <pre
-                  key={i}
-                  className={cn(
-                    "whitespace-pre-wrap break-words font-mono text-[13px]",
-                    l.stream === "stderr" && "text-warning-ink",
-                    l.stream === "error" && "mt-1 rounded-md border border-danger/20 bg-danger-soft p-2 text-danger",
-                    l.stream === "info" && "mt-1 font-sans text-xs text-muted-foreground",
-                  )}
-                >
-                  {l.text}
-                </pre>
-              ))
+              (() => {
+                let figIndex = 0;
+                return output.map((l, i) => {
+                  if (l.stream === "image") {
+                    figIndex += 1;
+                    return (
+                      <img
+                        key={i}
+                        src={l.text}
+                        alt={t("figureAlt", { n: figIndex })}
+                        className="my-1 block max-w-full h-auto rounded-[10px] border border-border bg-white"
+                      />
+                    );
+                  }
+                  return (
+                    <pre
+                      key={i}
+                      className={cn(
+                        "whitespace-pre-wrap break-words font-mono text-[13px]",
+                        l.stream === "stderr" && "text-warning-ink",
+                        l.stream === "error" && "mt-1 rounded-md border border-danger/20 bg-danger-soft p-2 text-danger",
+                        l.stream === "info" && "mt-1 font-sans text-xs text-muted-foreground",
+                      )}
+                    >
+                      {l.text}
+                    </pre>
+                  );
+                });
+              })()
             )
           ) : (
             <TestResults result={result} busy={busy === "check"} />

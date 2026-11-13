@@ -185,7 +185,8 @@
     "playgroundSubtitle": "A scratchpad with real Python in your browser. NumPy and Pandas load on first import.",
     "templates": "Templates",
     "templatesLabel": "Templates:",
-    "loading": "Loading editor…"
+    "loading": "Loading editor…",
+    "figureAlt": "Figure {n}"
   },
   "quiz": {
     "title": "Quiz",

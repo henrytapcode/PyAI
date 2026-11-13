@@ -180,7 +180,7 @@ def check_i18n_obj(rep: Report, path: Path, obj, where: str, allow_missing_vi: b
 
 # ------------------------------------------------------------------ running code
 def run_python(code: str, cwd: Path | None = None, timeout: int = 15) -> tuple[int, str, str]:
-    env = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+    env = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1", MPLBACKEND="Agg")
     proc = subprocess.run(
         [sys.executable, "-I", "-c", code], capture_output=True, text=True,
         encoding="utf-8", timeout=timeout, cwd=cwd, env=env,

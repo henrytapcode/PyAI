@@ -50,3 +50,12 @@ topics:
   rag:          { en: "RAG", vi: "RAG" }
   agents:       { en: "Agents", vi: "Agent" }
   production:   { en: "Production", vi: "Production" }
+  numpy:        { en: "NumPy", vi: "NumPy" }
+  pandas:       { en: "Pandas", vi: "Pandas" }
+  data-cleaning: { en: "Data cleaning", vi: "Làm sạch dữ liệu" }
+  plotting:     { en: "Plotting", vi: "Vẽ biểu đồ" }
+  sql:          { en: "SQL & SQLite", vi: "SQL & SQLite" }
+  ml-math:      { en: "ML math", vi: "Toán cho ML" }
+  supervised-learning: { en: "Supervised learning", vi: "Học có giám sát" }
+  sklearn:      { en: "scikit-learn", vi: "scikit-learn" }
+  model-evaluation: { en: "Model evaluation", vi: "Đánh giá mô hình" }

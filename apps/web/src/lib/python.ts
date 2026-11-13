@@ -7,7 +7,7 @@ export type PyStatus = "idle" | "loading" | "ready" | "running" | "error";
 
 type Pending = {
   resolve: (value: unknown) => void;
-  onOutput?: (text: string, stream: "stdout" | "stderr") => void;
+  onOutput?: (text: string, stream: "stdout" | "stderr" | "image") => void;
   timer?: ReturnType<typeof setTimeout>;
   kind: "run" | "test" | "trace";
 };
@@ -79,6 +79,9 @@ class PythonManager {
       case "stdout":
       case "stderr":
         p?.onOutput?.(String(msg.text), msg.type);
+        break;
+      case "image":
+        p?.onOutput?.(String(msg.data), "image");
         break;
       case "done":
         if (p && msg.id != null) this.finish(msg.id, { ok: Boolean(msg.ok), error: (msg.error as string) ?? null });

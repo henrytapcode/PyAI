@@ -435,6 +435,27 @@ def _collect(test_mod):
     return cases
 
 
+def _uses_matplotlib(*sources: str) -> bool:
+    """Return True if any source imports matplotlib (without triggering on comments/strings)."""
+    for src in sources:
+        if "matplotlib" not in src:
+            continue
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import) and any(
+                a.name == "matplotlib" or a.name.startswith("matplotlib.") for a in node.names
+            ):
+                return True
+            if isinstance(node, ast.ImportFrom) and node.module and (
+                node.module == "matplotlib" or node.module.startswith("matplotlib.")
+            ):
+                return True
+    return False
+
+
 # ---------------------------------------------------------------- public API
 def run_tests(user_code: str, test_code: str) -> dict:
     out, err = io.StringIO(), io.StringIO()
@@ -443,6 +464,19 @@ def run_tests(user_code: str, test_code: str) -> dict:
     sys.modules["pytest"] = _make_pytest_shim()
     log_state = _logging_snapshot()
     cwd = os.getcwd()
+    mpl_cleanup = False
+    if _uses_matplotlib(user_code, test_code):
+        os.environ["MPLBACKEND"] = "Agg"
+        try:
+            import matplotlib
+
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+
+            plt.show = lambda *a, **k: None
+            mpl_cleanup = True
+        except ImportError:
+            pass
     try:
         with redirect_stdout(out), redirect_stderr(err):
             try:
@@ -494,6 +528,13 @@ def run_tests(user_code: str, test_code: str) -> dict:
         result["ok"] = result["total"] > 0 and result["passed"] == result["total"]
         return result
     finally:
+        if mpl_cleanup:
+            try:
+                import matplotlib.pyplot as plt
+
+                plt.close("all")
+            except Exception:  # noqa: BLE001 - cleanup must not hide test results
+                pass
         _logging_restore(log_state)
         if os.getcwd() != cwd:
             os.chdir(cwd)

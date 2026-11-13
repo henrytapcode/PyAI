@@ -224,12 +224,43 @@ phases:
       en: "NumPy, Pandas, Matplotlib and basic SQL."
       vi: "NumPy, Pandas, Matplotlib và SQL cơ bản."
     lessons:
-      - { id: p4-01-numpy, title: { en: "NumPy arrays", vi: "Mảng NumPy" }, prerequisites: [p2-01-comprehensions] }
-      - { id: p4-02-pandas, title: { en: "Pandas DataFrames", vi: "DataFrame với Pandas" }, prerequisites: [p4-01-numpy] }
-      - { id: p4-03-cleaning, title: { en: "Cleaning data", vi: "Làm sạch dữ liệu" }, prerequisites: [p4-02-pandas] }
-      - { id: p4-04-matplotlib, title: { en: "Plotting", vi: "Vẽ biểu đồ" }, prerequisites: [p4-02-pandas] }
-      - { id: p4-05-sql, title: { en: "SQL basics with SQLite", vi: "SQL cơ bản với SQLite" }, prerequisites: [p4-02-pandas] }
-      - { id: p4-06-mini-project, kind: project, title: { en: "Mini-project: data analysis", vi: "Mini-project: phân tích dữ liệu" }, prerequisites: [p4-05-sql] }
+      - id: p4-01-numpy
+        title: { en: "NumPy arrays", vi: "Mảng NumPy" }
+        prerequisites: [p2-01-comprehensions]
+        outcomes:
+          en: ["Create arrays and read shape and dtype", "Vectorised math instead of loops", "Index, slice and filter with boolean masks"]
+          vi: ["Tạo mảng, đọc shape và dtype", "Tính toán vector hóa thay cho vòng lặp", "Index, slice và lọc bằng boolean mask"]
+      - id: p4-02-pandas
+        title: { en: "Pandas DataFrames", vi: "DataFrame với Pandas" }
+        prerequisites: [p4-01-numpy, p1-09-files]
+        outcomes:
+          en: ["Build a DataFrame from dicts and CSV", "Select rows and columns with loc and filters", "Group and aggregate with groupby"]
+          vi: ["Tạo DataFrame từ dict và CSV", "Chọn hàng, cột bằng loc và bộ lọc", "Gom nhóm và tổng hợp bằng groupby"]
+      - id: p4-03-cleaning
+        title: { en: "Cleaning data", vi: "Làm sạch dữ liệu" }
+        prerequisites: [p4-02-pandas]
+        outcomes:
+          en: ["Find and fill missing values", "Fix column types and messy text", "Drop duplicates and invalid rows"]
+          vi: ["Tìm và điền giá trị thiếu", "Sửa kiểu cột và văn bản lộn xộn", "Bỏ dòng trùng và dòng không hợp lệ"]
+      - id: p4-04-matplotlib
+        title: { en: "Plotting", vi: "Vẽ biểu đồ" }
+        prerequisites: [p4-02-pandas]
+        outcomes:
+          en: ["Line, bar and scatter plots", "Label axes, titles and legends", "Plot straight from a DataFrame"]
+          vi: ["Biểu đồ đường, cột và scatter", "Đặt nhãn trục, tiêu đề và chú thích", "Vẽ trực tiếp từ DataFrame"]
+      - id: p4-05-sql
+        title: { en: "SQL basics with SQLite", vi: "SQL cơ bản với SQLite" }
+        prerequisites: [p4-02-pandas]
+        outcomes:
+          en: ["Create a table and insert rows with sqlite3", "SELECT with WHERE, ORDER BY and GROUP BY", "Load query results into pandas"]
+          vi: ["Tạo bảng và thêm dòng bằng sqlite3", "SELECT với WHERE, ORDER BY và GROUP BY", "Đưa kết quả truy vấn vào pandas"]
+      - id: p4-06-mini-project
+        kind: project
+        title: { en: "Mini-project: data analysis", vi: "Mini-project: phân tích dữ liệu" }
+        prerequisites: [p4-03-cleaning, p4-04-matplotlib, p4-05-sql]
+        outcomes:
+          en: ["Clean, aggregate and plot a realistic dataset", "Answer business questions with pandas and SQL"]
+          vi: ["Làm sạch, tổng hợp và vẽ một bộ dữ liệu thực tế", "Trả lời câu hỏi nghiệp vụ bằng pandas và SQL"]
 
   - id: p5
     dir: phase-05-ml
@@ -240,11 +271,37 @@ phases:
       en: "Just-enough math with visual bridges, scikit-learn, model evaluation."
       vi: "Toán vừa đủ qua hình ảnh, scikit-learn, đánh giá mô hình."
     lessons:
-      - { id: p5-01-math-bridge, title: { en: "Math bridge: vectors & gradients", vi: "Cầu nối toán: vector & gradient" }, prerequisites: [p4-01-numpy] }
-      - { id: p5-02-supervised, title: { en: "Supervised learning", vi: "Học có giám sát" }, prerequisites: [p5-01-math-bridge] }
-      - { id: p5-03-sklearn, title: { en: "scikit-learn workflow", vi: "Quy trình scikit-learn" }, prerequisites: [p5-02-supervised] }
-      - { id: p5-04-evaluation, title: { en: "Evaluating models", vi: "Đánh giá mô hình" }, prerequisites: [p5-03-sklearn] }
-      - { id: p5-05-mini-project, kind: project, title: { en: "Mini-project: ML classifier", vi: "Mini-project: bộ phân loại ML" }, prerequisites: [p5-04-evaluation] }
+      - id: p5-01-math-bridge
+        title: { en: "Math bridge: vectors & gradients", vi: "Cầu nối toán: vector & gradient" }
+        prerequisites: [p4-01-numpy, p4-04-matplotlib]
+        outcomes:
+          en: ["Vectors and the dot product in NumPy", "A gradient as the downhill direction", "Gradient descent on a straight line"]
+          vi: ["Vector và tích vô hướng trong NumPy", "Gradient là hướng xuống dốc", "Gradient descent cho một đường thẳng"]
+      - id: p5-02-supervised
+        title: { en: "Supervised learning", vi: "Học có giám sát" }
+        prerequisites: [p5-01-math-bridge, p4-02-pandas]
+        outcomes:
+          en: ["Features, labels and the train/test split", "Regression versus classification", "Spot overfitting on a plot"]
+          vi: ["Feature, label và chia train/test", "Regression và classification khác nhau thế nào", "Nhận ra overfitting trên biểu đồ"]
+      - id: p5-03-sklearn
+        title: { en: "scikit-learn workflow", vi: "Quy trình scikit-learn" }
+        prerequisites: [p5-02-supervised]
+        outcomes:
+          en: ["fit, predict and score", "Pipelines with preprocessing", "Compare two models fairly"]
+          vi: ["fit, predict và score", "Pipeline có bước tiền xử lý", "So sánh hai mô hình công bằng"]
+      - id: p5-04-evaluation
+        title: { en: "Evaluating models", vi: "Đánh giá mô hình" }
+        prerequisites: [p5-03-sklearn]
+        outcomes:
+          en: ["Accuracy, precision, recall and F1", "Read a confusion matrix", "Cross-validation"]
+          vi: ["Accuracy, precision, recall và F1", "Đọc confusion matrix", "Cross-validation"]
+      - id: p5-05-mini-project
+        kind: project
+        title: { en: "Mini-project: ML classifier", vi: "Mini-project: bộ phân loại ML" }
+        prerequisites: [p5-04-evaluation, p4-03-cleaning]
+        outcomes:
+          en: ["Train and evaluate a classifier end to end", "Report results honestly"]
+          vi: ["Huấn luyện và đánh giá một bộ phân loại từ đầu đến cuối", "Báo cáo kết quả trung thực"]
 
   - id: p6
     dir: phase-06-deep-learning
