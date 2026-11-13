@@ -1,0 +1,5 @@
+Model                  Train    Test
+LogisticRegression     0.981   0.911
+KNeighbors             0.981   0.911
+DecisionTree           0.981   0.933
+Best on test: DecisionTree (0.933)

@@ -1,0 +1,48 @@
+id: p5-03-ex01
+kind: fill
+title:
+  en: "Fill in: fit and score a pipeline"
+  vi: "Điền khuyết: huấn luyện và chấm điểm một pipeline"
+difficulty: 1
+tags: [sklearn, data-prep]
+hints:
+  en:
+    - |
+      This combines `train_test_split` (§2) and `make_pipeline` (§5). Split 25% into test with `stratify=y`, chain `StandardScaler()` with `LogisticRegression()`, fit on the training split, and score on the test split.
+    - |
+      The plan:
+      1. Split the features and labels into 75% train and 25% test using the stratified splitting function from §2 with `seed`.
+      2. Build a pipeline that applies the feature scaler first and the logistic classifier second.
+      3. Train the pipeline on the training features and training labels only.
+      4. Score the trained pipeline on the held-out test split and return the accuracy rounded to 3 decimal places as a Python `float`.
+    - |
+      The shape:
+      ```python
+      X_train, X_test, y_train, y_test = ...(
+          X, y, test_size=0.25, random_state=seed, stratify=y
+      )
+      pipe = make_pipeline(..., LogisticRegression())
+      ...
+      return round(float(pipe.score(X_test, y_test)), 3)
+      ```
+      Remember that `pipe.fit(...)` takes the training pair and `pipe.score(...)` evaluates on the held-out test pair.
+  vi:
+    - |
+      Bài này kết hợp `train_test_split` (§2) và `make_pipeline` (§5). Tách 25% sang tập test với `stratify=y`, nối `StandardScaler()` với `LogisticRegression()`, gọi `.fit` trên tập train rồi chấm điểm trên tập test.
+    - |
+      Kế hoạch:
+      1. Chia mảng đặc trưng và nhãn theo tỉ lệ 75% train / 25% test bằng hàm tách có `stratify` ở §2 với `seed`.
+      2. Tạo một pipeline gồm bước chuẩn hóa thang đo trước rồi đến bộ phân loại hồi quy logistic.
+      3. Huấn luyện pipeline chỉ trên phần dữ liệu và nhãn của tập train.
+      4. Chấm điểm pipeline đã huấn luyện trên tập test tách riêng và trả về kết quả làm tròn 3 chữ số thập phân dưới dạng `float` Python.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      X_train, X_test, y_train, y_test = ...(
+          X, y, test_size=0.25, random_state=seed, stratify=y
+      )
+      pipe = make_pipeline(..., LogisticRegression())
+      ...
+      return round(float(pipe.score(X_test, y_test)), 3)
+      ```
+      Nhớ rằng `pipe.fit(...)` nhận cặp dữ liệu train, còn `pipe.score(...)` chấm điểm trên cặp dữ liệu test tách riêng.

@@ -1,0 +1,76 @@
+id: p5-03-ex02
+kind: code
+title:
+  en: "Write: compare models fairly on one split"
+  vi: "Viết code: so sánh các mô hình công bằng trên một lần chia"
+difficulty: 2
+tags: [sklearn, evaluation]
+hints:
+  en:
+    - |
+      This applies the fair comparison rules from §6. Perform **one** `train_test_split` with `test_size=0.3`, `random_state=seed`, `stratify=y`, then clone each estimator with `sklearn.base.clone(model)` so the caller's objects stay unfitted.
+    - |
+      The plan:
+      1. In `compare_models`, split the dataset once into 70% train and 30% test using stratified sampling with `seed` so every candidate sees the same split.
+      2. For each `(name, model)` entry, clone the estimator with the helper noted in the prompt, train the clone on the training split, and store its rounded test accuracy under `name`.
+      3. In `best_model`, guard against an empty dictionary by raising `ValueError`.
+      4. Scan the `(name, score)` pairs to keep the highest score; when two models tie, keep the name that comes first alphabetically.
+    - |
+      The shape:
+      ```python
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.3, random_state=seed, stratify=y
+      )
+      scores = {}
+      for name, model in models.items():
+          fitted = ...
+          ...
+          scores[name] = round(float(fitted.score(X_test, y_test)), 3)
+      return scores
+      ```
+      For `best_model(scores)`:
+      ```python
+      if not scores:
+          raise ValueError("scores must not be empty")
+      best_name = ""
+      best_score = -1.0
+      for name, score in scores.items():
+          if ...:
+              best_score = score
+              best_name = name
+      return best_name
+      ```
+  vi:
+    - |
+      Bài này áp dụng quy tắc so sánh công bằng ở §6. Chỉ gọi `train_test_split` **một lần** với `test_size=0.3`, `random_state=seed`, `stratify=y`, rồi nhân bản từng estimator bằng `sklearn.base.clone(model)` để không làm thay đổi object người gọi truyền vào.
+    - |
+      Kế hoạch:
+      1. Trong `compare_models`, chia bộ dữ liệu đúng một lần theo tỉ lệ 70% train / 30% test có giữ tỉ lệ lớp với `seed` để mọi ứng viên dùng chung cùng một tập chia.
+      2. Với từng cặp `(name, model)`, nhân bản mô hình bằng hàm sao chép đã nêu ở đề bài, huấn luyện bản sao trên phần train rồi lưu độ chính xác trên phần test (đã làm tròn 3 chữ số thập phân) theo khóa `name`.
+      3. Trong `best_model`, kiểm tra nếu dictionary rỗng thì ném `ValueError`.
+      4. Duyệt qua các cặp `(name, score)` để giữ tên có điểm cao nhất; khi điểm bằng nhau, giữ tên đứng trước theo thứ tự chữ cái.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.3, random_state=seed, stratify=y
+      )
+      scores = {}
+      for name, model in models.items():
+          fitted = ...
+          ...
+          scores[name] = round(float(fitted.score(X_test, y_test)), 3)
+      return scores
+      ```
+      Còn cho `best_model(scores)`:
+      ```python
+      if not scores:
+          raise ValueError("scores must not be empty")
+      best_name = ""
+      best_score = -1.0
+      for name, score in scores.items():
+          if ...:
+              best_score = score
+              best_name = name
+      return best_name
+      ```

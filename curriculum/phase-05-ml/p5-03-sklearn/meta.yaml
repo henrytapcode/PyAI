@@ -1,0 +1,35 @@
+id: p5-03-sklearn
+phase: p5
+order: 3
+kind: lesson
+title:
+  en: "scikit-learn workflow"
+  vi: "Quy trình scikit-learn"
+summary:
+  en: "Train, predict, and score models with one uniform scikit-learn API, split data with stratify, scale features without leakage using Pipeline, and compare models fairly."
+  vi: "Huấn luyện, dự đoán và chấm điểm mô hình bằng một API thống nhất của scikit-learn, chia dữ liệu có stratify, chuẩn hóa feature không rò rỉ bằng Pipeline và so sánh mô hình công bằng."
+level: beginner
+tags: [sklearn, supervised-learning, ml]
+prerequisites: [p5-02-supervised]
+duration_min: 14
+outcomes:
+  en:
+    - "fit, predict and score"
+    - "Pipelines with preprocessing"
+    - "Compare two models fairly"
+    - "Split data reproducibly with train_test_split and stratify"
+    - "Scale features with StandardScaler without data leakage"
+  vi:
+    - "fit, predict và score"
+    - "Pipeline có bước tiền xử lý"
+    - "So sánh hai mô hình công bằng"
+    - "Chia dữ liệu tái lập được với train_test_split và stratify"
+    - "Chuẩn hóa feature bằng StandardScaler mà không rò rỉ dữ liệu"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "scikit-learn: Getting Started", vi: "scikit-learn: Getting Started (EN)" }
+    url: "https://scikit-learn.org/stable/getting_started.html"
+  - title: { en: "scikit-learn: Pipelines and composite estimators", vi: "scikit-learn: Pipelines and composite estimators (EN)" }
+    url: "https://scikit-learn.org/stable/modules/compose.html"
+  - title: { en: "scikit-learn: Common pitfalls and recommended practices", vi: "scikit-learn: Common pitfalls and recommended practices (EN)" }
+    url: "https://scikit-learn.org/stable/common_pitfalls.html"

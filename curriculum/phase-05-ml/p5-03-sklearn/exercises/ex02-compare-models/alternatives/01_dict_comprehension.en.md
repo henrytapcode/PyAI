@@ -1,0 +1,3 @@
+# Dict comprehension and tuple-key selection
+
+Instead of building `scores` inside an explicit `for` loop, this version extracts a small `_test_score` helper and fills the result dictionary with a single dict comprehension over `models.items()`. In `best_model`, `min(scores.items(), key=lambda kv: (-kv[1], kv[0]))` negates the score so the highest score sorts first, while the model name breaks ties in ascending alphabetical order. Both approaches behave identically and preserve key order; the explicit loop in `solution.py` is easier to step through with a debugger or add logging to, whereas this version is more concise once the logic is fixed.

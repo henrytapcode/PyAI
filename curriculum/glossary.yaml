@@ -1406,6 +1406,105 @@ terms:
       vi: "Chọn learning rate phù hợp là bước chỉnh siêu tham số đầu tiên khi huấn luyện hoặc fine-tune mô hình: nếu loss tăng vọt, hãy giảm `lr` đi một nửa."
     related: [gradient descent, gradient, fine-tuning]
 
+  - term: estimator
+    vi_term: estimator (bộ ước lượng / đối tượng mô hình)
+    tags: [sklearn, ml]
+    en: "A scikit-learn object—such as a classifier, regressor, or scaler—that learns from data with `.fit()` and follows a uniform API."
+    vi: "Một đối tượng trong scikit-learn—như bộ phân loại, bộ hồi quy hoặc bộ chuẩn hóa—học từ dữ liệu bằng `.fit()` và tuân theo một API thống nhất."
+    example: "from sklearn.linear_model import LogisticRegression\nmodel = LogisticRegression(max_iter=1000)"
+    in_practice:
+      en: "Because every estimator shares the same `.fit()`, `.predict()`, and `.score()` interface, you can swap models in one line without rewriting your training script."
+      vi: "Vì mọi estimator dùng chung giao diện `.fit()`, `.predict()` và `.score()`, bạn có thể đổi mô hình chỉ trong một dòng mà không phải viết lại script huấn luyện."
+    related: [fit, predict, score, pipeline]
+
+  - term: fit
+    vi_term: fit (huấn luyện / khớp mô hình)
+    tags: [sklearn, ml]
+    en: "The scikit-learn method `.fit(X_train, y_train)` (or `.fit(X_train)` for a transformer) that learns model parameters or scaling statistics from training data."
+    vi: "Phương thức `.fit(X_train, y_train)` trong scikit-learn (hoặc `.fit(X_train)` cho bộ biến đổi) dùng để học tham số mô hình hoặc thống kê chuẩn hóa từ tập train."
+    example: "model.fit(X_train, y_train)"
+    in_practice:
+      en: "Always call `.fit()` strictly on the training split; calling it on test data causes data leakage and invalidates your evaluation."
+      vi: "Luôn chỉ gọi `.fit()` trên tập train; gọi nó trên dữ liệu test sẽ gây rò rỉ dữ liệu và làm sai lệch đánh giá."
+    related: [estimator, predict, data leakage, training]
+
+  - term: predict
+    vi_term: predict (dự đoán)
+    tags: [sklearn, ml]
+    en: "The scikit-learn method `.predict(X_new)` that applies an already-fitted estimator to new feature rows and returns predicted labels or values."
+    vi: "Phương thức `.predict(X_new)` trong scikit-learn áp dụng estimator đã được `.fit()` lên các hàng feature mới để trả về nhãn hoặc giá trị dự đoán."
+    example: "preds = model.predict(X_test).tolist()"
+    in_practice:
+      en: "Calling `.predict()` before `.fit()` raises `NotFittedError`, and `X_new` must always be 2D with the same number of feature columns seen during `.fit()`."
+      vi: "Gọi `.predict()` trước `.fit()` sẽ gây lỗi `NotFittedError`, và `X_new` luôn phải là mảng 2 chiều có đúng số cột feature như lúc `.fit()`."
+    related: [estimator, fit, score, inference]
+
+  - term: score
+    vi_term: score (chấm điểm mô hình)
+    tags: [sklearn, evaluation]
+    en: "The scikit-learn method `.score(X, y)` that predicts on `X` and compares against `y`, returning accuracy for classifiers or R^2 for regressors."
+    vi: "Phương thức `.score(X, y)` trong scikit-learn dự đoán trên `X` rồi so với `y`, trả về accuracy cho bộ phân loại hoặc R^2 cho bộ hồi quy."
+    example: "test_acc = round(model.score(X_test, y_test), 3)"
+    in_practice:
+      en: "Always call `.score(X_test, y_test)` on held-out test data rather than training data alone so overfitting cannot hide behind a high score."
+      vi: "Luôn gọi `.score(X_test, y_test)` trên tập test tách riêng thay vì chỉ nhìn tập train, tránh để overfitting ẩn sau điểm số cao giả tạo."
+    related: [estimator, accuracy, predict, overfitting]
+
+  - term: pipeline
+    vi_term: pipeline (chuỗi xử lý)
+    tags: [sklearn, data-prep]
+    en: "A scikit-learn object built with `make_pipeline(...)` that chains preprocessing steps (like `StandardScaler`) and a final estimator into one `.fit()`/`.predict()`/`.score()` unit."
+    vi: "Đối tượng scikit-learn tạo bằng `make_pipeline(...)` nối các bước tiền xử lý (như `StandardScaler`) và estimator cuối thành một khối `.fit()`/`.predict()`/`.score()` duy nhất."
+    example: "from sklearn.pipeline import make_pipeline\npipe = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=3))"
+    in_practice:
+      en: "Wrapping scaling inside a pipeline makes it impossible to accidentally call `fit_transform` on test data, preventing data leakage when comparing models."
+      vi: "Đặt bước chuẩn hóa vào trong pipeline giúp loại bỏ nguy cơ gọi nhầm `fit_transform` trên tập test, ngăn chặn rò rỉ dữ liệu khi so sánh mô hình."
+    related: [feature scaling / StandardScaler, data leakage, estimator]
+
+  - term: feature scaling / StandardScaler
+    vi_term: feature scaling / StandardScaler (chuẩn hóa thang đo đặc trưng)
+    tags: [sklearn, data-prep]
+    en: "Rescaling numeric columns to a comparable range; `StandardScaler` subtracts each training feature's mean and divides by its standard deviation."
+    vi: "Đưa các cột số về thang đo tương đương; `StandardScaler` trừ đi giá trị trung bình và chia cho độ lệch chuẩn của từng feature trên tập train."
+    example: "from sklearn.preprocessing import StandardScaler\nscaler = StandardScaler()\nX_train_s = scaler.fit_transform(X_train)\nX_test_s = scaler.transform(X_test)"
+    in_practice:
+      en: "Distance-based models like KNN and linear models rely heavily on feature scaling whenever columns have mismatched units (e.g., token counts vs error rates)."
+      vi: "Các mô hình dựa trên khoảng cách như KNN và mô hình tuyến tính phụ thuộc lớn vào chuẩn hóa thang đo khi các cột lệch đơn vị (ví dụ số token so với tỉ lệ lỗi)."
+    related: [pipeline, data leakage, feature]
+
+  - term: hyperparameter
+    vi_term: hyperparameter (siêu tham số)
+    tags: [sklearn, ml]
+    en: "A configuration setting you choose before training starts—such as `n_neighbors=3` or `max_depth=3`—rather than a weight learned during `.fit()`."
+    vi: "Cấu hình bạn chọn trước khi huấn luyện bắt đầu—như `n_neighbors=3` hay `max_depth=3`—thay vì trọng số được học trong `.fit()`."
+    example: "tree = DecisionTreeClassifier(max_depth=3, random_state=0)"
+    in_practice:
+      en: "Tuning hyperparameters like `max_depth` controls the trade-off between underfitting and overfitting and must always be judged on held-out test or validation data."
+      vi: "Chỉnh siêu tham số như `max_depth` giúp cân bằng giữa underfitting và overfitting và luôn phải đánh giá trên tập test hoặc validation tách riêng."
+    related: [estimator, overfitting, underfitting]
+
+  - term: random_state
+    vi_term: random_state (hạt giống ngẫu nhiên)
+    tags: [sklearn, data-prep]
+    en: "An integer seed passed to scikit-learn functions or estimators—such as `train_test_split(..., random_state=42)`—to make shuffling and splits reproducible."
+    vi: "Số nguyên hạt giống truyền vào hàm hoặc estimator của scikit-learn—như `train_test_split(..., random_state=42)`—để việc xáo và chia dữ liệu tái lập giống hệt nhau."
+    example: "X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.25, random_state=42)"
+    in_practice:
+      en: "Using the same `random_state` across experiments guarantees every candidate model is trained and evaluated on the exact same split."
+      vi: "Dùng cùng `random_state` giữa các lần thử nghiệm đảm bảo mọi mô hình đều được huấn luyện và chấm điểm trên đúng một lần chia."
+    related: [train/test split, stratify]
+
+  - term: stratify
+    vi_term: stratify (chia giữ tỉ lệ lớp)
+    tags: [sklearn, data-prep]
+    en: "Passing `stratify=y` to `train_test_split` so the train and test sets preserve the same class proportions as the full dataset."
+    vi: "Truyền `stratify=y` vào `train_test_split` để tập train và tập test giữ nguyên tỉ lệ các lớp giống bộ dữ liệu gốc."
+    example: "X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)"
+    in_practice:
+      en: "When positive cases are rare (like 10% urgent tickets), stratified splitting stops a random split from putting almost zero positives in the test set."
+      vi: "Khi lớp cần tìm khá hiếm (như 10% ticket khẩn cấp), chia có stratify ngăn việc chia ngẫu nhiên làm tập test gần như không có ca dương tính nào."
+    related: [train/test split, random_state, classification]
+
   # ---------------------------------------------------------- LLM / GenAI
   - term: LLM
     vi_term: LLM (mô hình ngôn ngữ lớn)

@@ -1,0 +1,2 @@
+KNN without scaling: 0.5
+Pipeline with StandardScaler: 1.0

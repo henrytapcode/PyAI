@@ -1,0 +1,3 @@
+# Dict comprehension và chọn bằng khóa tuple
+
+Thay vì dựng `scores` bằng vòng lặp `for` tường minh, phiên bản này tách một hàm phụ `_test_score` nhỏ rồi tạo dictionary kết quả chỉ với một dict comprehension trên `models.items()`. Trong `best_model`, lệnh `min(scores.items(), key=lambda kv: (-kv[1], kv[0]))` đổi dấu điểm để điểm cao nhất đứng đầu, đồng thời dùng tên mô hình để xử lý hòa theo thứ tự bảng chữ cái tăng dần. Cả hai cách cho kết quả giống hệt nhau và giữ nguyên thứ tự key; vòng lặp trong `solution.py` dễ gắn `print`/logging hoặc chạy debugger từng bước hơn, còn cách này gọn hơn khi logic đã cố định.
