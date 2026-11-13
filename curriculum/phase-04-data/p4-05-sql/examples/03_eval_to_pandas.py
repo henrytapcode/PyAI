@@ -34,8 +34,9 @@ sql = """
 """
 df = pd.read_sql_query(sql, conn, params=(0.75,))
 summary = (
-    df.groupby("model", as_index=False)["score"]
+    df.groupby("model")["score"]
     .mean()
+    .reset_index()
     .round(2)
     .sort_values(by=["score", "model"], ascending=[False, True])
     .reset_index(drop=True)

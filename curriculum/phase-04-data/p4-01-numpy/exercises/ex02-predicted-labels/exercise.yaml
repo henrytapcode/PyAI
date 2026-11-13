@@ -8,7 +8,7 @@ tags: [numpy, lists]
 hints:
   en:
     - |
-      This builds on `argmax(axis=1)` and `max(axis=1)` from §3 and §4. For `probs = np.array([[0.1, 0.9], [0.55, 0.45]])`, `labels = ["no", "yes"]`, and `threshold = 0.6`, the first row has max `0.9` at index `1` (`"yes"`), and the second row has max `0.55 < 0.6` (`"unsure"`), so return `["yes", "unsure"]`.
+      This builds on `argmax(axis=1)` and `max(axis=1)` from §4 (see also example `03_batch_predictions`). For `probs = np.array([[0.1, 0.9], [0.55, 0.45]])`, `labels = ["no", "yes"]`, and `threshold = 0.6`, the first row has max `0.9` at index `1` (`"yes"`), and the second row has max `0.55 < 0.6` (`"unsure"`), so return `["yes", "unsure"]`.
     - |
       The plan:
       1. Get the winning column index for every row with `probs.argmax(axis=1)`.
@@ -27,7 +27,7 @@ hints:
       What comparison checks whether `prob` meets the `threshold`?
   vi:
     - |
-      Bài này dựa trên `argmax(axis=1)` và `max(axis=1)` ở §3 và §4. Với `probs = np.array([[0.1, 0.9], [0.55, 0.45]])`, `labels = ["no", "yes"]` và `threshold = 0.6`, hàng đầu có max `0.9` ở chỉ số `1` (`"yes"`), hàng hai có max `0.55 < 0.6` (`"unsure"`), nên hàm trả về `["yes", "unsure"]`.
+      Bài này dựa trên `argmax(axis=1)` và `max(axis=1)` ở §4 (xem thêm ví dụ `03_batch_predictions`). Với `probs = np.array([[0.1, 0.9], [0.55, 0.45]])`, `labels = ["no", "yes"]` và `threshold = 0.6`, hàng đầu có max `0.9` ở chỉ số `1` (`"yes"`), hàng hai có max `0.55 < 0.6` (`"unsure"`), nên hàm trả về `["yes", "unsure"]`.
     - |
       Kế hoạch:
       1. Lấy chỉ số cột thắng của từng hàng bằng `probs.argmax(axis=1)`.

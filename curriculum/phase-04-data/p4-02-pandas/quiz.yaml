@@ -61,7 +61,7 @@ questions:
 
   - id: p4-02-q04
     type: fill
-    tags: [pandas, json]
+    tags: [pandas]
     difficulty: 1
     code: |
       import io
@@ -210,20 +210,20 @@ questions:
 
   - id: p4-02-q12
     type: fill
-    tags: [pandas, booleans]
+    tags: [pandas, data]
     difficulty: 2
     code: |
       import pandas as pd
-      df = pd.DataFrame({"a": [1, 3, 5], "b": [2, 4, 6]})
-      res = df[(df["a"] > 1) ___ (df["b"] < 5)]
-      print(len(res))
-    answer: ["&"]
+      df = pd.DataFrame({"model": ["a", "b", "c"], "score": [0.5, 0.9, 0.8]})
+      ranked = df.___("score", ascending=False)
+      print(ranked.iloc[0]["model"])
+    answer: ["sort_values"]
     en:
-      prompt: "Fill in the operator to keep rows where `a > 1` and `b < 5` are both true."
-      explanation: "pandas uses `&` (with parentheses around each comparison) for element-wise 'and', not the Python keyword `and`."
+      prompt: "Fill in the DataFrame method to sort rows by `score` from highest to lowest so `ranked.iloc[0][\"model\"]` prints `b`."
+      explanation: "`df.sort_values(\"score\", ascending=False)` sorts the DataFrame by the `score` column in descending order, placing `\"b\"` (`0.9`) first."
     vi:
-      prompt: "Điền toán tử để giữ những hàng thỏa đồng thời `a > 1` và `b < 5`."
-      explanation: "pandas dùng `&` (kèm ngoặc đơn quanh mỗi phép so sánh) cho phép 'và' theo từng phần tử, không dùng từ khóa `and` của Python."
+      prompt: "Điền phương thức của DataFrame để sắp xếp các hàng theo `score` từ cao xuống thấp sao cho `ranked.iloc[0][\"model\"]` in ra `b`."
+      explanation: "`df.sort_values(\"score\", ascending=False)` sắp xếp DataFrame theo cột `score` giảm dần, đưa `\"b\"` (`0.9`) lên đầu."
 
   - id: p4-02-q13
     type: parsons
@@ -318,7 +318,7 @@ flashcards:
     en: { front: "How are a `DataFrame` and a `Series` related?", back: "A `DataFrame` is a 2D labelled table of rows and columns; a single column (like `df[\"score\"]`) is a 1D `Series` sharing the same row index." }
     vi: { front: "`DataFrame` và `Series` liên quan với nhau thế nào?", back: "`DataFrame` là bảng 2 chiều có nhãn hàng và cột; một cột đơn lẻ (như `df[\"score\"]`) là một `Series` 1 chiều dùng chung index hàng." }
   - id: p4-02-f02
-    tags: [pandas, json]
+    tags: [pandas]
     code: "pd.read_csv(io.StringIO(text))"
     en: { front: "Why wrap a CSV string in `io.StringIO(text)` before passing it to `pd.read_csv`?", back: "`io.StringIO` turns an in-memory string into a file-like object so `pd.read_csv` can parse it without an external file on disk." }
     vi: { front: "Vì sao bọc chuỗi CSV trong `io.StringIO(text)` trước khi truyền vào `pd.read_csv`?", back: "`io.StringIO` biến chuỗi trong bộ nhớ thành đối tượng giả file để `pd.read_csv` đọc được mà không cần file thật trên ổ đĩa." }

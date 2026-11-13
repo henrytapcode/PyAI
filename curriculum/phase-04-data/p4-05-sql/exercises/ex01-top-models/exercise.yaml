@@ -8,7 +8,7 @@ tags: [sql]
 hints:
   en:
     - |
-      This uses `ROUND(AVG(...), 2)`, `GROUP BY`, `HAVING`, and `ORDER BY` from §4. For a `runs` table where `"gpt-4o"` averages `0.90` (3 runs), `"claude"` averages `0.88` (2 runs), and `"mini"` averages `0.95` (1 run), `top_models(conn, 2)` must return `[("gpt-4o", 0.9), ("claude", 0.88)]`.
+      This uses `ROUND(AVG(...), 2)`, `GROUP BY`, `HAVING`, and `ORDER BY` from §4. For a `runs` table where `"gpt-4o"` averages `0.90` (2 runs), `"claude"` averages `0.88` (2 runs), and `"mini"` averages `0.95` (1 run), `top_models(conn, 2)` must return `[("gpt-4o", 0.9), ("claude", 0.88)]`.
     - |
       Fill the four blanks in order:
       1. Pass `2` as the second argument to `ROUND(...)` so average scores round to two decimal places.
@@ -30,7 +30,7 @@ hints:
       Fill in the three `...` parts and the `?` placeholder in `starter.py`.
   vi:
     - |
-      Bài này dùng `ROUND(AVG(...), 2)`, `GROUP BY`, `HAVING` và `ORDER BY` ở §4. Với bảng `runs` trong đó `"gpt-4o"` trung bình `0.90` (3 lượt), `"claude"` trung bình `0.88` (2 lượt) và `"mini"` trung bình `0.95` (1 lượt), `top_models(conn, 2)` cần trả về `[("gpt-4o", 0.9), ("claude", 0.88)]`.
+      Bài này dùng `ROUND(AVG(...), 2)`, `GROUP BY`, `HAVING` và `ORDER BY` ở §4. Với bảng `runs` trong đó `"gpt-4o"` trung bình `0.90` (2 lượt), `"claude"` trung bình `0.88` (2 lượt) và `"mini"` trung bình `0.95` (1 lượt), `top_models(conn, 2)` cần trả về `[("gpt-4o", 0.9), ("claude", 0.88)]`.
     - |
       Điền lần lượt bốn chỗ trống:
       1. Truyền `2` làm đối số thứ hai của `ROUND(...)` để làm tròn điểm trung bình tới 2 chữ số thập phân.

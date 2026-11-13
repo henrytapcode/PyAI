@@ -1,6 +1,14 @@
 Nhóm của bạn đang chạy một chatbot với ba model khác nhau và hằng tuần đều cần trả lời: model nào tốn nhiều token nhất, model nào phản hồi chậm nhất, model nào lỗi nhiều nhất và người dùng chấm điểm ra sao. Thứ duy nhất bạn có là một file CSV log request thô—biến những log lộn xộn như vậy thành báo cáo rõ ràng là việc mà AI engineer làm mỗi tuần.
 
-Bài này gần như không có kiến thức mới: bạn kết hợp mọi thứ đã học ở phase 4—làm sạch bằng pandas, tổng hợp bằng SQLite và vẽ biểu đồ.
+Dự án nhỏ này kết hợp mọi thứ đã học ở phase 4—làm sạch bằng pandas, tổng hợp bằng SQLite và vẽ biểu đồ—đồng thời giới thiệu sáu công cụ tiện ích sau:
+
+**Mới trong bài này**
+- `.astype(str)` — chuyển cột sang chuỗi trước khi gọi `.str` để cột toàn số không gây lỗi.
+- `Series.where(cond)` — giữ giá trị ở chỗ điều kiện `True` và biến các vị trí khác thành `NaN`.
+- `df.to_sql(name, conn, index=False, if_exists=...)` — ghi `DataFrame` thẳng vào bảng SQLite (`if_exists="replace"` ghi đè bảng đã tồn tại).
+- `AVG(status = 'error')` — SQLite tính `status = 'error'` thành `1` hoặc `0`, nên trung bình cộng chính là tỉ lệ lỗi.
+- `df.iterrows()` — duyệt qua một `DataFrame` nhỏ theo từng cặp `(index, row)`.
+- `f"{name:<7}"` — đệm thêm khoảng trắng để chuỗi rộng đủ `7` ký tự (căn lề trái) giúp các dòng in ra thẳng hàng.
 
 ## 1. Kế hoạch
 
@@ -135,7 +143,7 @@ print(df["model"].value_counts())
 # Name: count, dtype: int64
 ```
 
-Tiếp theo, xóa dấu phẩy ở cột `tokens` rồi ép kiểu cả `tokens` lẫn `latency_ms` sang số bằng `pd.to_numeric(..., errors="coerce")`:
+Tiếp theo, xóa dấu phẩy ở cột `tokens` rồi ép kiểu cả `tokens` lẫn `latency_ms` sang số bằng `pd.to_numeric(..., errors="coerce")`. Gọi `.astype(str)` trước `.str.replace` rất quan trọng: khi một cột không có chữ nào (toàn số trơn), pandas đọc cột thành kiểu số và `.str` sẽ báo `AttributeError: Can only use .str accessor with string values!`; `.astype(str)` giúp `.str` luôn an toàn:
 
 ```python
 import io
@@ -165,7 +173,7 @@ print(df[["tokens", "latency_ms"]].dtypes)
 # dtype: object
 ```
 
-Để ý `tokens` tạm thời có kiểu `float64` vì dòng `r05` đang là `NaN`; ta chỉ ép `tokens` sang `"int64"` sau khi bỏ các dòng thiếu `tokens`. Với `rating`, bạn ép sang số trước rồi đổi các giá trị ngoài khoảng `1..5` thành `NaN` bằng `.where(df["rating"].between(1, 5))`:
+Để ý `tokens` tạm thời có kiểu `float64` vì dòng `r05` đang là `NaN`; ta chỉ ép `tokens` sang `"int64"` sau khi bỏ các dòng thiếu `tokens`. Với `rating`, bạn ép sang số trước rồi đổi các giá trị ngoài khoảng `1..5` thành `NaN` bằng `.where(df["rating"].between(1, 5))` (giữ giá trị ở chỗ điều kiện `True` và biến các vị trí khác thành `NaN`):
 
 ```python
 import io
@@ -191,7 +199,7 @@ print(df[["request_id", "rating"]].iloc[3:7])
 # 6        r06     5.0
 ```
 
-Cuối cùng, bỏ các dòng trùng `request_id` (`keep="first"`), bỏ các dòng thiếu `tokens`, đánh lại index rồi ép `tokens` sang `"int64"`. Bấm **Visualize** ở khối code này để xem `df` thu gọn dần qua từng bước:
+Cuối cùng, biến các `rating` ngoài khoảng thành `NaN`, bỏ các dòng trùng `request_id` (`keep="first"`), bỏ các dòng thiếu `tokens`, đánh lại index rồi ép `tokens` sang `"int64"`. Để ý hai điểm khác với bài p4-03: ta chỉ bỏ cả dòng khi trường hỏng là dữ liệu chính của dòng (như `rating` trong bảng rating ở p4-03), còn ở đây ta che `rating` thành `NaN` để các cột `tokens`, `latency_ms` và `status` vẫn dùng được; và ta dùng `keep="first"` vì request ghi nhận đầu tiên là bản gốc (còn ở p4-03 dùng `keep="last"` vì đánh giá mới nhất thay thế đánh giá cũ). Bấm **Visualize** ở khối code này để xem `df` thu gọn dần qua từng bước:
 
 ```python
 import io
@@ -396,7 +404,7 @@ Cách sửa: gọi `.dropna(...)` trước rồi mới `.astype("int64")`.
 
 - Lập kế hoạch cho pipeline (`load_and_clean` → `model_report` → `plot_report`) để mỗi hàm chỉ làm một việc rõ ràng.
 - Soi dữ liệu CSV thô bằng `shape`, `dtypes`, `isna().sum()` và `value_counts()` trước khi sửa.
-- Làm sạch theo thứ tự an toàn: chuẩn hóa văn bản, ép kiểu số, lọc giá trị ngoài khoảng, bỏ dòng trùng, bỏ dòng thiếu cột bắt buộc, đánh lại index rồi mới ép `"int64"`.
+- Làm sạch theo đúng thứ tự ở §3: chuẩn hóa văn bản, ép kiểu số, biến giá trị ngoài khoảng thành `NaN`, bỏ dòng trùng (`keep="first"`), bỏ dòng thiếu `tokens`, đánh lại index rồi mới ép `"int64"`.
 - Đưa bảng sạch vào SQLite (`to_sql`), tính `COUNT`, `SUM`, `AVG(status = 'error')` và `ROUND(AVG(...))` trong một câu `GROUP BY` có `ORDER BY` kèm cột phá hòa, rồi đọc về bằng `pd.read_sql_query`.
 - Vẽ biểu đồ cột đã sắp xếp với đầy đủ nhãn và kết thúc bằng nhận xét hành động trả lời đúng câu hỏi của nhóm.
 

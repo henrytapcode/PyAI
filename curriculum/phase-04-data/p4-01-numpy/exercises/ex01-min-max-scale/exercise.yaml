@@ -8,7 +8,7 @@ tags: [numpy, data-prep]
 hints:
   en:
     - |
-      This uses summary methods from §3 and scalar broadcasting from §2. For `np.array([10, 20, 30])`, the smallest value is `10` and the largest is `30`, so `(values - 10) / (30 - 10)` gives `array([0.0, 0.5, 1.0])`.
+      This uses summary methods from §3 and scalar broadcasting from §2. For `np.array([10, 20, 30])`, the smallest value is `10` and the largest is `30`, so `(values - 10) / (30 - 10)` gives `array([0. , 0.5, 1. ])`.
     - |
       The plan:
       1. Find the minimum of `values` using `.min()` and store it in `low`.
@@ -24,7 +24,7 @@ hints:
       What variable holds the smallest value to subtract in both places?
   vi:
     - |
-      Bài này dùng các phương thức tổng hợp ở §3 và phép tính với scalar ở §2. Với `np.array([10, 20, 30])`, giá trị nhỏ nhất là `10` và lớn nhất là `30`, nên `(values - 10) / (30 - 10)` cho kết quả `array([0.0, 0.5, 1.0])`.
+      Bài này dùng các phương thức tổng hợp ở §3 và phép tính với scalar ở §2. Với `np.array([10, 20, 30])`, giá trị nhỏ nhất là `10` và lớn nhất là `30`, nên `(values - 10) / (30 - 10)` cho kết quả `array([0. , 0.5, 1. ])`.
     - |
       Kế hoạch:
       1. Tìm giá trị nhỏ nhất của `values` bằng `.min()` và lưu vào `low`.

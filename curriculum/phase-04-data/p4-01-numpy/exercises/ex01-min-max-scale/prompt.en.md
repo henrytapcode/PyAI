@@ -4,7 +4,7 @@ Feature scaling puts numbers on a common `[0, 1]` scale before feeding them to a
 
 | input | output |
 |---|---|
-| `np.array([10, 20, 30])` | `array([0.0, 0.5, 1.0])` |
+| `np.array([10, 20, 30])` | `array([0. , 0.5, 1. ])` |
 
 **Rules**
 - Keep the same `shape` as `values` (works for both 1D and 2D arrays).

@@ -10,4 +10,4 @@
 
 **Để ý:** sau khi `groupby("model")`, tên các mô hình trở thành **index** của DataFrame, nên `summary.index[0]` trả về `"claude"` và `summary.iloc[0]["mean"]` đọc điểm trung bình ở hàng `0`.
 
-**Tự thử:** tăng điểm `"code"` của `llama` ở dòng 7 từ `0.80` lên `0.98` rồi xem thứ hạng thay đổi ra sao.
+**Tự thử:** hạ điểm `"code"` của `claude` ở dòng 7 từ `0.94` xuống `0.80` và xem `gpt-4o` vươn lên hạng nhất (`0.9` so với `0.84`).

@@ -210,7 +210,7 @@ questions:
         - "Matplotlib raises a `KeyError` and stops the script"
         - "Matplotlib automatically names the lines using the Python variable names"
         - "Matplotlib refuses to draw the lines at all"
-      explanation: "Without `label=` strings, `ax.legend()` finds no labeled artists, logs a `UserWarning`, and creates an empty legend box."
+      explanation: "Without `label=` strings, `ax.legend()` finds no labeled artists, matplotlib warns about missing labels, and creates an empty legend box."
     vi:
       prompt: "Điều gì xảy ra nếu bạn gọi `ax.legend()` sau khi vẽ các đường mà không truyền tham số `label=`?"
       options:
@@ -218,7 +218,7 @@ questions:
         - "Matplotlib báo lỗi `KeyError` và dừng chương trình"
         - "Matplotlib tự lấy tên biến Python làm nhãn"
         - "Matplotlib không vẽ các đường nữa"
-      explanation: "Khi không có `label=`, `ax.legend()` không tìm thấy đối tượng nào có nhãn nên phát `UserWarning` và tạo hộp chú thích trống."
+      explanation: "Khi không có `label=`, `ax.legend()` không tìm thấy đối tượng nào có nhãn nên matplotlib phát cảnh báo và tạo hộp chú thích trống."
 
   - id: p4-04-q12
     type: fill

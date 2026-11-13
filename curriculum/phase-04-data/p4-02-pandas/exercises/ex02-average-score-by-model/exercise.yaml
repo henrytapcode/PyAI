@@ -21,7 +21,7 @@ hints:
       means = ok_df.groupby(...)["score"].mean()
       return {str(model): round(float(score), ...) for model, score in means.items()}
       ```
-      Fill in the status string, grouping column name, and decimal places.
+      Fill in the status string, grouping column name, and decimal places (`.items()` yields each `(label, value)` pair from a Series).
   vi:
     - |
       Bài này kết hợp lọc boolean ở §4 và `.groupby()` ở §6. Với các hàng `[{"model": "a", "status": "ok", "score": 0.8}, {"model": "a", "status": "ok", "score": 0.9}, {"model": "b", "status": "error", "score": 0.0}]`, cần trả về `{"a": 0.85}` (không có `"b"` vì không có hàng `"ok"` nào).
@@ -37,4 +37,4 @@ hints:
       means = ok_df.groupby(...)["score"].mean()
       return {str(model): round(float(score), ...) for model, score in means.items()}
       ```
-      Hãy điền chuỗi trạng thái, tên cột gom nhóm và số chữ số thập phân.
+      Hãy điền chuỗi trạng thái, tên cột gom nhóm và số chữ số thập phân (`.items()` trả về từng cặp `(nhãn, giá trị)` của Series).

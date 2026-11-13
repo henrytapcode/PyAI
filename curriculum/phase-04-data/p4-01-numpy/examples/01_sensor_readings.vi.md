@@ -10,4 +10,4 @@
 
 **Để ý:** mỗi điều kiện nối bằng `&` hoặc `|` phải đặt trong ngoặc đơn `( ... )`, và phép lọc tạo ra mảng mới mà không làm đổi `temps_c`.
 
-**Tự thử:** đổi ngưỡng trên `35` ở dòng 9 và 12 thành `25`. Trung bình sạch sẽ giảm nhẹ.
+**Tự thử:** đổi ngưỡng dưới `10` ở dòng 9 và 12 thành `20`. `normal count` sẽ giảm từ `5` xuống `4` và `clean mean` sẽ tăng từ `22.26` lên `22.98`.

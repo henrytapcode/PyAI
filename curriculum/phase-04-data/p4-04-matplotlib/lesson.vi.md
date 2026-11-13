@@ -78,14 +78,14 @@ Dùng `ax.bar(names, values)` để vẽ **bar chart** (biểu đồ cột) so s
 
 ```python
 import matplotlib.pyplot as plt
+import pandas as pd
 
 models = ["mini", "claude", "gpt-4o"]
 costs = [0.40, 2.95, 4.25]
-pairs = sorted(zip(costs, models), reverse=True)
-sorted_costs, sorted_models = zip(*pairs)
+s = pd.Series(costs, index=models).sort_values(ascending=False)
 
 fig, ax = plt.subplots()
-ax.bar(sorted_models, sorted_costs)
+ax.bar(s.index.tolist(), s.tolist())
 ax.set_title("Monthly API cost by model")
 ax.set_ylabel("cost (USD)")
 plt.show()
@@ -197,7 +197,7 @@ flowchart TD
 | Hai đại lượng số liên hệ với nhau ra sao? | Biểu đồ phân tán | `ax.scatter(x, y)` |
 
 > [!TIP]
-> Hãy luôn sắp xếp giá trị trước khi gọi `ax.bar` hoặc `.plot(kind="bar")` — các cột chưa sắp xếp khiến người xem khó phân biệt thứ hạng cao nhì và ba.
+> Hãy luôn sắp xếp giá trị trước khi gọi `ax.bar` hoặc `.plot(kind="bar")` — các cột chưa sắp xếp khiến người xem khó phân biệt thứ hạng cao nhì và ba — trừ khi các nhóm có thứ tự tự nhiên (tháng, epoch, rating 1–5).
 
 ## 7. Nhiều biểu đồ cạnh nhau
 
@@ -248,7 +248,7 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 # Sai: ax.plot([1, 2, 3], [0.8, 0.5, 0.3]); ax.legend()
-# UserWarning: No artists with labels found to put in legend...
+# matplotlib in ra cảnh báo: No artists with labels found to put in legend...
 ax.plot([1, 2, 3], [0.8, 0.5, 0.3], label="train_loss")
 ax.legend()
 print([t.get_text() for t in ax.get_legend().get_texts()])
@@ -263,21 +263,21 @@ Cách sửa: truyền `label="tên"` vào mỗi lệnh `ax.plot(...)` trước k
 
 ```python
 import matplotlib.pyplot as plt
+import pandas as pd
 
 x = [3, 1, 4, 2]
 y = [0.4, 0.9, 0.3, 0.6]
-pairs = sorted(zip(x, y))
-x_sorted, y_sorted = zip(*pairs)
-print(list(x_sorted), list(y_sorted))
+s = pd.Series(y, index=x).sort_index()
+print(s.index.tolist(), s.tolist())
 # [1, 2, 3, 4] [0.9, 0.6, 0.4, 0.3]
 
 fig, ax = plt.subplots()
-ax.plot(x_sorted, y_sorted, marker="o")
+ax.plot(s.index.tolist(), s.tolist(), marker="o")
 plt.show()
 # (hiện đường cong đi xuống gọn gàng thay vì đường zigzag)
 ```
 
-Cách sửa: sắp xếp các cặp `(x, y)` theo `x` trước khi gọi `ax.plot(...)` (hoặc dùng `ax.scatter` nếu thứ tự không quan trọng).
+Cách sửa: sắp xếp các giá trị theo `x` (chẳng hạn bằng `pd.Series(y, index=x).sort_index()`) trước khi gọi `ax.plot(...)` (hoặc dùng `ax.scatter` nếu thứ tự không quan trọng).
 
 **Trộn `plt.xlabel(...)` khi dùng nhiều `ax`.** Các hàm cấp cao `plt.*` chỉ tác động lên axes cuối cùng, khiến biểu đồ trước đó bị thiếu nhãn:
 

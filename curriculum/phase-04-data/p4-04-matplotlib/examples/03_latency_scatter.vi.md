@@ -5,7 +5,7 @@
 **Từng bước**
 1. Dòng 5–6 tạo hai mảng NumPy chứa số token đầu vào và độ trễ phản hồi của 8 request.
 2. Dòng 8–14 tạo `(fig, ax)`, vẽ biểu đồ phân tán bằng `ax.scatter(tokens, latency_ms)`, đặt nhãn trục, bật lưới rồi gọi `plt.show()`.
-3. Dòng 16–17 tính hệ số tương quan bằng `np.corrcoef(...)`, ép sang `float`, làm tròn hai chữ số rồi in ra.
+3. Dòng 16–17 tính hệ số tương quan bằng `np.corrcoef(...)` (hệ số tương quan từ `-1` đến `1`; gần `1` nghĩa là hai đại lượng tăng cùng nhau), ép sang `float`, làm tròn hai chữ số rồi in ra.
 
 **Để ý:** `ax.scatter` chấm các điểm rời rạc thay vì nối dây giữa chúng — đúng với trường hợp các điểm đo độc lập nhau.
 

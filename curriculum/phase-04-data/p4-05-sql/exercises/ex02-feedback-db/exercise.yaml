@@ -21,20 +21,18 @@ hints:
           conn = sqlite3.connect(":memory:")
           conn.execute("CREATE TABLE feedback (user TEXT, model TEXT, rating INTEGER)")
           with conn:
-              conn.executemany(
-                  "INSERT INTO feedback (user, model, rating) VALUES (?, ?, ?)",
-                  ...,
-              )
+              # 1. insert all rows with executemany and (?, ?, ?) placeholders:
+              ...
           return conn
 
       def low_rated_users(conn: sqlite3.Connection, max_rating: int) -> list[str]:
-          found = conn.execute(
-              "SELECT DISTINCT user FROM feedback WHERE rating <= ? ORDER BY ...",
-              (...,),
-          ).fetchall()
+          # 2. write the SELECT DISTINCT query with WHERE rating <= ? and ORDER BY:
+          sql = ...
+          # 3. execute with (max_rating,) and fetch all matching tuples:
+          found = ...
           return [row[0] for row in found]
       ```
-      Fill in the three `...` gaps.
+      Complete the `...` lines in both functions.
   vi:
     - |
       Bài này kết hợp `CREATE TABLE` ở §1, `executemany` với placeholder `?` trong `with conn:` ở §2 và `SELECT` kèm `WHERE ... <= ?`, `ORDER BY` ở §3. Với `[("binh", "mini", 2), ("an", "gpt-4o", 3), ("an", "mini", 1)]`, `low_rated_users(conn, 2)` phải trả về `["an", "binh"]`.
@@ -50,17 +48,15 @@ hints:
           conn = sqlite3.connect(":memory:")
           conn.execute("CREATE TABLE feedback (user TEXT, model TEXT, rating INTEGER)")
           with conn:
-              conn.executemany(
-                  "INSERT INTO feedback (user, model, rating) VALUES (?, ?, ?)",
-                  ...,
-              )
+              # 1. chèn toàn bộ rows bằng executemany và placeholder (?, ?, ?):
+              ...
           return conn
 
       def low_rated_users(conn: sqlite3.Connection, max_rating: int) -> list[str]:
-          found = conn.execute(
-              "SELECT DISTINCT user FROM feedback WHERE rating <= ? ORDER BY ...",
-              (...,),
-          ).fetchall()
+          # 2. viết câu SELECT DISTINCT với WHERE rating <= ? và ORDER BY:
+          sql = ...
+          # 3. thực thi với (max_rating,) và lấy hết các dòng:
+          found = ...
           return [row[0] for row in found]
       ```
-      Hãy điền vào ba chỗ `...`.
+      Hãy hoàn thiện các dòng `...` trong cả hai hàm.

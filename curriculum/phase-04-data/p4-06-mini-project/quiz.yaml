@@ -23,21 +23,27 @@ questions:
 
   - id: p4-06-q02
     type: output
-    tags: [pandas, data-cleaning]
+    tags: [sql]
     difficulty: 1
     code: |
-      import pandas as pd
+      import sqlite3
 
-      s = pd.Series([" GPT-4o", "gpt_4o", "Claude "])
-      cleaned = s.str.strip().str.lower().str.replace("_", "-", regex=False)
-      print(cleaned.unique().tolist())
-    answer: "['gpt-4o', 'claude']"
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE reqs (model TEXT, status TEXT)")
+      conn.executemany(
+          "INSERT INTO reqs (model, status) VALUES (?, ?)",
+          [("mini", "ok"), ("mini", "error"), ("mini", "ok"), ("mini", "ok"), ("mini", "error")],
+      )
+      rate = conn.execute("SELECT AVG(status = 'error') FROM reqs").fetchone()[0]
+      print(rate)
+      conn.close()
+    answer: "0.4"
     en:
       prompt: "What does this code print?"
-      explanation: "`.str.strip()` removes leading/trailing spaces, `.str.lower()` lowercases everything, and `.str.replace(\"_\", \"-\", regex=False)` turns `gpt_4o` into `gpt-4o`, leaving two unique names."
+      explanation: "In SQLite, `status = 'error'` evaluates to `1` for `'error'` rows and `0` for `'ok'` rows. With 2 errors out of 5 requests, `AVG(status = 'error')` returns `0.4`."
     vi:
       prompt: "Đoạn code này in ra gì?"
-      explanation: "`.str.strip()` xóa khoảng trắng hai đầu, `.str.lower()` đổi thành chữ thường, còn `.str.replace(\"_\", \"-\", regex=False)` biến `gpt_4o` thành `gpt-4o`, nên chỉ còn hai tên duy nhất."
+      explanation: "Trong SQLite, `status = 'error'` trả về `1` với dòng `'error'` và `0` với dòng `'ok'`. Có 2 lỗi trên tổng số 5 request nên `AVG(status = 'error')` trả về `0.4`."
 
   - id: p4-06-q03
     type: fill
@@ -66,21 +72,21 @@ questions:
     difficulty: 2
     answer: 2
     en:
-      prompt: "Why does calling `df[\"tokens\"].astype(\"int64\")` right after `pd.to_numeric(..., errors=\"coerce\")` crash with `IntCastingNaNError` when a row had empty `tokens`?"
+      prompt: "Why do we call `df[\"tokens\"].astype(str)` before `.str.replace(\",\", \"\", regex=False)`?"
       options:
-        - "Because `pd.to_numeric` returns strings instead of floats"
-        - "Because `\"int64\"` only works on columns with fewer than 10 rows"
-        - "Because standard `\"int64\"` cannot represent `NaN`, so rows with missing `tokens` must be dropped first"
-        - "Because you must drop `status` before casting `tokens` to `\"int64\"`"
-      explanation: "`pd.to_numeric(..., errors=\"coerce\")` produces `float64` when `NaN` is present. Dropping missing `tokens` rows with `.dropna(subset=[\"tokens\"])` before calling `.astype(\"int64\")` avoids `IntCastingNaNError`."
+        - "Because `.str.replace` converts integers to `NaN` unless cast first"
+        - "Because `pd.to_numeric` only accepts `str` objects, not `Series`"
+        - "Because if a CSV batch has only plain numbers (or all blanks), pandas reads `tokens` as numeric and `.str` raises `AttributeError`"
+        - "Because `.astype(str)` automatically removes commas from every number"
+      explanation: "When no row contains commas or text, `pd.read_csv` parses `tokens` as an `int64` or `float64` column, so calling `.str` fails with `AttributeError: Can only use .str accessor with string values!`. Casting with `.astype(str)` keeps `.str` safe."
     vi:
-      prompt: "Vì sao gọi `df[\"tokens\"].astype(\"int64\")` ngay sau `pd.to_numeric(..., errors=\"coerce\")` lại báo lỗi `IntCastingNaNError` khi có một dòng bị trống `tokens`?"
+      prompt: "Vì sao ta cần gọi `df[\"tokens\"].astype(str)` trước `.str.replace(\",\", \"\", regex=False)`?"
       options:
-        - "Vì `pd.to_numeric` trả về chuỗi chứ không phải số thực"
-        - "Vì kiểu `\"int64\"` chỉ dùng được cho bảng có ít hơn 10 dòng"
-        - "Vì cột số nguyên `\"int64\"` không thể chứa `NaN`, nên phải bỏ các dòng thiếu `tokens` trước khi ép kiểu"
-        - "Vì bắt buộc phải bỏ cột `status` trước khi ép `tokens` sang `\"int64\"`"
-      explanation: "`pd.to_numeric(..., errors=\"coerce\")` trả về `float64` khi có `NaN`. Hãy gọi `.dropna(subset=[\"tokens\"])` trước rồi mới `.astype(\"int64\")` để tránh `IntCastingNaNError`."
+        - "Vì `.str.replace` sẽ biến số nguyên thành `NaN` nếu chưa ép kiểu trước"
+        - "Vì `pd.to_numeric` chỉ nhận kiểu `str` chứ không nhận `Series`"
+        - "Vì nếu một lô CSV chỉ chứa số trơn (hoặc toàn ô trống), pandas đọc `tokens` thành cột số và gọi `.str` sẽ báo `AttributeError`"
+        - "Vì `.astype(str)` tự động xóa dấu phẩy khỏi mọi con số"
+      explanation: "Khi không có dòng nào chứa dấu phẩy hay chữ, `pd.read_csv` đọc `tokens` thành cột số (`int64`/`float64`), khiến `.str` báo `AttributeError: Can only use .str accessor with string values!`. Gọi `.astype(str)` giúp `.str` luôn chạy an toàn."
 
   - id: p4-06-q05
     type: output
@@ -127,20 +133,20 @@ questions:
 
   - id: p4-06-q07
     type: parsons
-    tags: [pandas, data-cleaning]
+    tags: [sql, pandas]
     difficulty: 2
     lines:
-      - "import pandas as pd"
-      - 'df = pd.DataFrame({"tokens": [100.0, float("nan"), 200.0]})'
-      - 'df = df.dropna(subset=["tokens"]).reset_index(drop=True)'
-      - 'df["tokens"] = df["tokens"].astype("int64")'
-      - 'print(df["tokens"].tolist())'
+      - "import sqlite3, pandas as pd"
+      - 'conn = sqlite3.connect(":memory:")'
+      - 'pd.DataFrame({"model": ["mini"]}).to_sql("requests", conn, index=False)'
+      - 'pd.DataFrame({"model": ["gpt-4o", "claude"]}).to_sql("requests", conn, index=False, if_exists="replace")'
+      - 'print(conn.execute("SELECT COUNT(*) FROM requests").fetchone())'
     en:
-      prompt: "Put the lines in order to drop missing `tokens`, cast to `\"int64\"`, and print `[100, 200]`."
-      explanation: "Create the DataFrame first, drop missing `tokens` before casting to `\"int64\"` (otherwise `IntCastingNaNError` occurs), then print the integer list."
+      prompt: "Put the lines in order to open an in-memory database, write 1 row to `\"requests\"`, replace it with 2 rows using `if_exists=\"replace\"`, and print `(2,)`."
+      explanation: "Create the connection, write the 1-row DataFrame first, then overwrite `\"requests\"` with the 2-row DataFrame via `if_exists=\"replace\"` (calling the plain `to_sql` second would raise `ValueError`) before querying `COUNT(*)`."
     vi:
-      prompt: "Sắp xếp các dòng để bỏ giá trị thiếu ở `tokens`, ép kiểu sang `\"int64\"` rồi in ra `[100, 200]`."
-      explanation: "Tạo DataFrame trước, bỏ các dòng thiếu `tokens` rồi mới ép sang `\"int64\"` (nếu làm ngược sẽ bị `IntCastingNaNError`), sau đó in kết quả."
+      prompt: "Sắp xếp các dòng để mở database trong bộ nhớ, ghi 1 dòng vào `\"requests\"`, ghi đè bằng 2 dòng với `if_exists=\"replace\"`, rồi in `(2,)`."
+      explanation: "Mở kết nối, ghi DataFrame 1 dòng trước, sau đó ghi đè bảng `\"requests\"` bằng DataFrame 2 dòng nhờ `if_exists=\"replace\"` (gọi `to_sql` mặc định ở bước sau sẽ gây `ValueError`) rồi mới đếm `COUNT(*)`."
 
   - id: p4-06-q08
     type: mcq
@@ -174,7 +180,7 @@ questions:
       conn = sqlite3.connect(":memory:")
       conn.execute("CREATE TABLE reqs (model TEXT, status TEXT)")
       conn.executemany(
-          "INSERT INTO reqs VALUES (?, ?)",
+          "INSERT INTO reqs (model, status) VALUES (?, ?)",
           [("mini", "ok"), ("mini", "error"), ("mini", "ok"), ("mini", "ok")],
       )
       rate = conn.execute(
@@ -341,7 +347,7 @@ questions:
       - "import sqlite3"
       - 'conn = sqlite3.connect(":memory:")'
       - 'conn.execute("CREATE TABLE reqs (model TEXT, status TEXT)")'
-      - 'conn.executemany("INSERT INTO reqs VALUES (?, ?)", [("a", "ok"), ("a", "error")])'
+      - 'conn.executemany("INSERT INTO reqs (model, status) VALUES (?, ?)", [("a", "ok"), ("a", "error")])'
       - 'print(conn.execute("SELECT model, ROUND(AVG(status = ''error''), 2) FROM reqs GROUP BY model ORDER BY model").fetchall())'
     en:
       prompt: "Put the lines in order to insert two requests for model `'a'` and print `[('a', 0.5)]`."
@@ -360,11 +366,9 @@ flashcards:
   - id: p4-06-f02
     tags: [data-cleaning, pandas]
     code: |
-      df["tokens"] = pd.to_numeric(df["tokens"].astype(str).str.replace(",", "", regex=False), errors="coerce")
-      df = df.dropna(subset=["tokens"]).reset_index(drop=True)
-      df["tokens"] = df["tokens"].astype("int64")
-    en: { front: "Why must you call `.dropna(subset=[\"tokens\"])` before `.astype(\"int64\")`?", back: "Standard `\"int64\"` cannot store `NaN`; casting before dropping missing rows raises `IntCastingNaNError`." }
-    vi: { front: "Vì sao phải gọi `.dropna(subset=[\"tokens\"])` trước khi gọi `.astype(\"int64\")`?", back: "Kiểu số nguyên `\"int64\"` không chứa được `NaN`; nếu ép kiểu trước khi bỏ dòng thiếu sẽ gặp lỗi `IntCastingNaNError`." }
+      df["rating"] = df["rating"].where(df["rating"].between(1, 5))
+    en: { front: "How does `Series.where(...)` differ from `df.dropna(...)` when cleaning `rating`?", back: "`.where(cond)` keeps every row and turns only the non-matching `rating` cells into `NaN`, whereas `dropna()` deletes entire rows (losing valid `tokens` and `status` data)." }
+    vi: { front: "`Series.where(...)` khác gì với `df.dropna(...)` khi làm sạch cột `rating`?", back: "`.where(cond)` giữ lại toàn bộ dòng và chỉ biến ô `rating` sai điều kiện thành `NaN`, trong khi `dropna()` xóa cả dòng (làm mất luôn dữ liệu `tokens` và `status` hợp lệ)." }
   - id: p4-06-f03
     tags: [data-cleaning, pandas]
     code: |

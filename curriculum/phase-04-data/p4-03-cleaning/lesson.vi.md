@@ -2,7 +2,7 @@ Dữ liệu thực tế hiếm khi sạch sẽ khi đi vào script của bạn: 
 
 ## 1. Soi dữ liệu trước
 
-Trước khi sửa bất cứ thứ gì, hãy kiểm tra kích thước bảng, kiểu dữ liệu từng cột, số ô thiếu và các giá trị phân loại hiện có để biết cột nào đang hỏng. Hãy xem một bảng log lộn xộn qua `.shape`, `.dtypes`, `.isna().sum()`, `.unique()` và `.value_counts()` — giống như đi một vòng kiểm tra xe trước khi mở nắp capo.
+Trước khi sửa bất cứ thứ gì, hãy kiểm tra kích thước bảng, kiểu dữ liệu từng cột, số ô thiếu và các giá trị phân loại hiện có để biết cột nào đang hỏng. Hãy xem một bảng log lộn xộn qua `.shape`, `.dtypes`, `.isna().sum()`, `.unique()`, `.nunique()` (đếm số giá trị phân biệt) và `.value_counts()` — giống như đi một vòng kiểm tra xe trước khi mở nắp capo.
 
 ```python
 import io
@@ -29,6 +29,8 @@ print(df.isna().sum())
 # dtype: int64
 print(df["model"].unique().tolist())
 # [' GPT-4o', 'gpt-4o', 'Claude']
+print(df["model"].nunique())
+# 3
 print(df["model"].value_counts())
 # model
 #  GPT-4o    2
@@ -150,7 +152,7 @@ Bấm **Visualize** ở khối code này để xem `raw` đi qua từng bước 
 
 ## 5. Dòng trùng và dòng không hợp lệ
 
-Ngay cả khi văn bản và kiểu dữ liệu đã gọn, bảng vẫn có thể chứa **duplicate** (dòng trùng) hoặc giá trị ngoài khoảng cho phép như đánh giá `9` trên thang 1–5. Hãy dùng `.duplicated()` để phát hiện dòng lặp, `.drop_duplicates(subset=..., keep="last")` để giữ lại dòng mới nhất cho mỗi khóa, và `.between(low, high)` để lọc các dòng hợp lệ.
+Ngay cả khi văn bản và kiểu dữ liệu đã gọn, bảng vẫn có thể chứa **duplicate** (dòng trùng) hoặc giá trị ngoài khoảng cho phép như đánh giá `9` trên thang 1–5. Hãy dùng `.duplicated()` để phát hiện dòng lặp, lọc bằng `.between(low, high)` **trước**, rồi mới gọi `.drop_duplicates(subset=..., keep="last")` để dòng hỏng không bao giờ giữ lại thay cho dòng hợp lệ trước đó.
 
 ```python
 import pandas as pd
@@ -162,19 +164,19 @@ ratings = pd.DataFrame({
 print(ratings.duplicated(subset=["user"]).tolist())
 # [False, False, True, False]
 
-deduped = ratings.drop_duplicates(subset=["user"], keep="last")
-valid_ratings = deduped[deduped["rating"].between(1, 5)].reset_index(drop=True)
-print(valid_ratings)
+valid_ratings = ratings[ratings["rating"].between(1, 5)]
+deduped = valid_ratings.drop_duplicates(subset=["user"], keep="last").reset_index(drop=True)
+print(deduped)
 #    user  rating
 # 0  binh       5
 # 1    an       4
 ```
 
-Hãy để ý hai chi tiết: `keep="last"` giữ lại hàng `2` (`an`, `4`) thay vì hàng `0` (`an`, `3`), và `.between(1, 5)` tính cả hai đầu mút (`1 <= rating <= 5`) nên loại bỏ `9`.
+Hãy để ý hai chi tiết: `.between(1, 5)` lọc bỏ `9` trước (tính cả hai đầu mút `1 <= rating <= 5`), rồi `drop_duplicates(subset=["user"], keep="last")` giữ lại hàng `2` (`an`, `4`) thay cho hàng `0` (`an`, `3`) trước đó.
 
 ## 6. Gộp thành pipeline
 
-Trong dự án thật, bạn bọc toàn bộ các bước làm sạch vào một hàm `clean(df)` bắt đầu bằng `df = df.copy()` để không làm biến đổi dữ liệu gốc của nơi gọi. Đi theo một trình tự rõ ràng — soi dữ liệu, chuẩn hóa chữ, ép kiểu, xử lý thiếu, bỏ trùng, kiểm tra khoảng hợp lệ — giúp tránh các lỗi tinh vi như giữ nhầm một dòng trùng có giá trị hỏng.
+Trong dự án thật, bạn bọc toàn bộ các bước làm sạch vào một hàm `clean(df)` bắt đầu bằng `df = df.copy()` để không làm biến đổi dữ liệu gốc của nơi gọi. Đi theo một trình tự rõ ràng — soi dữ liệu, chuẩn hóa chữ, ép kiểu, xử lý thiếu, kiểm tra khoảng hợp lệ, rồi mới bỏ trùng — giúp tránh các lỗi tinh vi như giữ nhầm một dòng trùng có giá trị hỏng.
 
 ```mermaid
 flowchart TD
@@ -182,8 +184,8 @@ flowchart TD
     B --> C["Chuẩn hóa chữ bằng .str"]
     C --> D["Sửa kiểu bằng to_numeric"]
     D --> E["Xử lý giá trị thiếu"]
-    E --> F["Bỏ dòng trùng"]
-    F --> G["Kiểm tra khoảng hợp lệ"]
+    E --> F["Kiểm tra khoảng hợp lệ"]
+    F --> G["Bỏ dòng trùng"]
 ```
 
 | vấn đề | công cụ |
@@ -193,8 +195,8 @@ flowchart TD
 | Điền số thiếu một cách an toàn | `df["col"].fillna(df["col"].median())` |
 | Chuyển chuỗi số lộn xộn sang số | `pd.to_numeric(..., errors="coerce")` |
 | Chuẩn hóa nhãn văn bản | `.str.strip().str.lower().str.replace(...)` |
-| Loại bỏ khóa bị trùng | `df.drop_duplicates(subset=[...], keep="last")` |
 | Lọc giá trị nằm trong khoảng | `df[df["col"].between(low, high)]` |
+| Loại bỏ khóa bị trùng | `df.drop_duplicates(subset=[...], keep="last")` |
 
 Xem hàm `clean(raw_df)` gom toàn bộ các bước trên thành một pipeline dùng lại được:
 

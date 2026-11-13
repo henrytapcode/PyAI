@@ -15,7 +15,7 @@ print(scores.ndim)   # 1
 print(len(scores))   # 3
 ```
 
-Notice four useful properties: `shape` tells you the size along each dimension as a tuple, `dtype` shows the element type (such as `int64`, `int32` or `float64`), `ndim` counts the dimensions, and `len(scores)` gives the length along the first dimension.
+Notice four useful properties: `shape` tells you the size along each dimension as a tuple, `dtype` shows the element type (such as `int64`, `int32` or `float64`), `ndim` counts the dimensions, and `len(scores)` gives the length along the first dimension. Calling `scores.tolist()` converts the array back into a plain Python `list`.
 
 | Python `list` | NumPy `array` |
 |---|---|
@@ -107,9 +107,11 @@ print(grid[1])             # [40 50 60]
 print(grid[:, 0])          # [10 40]
 print(grid.mean(axis=0))   # [25. 35. 45.]
 print(grid.mean(axis=1))   # [20. 50.]
+print(grid.max(axis=1))    # [30 60]
+print(grid.argmax(axis=1)) # [2 2]
 ```
 
-Notice `grid[1]` selects row `1`, while `grid[:, 0]` uses `:` ("all rows") to grab column `0`. And `grid.mean(axis=0)` returns 3 numbers (one per column), while `grid.mean(axis=1)` returns 2 numbers (one per row).
+Notice `grid[1]` selects row `1`, while `grid[:, 0]` uses `:` ("all rows") to grab column `0`. And `grid.mean(axis=0)` returns 3 numbers (one per column), while `grid.mean(axis=1)`, `grid.max(axis=1)`, and `grid.argmax(axis=1)` return 2 numbers (one per row).
 
 ## 5. Boolean masks
 

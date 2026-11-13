@@ -11,5 +11,5 @@ def predicted_labels(probs: np.ndarray, labels: list[str], threshold: float) -> 
     best_probs = probs.max(axis=1)
     return [
         labels[int(idx)] if prob >= threshold else "unsure"
-        for idx, prob in zip(best_ids, best_probs, strict=True)
+        for idx, prob in zip(best_ids, best_probs)  # noqa: B905
     ]

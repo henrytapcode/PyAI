@@ -83,7 +83,7 @@ Notice that `id` was left out of the column list because SQLite automatically fi
 
 ## 3. Querying with SELECT
 
-A `SELECT` **query** reads columns from a table: `.fetchall()` returns every matching row as a list of Python tuples, while `.fetchone()` returns only the first tuple (or `None` if nothing matched). You filter rows with `WHERE` (`=`, `>`, `AND`, `OR`, `LIKE` with `%` as a wildcard), sort them with `ORDER BY ... DESC` (or `ASC`), and cap the count with `LIMIT`.
+A `SELECT` **query** reads columns from a table (`SELECT *` selects all columns, while `SELECT DISTINCT col` removes duplicate values): `.fetchall()` returns every matching row as a list of Python tuples, while `.fetchone()` returns only the first tuple (or `None` if nothing matched). You filter rows with `WHERE` (`=`, `>`, `AND`, `OR`, `LIKE` with `%` as a wildcard), sort them with `ORDER BY ... DESC` (or `ASC`), and cap the count with `LIMIT`.
 
 ```python
 import sqlite3
@@ -123,6 +123,12 @@ top_one = conn.execute(
 ).fetchone()
 print(top_one)
 # ('an', 480)
+
+unique_users = conn.execute(
+    "SELECT DISTINCT user FROM prompts ORDER BY user ASC"
+).fetchall()
+print(unique_users)
+# [('an',), ('binh',), ('chi',)]
 conn.close()
 ```
 

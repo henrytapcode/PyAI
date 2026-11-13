@@ -284,7 +284,7 @@ questions:
       - "import sqlite3"
       - 'conn = sqlite3.connect(":memory:")'
       - 'conn.execute("CREATE TABLE runs (model TEXT, score REAL)")'
-      - 'conn.executemany("INSERT INTO runs VALUES (?, ?)", [("a", 0.7), ("b", 0.9)])'
+      - 'conn.executemany("INSERT INTO runs (model, score) VALUES (?, ?)", [("a", 0.7), ("b", 0.9)])'
       - 'rows = conn.execute("SELECT model FROM runs WHERE score > 0.8 ORDER BY model").fetchall()'
       - "print(rows)"
     en:
@@ -354,7 +354,7 @@ questions:
       - "import sqlite3"
       - 'conn = sqlite3.connect(":memory:")'
       - 'conn.execute("CREATE TABLE fb (model TEXT, rating INTEGER)")'
-      - 'conn.executemany("INSERT INTO fb VALUES (?, ?)", [("a", 4), ("a", 5), ("b", 3)])'
+      - 'conn.executemany("INSERT INTO fb (model, rating) VALUES (?, ?)", [("a", 4), ("a", 5), ("b", 3)])'
       - 'res = conn.execute("SELECT model, ROUND(AVG(rating), 2) FROM fb GROUP BY model HAVING COUNT(*) >= 2 ORDER BY model").fetchall()'
       - "print(res)"
     en:

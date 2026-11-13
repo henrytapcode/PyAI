@@ -1,6 +1,14 @@
 Your team runs a chatbot across three models and wants weekly answers: which model burns the most tokens, which one is slowest, which one fails most often, and how users rate each one. All you have is a raw CSV export of request logs—turning noisy logs like this into a clear summary is something AI engineers do every week.
 
-There is almost nothing new here: you combine everything from phase 4—cleaning with pandas, aggregating with SQLite, and plotting a chart.
+This project combines everything from phase 4—cleaning with pandas, aggregating with SQLite, and plotting a chart—and introduces six handy tools along the way:
+
+**New in this lesson**
+- `.astype(str)` — converts a column to strings before calling `.str` so numeric-only columns do not crash.
+- `Series.where(cond)` — keeps values where the condition is `True` and turns all other positions into `NaN`.
+- `df.to_sql(name, conn, index=False, if_exists=...)` — writes a `DataFrame` straight into a SQLite table (`if_exists="replace"` overwrites an existing table).
+- `AVG(status = 'error')` — SQLite evaluates `status = 'error'` as `1` or `0`, so its average gives the error rate directly.
+- `df.iterrows()` — loops over a small `DataFrame`, yielding `(index, row)` pairs.
+- `f"{name:<7}"` — pads a string with spaces to width `7` (left-aligned) so printed rows line up.
 
 ## 1. The plan
 
@@ -135,7 +143,7 @@ print(df["model"].value_counts())
 # Name: count, dtype: int64
 ```
 
-Next, strip commas from `tokens` and coerce both `tokens` and `latency_ms` to numbers with `pd.to_numeric(..., errors="coerce")`:
+Next, strip commas from `tokens` and coerce both `tokens` and `latency_ms` to numbers with `pd.to_numeric(..., errors="coerce")`. Calling `.astype(str)` before `.str.replace` is essential: if a batch has no text at all (only plain numbers), pandas reads it as numeric and `.str` raises `AttributeError: Can only use .str accessor with string values!`—`.astype(str)` keeps `.str` safe:
 
 ```python
 import io
@@ -165,7 +173,7 @@ print(df[["tokens", "latency_ms"]].dtypes)
 # dtype: object
 ```
 
-Notice `tokens` becomes `float64` temporarily because row `r05` is `NaN`; we cast `tokens` to `"int64"` only after dropping missing `tokens` rows. For `rating`, coerce to numbers first and turn values outside `1..5` into `NaN` with `.where(df["rating"].between(1, 5))`:
+Notice `tokens` becomes `float64` temporarily because row `r05` is `NaN`; we cast `tokens` to `"int64"` only after dropping missing `tokens` rows. For `rating`, coerce to numbers first and turn values outside `1..5` into `NaN` with `.where(df["rating"].between(1, 5))` (which keeps values where the condition is `True` and turns other positions into `NaN`):
 
 ```python
 import io
@@ -191,7 +199,7 @@ print(df[["request_id", "rating"]].iloc[3:7])
 # 6        r06     5.0
 ```
 
-Finally, drop duplicate `request_id` rows (`keep="first"`), drop rows missing `tokens`, reset the index, and cast `tokens` to `"int64"`. Press **Visualize** on this block and watch `df` shrink step by step:
+Finally, mask out-of-range ratings, drop duplicate `request_id` rows (`keep="first"`), drop rows missing `tokens`, reset the index, and cast `tokens` to `"int64"`. Notice two differences from p4-03: we drop rows only when the broken field is the row's main value (like `rating` in p4-03's ratings table), whereas here we mask `rating` to `NaN` so `tokens`, `latency_ms`, and `status` remain usable; and we use `keep="first"` because the first logged request is the original (whereas in p4-03 a newer rating replaced an older one). Press **Visualize** on this block and watch `df` shrink step by step:
 
 ```python
 import io
@@ -396,7 +404,7 @@ Fix: call `.dropna(...)` first, then `.astype("int64")`.
 
 - Plan the pipeline (`load_and_clean` → `model_report` → `plot_report`) so each function has one clear input and output.
 - Inspect raw CSV data with `shape`, `dtypes`, `isna().sum()`, and `value_counts()` before touching any column.
-- Clean in a safe order: normalise text, coerce numbers, mask out-of-range values, deduplicate, drop missing required rows, reset index, then cast `"int64"`.
+- Clean in the order used in §3: normalise text, coerce numbers, mask out-of-range ratings to `NaN`, deduplicate (`keep="first"`), drop missing `tokens`, reset index, then cast `"int64"`.
 - Write clean tables to SQLite (`to_sql`), compute `COUNT`, `SUM`, `AVG(status = 'error')`, and `ROUND(AVG(...))` in one `GROUP BY` query with `ORDER BY` + tie-breaker, and load with `pd.read_sql_query`.
 - Plot sorted bars with clear labels and end with an actionable takeaway answering the team's question.
 

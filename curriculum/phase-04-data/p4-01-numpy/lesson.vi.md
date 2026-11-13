@@ -15,7 +15,7 @@ print(scores.ndim)   # 1
 print(len(scores))   # 3
 ```
 
-Để ý bốn thuộc tính hữu ích: `shape` cho biết kích thước theo từng chiều dưới dạng tuple, `dtype` (kiểu dữ liệu phần tử) hiển thị kiểu như `int64`, `int32` hay `float64`, `ndim` đếm số chiều, còn `len(scores)` trả về độ dài theo chiều đầu tiên.
+Để ý bốn thuộc tính hữu ích: `shape` cho biết kích thước theo từng chiều dưới dạng tuple, `dtype` (kiểu dữ liệu phần tử) hiển thị kiểu như `int64`, `int32` hay `float64`, `ndim` đếm số chiều, còn `len(scores)` trả về độ dài theo chiều đầu tiên. Gọi `scores.tolist()` sẽ đổi mảng ngược lại thành một `list` Python thường.
 
 | Python `list` | NumPy `array` |
 |---|---|
@@ -107,9 +107,11 @@ print(grid[1])             # [40 50 60]
 print(grid[:, 0])          # [10 40]
 print(grid.mean(axis=0))   # [25. 35. 45.]
 print(grid.mean(axis=1))   # [20. 50.]
+print(grid.max(axis=1))    # [30 60]
+print(grid.argmax(axis=1)) # [2 2]
 ```
 
-Để ý `grid[1]` chọn cả hàng `1`, còn `grid[:, 0]` dùng `:` ("mọi hàng") để lấy riêng cột `0`. Và `grid.mean(axis=0)` trả về 3 con số (mỗi cột một số), trong khi `grid.mean(axis=1)` trả về 2 con số (mỗi hàng một số).
+Để ý `grid[1]` chọn cả hàng `1`, còn `grid[:, 0]` dùng `:` ("mọi hàng") để lấy riêng cột `0`. Và `grid.mean(axis=0)` trả về 3 con số (mỗi cột một số), trong khi `grid.mean(axis=1)`, `grid.max(axis=1)` và `grid.argmax(axis=1)` trả về 2 con số (mỗi hàng một số).
 
 ## 5. Boolean mask
 

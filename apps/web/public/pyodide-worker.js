@@ -177,7 +177,8 @@ self.onmessage = async (event) => {
       post({ type: "done", id: msg.id, ok: runOk, error: runError });
     } else if (msg.type === "test") {
       await loadImports(msg.code);
-      const hasMpl = usesMatplotlib(msg.code);
+      if (msg.tests) await loadImports(msg.tests);
+      const hasMpl = usesMatplotlib(msg.code) || usesMatplotlib(msg.tests);
       if (hasMpl) prepareMpl();
       const runTests = pyodide.globals.get("pyai_runner").run_tests_json;
       try {

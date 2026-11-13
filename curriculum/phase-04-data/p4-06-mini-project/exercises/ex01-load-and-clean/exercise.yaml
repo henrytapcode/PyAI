@@ -25,13 +25,15 @@ hints:
       df["tokens"] = pd.to_numeric(df["tokens"].astype(str).str.replace(",", "", regex=False), errors="coerce")
       df["latency_ms"] = pd.to_numeric(df["latency_ms"], errors="coerce").astype("float64")
       df["rating"] = pd.to_numeric(df["rating"], errors="coerce").astype("float64")
-      df["rating"] = df["rating"].where(df["rating"].between(...))
-      df = df.drop_duplicates(subset=["request_id"], keep=...)
-      df = df.dropna(subset=["tokens"]).reset_index(drop=True)
-      df["tokens"] = df["tokens"].astype(...)
+      # 1. mask rating outside 1..5 to NaN with .where(...):
+      ...
+      # 2. deduplicate by request_id (keep first) and drop rows missing tokens:
+      ...
+      # 3. reset index and cast tokens to "int64":
+      ...
       return df[["request_id", "model", "tokens", "latency_ms", "status", "rating"]]
       ```
-      Fill in the three `...` gaps.
+      Write the three cleaning steps in order.
   vi:
     - |
       Làm theo pipeline làm sạch ở §3: đọc CSV bằng `pd.read_csv(io.StringIO(csv_text))`, chuẩn hóa `model`, ép kiểu các cột số, biến `rating` ngoài khoảng thành `NaN`, bỏ `request_id` trùng, bỏ dòng thiếu `tokens`, đánh lại index rồi ép `tokens` sang `"int64"`.
@@ -51,10 +53,12 @@ hints:
       df["tokens"] = pd.to_numeric(df["tokens"].astype(str).str.replace(",", "", regex=False), errors="coerce")
       df["latency_ms"] = pd.to_numeric(df["latency_ms"], errors="coerce").astype("float64")
       df["rating"] = pd.to_numeric(df["rating"], errors="coerce").astype("float64")
-      df["rating"] = df["rating"].where(df["rating"].between(...))
-      df = df.drop_duplicates(subset=["request_id"], keep=...)
-      df = df.dropna(subset=["tokens"]).reset_index(drop=True)
-      df["tokens"] = df["tokens"].astype(...)
+      # 1. biến rating ngoài 1..5 thành NaN bằng .where(...):
+      ...
+      # 2. bỏ request_id trùng (giữ dòng đầu) và bỏ dòng thiếu tokens:
+      ...
+      # 3. đánh lại index và ép tokens sang "int64":
+      ...
       return df[["request_id", "model", "tokens", "latency_ms", "status", "rating"]]
       ```
-      Hãy điền vào ba chỗ `...`.
+      Hãy viết đủ ba bước làm sạch theo đúng thứ tự.

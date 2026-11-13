@@ -83,7 +83,7 @@ conn.close()
 
 ## 3. Truy vấn với SELECT
 
-Một câu **query** (truy vấn) `SELECT` đọc các cột từ bảng: `.fetchall()` trả về mọi dòng khớp dưới dạng list các tuple Python, còn `.fetchone()` chỉ trả về tuple đầu tiên (hoặc `None` nếu không có dòng nào). Bạn lọc dòng bằng `WHERE` (`=`, `>`, `AND`, `OR`, `LIKE` với `%` đại diện chuỗi bất kỳ), sắp xếp bằng `ORDER BY ... DESC` (hoặc `ASC`), và giới hạn số dòng bằng `LIMIT`.
+Một câu **query** (truy vấn) `SELECT` đọc các cột từ bảng (`SELECT *` lấy mọi cột, còn `SELECT DISTINCT col` loại bỏ giá trị trùng lặp): `.fetchall()` trả về mọi dòng khớp dưới dạng list các tuple Python, còn `.fetchone()` chỉ trả về tuple đầu tiên (hoặc `None` nếu không có dòng nào). Bạn lọc dòng bằng `WHERE` (`=`, `>`, `AND`, `OR`, `LIKE` với `%` đại diện chuỗi bất kỳ), sắp xếp bằng `ORDER BY ... DESC` (hoặc `ASC`), và giới hạn số dòng bằng `LIMIT`.
 
 ```python
 import sqlite3
@@ -123,6 +123,12 @@ top_one = conn.execute(
 ).fetchone()
 print(top_one)
 # ('an', 480)
+
+unique_users = conn.execute(
+    "SELECT DISTINCT user FROM prompts ORDER BY user ASC"
+).fetchall()
+print(unique_users)
+# [('an',), ('binh',), ('chi',)]
 conn.close()
 ```
 

@@ -6,7 +6,7 @@
 1. Lines 5–8 build a DataFrame with six API request rows across three models.
 2. Line 10 sums `cost` per `model` with `.groupby("model")["cost"].sum()` and sorts from highest to lowest.
 3. Lines 12–17 create `(fig, ax)`, draw bars from `totals.index.tolist()` and `totals.tolist()`, add labels, and call `plt.show()`.
-4. Lines 19–20 print each model's total formatted to two decimal places.
+4. Lines 19–20 iterate through `totals.items()` (which yields each `(label, value)` pair from the Series) and print each model's total formatted to two decimal places.
 
 **Notice:** passing `.tolist()` turns the pandas Index and values into plain Python lists, avoiding NumPy scalar types when inspecting or printing.
 

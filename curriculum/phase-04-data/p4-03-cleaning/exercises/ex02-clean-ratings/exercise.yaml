@@ -12,39 +12,45 @@ hints:
     - |
       Follow these steps on a copy of `df`:
       1. Normalise `out["user"]` with `.str.strip().str.lower()`.
-      2. Convert `out["rating"]` with `pd.to_numeric(..., errors="coerce")`, then drop `NaN` rows and keep only `rating.between(1, 5)`.
+      2. Convert `out["rating"]` with `pd.to_numeric(..., errors="coerce")`, drop `NaN` rows, and keep only whole-number ratings (`rating % 1 == 0`) within `1..5`.
       3. Deduplicate by `"user"` keeping `"last"`, cast `"rating"` to `"int64"`, select `["user", "rating"]`, and `.reset_index(drop=True)`.
     - |
       Pipeline skeleton:
       ```python
       out = df.copy()
       out["user"] = out["user"].str.strip().str.lower()
-      out["rating"] = pd.to_numeric(out["rating"], errors=...)
+      out["rating"] = pd.to_numeric(out["rating"], errors="coerce")
       out = out.dropna(subset=["rating"])
-      out = out[out["rating"].between(..., ...)]
-      out = out.drop_duplicates(subset=["user"], keep=...)
-      out["rating"] = out["rating"].astype(...)
+      # 1. filter to whole-number ratings between 1 and 5:
+      ...
+      # 2. keep only the last valid row per user:
+      ...
+      # 3. cast "rating" to "int64":
+      ...
       return out[["user", "rating"]].reset_index(drop=True)
       ```
-      Fill in the four `...` arguments.
+      Write the filtering step before deduplicating, then the deduplication and cast.
   vi:
     - |
       Bài này kết hợp §3 (`pd.to_numeric` và `.astype("int64")`), §4 (`.str.strip().str.lower()`), và §5 (`.drop_duplicates` và `.between`) thành một pipeline như §6. Với `[{"user": " An ", "rating": " 4 "}, {"user": "an", "rating": "5"}, {"user": "bo", "rating": "five"}]`, cần trả về DataFrame gồm một hàng: `user="an"`, `rating=5` (kiểu `int64`).
     - |
       Thực hiện các bước sau trên một bản sao của `df`:
       1. Chuẩn hóa `out["user"]` bằng `.str.strip().str.lower()`.
-      2. Ép `out["rating"]` bằng `pd.to_numeric(..., errors="coerce")`, bỏ các dòng `NaN` rồi giữ lại các dòng có `rating.between(1, 5)`.
+      2. Ép `out["rating"]` bằng `pd.to_numeric(..., errors="coerce")`, bỏ các dòng `NaN`, và chỉ giữ các đánh giá nguyên (`rating % 1 == 0`) trong đoạn `1..5`.
       3. Loại trùng theo `"user"` giữ `"last"`, ép `"rating"` sang `"int64"`, chọn cột `["user", "rating"]` và `.reset_index(drop=True)`.
     - |
       Khung pipeline:
       ```python
       out = df.copy()
       out["user"] = out["user"].str.strip().str.lower()
-      out["rating"] = pd.to_numeric(out["rating"], errors=...)
+      out["rating"] = pd.to_numeric(out["rating"], errors="coerce")
       out = out.dropna(subset=["rating"])
-      out = out[out["rating"].between(..., ...)]
-      out = out.drop_duplicates(subset=["user"], keep=...)
-      out["rating"] = out["rating"].astype(...)
+      # 1. lọc các đánh giá nguyên nằm trong khoảng 1 đến 5:
+      ...
+      # 2. chỉ giữ dòng hợp lệ cuối cùng cho mỗi user:
+      ...
+      # 3. ép kiểu "rating" sang "int64":
+      ...
       return out[["user", "rating"]].reset_index(drop=True)
       ```
-      Hãy điền bốn đối số còn thiếu vào các chỗ `...`.
+      Viết bước lọc khoảng hợp lệ trước khi bỏ trùng, rồi tới bỏ trùng và ép kiểu.

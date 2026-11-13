@@ -4,7 +4,7 @@ Chuẩn hóa (feature scaling) đưa các con số về cùng thang `[0, 1]` tr�
 
 | đầu vào | đầu ra |
 |---|---|
-| `np.array([10, 20, 30])` | `array([0.0, 0.5, 1.0])` |
+| `np.array([10, 20, 30])` | `array([0. , 0.5, 1. ])` |
 
 **Quy tắc**
 - Giữ nguyên `shape` của `values` (chạy đúng cho cả mảng 1D và 2D).

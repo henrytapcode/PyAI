@@ -56,6 +56,17 @@ def test_returns_empty_two_column_dataframe_when_all_rows_invalid():
     assert result.to_dict("list") == {"user": [], "rating": []}
 
 
+def test_drops_fractional_ratings():
+    df = pd.DataFrame({
+        "user": ["an", "binh", "chi"],
+        "rating": ["4.5", "3.0", "2.1"],
+    })
+    result = clean_ratings(df)
+    assert result.to_dict("list") == {"user": ["binh"], "rating": [3]}, (
+        "drop ratings that have a fractional part such as 4.5"
+    )
+
+
 def test_does_not_modify_input_dataframe():
     df = pd.DataFrame({
         "user": [" An ", "an"],

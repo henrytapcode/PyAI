@@ -78,14 +78,14 @@ Use `ax.bar(names, values)` to compare quantities across categories, such as tot
 
 ```python
 import matplotlib.pyplot as plt
+import pandas as pd
 
 models = ["mini", "claude", "gpt-4o"]
 costs = [0.40, 2.95, 4.25]
-pairs = sorted(zip(costs, models), reverse=True)
-sorted_costs, sorted_models = zip(*pairs)
+s = pd.Series(costs, index=models).sort_values(ascending=False)
 
 fig, ax = plt.subplots()
-ax.bar(sorted_models, sorted_costs)
+ax.bar(s.index.tolist(), s.tolist())
 ax.set_title("Monthly API cost by model")
 ax.set_ylabel("cost (USD)")
 plt.show()
@@ -197,7 +197,7 @@ flowchart TD
 | How do two numeric measurements move together? | Scatter plot | `ax.scatter(x, y)` |
 
 > [!TIP]
-> Always sort bar chart values before calling `ax.bar` or `.plot(kind="bar")` — unsorted bars make it hard to tell second place from third.
+> Always sort bar chart values before calling `ax.bar` or `.plot(kind="bar")` — unsorted bars make it hard to tell second place from third — unless the categories have a natural order (months, epochs, ratings 1–5).
 
 ## 7. Multiple charts side by side
 
@@ -248,7 +248,7 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 # Wrong: ax.plot([1, 2, 3], [0.8, 0.5, 0.3]); ax.legend()
-# UserWarning: No artists with labels found to put in legend...
+# matplotlib prints a warning: No artists with labels found to put in legend...
 ax.plot([1, 2, 3], [0.8, 0.5, 0.3], label="train_loss")
 ax.legend()
 print([t.get_text() for t in ax.get_legend().get_texts()])
@@ -263,21 +263,21 @@ Fix: pass `label="name"` to each `ax.plot(...)` call before calling `ax.legend()
 
 ```python
 import matplotlib.pyplot as plt
+import pandas as pd
 
 x = [3, 1, 4, 2]
 y = [0.4, 0.9, 0.3, 0.6]
-pairs = sorted(zip(x, y))
-x_sorted, y_sorted = zip(*pairs)
-print(list(x_sorted), list(y_sorted))
+s = pd.Series(y, index=x).sort_index()
+print(s.index.tolist(), s.tolist())
 # [1, 2, 3, 4] [0.9, 0.6, 0.4, 0.3]
 
 fig, ax = plt.subplots()
-ax.plot(x_sorted, y_sorted, marker="o")
+ax.plot(s.index.tolist(), s.tolist(), marker="o")
 plt.show()
 # (shows a clean decreasing curve instead of a zigzag line)
 ```
 
-Fix: sort `(x, y)` pairs by `x` before calling `ax.plot(...)` (or use `ax.scatter` if order does not matter).
+Fix: sort `(x, y)` values by `x` (for example with `pd.Series(y, index=x).sort_index()`) before calling `ax.plot(...)` (or use `ax.scatter` if order does not matter).
 
 **Mixing `plt.xlabel(...)` with multiple `ax` objects.** Top-level `plt.*` helpers apply only to the current (last) axes, leaving earlier panels unlabeled:
 

@@ -2,7 +2,7 @@ Real-world data is rarely tidy when it reaches your script: user ratings are lef
 
 ## 1. Inspect the data first
 
-Before changing anything, check the table's size, column types, missing counts, and unique category values so you know which columns are broken. Look at a messy log table using `.shape`, `.dtypes`, `.isna().sum()`, `.unique()`, and `.value_counts()` — think of this as walking around a car before opening the hood.
+Before changing anything, check the table's size, column types, missing counts, and unique category values so you know which columns are broken. Look at a messy log table using `.shape`, `.dtypes`, `.isna().sum()`, `.unique()`, `.nunique()` (count of distinct values), and `.value_counts()` — think of this as walking around a car before opening the hood.
 
 ```python
 import io
@@ -29,6 +29,8 @@ print(df.isna().sum())
 # dtype: int64
 print(df["model"].unique().tolist())
 # [' GPT-4o', 'gpt-4o', 'Claude']
+print(df["model"].nunique())
+# 3
 print(df["model"].value_counts())
 # model
 #  GPT-4o    2
@@ -150,7 +152,7 @@ Press **Visualize** on this block and watch `raw` step through `stripped`, `lowe
 
 ## 5. Duplicates and invalid rows
 
-Even after fixing text and types, datasets often contain repeated submissions or out-of-range values such as a rating of `9` on a 1-to-5 scale. Use `.duplicated()` to spot repeats, `.drop_duplicates(subset=..., keep="last")` to keep only the latest entry per key, and `.between(low, high)` to filter rows to a valid range.
+Even after fixing text and types, datasets often contain repeated submissions or out-of-range values such as a rating of `9` on a 1-to-5 scale. Use `.duplicated()` to spot repeats, `.between(low, high)` to keep only valid rows first, and `.drop_duplicates(subset=..., keep="last")` afterwards so a bad entry never wins over an earlier valid one.
 
 ```python
 import pandas as pd
@@ -162,19 +164,19 @@ ratings = pd.DataFrame({
 print(ratings.duplicated(subset=["user"]).tolist())
 # [False, False, True, False]
 
-deduped = ratings.drop_duplicates(subset=["user"], keep="last")
-valid_ratings = deduped[deduped["rating"].between(1, 5)].reset_index(drop=True)
-print(valid_ratings)
+valid_ratings = ratings[ratings["rating"].between(1, 5)]
+deduped = valid_ratings.drop_duplicates(subset=["user"], keep="last").reset_index(drop=True)
+print(deduped)
 #    user  rating
 # 0  binh       5
 # 1    an       4
 ```
 
-Notice two details: `keep="last"` kept row `2` (`an`, `4`) and dropped the earlier row `0` (`an`, `3`), and `.between(1, 5)` includes both endpoints (`1 <= rating <= 5`) while dropping `9`.
+Notice two details: `.between(1, 5)` filters out `9` first (keeping `1 <= rating <= 5` inclusive), and `drop_duplicates(subset=["user"], keep="last")` then keeps row `2` (`an`, `4`) instead of the earlier row `0` (`an`, `3`).
 
 ## 6. Putting it into a pipeline
 
-In real projects, you wrap every cleaning step inside a function `clean(df)` that starts with `df = df.copy()` so callers' original data stays untouched. Following one clear order — inspect, normalise text, coerce types, handle missing values, drop duplicates, validate ranges — avoids subtle bugs like keeping a duplicate row whose rating turns out to be invalid.
+In real projects, you wrap every cleaning step inside a function `clean(df)` that starts with `df = df.copy()` so callers' original data stays untouched. Following one clear order — inspect, normalise text, coerce types, handle missing values, validate ranges, then drop duplicates — avoids subtle bugs like keeping a duplicate row whose rating turns out to be invalid.
 
 ```mermaid
 flowchart TD
@@ -182,8 +184,8 @@ flowchart TD
     B --> C["Fix text with .str"]
     C --> D["Fix types with to_numeric"]
     D --> E["Handle missing values"]
-    E --> F["Drop duplicates"]
-    F --> G["Validate ranges"]
+    E --> F["Validate ranges"]
+    F --> G["Drop duplicates"]
 ```
 
 | problem | tool |
@@ -193,8 +195,8 @@ flowchart TD
 | Fill missing numbers safely | `df["col"].fillna(df["col"].median())` |
 | Parse messy numeric strings | `pd.to_numeric(..., errors="coerce")` |
 | Normalise messy text labels | `.str.strip().str.lower().str.replace(...)` |
-| Remove repeated keys | `df.drop_duplicates(subset=[...], keep="last")` |
 | Filter to an allowed range | `df[df["col"].between(low, high)]` |
+| Remove repeated keys | `df.drop_duplicates(subset=[...], keep="last")` |
 
 Watch how `clean(raw_df)` applies all of those steps in one reusable function:
 

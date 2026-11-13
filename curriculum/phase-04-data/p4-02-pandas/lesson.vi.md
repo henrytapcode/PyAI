@@ -54,10 +54,10 @@ print(df.head(2))
 | Mọi phần tử dùng chung một `dtype` | Mỗi cột có thể có một `dtype` riêng |
 | Truy cập cột theo chỉ số nguyên (`[:, 0]`) | Truy cập cột theo tên (`df["score"]`) |
 | Hàng đánh số vị trí thuần (`0, 1, 2`) | Có **index** gắn nhãn cho hàng (số hoặc tên) |
-| Hợp nhất cho ma trận và vector toán học | Hợp nhất cho dữ liệu bảng lẫn kiểu và CSV |
+| Phù hợp nhất cho ma trận và vector toán học | Phù hợp nhất cho dữ liệu bảng lẫn kiểu và CSV |
 
 > [!NOTE]
-> Mỗi cột trong DataFrame là một Series được chống lưng bởi mảng NumPy bên dưới, nên các phép tính vector hóa như `df["score"] * 100` chạy trực tiếp ngay lập tức.
+> Mỗi cột trong DataFrame là một Series được xây trên mảng NumPy bên dưới, nên các phép tính vector hóa như `df["score"] * 100` chạy được ngay.
 
 ## 2. Đọc CSV
 
@@ -98,7 +98,7 @@ Bạn dùng ngoặc vuông `df[...]` để chọn cột, `.loc[...]` để chọ
   df.loc[["r1", "r3"], ["score"]]  -> rows + columns by label
 ```
 
-Xem cách ngoặc đơn `["score"]` trả về một `Series`, ngoặc kép lồng `[["model", "score"]]` trả về một `DataFrame` nhỏ hơn, và `loc` / `iloc` rút ra hàng hoặc lát cắt hàng-cột cụ thể:
+Xem cách ngoặc vuông đơn `["score"]` trả về một `Series`, ngoặc vuông kép `[["model", "score"]]` trả về một `DataFrame` nhỏ hơn, và `loc` / `iloc` rút ra hàng hoặc lát cắt hàng-cột cụ thể:
 
 ```python
 import pandas as pd
@@ -191,7 +191,7 @@ print(calls[["model", "tokens", "cost"]])
 # 2   llama     420  0.84
 ```
 
-Bấm **Visualize** ở khối code này để xem `calls` lần lượt có thêm cột `tokens` và `cost` qua từng dòng. Phép gán `calls["ten_cot"] = ...` tự tạo cột mới nếu chưa có, hoặc ghi đè nếu cột đã tồn tại.
+Bấm **Visualize** ở khối code này để xem `calls` lần lượt có thêm cột `tokens` và `cost` qua từng dòng. Phép gán `calls["new_col"] = ...` tự tạo cột mới nếu chưa có, hoặc ghi đè nếu cột đã tồn tại.
 
 ## 6. Gom nhóm với groupby
 
