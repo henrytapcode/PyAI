@@ -1,0 +1,92 @@
+id: p6-04-ex02
+kind: project
+title:
+  en: "Fine-tune, evaluate, and predict with BERT-Tiny"
+  vi: "Fine-tune, đánh giá và dự đoán với BERT-Tiny"
+difficulty: 3
+tags: [huggingface, pytorch, dl]
+hints:
+  en:
+    - |
+      Follow §4 and §5: `accuracy` and `predict` must switch `model.eval()` and wrap inference in `with torch.no_grad():`, while `fine_tune` uses `model.train()`, `torch.optim.AdamW(model.parameters(), lr=lr)`, and `out = model(**batch, labels=y)`.
+      For `epochs=0`, `fine_tune` returns `[]` without touching weights.
+    - |
+      Step-by-step plan:
+      1. In `accuracy`, call `model.eval()`, tokenize `texts` (`padding=True, truncation=True, return_tensors="pt"`), compute `logits = model(**batch).logits` inside `torch.no_grad()`, compare `logits.argmax(dim=1)` with `torch.tensor(labels, dtype=torch.int64)`, and return `round(float(...mean().item()), 3)`.
+      2. In `fine_tune`, return `[]` right away if `epochs <= 0`. Otherwise tokenize `texts` once, build `y = torch.tensor(labels, dtype=torch.int64)`, create `AdamW(model.parameters(), lr=lr)`, and loop `epochs` times (`model.train()`, `zero_grad()`, `out = model(**batch, labels=y)`, `out.loss.backward()`, `step()`, append `round(float(out.loss.item()), 4)`).
+      3. In `predict`, call `model.eval()`, run `with torch.no_grad(): pred_ids = model(**batch).logits.argmax(dim=1)`, and map each ID through `model.config.id2label`.
+    - |
+      Skeleton:
+      ```python
+      def accuracy(model, texts: list[str], labels: list[int]) -> float:
+          model.eval()
+          batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+          with torch.no_grad():
+              preds = ...
+          y = torch.tensor(labels, dtype=torch.int64)
+          return round(float((preds == y).float().mean().item()), 3)
+
+
+      def fine_tune(model, texts: list[str], labels: list[int], lr: float, epochs: int) -> list[float]:
+          if epochs <= 0:
+              return []
+          batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+          y = torch.tensor(labels, dtype=torch.int64)
+          optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+          losses: list[float] = []
+          for _ in range(epochs):
+              model.train()
+              ...
+              losses.append(round(float(out.loss.item()), 4))
+          return losses
+
+
+      def predict(model, texts: list[str]) -> list[str]:
+          model.eval()
+          batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+          with torch.no_grad():
+              pred_ids = ...
+          return [model.config.id2label[idx] for idx in pred_ids.tolist()]
+      ```
+  vi:
+    - |
+      Làm theo §4 và §5: `accuracy` và `predict` phải bật `model.eval()` và bọc trong `with torch.no_grad():`, còn `fine_tune` dùng `model.train()`, `torch.optim.AdamW(model.parameters(), lr=lr)` và `out = model(**batch, labels=y)`.
+      Với `epochs=0`, `fine_tune` trả về `[]` và không sửa trọng số.
+    - |
+      Kế hoạch từng bước:
+      1. Trong `accuracy`, gọi `model.eval()`, tokenize `texts` (`padding=True, truncation=True, return_tensors="pt"`), tính `logits = model(**batch).logits` trong `torch.no_grad()`, so `logits.argmax(dim=1)` với `torch.tensor(labels, dtype=torch.int64)` rồi trả về `round(float(...mean().item()), 3)`.
+      2. Trong `fine_tune`, trả ngay `[]` nếu `epochs <= 0`. Ngược lại tokenize `texts` một lần, tạo `y = torch.tensor(labels, dtype=torch.int64)`, khởi tạo `AdamW(model.parameters(), lr=lr)`, và lặp `epochs` lần (`model.train()`, `zero_grad()`, `out = model(**batch, labels=y)`, `out.loss.backward()`, `step()`, thêm `round(float(out.loss.item()), 4)`).
+      3. Trong `predict`, bật `model.eval()`, chạy `with torch.no_grad(): pred_ids = model(**batch).logits.argmax(dim=1)`, rồi ánh xạ từng ID qua `model.config.id2label`.
+    - |
+      Khung lời giải:
+      ```python
+      def accuracy(model, texts: list[str], labels: list[int]) -> float:
+          model.eval()
+          batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+          with torch.no_grad():
+              preds = ...
+          y = torch.tensor(labels, dtype=torch.int64)
+          return round(float((preds == y).float().mean().item()), 3)
+
+
+      def fine_tune(model, texts: list[str], labels: list[int], lr: float, epochs: int) -> list[float]:
+          if epochs <= 0:
+              return []
+          batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+          y = torch.tensor(labels, dtype=torch.int64)
+          optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+          losses: list[float] = []
+          for _ in range(epochs):
+              model.train()
+              ...
+              losses.append(round(float(out.loss.item()), 4))
+          return losses
+
+
+      def predict(model, texts: list[str]) -> list[str]:
+          model.eval()
+          batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+          with torch.no_grad():
+              pred_ids = ...
+          return [model.config.id2label[idx] for idx in pred_ids.tolist()]
+      ```

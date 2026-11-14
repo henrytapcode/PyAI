@@ -1,0 +1,31 @@
+id: p6-04-fine-tune
+phase: p6
+order: 4
+kind: project
+title:
+  en: "Mini-project: a small fine-tune"
+  vi: "Mini-project: fine-tune nhỏ"
+summary:
+  en: "Fine-tune BERT-Tiny offline on CPU to route support tickets between bug reports and billing: inspect the newly initialised classification head, select epochs on validation, evaluate test once, save and reload with save_pretrained(), and predict on new tickets."
+  vi: "Fine-tune BERT-Tiny ở chế độ offline trên CPU để phân loại ticket hỗ trợ giữa lỗi kỹ thuật (bug) và thanh toán (billing): hiểu lớp classification head mới khởi tạo, chọn số epoch bằng validation, chấm test đúng một lần, lưu và nạp lại bằng save_pretrained() rồi dự đoán ticket mới."
+level: beginner
+tags: [huggingface, pytorch, dl]
+prerequisites: [p6-03-huggingface]
+duration_min: 30
+outcomes:
+  en:
+    - "Fine-tune a small cached classifier on a tiny dataset on CPU"
+    - "Compare accuracy before and after fine-tuning"
+    - "Run predictions on new text samples"
+    - "Save a fine-tuned model and tokenizer with save_pretrained() and reload them offline"
+  vi:
+    - "Fine-tune một model phân loại nhỏ từ cache trên tập dữ liệu nhỏ bằng CPU"
+    - "So sánh tỉ lệ đoán đúng (accuracy) trước và sau khi fine-tune"
+    - "Chạy dự đoán trên mẫu văn bản mới"
+    - "Lưu model và tokenizer đã fine-tune bằng save_pretrained() rồi nạp lại ở chế độ offline"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "Hugging Face LLM Course: Fine-tuning a pretrained model", vi: "Hugging Face LLM Course: Fine-tuning a pretrained model (EN)" }
+    url: "https://huggingface.co/learn/llm-course/chapter3/1"
+  - title: { en: "Model card: google/bert_uncased_L-2_H-128_A-2 (BERT-Tiny)", vi: "Model card: google/bert_uncased_L-2_H-128_A-2 (BERT-Tiny) (EN)" }
+    url: "https://huggingface.co/google/bert_uncased_L-2_H-128_A-2"

@@ -1,0 +1,399 @@
+questions:
+  - id: p6-04-q01
+    type: mcq
+    tags: [huggingface, dl]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Why does BERT-Tiny get roughly `0.5` accuracy on ticket classification right after loading with `num_labels=2`?"
+      options:
+        - "Because `local_files_only=True` loads only half of the model layers"
+        - "Because the tokenizer skips half of the words until fine-tuning finishes"
+        - "Because the new 2-class `classifier` head is initialised with random weights"
+        - "Because `AdamW` freezes the encoder weights before training begins"
+      explanation: "The pretrained BERT-Tiny body understands English, but the 2-class `classifier` head was newly created with random weights, so before fine-tuning its predictions are essentially random guesses (~0.5 on two balanced classes)."
+    vi:
+      prompt: "Vì sao BERT-Tiny chỉ đạt accuracy khoảng `0.5` trên bài toán phân loại ticket ngay sau khi nạp với `num_labels=2`?"
+      options:
+        - "Vì `local_files_only=True` chỉ nạp một nửa số tầng của model"
+        - "Vì tokenizer bỏ qua một nửa số từ cho tới khi fine-tune xong"
+        - "Vì lớp `classifier` 2 lớp mới gắn thêm được khởi tạo với trọng số ngẫu nhiên"
+        - "Vì `AdamW` đóng băng phần encoder trước khi bắt đầu huấn luyện"
+      explanation: "Phần thân BERT-Tiny đã biết tiếng Anh, nhưng lớp đầu phân loại `classifier` vừa được tạo mới với trọng số ngẫu nhiên, nên trước khi fine-tune nó đoán gần như ngẫu nhiên (~0.5 với hai lớp cân bằng)."
+
+  - id: p6-04-q02
+    type: output
+    tags: [pytorch, huggingface]
+    difficulty: 1
+    code: |
+      import torch
+
+      logits = torch.tensor([[2.1, -0.4], [-1.0, 1.5], [0.8, 0.2], [0.1, 0.9]])
+      labels = torch.tensor([0, 1, 1, 1], dtype=torch.int64)
+      preds = logits.argmax(dim=1)
+      acc = round(float((preds == labels).float().mean().item()), 3)
+      print(acc)
+    answer: "0.75"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`logits.argmax(dim=1)` gives `[0, 1, 0, 1]`, which matches `labels = [0, 1, 1, 1]` on 3 out of 4 rows (`3 / 4 = 0.75`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`logits.argmax(dim=1)` cho `[0, 1, 0, 1]`, khớp với `labels = [0, 1, 1, 1]` ở 3 trên 4 hàng (`3 / 4 = 0.75`)."
+
+  - id: p6-04-q03
+    type: mcq
+    tags: [huggingface]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "When loading BERT-Tiny with `num_labels=2`, what do `UNEXPECTED` (`cls.*`) and `MISSING` (`classifier.*`) in the `LOAD REPORT` mean?"
+      options:
+        - "The checkpoint file is corrupted and must be downloaded again"
+        - "The unused pretraining heads (`cls.*`) were skipped and a fresh `classifier` head was randomly initialised"
+        - "The tokenizer vocabulary is missing two special tokens `[CLS]` and `[SEP]`"
+        - "Only CPU weights were loaded and GPU weights were left uninitialised"
+      explanation: "BERT-Tiny was pretrained to predict masked words (`cls.*`), so those task-specific weights are `UNEXPECTED` for classification and ignored, while `classifier.*` is `MISSING` from the checkpoint and newly created with random weights."
+    vi:
+      prompt: "Khi nạp BERT-Tiny với `num_labels=2`, hai trạng thái `UNEXPECTED` (`cls.*`) và `MISSING` (`classifier.*`) trong `LOAD REPORT` có nghĩa là gì?"
+      options:
+        - "File checkpoint bị hỏng và phải tải lại từ đầu"
+        - "Các tầng đầu của tác vụ pretrain cũ (`cls.*`) được bỏ qua và một đầu `classifier` mới được khởi tạo ngẫu nhiên"
+        - "Bảng từ vựng của tokenizer bị thiếu hai token đặc biệt `[CLS]` và `[SEP]`"
+        - "Chỉ trọng số CPU được nạp còn trọng số GPU bị bỏ trống"
+      explanation: "BERT-Tiny vốn được pretrain để đoán từ bị che (`cls.*`), nên các trọng số đó thừa (`UNEXPECTED`) với bài toán phân loại và bị bỏ qua, còn `classifier.*` chưa có trong checkpoint (`MISSING`) nên được tạo mới ngẫu nhiên."
+
+  - id: p6-04-q04
+    type: fill
+    tags: [pytorch, huggingface]
+    difficulty: 1
+    code: |
+      import torch
+      import torch.nn as nn
+
+      torch.manual_seed(0)
+      head = nn.Linear(4, 2)
+      optimizer = torch.optim.___(head.parameters(), lr=___)
+      print(type(optimizer).__name__, optimizer.defaults["lr"])
+    answer: ["AdamW", "0.0005"]
+    en:
+      prompt: "Fill in the optimizer class name used for fine-tuning and a small learning rate of `0.0005`."
+      explanation: "Fine-tuning transformers commonly uses `torch.optim.AdamW` with a small learning rate such as `0.0005` (`5e-4`)."
+    vi:
+      prompt: "Điền tên lớp optimizer thường dùng khi fine-tune và learning rate nhỏ `0.0005`."
+      explanation: "Khi fine-tune transformer ta thường dùng `torch.optim.AdamW` với learning rate nhỏ như `0.0005` (`5e-4`)."
+
+  - id: p6-04-q05
+    type: parsons
+    tags: [pytorch]
+    difficulty: 1
+    lines:
+      - "import torch"
+      - "w = torch.ones(2, 2, requires_grad=True)"
+      - "loss = torch.nn.CrossEntropyLoss()(w, torch.zeros(2, dtype=torch.int64))"
+      - "loss.backward()"
+      - "torch.optim.AdamW([w], lr=5e-4).step()"
+      - "print(round(float(w[0, 0].item()), 4))"
+    en:
+      prompt: "Arrange these lines in order to compute cross-entropy loss on a weight tensor, run one `AdamW` step, and print the updated entry."
+      explanation: "Import `torch`, create weight tensor `w` with gradients enabled, compute cross-entropy `loss`, run `loss.backward()`, take one `AdamW` `.step()`, and print the updated scalar."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tính cross-entropy loss trên tensor trọng số, chạy một bước `AdamW` và in phần tử đã cập nhật."
+      explanation: "Import `torch`, tạo tensor trọng số `w` bật gradient, tính cross-entropy `loss`, gọi `loss.backward()`, chạy một bước `AdamW` `.step()` rồi in giá trị sau cập nhật."
+
+  - id: p6-04-q06
+    type: mcq
+    tags: [huggingface, dl]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why do we use a small learning rate (like `5e-4`) when fine-tuning a pretrained transformer instead of a large one (like `1e-1`)?"
+      options:
+        - "To avoid overwriting the pretrained English weights in the base encoder and collapsing predictions"
+        - "Because `AdamW` raises a `ValueError` if `lr` is greater than `0.01`"
+        - "Because smaller learning rates reduce the number of parameters in `model.parameters()`"
+        - "To keep `tokenizer(..., truncation=True)` from cutting long tickets"
+      explanation: "A huge step like `1e-1` wrecks the pretrained representations learned by the base model, causing loss to spike and predictions to collapse onto one class."
+    vi:
+      prompt: "Vì sao ta dùng learning rate nhỏ (như `5e-4`) khi fine-tune model transformer đã train sẵn thay vì giá trị lớn (như `1e-1`)?"
+      options:
+        - "Để tránh phá hỏng kiến thức tiếng Anh đã học sẵn ở phần thân model và làm dự đoán sụp đổ về một lớp"
+        - "Vì `AdamW` sẽ ném `ValueError` nếu `lr` lớn hơn `0.01`"
+        - "Vì learning rate nhỏ làm giảm số tham số trong `model.parameters()`"
+        - "Để ngăn `tokenizer(..., truncation=True)` cắt bớt các ticket dài"
+      explanation: "Bước nhảy quá lớn như `1e-1` phá hủy các biểu diễn ngôn ngữ có sẵn trong model nền, khiến loss vọt lên và model đoán kẹt toàn một lớp."
+
+  - id: p6-04-q07
+    type: output
+    tags: [pytorch]
+    difficulty: 2
+    code: |
+      import torch
+
+      items = ["a", "b", "c", "d", "e", "f"]
+      gen = torch.Generator().manual_seed(0)
+      idx = torch.randperm(len(items), generator=gen).tolist()
+      print(len(idx[:4]), len(idx[4:5]), len(idx[5:]))
+    answer: "4 1 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`idx` has length `6`; slicing `[:4]`, `[4:5]`, and `[5:]` yields `4`, `1`, and `1` items."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`idx` dài `6`; ba lát cắt `[:4]`, `[4:5]` và `[5:]` lần lượt có `4`, `1` và `1` phần tử."
+
+  - id: p6-04-q08
+    type: fill
+    tags: [pytorch, huggingface]
+    difficulty: 2
+    code: |
+      import torch
+      import torch.nn as nn
+
+      model = nn.Sequential(nn.Linear(2, 2), nn.Dropout(0.5))
+      model.___()
+      with torch.___():
+          preds = model(torch.ones(2, 2)).argmax(dim=1)
+      print(model.training, preds.requires_grad)
+    answer: ["eval", "no_grad"]
+    en:
+      prompt: "Fill in the two method/context names needed for deterministic, gradient-free evaluation."
+      explanation: "`model.eval()` disables dropout layers, and `with torch.no_grad():` avoids building a computation graph during evaluation."
+    vi:
+      prompt: "Điền tên hai phương thức/context cần dùng để đánh giá ổn định và không tạo gradient."
+      explanation: "`model.eval()` tắt các tầng dropout, còn `with torch.no_grad():` không dựng đồ thị tính toán khi đánh giá."
+
+  - id: p6-04-q09
+    type: mcq
+    tags: [huggingface, pytorch]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What happens when you call `out = model(**batch, labels=train_y)` on `AutoModelForSequenceClassification`?"
+      options:
+        - "The model updates its weights automatically without calling `optimizer.step()`"
+        - "The model saves the checkpoint to disk using `save_pretrained()`"
+        - "The model turns off dropout just like `model.eval()`"
+        - "The model computes cross-entropy loss internally against `train_y` and exposes it as `out.loss`"
+      explanation: "Passing `labels=...` asks the classification model to compute cross-entropy loss between its `logits` and `labels`, returning `out.loss` ready for `out.loss.backward()`."
+    vi:
+      prompt: "Điều gì xảy ra khi bạn gọi `out = model(**batch, labels=train_y)` trên `AutoModelForSequenceClassification`?"
+      options:
+        - "Model tự động cập nhật trọng số mà không cần gọi `optimizer.step()`"
+        - "Model tự lưu checkpoint xuống đĩa bằng `save_pretrained()`"
+        - "Model tự tắt dropout giống như khi gọi `model.eval()`"
+        - "Model tự tính cross-entropy loss so với `train_y` và trả về trong `out.loss`"
+      explanation: "Truyền thêm `labels=...` khiến model phân loại tự tính cross-entropy loss giữa `logits` và `labels`, trả sẵn `out.loss` để bạn gọi `out.loss.backward()`."
+
+  - id: p6-04-q10
+    type: parsons
+    tags: [pytorch]
+    difficulty: 2
+    lines:
+      - "import torch"
+      - "model = torch.nn.Sequential(torch.nn.Linear(2, 2), torch.nn.Dropout(0.5))"
+      - "model.eval()"
+      - "with torch.no_grad():"
+      - "    out = model(torch.ones(16, 2))"
+      - "    print(not model.training, torch.equal(out, model(torch.ones(16, 2))))"
+    en:
+      prompt: "Arrange these lines so `model.eval()` disables dropout before `torch.no_grad()`, printing `True True`."
+      explanation: "Import `torch`, create `model` with `Dropout`, call `model.eval()` before `with torch.no_grad():`, compute `out = model(...)`, and print `(not model.training, torch.equal(...))`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để `model.eval()` tắt dropout trước khi vào `torch.no_grad()`, in ra `True True`."
+      explanation: "Import `torch`, tạo `model` có `Dropout`, gọi `model.eval()` trước `with torch.no_grad():`, tính `out = model(...)` rồi in `(not model.training, torch.equal(...))`."
+
+  - id: p6-04-q11
+    type: mcq
+    tags: [dl, huggingface]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "How should you decide how many epochs to fine-tune your classifier?"
+      options:
+        - "Train for several epoch counts and pick the one with the highest accuracy on the test split"
+        - "Watch accuracy and loss on the validation split, pick the epoch count there, and touch the test split only once at the end"
+        - "Always stop after 1 epoch so the pretrained weights never change"
+        - "Keep training until training loss hits `0.000` regardless of validation accuracy"
+      explanation: "Selecting epochs on the test split leaks test information into your design choice; use validation to choose hyperparameters and evaluate test once at the end."
+    vi:
+      prompt: "Bạn nên chọn số epoch khi fine-tune bộ phân loại như thế nào?"
+      options:
+        - "Thử nhiều số epoch rồi chọn mức cho accuracy cao nhất trên tập test"
+        - "Theo dõi accuracy và loss trên tập validation để chốt số epoch, và chỉ chạm tập test đúng một lần ở cuối"
+        - "Luôn dừng sau đúng 1 epoch để trọng số nền không thay đổi"
+        - "Train tiếp cho tới khi train loss chạm `0.000` bất kể điểm validation"
+      explanation: "Nhìn tập test để chọn số epoch làm rò rỉ thông tin tập test vào thiết kế; hãy dùng tập validation để chọn siêu tham số và chỉ chấm test một lần cuối cùng."
+
+  - id: p6-04-q12
+    type: output
+    tags: [pytorch]
+    difficulty: 2
+    code: |
+      import torch
+      import torch.nn as nn
+
+      torch.manual_seed(0)
+      net = nn.Sequential(nn.Linear(4, 4), nn.Dropout(0.5))
+      x = torch.ones(2, 4)
+      net.train()
+      with torch.no_grad():
+          same_train = torch.equal(net(x), net(x))
+      net.eval()
+      with torch.no_grad():
+          same_eval = torch.equal(net(x), net(x))
+      print(same_train, same_eval)
+    answer: "False True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "With `net.train()`, `nn.Dropout(0.5)` randomly zeroes different entries on each call (`False`); with `net.eval()`, dropout is disabled so both calls return identical outputs (`True`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Ở chế độ `net.train()`, `nn.Dropout(0.5)` tắt ngẫu nhiên các phần tử khác nhau qua từng lần gọi (`False`); khi bật `net.eval()`, dropout ngừng hoạt động nên hai lần chạy ra kết quả giống hệt (`True`)."
+
+  - id: p6-04-q13
+    type: fill
+    tags: [pytorch]
+    difficulty: 2
+    code: |
+      import torch
+
+      gen = torch.Generator().___(27)
+      idx = torch.___(6, generator=gen).tolist()
+      print(len(idx), sorted(idx))
+    answer: ["manual_seed", "randperm"]
+    en:
+      prompt: "Fill in the generator seeding method and the PyTorch function that produces a shuffled list of indices `0..5`."
+      explanation: "Call `torch.Generator().manual_seed(27)` and pass that generator into `torch.randperm(6, generator=gen)` for reproducible shuffling."
+    vi:
+      prompt: "Điền tên phương thức đặt seed cho generator và hàm PyTorch tạo hoán vị ngẫu nhiên của các chỉ số `0..5`."
+      explanation: "Gọi `torch.Generator().manual_seed(27)` rồi truyền generator đó vào `torch.randperm(6, generator=gen)` để xáo trộn tái lập được."
+
+  - id: p6-04-q14
+    type: mcq
+    tags: [dl, huggingface]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "Suppose your test split has 16 tickets and your fine-tuned model scores `100%` (16/16) vs. `93.8%` (15/16). Why should you report the split size and avoid bragging about `100%`?"
+      options:
+        - "Because `accuracy` cannot reach `1.0` unless the model runs on a GPU"
+        - "Because `save_pretrained()` drops accuracy by 5% when reloading from disk"
+        - "Because with 16 test tickets, a single borderline ticket swings accuracy by 6.25 percentage points"
+        - "Because `id2label` rounds every confidence score up to `1.0` on small batches"
+      explanation: "With only 15–20 test samples, one single prediction flip changes accuracy by 5–7 percentage points, so `100%` on 16 synthetic tickets is noisy and does not guarantee perfection on real user traffic."
+    vi:
+      prompt: "Giả sử tập test có 16 ticket và model sau fine-tune đạt `100%` (16/16) so với `93.8%` (15/16). Vì sao bạn nên báo rõ kích thước tập test và tránh khoe `100%`?"
+      options:
+        - "Vì `accuracy` không thể đạt `1.0` nếu model không chạy trên GPU"
+        - "Vì `save_pretrained()` làm giảm 5% accuracy sau khi nạp lại từ đĩa"
+        - "Vì với 16 câu test, chỉ một câu lật nhãn đã làm accuracy dao động tới 6,25 điểm phần trăm"
+        - "Vì `id2label` làm tròn mọi điểm xác suất lên `1.0` trên batch nhỏ"
+      explanation: "Khi tập test chỉ có 15–20 mẫu, mỗi câu đoán sai kéo tỉ lệ đúng đi 5–7 điểm phần trăm, nên `100%` trên 16 câu nhỏ dao động rất mạnh và không bảo chứng cho dữ liệu thật."
+
+  - id: p6-04-q15
+    type: output
+    tags: [pytorch, huggingface]
+    difficulty: 3
+    code: |
+      import torch
+
+      id2label = {0: "bug", 1: "billing"}
+      logits = torch.tensor([[1.8, -0.2], [-0.5, 1.4], [0.2, 0.9]])
+      pred_ids = logits.argmax(dim=1).tolist()
+      print([id2label[i] for i in pred_ids])
+    answer: "['bug', 'billing', 'billing']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`logits.argmax(dim=1)` selects `[0, 1, 1]`, which maps through `id2label` to `['bug', 'billing', 'billing']`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`logits.argmax(dim=1)` chọn `[0, 1, 1]`, rồi tra qua `id2label` thành `['bug', 'billing', 'billing']`."
+
+  - id: p6-04-q16
+    type: parsons
+    tags: [dl, pytorch]
+    difficulty: 3
+    lines:
+      - "history = [(1, 0.71, 0.5), (2, 0.58, 0.938), (3, 0.47, 1.0)]"
+      - "best_epoch, best_val = history[0][0], history[0][2]"
+      - "for epoch, _loss, val_acc in history[1:]:"
+      - "    if val_acc > best_val:"
+      - "        best_epoch, best_val = epoch, val_acc"
+      - "print(best_epoch, best_val)"
+    en:
+      prompt: "Arrange these lines to select the epoch with the highest validation accuracy from `history` and print `(best_epoch, best_val)`."
+      explanation: "Define `history`, initialise `best_epoch` and `best_val` from `history[0]`, loop over `history[1:]`, update whenever `val_acc > best_val`, and print the winner."
+    vi:
+      prompt: "Sắp xếp các dòng sau để chọn ra epoch có validation accuracy cao nhất từ `history` và in `(best_epoch, best_val)`."
+      explanation: "Khai báo `history`, khởi tạo `best_epoch` và `best_val` từ `history[0]`, duyệt `history[1:]`, cập nhật khi `val_acc > best_val`, rồi in kết quả."
+
+flashcards:
+  - id: p6-04-f01
+    tags: [huggingface]
+    code: |
+      torch.manual_seed(0)
+      model = AutoModelForSequenceClassification.from_pretrained(
+          REPO, revision=REV, local_files_only=True,
+          num_labels=2, id2label={0: "bug", 1: "billing"}, label2id={"bug": 0, "billing": 1},
+      )
+    en:
+      front: "Why pass `num_labels`, `id2label`, and `label2id` after `torch.manual_seed(0)` when loading a base model?"
+      back: "It attaches a fresh `classifier` head with 2 outputs and stores readable label names in `config.json`. Calling `torch.manual_seed(0)` right before loading makes the random head weights reproducible."
+    vi:
+      front: "Vì sao cần truyền `num_labels`, `id2label`, `label2id` sau `torch.manual_seed(0)` khi nạp model nền?"
+      back: "Nó gắn thêm đầu `classifier` mới có 2 đầu ra và lưu tên nhãn dễ đọc vào `config.json`. Đặt `torch.manual_seed(0)` ngay trước khi nạp giúp trọng số ngẫu nhiên của đầu phân loại lặp lại được."
+
+  - id: p6-04-f02
+    tags: [huggingface]
+    en:
+      front: "What does `MISSING: classifier.weight / classifier.bias` in the `LOAD REPORT` tell you?"
+      back: "The pretrained base model had no sequence classification head, so those weights were newly created at random — meaning you must fine-tune before using the model."
+    vi:
+      front: "Dòng `MISSING: classifier.weight / classifier.bias` trong `LOAD REPORT` cho biết điều gì?"
+      back: "Model nền chưa từng có đầu phân loại chuỗi, nên các trọng số này vừa được khởi tạo ngẫu nhiên — nghĩa là bạn phải fine-tune trước khi dùng."
+
+  - id: p6-04-f03
+    tags: [huggingface, pytorch]
+    code: |
+      out = model(**train_batch, labels=train_y)
+      out.loss.backward()
+    en:
+      front: "What does passing `labels=train_y` into a Hugging Face classification model do?"
+      back: "The model computes cross-entropy loss internally against `train_y` and returns it as `out.loss`."
+    vi:
+      front: "Truyền `labels=train_y` vào model phân loại của Hugging Face có tác dụng gì?"
+      back: "Model tự tính cross-entropy loss so với `train_y` ở bên trong và trả về trong `out.loss`."
+
+  - id: p6-04-f04
+    tags: [pytorch, dl]
+    code: |
+      optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4)
+    en:
+      front: "Why does fine-tuning use `AdamW` with a small learning rate (e.g. `5e-4`)?"
+      back: "A small step size adapts the new classification head and gently tunes the encoder without erasing the pretrained language knowledge."
+    vi:
+      front: "Vì sao fine-tune dùng `AdamW` với learning rate nhỏ (vd `5e-4`)?"
+      back: "Bước cập nhật nhỏ giúp đầu phân loại mới học nhanh và tinh chỉnh nhẹ phần thân mà không xóa sạch kiến thức ngôn ngữ có sẵn."
+
+  - id: p6-04-f05
+    tags: [huggingface]
+    code: |
+      model.save_pretrained(folder)
+      tokenizer.save_pretrained(folder)
+      reloaded = AutoModelForSequenceClassification.from_pretrained(folder)
+    en:
+      front: "Why save both `model` and `tokenizer` with `save_pretrained()` into the same folder?"
+      back: "So the reloaded model has its fine-tuned weights, `id2label` config, and the exact matching tokenizer vocabulary in one self-contained directory ready for serving."
+    vi:
+      front: "Vì sao lưu cả `model` lẫn `tokenizer` bằng `save_pretrained()` vào cùng một thư mục?"
+      back: "Để lúc nạp lại, bạn có trọn vẹn trọng số đã fine-tune, cấu hình `id2label` và đúng bộ tokenizer đi kèm trong một thư mục gọn gàng sẵn sàng deploy."
+
+  - id: p6-04-f06
+    tags: [dl]
+    en:
+      front: "Why must you call `model.eval()` before evaluating or predicting with a transformer?"
+      back: "Transformers contain dropout layers; without `model.eval()`, dropout stays active and two identical evaluation runs produce different logits and accuracies."
+    vi:
+      front: "Vì sao phải gọi `model.eval()` trước khi đánh giá hoặc dự đoán bằng transformer?"
+      back: "Transformer có các tầng dropout; nếu quên `model.eval()`, dropout vẫn bật khiến hai lần đánh giá cùng một dữ liệu ra logits và accuracy khác nhau."

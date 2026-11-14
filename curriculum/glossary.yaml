@@ -2456,3 +2456,25 @@ terms:
       en: "CrossEntropyLoss takes raw logits during training, while at inference time you apply torch.softmax(logits, dim=1) to turn logits into human-readable confidence scores."
       vi: "CrossEntropyLoss nhận thẳng logits thô khi train, còn lúc suy đoán bạn gọi torch.softmax(logits, dim=1) để đổi logits thành điểm xác suất dễ đọc."
     related: [logits, tensor, classification]
+
+  - term: classification head
+    vi_term: classification head (đầu phân loại)
+    tags: [huggingface, pytorch, dl]
+    en: "A small linear layer placed on top of a pretrained transformer body to map its hidden representation into logits for your target classes."
+    vi: "Tầng tuyến tính nhỏ đặt trên phần thân của transformer đã train sẵn để biến biểu diễn ẩn thành logits cho các lớp mục tiêu của bạn."
+    example: "model = AutoModelForSequenceClassification.from_pretrained(\n    REPO, revision=REV, local_files_only=True, num_labels=2\n)"
+    in_practice:
+      en: "When you load a pretrained base model with num_labels=2, the classification head is newly created with random weights, so you must fine-tune before trusting predictions."
+      vi: "Khi nạp model nền với num_labels=2, classification head được tạo mới với trọng số ngẫu nhiên nên bạn phải fine-tune trước khi tin vào dự đoán."
+    related: [pretrained model, fine-tuning, logits]
+
+  - term: AdamW
+    vi_term: AdamW (bộ tối ưu Adam có weight decay)
+    tags: [pytorch, dl]
+    en: "An adaptive PyTorch optimizer (torch.optim.AdamW) that adjusts each parameter's step size using gradient history and decoupled weight decay, standard for fine-tuning transformers."
+    vi: "Bộ tối ưu thích nghi trong PyTorch (torch.optim.AdamW) điều chỉnh bước cập nhật cho từng tham số theo lịch sử gradient kết hợp weight decay tách rời, là lựa chọn chuẩn khi fine-tune transformer."
+    example: "optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4)"
+    in_practice:
+      en: "Fine-tuning uses AdamW with a small learning rate (such as 5e-4 or 5e-5) so the new head learns quickly without overwriting the pretrained language knowledge."
+      vi: "Khi fine-tune, bạn dùng AdamW với learning rate nhỏ (như 5e-4 hoặc 5e-5) để đầu phân loại học nhanh mà không phá hỏng kiến thức ngôn ngữ có sẵn."
+    related: [optimizer, fine-tuning, classification head]
