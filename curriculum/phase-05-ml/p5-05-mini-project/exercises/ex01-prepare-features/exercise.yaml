@@ -21,23 +21,20 @@ hints:
       Function skeleton:
       ```python
       df = raw.copy()
-      df["plan"] = df["plan"].astype(str).str.strip().str.lower()
-      df["tokens"] = pd.to_numeric(
-          df["tokens"].astype(str).str.replace(",", "", regex=False),
-          errors="coerce",
-      )
-      df["error_count"] = pd.to_numeric(df["error_count"], errors="coerce")
-      df["hours_since_deploy"] = pd.to_numeric(df["hours_since_deploy"], errors="coerce")
-      # 1. drop duplicate ticket_id rows keeping the first occurrence:
-      ...
-      # 2. map plan ("free": 0.0, "pro": 1.0, "enterprise": 2.0) and drop rows with missing values:
-      ...
-      # 3. extract X (4 columns in order, float64) and y ("int64"), excluding escalated_to_oncall:
+      # 1. normalise "plan", strip commas from "tokens", and coerce numeric columns:
+      df["plan"] = ...
+      df["tokens"] = pd.to_numeric(..., errors="coerce")
+      # 2. drop duplicate ticket_id rows keeping the first occurrence:
+      df = ...
+      # 3. map "plan" ("free": 0.0, "pro": 1.0, "enterprise": 2.0) and drop rows with missing values:
+      df["plan_code"] = ...
+      df = ...
+      # 4. extract X (4 columns in order, float64) and y ("int64"), excluding escalated_to_oncall:
       X = ...
       y = ...
       return X, y
       ```
-      Complete the three blocks without modifying `raw`.
+      Fill in each step without modifying `raw`.
   vi:
     - |
       Làm theo quy trình ở §3: sao chép `raw`, chuẩn hóa `plan`, bỏ dấu phẩy ở `tokens`, ép kiểu các cột số, loại `ticket_id` trùng (`keep="first"`), ánh xạ `plan` sang `0.0 / 1.0 / 2.0`, bỏ dòng thiếu rồi tách 4 cột feature vào `X` và loại bỏ `escalated_to_oncall`.
@@ -53,20 +50,17 @@ hints:
       Khung hàm:
       ```python
       df = raw.copy()
-      df["plan"] = df["plan"].astype(str).str.strip().str.lower()
-      df["tokens"] = pd.to_numeric(
-          df["tokens"].astype(str).str.replace(",", "", regex=False),
-          errors="coerce",
-      )
-      df["error_count"] = pd.to_numeric(df["error_count"], errors="coerce")
-      df["hours_since_deploy"] = pd.to_numeric(df["hours_since_deploy"], errors="coerce")
-      # 1. bỏ các dòng trùng ticket_id và giữ lại dòng đầu tiên:
-      ...
-      # 2. ánh xạ plan ("free": 0.0, "pro": 1.0, "enterprise": 2.0) rồi bỏ dòng có ô thiếu:
-      ...
-      # 3. tách X (4 cột đúng thứ tự, float64) và y ("int64"), loại bỏ escalated_to_oncall:
+      # 1. chuẩn hóa "plan", xóa dấu phẩy ở "tokens" và ép kiểu các cột số:
+      df["plan"] = ...
+      df["tokens"] = pd.to_numeric(..., errors="coerce")
+      # 2. bỏ các dòng trùng ticket_id và giữ lại dòng đầu tiên:
+      df = ...
+      # 3. ánh xạ "plan" ("free": 0.0, "pro": 1.0, "enterprise": 2.0) rồi bỏ dòng có ô thiếu:
+      df["plan_code"] = ...
+      df = ...
+      # 4. tách X (4 cột đúng thứ tự, float64) và y ("int64"), loại bỏ escalated_to_oncall:
       X = ...
       y = ...
       return X, y
       ```
-      Hoàn thiện ba phần trên mà không sửa đổi `raw`.
+      Hoàn thiện các bước trên mà không sửa đổi `raw`.

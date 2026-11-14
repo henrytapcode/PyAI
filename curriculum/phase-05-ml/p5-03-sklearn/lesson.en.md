@@ -2,7 +2,7 @@ In `p5-02-supervised`, you wrote your own train/test split, threshold rule, and 
 
 ## 1. Estimator: `fit`, `predict`, `score`
 
-In `scikit-learn`, every model is an object called an **estimator** with three core methods: `.fit(X_train, y_train)` learns patterns from labelled data, `.predict(X_new)` predicts answers for new rows, and `.score(X, y)` evaluates performance (returning **accuracy** for classifiers, or **R^2** for regressors, where `1.0` is a perfect fit).
+In `scikit-learn`, every model is an object called an **estimator** with three core methods: `.fit(X_train, y_train)` learns patterns from labelled data, `.predict(X_new)` predicts answers for new rows, and `.score(X, y)` evaluates performance (returning **accuracy** for classifiers, or **R^2** for regressors, where `1.0` is a perfect fit, `0.0` means no better than always predicting the mean, and values can be negative on new data if the fit is worse than the mean).
 
 ```text
 LogisticRegression() ──> .fit(X, y) ──> .predict(X_new) ──> labels
@@ -40,7 +40,7 @@ Notice how `.predict()` returns a NumPy array (so `.tolist()` prints clean Pytho
 
 ## 2. Splitting data with `train_test_split`
 
-Instead of writing `rng.permutation` and slicing indices yourself like in `p5-02-supervised`, `train_test_split` from `sklearn.model_selection` shuffles and splits `X` and `y` in one call. It automatically shuffles rows first (fixing the sorted-data bug from `p5-02-supervised`), takes `test_size` and `random_state` for reproducibility, and accepts `stratify=y` so both train and test keep the same class proportions.
+Instead of writing `rng.permutation` and slicing indices yourself like in `p5-02-supervised`, `train_test_split` from `sklearn.model_selection` shuffles and splits `X` and `y` in one call. It automatically shuffles rows first (fixing the sorted-data bug from `p5-02-supervised`), takes `test_size` and `random_state` for reproducibility, and accepts `stratify=y` so both train and test keep the same class proportions (`np.bincount(..., minlength=2)` counts how many `0`s and `1`s land in each split).
 
 ```python
 import numpy as np
@@ -123,7 +123,7 @@ Notice that `reg.coef_` is `[1.99]` and `reg.intercept_` is `1.05` — almost th
 
 Distance-based models like `KNeighborsClassifier` break down when one feature has huge numbers (such as `tokens` from `200` to `4000`) and another lives in `[0, 1]` (such as `error_rate`): differences of hundreds of tokens completely drown out `error_rate`. `StandardScaler` from `sklearn.preprocessing` puts every column on the same scale by subtracting the training mean and dividing by the training standard deviation.
 
-Just like in `p5-02-supervised`, you must fit the scaler **only** on `X_train` (`scaler.fit_transform(X_train)`) and reuse those training statistics on `X_test` (`scaler.transform(X_test)`) to prevent **data leakage**.
+Just like in `p5-02-supervised`, you must fit the scaler **only** on `X_train` (`scaler.fit_transform(X_train)`) and reuse those training statistics on `X_test` (`scaler.transform(X_test)`) to prevent **data leakage**. Below we generate synthetic data with `rng.integers` and `rng.uniform`, join two 1D arrays end-to-end with `np.concatenate`, and stack columns side-by-side into a 2D matrix with `np.column_stack`.
 
 ```python
 import numpy as np
@@ -158,7 +158,7 @@ Notice the jump from `0.5` (coin flip) to `1.0` on the exact same split — scal
 
 ## 5. Chaining steps with `Pipeline`
 
-Calling `fit_transform` and `transform` by hand is easy to get wrong under deadline pressure. `make_pipeline` from `sklearn.pipeline` chains preprocessing transformers (like `StandardScaler()`) and a final estimator into **one** object: `.fit(X_train, y_train)` fits and transforms train inside the pipeline, while `.predict(X_test)` and `.score(X_test, y_test)` automatically call `.transform(X_test)` using the stored training mean and standard deviation — making test-set leakage impossible.
+Calling `fit_transform` and `transform` by hand is easy to get wrong under deadline pressure. `make_pipeline` from `sklearn.pipeline` chains preprocessing transformers (like `StandardScaler()`) and a final estimator into **one** object: `.fit(X_train, y_train)` fits and transforms train inside the pipeline, while `.predict(X_test)` and `.score(X_test, y_test)` automatically call `.transform(X_test)` using the stored training mean and standard deviation — preventing scaling statistics from leaking between train and test.
 
 ```mermaid
 flowchart LR
@@ -200,13 +200,13 @@ Notice `list(pipe.named_steps)` shows the lowercased step names created automati
 
 ## 6. Comparing two models fairly
 
-To tell which model truly generalizes better, every candidate must be judged under the exact same conditions: **one shared split** (same `random_state` and `stratify`), **identical preprocessing inside a pipeline**, and **selection strictly by test score**.
+To get an honest first look at which model generalizes better, every candidate must be judged under the exact same conditions: **one shared split** (same `random_state` and `stratify`), **identical preprocessing inside a pipeline**, and **comparison on the held-out split** (never choosing by training score).
 
 | fair comparison | unfair comparison |
 |---|---|
 | every model uses the exact same `train_test_split` | drawing a fresh random split for each model |
 | scaling happens inside a `Pipeline` fitted on train | scaling the whole dataset before splitting (leakage) |
-| selecting the winner by held-out test score | selecting the winner by training score |
+| comparing candidates on the same held-out split (never choosing by train score) | selecting the winner by training score |
 
 `load_iris` from `sklearn.datasets` loads the classic 150-row, 3-class iris flower dataset built directly into `scikit-learn` (no network required).
 
@@ -238,10 +238,10 @@ for name, estimator in candidates:
 # Tree(d=2)  train=0.971 test=0.889
 ```
 
-Notice how both pipelines score close on train (`0.981` vs `0.971`), while `LogReg` leads on the unseen test split (`0.911` vs `0.889`).
+Notice how both pipelines score close on train (`0.981` vs `0.971`), while `LogReg` is ahead by 1 flower out of 45 on this single held-out split (`0.911` vs `0.889`).
 
 > [!NOTE]
-> Even a fair single train/test split still depends a bit on which rows happen to land in `test`. In `p5-04-evaluation`, you will learn **cross-validation** to average across multiple splits and compare models with much more confidence.
+> A single train/test split is only a **first look** — a 1-sample gap out of 45 rows easily falls within split luck. For real model selection, use **cross-validation on the training set** (`p5-04-evaluation`) and reserve the test set to score **once at the very end** (`p5-05-mini-project`).
 
 ## 7. Common mistakes
 
@@ -345,6 +345,6 @@ for depth in [2, None]:
 
 - Every `scikit-learn` **estimator** shares one uniform API: `.fit(X_train, y_train)` learns, `.predict(X_new)` predicts, and `.score(X, y)` returns accuracy (classification) or R^2 (regression).
 - Use `train_test_split(X, y, test_size=..., random_state=..., stratify=y)` to shuffle reproducibly and preserve class balance.
-- Models like `KNeighborsClassifier` and `LogisticRegression` need feature scaling when columns have mismatched scales; `StandardScaler` must be fitted on train only.
-- Wrap preprocessing and the model in `make_pipeline(StandardScaler(), model)` so `.fit`, `.predict`, and `.score` handle scaling cleanly with zero data leakage.
-- Compare models fairly on **one shared split** with identical pipeline rules, and always pick the winner by **test score**, never train score.
+- Distance-based models like `KNeighborsClassifier` need feature scaling when columns have mismatched scales (and linear models like `LogisticRegression` converge more cleanly with it); `StandardScaler` must be fitted on train only.
+- Wrap preprocessing and the model in `make_pipeline(StandardScaler(), model)` so `.fit`, `.predict`, and `.score` handle scaling cleanly without leaking scaling statistics.
+- Compare models fairly on **one shared held-out split** with identical pipeline rules (never choose by train score) as a first look; for real selection, use cross-validation on train (`p5-04-evaluation`) and score the test set once at the end (`p5-05-mini-project`).

@@ -289,19 +289,19 @@ questions:
     en:
       prompt: "You want to compare degree-1, degree-3, and degree-6 polynomials fairly. Which workflow prevents both overfitting traps and data leakage?"
       options:
-        - "Shuffle with a fixed seed, split train/test, fit scaling and `np.polyfit` on train only, then compare test MSE"
+        - "Shuffle with a fixed seed, split train/test, fit scaling and `np.polyfit` on train only, then compare MSE on the held-out split"
         - "Fit `min`/`max` scaling on all data first, split 80/20, and pick the degree with lowest train MSE"
         - "Pick the degree with lowest train MSE first, then re-split with a new seed until test MSE looks low"
         - "Fit `np.polyfit` on all rows, then evaluate accuracy on the last 20% of rows"
-      explanation: "Splitting first, fitting all preprocessing and model parameters strictly on train, and selecting based on held-out test error keeps evaluation honest."
+      explanation: "Splitting first and fitting preprocessing and model parameters strictly on train prevents data leakage, while comparing on a held-out split gives an honest first look instead of choosing by train MSE. In `p5-04` and `p5-05` you will use cross-validation on train to choose a model and keep the test set for one final evaluation."
     vi:
       prompt: "Bạn muốn so sánh công bằng đa thức bậc 1, 3 và 6. Quy trình nào tránh được cả bẫy overfitting lẫn data leakage?"
       options:
-        - "Xáo bằng seed cố định, chia train/test, tính chuẩn hóa và `np.polyfit` chỉ trên train, rồi so sánh test MSE"
+        - "Xáo bằng seed cố định, chia train/test, tính chuẩn hóa và `np.polyfit` chỉ trên train, rồi so sánh MSE trên phần held-out"
         - "Tính chuẩn hóa `min`/`max` trên toàn bộ dữ liệu trước, chia 80/20, rồi chọn bậc có train MSE nhỏ nhất"
         - "Chọn bậc có train MSE nhỏ nhất trước, rồi đổi seed chia lại nhiều lần đến khi test MSE thấp"
         - "Khớp `np.polyfit` trên toàn bộ các hàng rồi đánh giá accuracy trên 20% hàng cuối"
-      explanation: "Chia dữ liệu trước, chỉ khớp mọi bước tiền xử lý và mô hình trên tập train, rồi chọn mô hình theo sai số trên tập test mới giữ cho đánh giá trung thực."
+      explanation: "Chia dữ liệu trước rồi chỉ khớp tiền xử lý và mô hình trên tập train giúp tránh data leakage, còn so sánh trên một phần held-out cho cái nhìn đầu tiên trung thực thay vì chọn theo train MSE. Ở `p5-04` và `p5-05` bạn sẽ dùng cross-validation trên train để chọn mô hình và giữ tập test để chấm một lần ở cuối."
 
   - id: p5-02-q16
     type: parsons

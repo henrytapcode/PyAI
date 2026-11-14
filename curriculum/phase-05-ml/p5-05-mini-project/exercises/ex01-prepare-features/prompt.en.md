@@ -19,7 +19,7 @@ Returned `(X, y)`:
 - Do not modify `raw` in place.
 - Normalise `plan` with `.astype(str).str.strip().str.lower()` and map `"free" -> 0.0`, `"pro" -> 1.0`, `"enterprise" -> 2.0` (`plan_code`). Unknown plan names become missing (`NaN`) and are dropped.
 - Remove commas `","` from `tokens` (using `.astype(str).str.replace(",", "", regex=False)`) and coerce `tokens`, `error_count`, and `hours_since_deploy` to numeric with `pd.to_numeric(..., errors="coerce")`.
-- Drop duplicate `ticket_id` rows keeping the first occurrence (`keep="first"`).
+- Drop duplicate `ticket_id` rows keeping the first occurrence (`keep="first"`) **before** dropping rows with missing values (matching lesson §3).
 - Drop rows with missing `tokens`, `error_count`, `hours_since_deploy`, `plan_code`, or `urgent`.
 - Exclude `escalated_to_oncall` (target leakage) from `X`.
 - Return `(X, y)` where `X` is a 2D NumPy `"float64"` array with columns in exact order `["tokens", "error_count", "hours_since_deploy", "plan_code"]` and `y` is a 1D NumPy `"int64"` array of `urgent` labels (`0` or `1`). If all rows are dropped, return shape `(0, 4)` for `X` and `(0,)` for `y`.

@@ -11,13 +11,15 @@ hints:
       This builds directly on §2 (`accuracy`) and §3 (`score >= t`). For `scores = np.array([0.2, 0.6, 0.8])` and `labels = np.array([0, 1, 1])`, `t = 0.6` predicts `[0, 1, 1]` and gives `(0.6, 1.0)`.
     - |
       The plan:
-      1. In `accuracy(preds, labels)`, return `0.0` when `len(preds) == 0`; otherwise return `float((preds == labels).mean())`.
-      2. In `best_threshold(scores, labels)`, sort the distinct score values with `np.unique(scores)` so you visit thresholds from smallest to largest.
-      3. For each candidate `t`, compute `preds = (scores >= t).astype("int64")` and its `acc = accuracy(preds, labels)`.
-      4. Update `best_t` and `best_acc` only when `acc > best_acc` (strictly greater) so ties keep the smallest `t`, then return `(float(best_t), round(float(best_acc), 3))`.
+      1. In `accuracy`, return `0.0` when `preds` is empty; otherwise compute the fraction of matching elements and convert it to a Python `float`.
+      2. In `best_threshold`, return `(0.0, 0.0)` if `scores` is empty; otherwise use `np.unique` (which returns the sorted unique values of an array) to visit candidate thresholds from smallest to largest.
+      3. For each candidate threshold, classify scores at or above the threshold as `1` and the rest as `0`, then evaluate accuracy against `labels`.
+      4. Update your best threshold and accuracy only when the new accuracy is strictly greater (so ties keep the smallest threshold), then return both as Python `float`s with accuracy rounded to 3 decimal places.
     - |
       The shape for `best_threshold`:
       ```python
+      if len(scores) == 0:
+          return (0.0, 0.0)
       best_t = 0.0
       best_acc = -1.0
       for t in np.unique(scores):
@@ -33,13 +35,15 @@ hints:
       Bài này dựa trực tiếp vào §2 (`accuracy`) và §3 (`score >= t`). Với `scores = np.array([0.2, 0.6, 0.8])` và `labels = np.array([0, 1, 1])`, ngưỡng `t = 0.6` đoán `[0, 1, 1]` và trả về `(0.6, 1.0)`.
     - |
       Kế hoạch:
-      1. Trong `accuracy(preds, labels)`, trả về `0.0` nếu `len(preds) == 0`; ngược lại trả về `float((preds == labels).mean())`.
-      2. Trong `best_threshold(scores, labels)`, lấy các giá trị điểm khác nhau đã sắp xếp tăng dần bằng `np.unique(scores)`.
-      3. Với mỗi ngưỡng `t`, tính `preds = (scores >= t).astype("int64")` và `acc = accuracy(preds, labels)`.
-      4. Chỉ cập nhật `best_t` và `best_acc` khi `acc > best_acc` (lớn hơn hẳn) để khi hòa sẽ giữ `t` nhỏ nhất, rồi trả về `(float(best_t), round(float(best_acc), 3))`.
+      1. Trong `accuracy`, trả về `0.0` nếu `preds` rỗng; ngược lại tính tỉ lệ phần tử khớp với `labels` rồi đổi sang `float` Python.
+      2. Trong `best_threshold`, trả về `(0.0, 0.0)` nếu `scores` rỗng; ngược lại dùng `np.unique` (trả về các giá trị duy nhất đã sắp xếp tăng dần) để duyệt các ngưỡng ứng viên từ nhỏ đến lớn.
+      3. Với mỗi ngưỡng ứng viên, phân loại các điểm từ ngưỡng trở lên thành `1` và phần còn lại thành `0`, rồi đo accuracy so với `labels`.
+      4. Chỉ cập nhật ngưỡng tốt nhất và accuracy tốt nhất khi accuracy mới lớn hơn hẳn (để khi hòa vẫn giữ ngưỡng nhỏ nhất), rồi trả về cả hai dạng `float` Python với accuracy làm tròn 3 chữ số thập phân.
     - |
       Hình dạng của `best_threshold`:
       ```python
+      if len(scores) == 0:
+          return (0.0, 0.0)
       best_t = 0.0
       best_acc = -1.0
       for t in np.unique(scores):

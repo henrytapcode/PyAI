@@ -11,7 +11,7 @@ summary:
 level: beginner
 tags: [model-evaluation, sklearn, evaluation]
 prerequisites: [p5-03-sklearn]
-duration_min: 14
+duration_min: 20
 outcomes:
   en:
     - "Accuracy, precision, recall and F1"

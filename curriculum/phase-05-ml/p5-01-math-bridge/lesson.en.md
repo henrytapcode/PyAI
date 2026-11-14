@@ -103,7 +103,7 @@ plt.show()
 # (shows a U-shaped curve that drops to 0.0 right at w = 2.0)
 ```
 
-Testing a grid of candidate weights works for one parameter, yet real models have millions of weights — we need a smarter way to find the bottom of that U-shaped valley.
+Testing a grid of candidate weights works for one parameter (here `np.argmin(losses)` gives the index of the lowest loss so we can look up the matching `w`), yet real models have millions of weights — we need a smarter way to find the bottom of that U-shaped valley.
 
 ## 4. Gradient = slope = downhill direction
 

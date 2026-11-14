@@ -258,7 +258,7 @@ questions:
   - id: p5-01-q14
     type: fill
     tags: [ml-math, numpy]
-    difficulty: 3
+    difficulty: 2
     code: |
       import numpy as np
 

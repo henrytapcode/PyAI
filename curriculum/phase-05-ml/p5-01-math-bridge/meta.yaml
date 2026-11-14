@@ -11,7 +11,7 @@ summary:
 level: beginner
 tags: [ml-math, numpy]
 prerequisites: [p4-01-numpy, p4-04-matplotlib]
-duration_min: 14
+duration_min: 19
 outcomes:
   en:
     - "Vectors and the dot product in NumPy"

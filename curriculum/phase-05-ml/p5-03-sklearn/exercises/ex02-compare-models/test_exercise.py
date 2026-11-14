@@ -25,7 +25,7 @@ def test_compare_models_returns_expected_scores_and_order():
     assert scores == {"logreg": 0.722, "knn": 0.833, "tree": 0.722}
 
 
-def test_all_models_use_same_split():
+def test_identical_models_get_identical_scores():
     X, y = make_classification(
         n_samples=60, n_features=4, n_informative=3, n_redundant=0, random_state=0
     )

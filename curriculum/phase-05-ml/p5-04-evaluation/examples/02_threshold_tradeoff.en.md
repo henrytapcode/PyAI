@@ -1,13 +1,13 @@
 # Decision threshold tradeoff
 
-**What it shows:** Sweeping five decision thresholds over `predict_proba` outputs to trade precision against recall and pick the highest threshold that reaches `recall >= 0.8`.
+**What it shows:** Sweeping five decision thresholds over `predict_proba` on a validation split carved from train to pick the highest threshold meeting `recall >= 0.8`, then evaluating the held-out test set once.
 
 **Step by step**
-1. Lines 11–19 build the 85/15 split, fit the `LogisticRegression` pipeline, and extract class-1 probabilities with `.predict_proba(X_test)[:, 1]`.
-2. Lines 21–24 list five candidate thresholds (`0.5` down to `0.1`) and print the table header.
-3. Lines 25–32 turn probabilities into `0/1` predictions for each threshold, compute rounded precision, recall, and flagged count, and keep the highest threshold meeting `recall >= 0.8`.
-4. Line 34 prints the chosen threshold (`0.3`).
+1. Lines 10–18 build the 85/15 split (`train_full` / `test`) and split `train_full` again into `train` and `val` with `stratify` so threshold tuning never touches `test`.
+2. Lines 20–25 fit the `LogisticRegression` pipeline on `X_train`, extract validation probabilities `.predict_proba(X_val)[:, 1]`, and set `target_recall = 0.8`.
+3. Lines 27–35 sweep thresholds `0.5` down to `0.1` on `val`, print rounded precision, recall, and flagged count, and pick the largest threshold reaching `recall >= target_recall` (`0.3`).
+4. Lines 37–45 print the chosen threshold (`0.3`) and, because one qualified, evaluate `X_test` once (`precision=0.875`, `recall=0.778`).
 
-**Notice:** Dropping from `0.5` to `0.3` boosts recall from `0.222` to `0.889` while keeping precision at `0.889`; going lower to `0.1` adds false alarms (`17` flagged) with no extra recall gain.
+**Notice:** Dropping the threshold from `0.5` to `0.3` on validation boosts recall from `0.400` to `0.800` with precision at `0.667`; evaluating `t = 0.3` once on unseen `X_test` gives `precision=0.875` and `recall=0.778`.
 
-**Try it yourself:** Raise the target in line 31 from `0.8` to `0.95` and see whether any of these five thresholds satisfies it.
+**Try it yourself:** Raise `target_recall` on line 24 from `0.8` to `0.95` and see `best_threshold` become `None` because none of the five thresholds reaches `0.95` on validation.

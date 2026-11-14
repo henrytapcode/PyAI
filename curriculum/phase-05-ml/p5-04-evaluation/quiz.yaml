@@ -76,7 +76,7 @@ questions:
       dummy = DummyClassifier(strategy="___").fit(X, y)
       preds = dummy.predict(X)
       print(round(float(precision_score(y, preds, zero_division=___)), 3))
-    answer: ["most_frequent", "0"]
+    answer: [["most_frequent", "prior"], ["0", "0.0"]]
     en:
       prompt: "Fill in the `DummyClassifier` strategy that always predicts the majority class, and the parameter value that safely returns `0.0` instead of raising an `UndefinedMetricWarning`."
       explanation: "`strategy=\"most_frequent\"` predicts the majority class (`0`), and `zero_division=0` returns `0.0` cleanly when there are no positive predictions."
@@ -174,19 +174,19 @@ questions:
     difficulty: 2
     code: |
       import numpy as np
-      from sklearn.metrics import recall_score
+      from sklearn.metrics import precision_score, recall_score
 
       probs = np.array([0.85, 0.35, 0.25, 0.1])
       y_true = np.array([1, 1, 0, 0])
-      preds = (probs >= ___).astype("___")
-      print(round(float(recall_score(y_true, preds)), 3))
-    answer: ["0.3", "int64"]
+      preds = (probs >= ___).astype("int64")
+      print(round(float(precision_score(y_true, preds)), 3), round(float(recall_score(y_true, preds)), 3))
+    answer: [["0.3", "0.35", "0.26", "0.27", "0.28", "0.29", "0.30", "0.31", "0.32", "0.33", "0.34"]]
     en:
-      prompt: "Fill in the decision threshold `0.3` and the 64-bit integer dtype string so `preds` catches both positive rows (`0.85` and `0.35`) and prints `1.0`."
-      explanation: "At threshold `0.3`, both `0.85` and `0.35` pass `(probs >= 0.3)`, and `.astype(\"int64\")` converts the boolean mask cleanly to 64-bit integers."
+      prompt: "Fill in a decision threshold (2 decimal places or fewer) so `preds` catches both positive rows (`0.85` and `0.35`) without flagging either negative row, printing `1.0 1.0`."
+      explanation: "Any threshold strictly above `0.25` and at most `0.35` (such as `0.3` or `0.35`) marks `0.85` and `0.35` as `1` and `0.25` and `0.1` as `0`, giving precision `1.0` and recall `1.0`."
     vi:
-      prompt: "Điền ngưỡng quyết định `0.3` và tên kiểu số nguyên 64-bit để `preds` bắt trúng cả hai mẫu dương (`0.85` và `0.35`) và in ra `1.0`."
-      explanation: "Ở ngưỡng `0.3`, cả `0.85` và `0.35` đều thỏa `(probs >= 0.3)`, và `.astype(\"int64\")` chuyển mảng boolean sang số nguyên 64-bit nhất quán."
+      prompt: "Điền một ngưỡng quyết định (tối đa 2 chữ số thập phân) để `preds` bắt trúng cả hai mẫu dương (`0.85` và `0.35`) mà không báo nhầm mẫu âm nào, in ra `1.0 1.0`."
+      explanation: "Mọi ngưỡng lớn hơn hẳn `0.25` và không quá `0.35` (như `0.3` hay `0.35`) sẽ gán `1` cho `0.85` và `0.35`, gán `0` cho `0.25` và `0.1`, cho precision `1.0` và recall `1.0`."
 
   - id: p5-04-q10
     type: mcq

@@ -15,4 +15,5 @@ best_threshold(scores, labels)            # (0.7, 1.0)
 - `best_threshold(scores, labels)` tries each distinct value in `scores` as a threshold `t`, predicting `1` when `score >= t` and `0` otherwise.
 - Return `(best_t, best_acc)` as built-in Python `float` values (`type(...) is float`), with `best_acc` rounded to 3 decimal places.
 - When two thresholds tie for the highest accuracy, return the **smallest** `t`.
+- If `scores` is empty, `best_threshold(scores, labels)` returns `(0.0, 0.0)`.
 - Do not modify `preds`, `scores`, or `labels` in place.

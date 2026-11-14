@@ -1,6 +1,6 @@
 Implement two evaluation functions from scratch without calling `sklearn.metrics`:
 
-1. `precision_recall_f1(y_true, y_pred)` computes precision, recall, and F1 from the confusion counts (`tp`, `fp`, `fn`), returning `(0.0, ...)` for any metric whose denominator is zero, and rounding only at the end to 3 decimal places.
+1. `precision_recall_f1(y_true, y_pred)` computes precision, recall, and F1 from the confusion counts (`tp`, `fp`, `fn`), setting any metric with a zero denominator to `0.0`, and rounding only at the end to 3 decimal places.
 2. `threshold_for_recall(probs, y_true, thresholds, min_recall)` predicts `1` wherever `probs >= t` and returns the **largest** threshold in `thresholds` whose recall is at least `min_recall`, or `None` if no threshold qualifies.
 
 Write your code inside both functions and `return` the answer.

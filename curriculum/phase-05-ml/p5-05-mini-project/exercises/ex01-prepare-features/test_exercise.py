@@ -119,3 +119,21 @@ def test_returns_empty_arrays_with_four_columns_when_all_rows_invalid():
     assert y.shape == (0,)
     assert str(X.dtype) == "float64"
     assert str(y.dtype) == "int64"
+
+
+def test_deduplicates_before_dropping_missing_rows():
+    df = pd.DataFrame({
+        "ticket_id": ["t1", "t1", "t2"],
+        "plan": ["free", "pro", "enterprise"],
+        "tokens": [None, "900", "500"],
+        "error_count": [1.0, 2.0, 3.0],
+        "hours_since_deploy": [4.0, 5.0, 6.0],
+        "escalated_to_oncall": [0, 1, 1],
+        "urgent": [0, 1, 1],
+    })
+    X, y = prepare_features(df)
+    assert X.shape == (1, 4), (
+        "deduplicating first keeps incomplete t1 row, which is then dropped completely"
+    )
+    assert X[0].tolist() == pytest.approx([500.0, 3.0, 6.0, 2.0])
+    assert y.tolist() == [1]

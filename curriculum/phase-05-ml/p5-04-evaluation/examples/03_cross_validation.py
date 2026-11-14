@@ -10,6 +10,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
 X, y = load_breast_cancer(return_X_y=True)
+# Flip labels so 1 = malignant (positive class) and 0 = benign (sklearn uses 0 = malignant).
+y = 1 - y
 print("dataset shape:", X.shape, "class counts:", np.bincount(y).tolist())
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)

@@ -32,6 +32,15 @@ def test_fit_line_zero_steps_returns_initial_zeros():
     assert fit_line(xs, ys, lr=0.05, steps=0) == (0.0, 0.0)
 
 
+def test_fit_line_one_step_matches_exact_mse_gradient():
+    xs = np.array([1.0, 2.0, 3.0, 4.0])
+    ys = np.array([3.0, 5.0, 7.0, 9.0])
+    # error = -ys; mean(2*error*xs) = -35.0 -> w = 0 - 0.05*(-35.0) = 1.75
+    # mean(2*error) = -12.0 -> b = 0 - 0.05*(-12.0) = 0.6
+    w, b = fit_line(xs, ys, lr=0.05, steps=1)
+    assert (w, b) == pytest.approx((1.75, 0.6), abs=1e-6)
+
+
 def test_fit_line_reduces_loss():
     xs = np.array([1.0, 2.0, 3.0, 4.0])
     ys = np.array([2.8, 5.1, 6.9, 9.2])

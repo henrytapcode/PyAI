@@ -140,11 +140,11 @@ print("y_train:", y_train.tolist())      # y_train: [1, 0, 0, 1, 1, 0]
 print("y_test:", y_test.tolist())        # y_test: [1, 0]
 ```
 
-Notice that `X_train` and `y_train` get the first 6 shuffled rows while `X_test` and `y_test` keep the remaining 2 rows untouched for evaluation.
+Notice that `X_train` and `y_train` get the first 6 shuffled rows while `X_test` and `y_test` keep the remaining 2 rows untouched for evaluation. Whether you take the first slice for train or for test does not matter as long as `X` and `y` match — in the first exercise you will take the first `n_test` shuffled indices for the test set.
 
 ## 5. Spotting overfitting visually
 
-A model that is too flexible can wiggle through every noisy training point and score near zero error on train while failing badly on unseen test points. We can see this directly by fitting polynomial curves of degree `1`, `3`, and `6` on noisy points in `[0, 1]`.
+A model that is too flexible can wiggle through every noisy training point and score near zero error on train while failing badly on unseen test points. We can see this directly by fitting polynomial curves of degree `1`, `3`, and `6` on noisy points in `[0, 1]`, where `rng.normal(0.0, 0.12, size=len(x))` adds small bell-curve noise around `0.0` with spread `0.12`.
 
 NumPy's `np.polyfit(x, y, deg)` fits a polynomial curve of degree `deg` and returns its coefficients, and `np.polyval(coeffs, x)` evaluates that curve at any `x` positions.
 
@@ -248,6 +248,8 @@ low, high = train.min(), train.max()
 clean = (test - low) / (high - low)
 print("clean test:", [round(float(v), 3) for v in clean])    # clean test: [1.5, 4.5]
 ```
+
+Notice that `clean test: [1.5, 4.5]` falls outside `[0, 1]` — that is expected whenever test values lie above `train.max()` (or below `train.min()`), because `test` is scaled strictly using the training bounds.
 
 **3. Forgetting to shuffle sorted data before splitting**
 

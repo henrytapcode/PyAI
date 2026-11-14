@@ -15,4 +15,5 @@ best_threshold(scores, labels)            # (0.7, 1.0)
 - `best_threshold(scores, labels)` thử từng giá trị **khác nhau** trong `scores` làm ngưỡng `t`, đoán `1` nếu `score >= t` và `0` nếu nhỏ hơn.
 - Trả về `(best_t, best_acc)` với cả hai phần tử đều là `float` chuẩn của Python (`type(...) is float`), trong đó `best_acc` làm tròn 3 chữ số thập phân.
 - Nếu nhiều ngưỡng có cùng accuracy cao nhất, chọn ngưỡng `t` **nhỏ nhất**.
+- Nếu `scores` rỗng, `best_threshold(scores, labels)` trả về `(0.0, 0.0)`.
 - Không sửa trực tiếp các mảng `preds`, `scores` hoặc `labels`.

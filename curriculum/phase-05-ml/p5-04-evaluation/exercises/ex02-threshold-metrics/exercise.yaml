@@ -29,13 +29,12 @@ hints:
       ```
       For `threshold_for_recall`:
       ```python
-      best = None
       for t in sorted(thresholds, reverse=True):
-          preds = (probs >= t).astype("int64")
-          _, recall, _ = precision_recall_f1(y_true, preds)
+          preds = ...
+          _, recall, _ = ...
           if ...:
               return float(t)
-      return best
+      return None
       ```
   vi:
     - |
@@ -60,11 +59,10 @@ hints:
       ```
       Còn cho `threshold_for_recall`:
       ```python
-      best = None
       for t in sorted(thresholds, reverse=True):
-          preds = (probs >= t).astype("int64")
-          _, recall, _ = precision_recall_f1(y_true, preds)
+          preds = ...
+          _, recall, _ = ...
           if ...:
               return float(t)
-      return best
+      return None
       ```

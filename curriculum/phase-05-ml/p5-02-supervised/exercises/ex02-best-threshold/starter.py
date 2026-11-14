@@ -6,7 +6,7 @@ def accuracy(preds: np.ndarray, labels: np.ndarray) -> float:
 
     Example: accuracy(np.array([0, 1, 1]), np.array([0, 0, 1])) returns 0.6666666666666666
     """
-    # TODO: return 0.0 for empty arrays, otherwise float((preds == labels).mean())
+    # TODO: return 0.0 when preds is empty, otherwise the matching fraction as a Python float
     return 0.0
 
 

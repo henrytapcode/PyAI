@@ -74,7 +74,7 @@ print("sklearn:", confusion_matrix(y_test, preds).tolist())  # sklearn: [[51, 0]
 
 Nhìn vào ma trận `51 + 0 + 7 + 2 = 60` ticket test: trong `9` ticket thật sự khẩn cấp (`FN + TP = 7 + 2`), mô hình bỏ sót tới `7` ticket và chỉ bắt được `2`!
 
-| cell | meaning | ticket example |
+| ô | ý nghĩa | ví dụ ticket |
 |---|---|---|
 | `TP` | thật là dương, đoán là dương | ticket khẩn cấp được chuyển đúng tới đội trực |
 | `FP` | thật là âm, đoán là dương | ticket bình thường bị gắn nhầm thành khẩn cấp |
@@ -83,9 +83,9 @@ Nhìn vào ma trận `51 + 0 + 7 + 2 = 60` ticket test: trong `9` ticket thật 
 
 ## 3. Precision, recall và F1
 
-Từ bốn ô đó ta có ba chỉ số chuyên biệt: **precision** (độ chính xác dự đoán dương) hỏi *"khi mô hình báo khẩn cấp, nó đúng bao nhiêu phần trăm?"* (`TP / (TP + FP)`), **recall** (độ phủ) hỏi *"trong tất cả ticket thật sự khẩn cấp, nó bắt được bao nhiêu?"* (`TP / (TP + FN)`), còn **F1 score** là trung bình điều hòa của cả hai (`2 * precision * recall / (precision + recall)`), sẽ tụt về gần 0 nếu một trong hai chỉ số thấp.
+Từ bốn ô đó ta có ba chỉ số chuyên biệt: **precision** (độ chuẩn khi báo dương) hỏi *"khi mô hình báo khẩn cấp, nó đúng bao nhiêu phần trăm?"* (`TP / (TP + FP)`), **recall** (độ nhạy, tức tỉ lệ bắt được) hỏi *"trong tất cả ticket thật sự khẩn cấp, nó bắt được bao nhiêu?"* (`TP / (TP + FN)`), còn **F1 score** là trung bình điều hòa của cả hai (`2 * precision * recall / (precision + recall)`), sẽ tụt về gần 0 nếu một trong hai chỉ số thấp.
 
-Trong `sklearn.metrics`, các hàm `precision_score(y_true, y_pred)`, `recall_score(y_true, y_pred)` và `f1_score(y_true, y_pred)` tính trực tiếp ba chỉ số này. Khi mô hình không dự đoán ca dương nào (`TP + FP == 0`), phép chia cho 0 sẽ sinh `UndefinedMetricWarning`, nên hãy truyền `zero_division=0` ở những chỗ có thể xảy ra tình huống đó.
+Trong `sklearn.metrics`, các hàm `precision_score(y_true, y_pred)`, `recall_score(y_true, y_pred)` và `f1_score(y_true, y_pred)` tính trực tiếp ba chỉ số này. Tham số `zero_division=0` chỉ liên quan khi mẫu số của một chỉ số bằng 0 (`TP + FP == 0` với precision, `TP + FN == 0` với recall, hoặc `TP + FP + FN == 0` với F1): mô hình đoán toàn `0` khi vẫn có mẫu dương thật cho `recall = 0.0` và `F1 = 0.0` mà không cảnh báo, còn `precision_score` sẽ sinh `UndefinedMetricWarning` trừ khi truyền `zero_division=0`.
 
 ```python
 import numpy as np
@@ -128,13 +128,13 @@ print("baseline precision:", round(float(precision_score(y_test, all_zero, zero_
 # baseline precision: 0.0
 ```
 
-| metric | formula | value |
+| chỉ số | công thức | giá trị |
 |---|---|---|
 | precision | `TP / (TP + FP) = 2 / (2 + 0)` | `1.0` |
 | recall | `TP / (TP + FN) = 2 / (2 + 7)` | `0.222` |
 | F1 score | `2 * 1.0 * 0.222 / (1.0 + 0.222)` | `0.364` |
 
-| situation | care most about | why |
+| tình huống | ưu tiên nhất | lý do |
 |---|---|---|
 | Lọc email spam | precision | chặn nhầm email quan trọng (`FP`) tệ hơn nhiều so với để lọt một thư rác |
 | Ticket khẩn cấp / phát hiện gian lận | recall | bỏ sót sự cố hoặc giao dịch gian lận (`FN`) gây thiệt hại lớn hơn nhiều so với kiểm tra nhầm vài ca |
@@ -180,7 +180,7 @@ Bốn cột lần lượt cho biết `precision`, `recall`, `f1-score` và `supp
 
 ## 5. Ngưỡng quyết định và `predict_proba`
 
-Giống như quy tắc ngưỡng bạn tự viết ở bài `p5-02-supervised`, `.predict(X)` thực ra so sánh xác suất với một **decision threshold** (ngưỡng quyết định) mặc định là `0.5`. Gọi `.predict_proba(X)[:, 1]` trả về xác suất dự đoán của lớp `1`, cho phép bạn hạ ngưỡng để bắt được nhiều ticket khẩn cấp hơn (tăng recall) và chấp nhận thêm báo động giả (giảm precision).
+Với `LogisticRegression` nhị phân, `.predict(X)` tương đương với việc so sánh `.predict_proba(X)[:, 1]` với một **decision threshold** (ngưỡng quyết định) là `0.5`. Gọi `.predict_proba(X)[:, 1]` trả về xác suất dự đoán của lớp `1`, cho phép bạn hạ ngưỡng để bắt được nhiều ticket khẩn cấp hơn (tăng recall) và chấp nhận thêm báo động giả (giảm precision).
 
 Bấm **Visualize** ở khối code này để xem `preds` và `rec` thay đổi khi `t` giảm dần từ `0.5` xuống `0.1`.
 
@@ -211,13 +211,16 @@ for t in [0.5, 0.3, 0.1]:
 # t=0.1 prec=0.471 rec=0.889
 ```
 
-| threshold | precision | recall |
+| ngưỡng | precision | recall |
 |---|---|---|
 | `0.5` | `1.0` | `0.222` |
 | `0.3` | `0.889` | `0.889` |
 | `0.1` | `0.471` | `0.889` |
 
-Hãy chú ý khi hạ ngưỡng xuống `0.3`, recall nhảy vọt từ `0.222` lên `0.889` (bắt được `8` trong `9` ticket khẩn cấp) mà precision vẫn giữ `0.889` — còn tụt xuống `0.1` chỉ làm tăng báo động giả mà không bắt thêm được ca khẩn cấp nào.
+Hãy chú ý khi hạ ngưỡng xuống `0.3`, recall nhảy vọt từ `0.222` lên `0.889` (bắt được `8` trong `9` ticket khẩn cấp) trong khi precision chỉ giảm nhẹ từ `1.0` xuống `0.889` — còn tụt xuống `0.1` chỉ làm tăng báo động giả mà không bắt thêm được ca khẩn cấp nào.
+
+> [!WARNING]
+> Việc quét ngưỡng trên `X_test` ở trên chỉ để **minh họa** sự đánh đổi giữa precision và recall. Tuyệt đối không chọn ngưỡng cuối cùng bằng cách soi `X_test` — hãy chọn ngưỡng trên tập validation hoặc từ xác suất out-of-fold trên `X_train` (sẽ làm ở `p5-05-mini-project`), và chỉ chấm `X_test` một lần ở cuối.
 
 ## 6. Cross-validation
 
@@ -240,7 +243,7 @@ flowchart LR
     E --> F["Mean +/- std"]
 ```
 
-Hàm `cross_val_score` từ `sklearn.model_selection` chạy vòng lặp này tự động (`cv=5` tự chia 5 fold giữ tỉ lệ lớp cho bài toán phân loại), còn `StratifiedKFold` từ `sklearn.model_selection` cho phép bạn cố định `shuffle=True, random_state=0` và truyền `scoring="f1"` để so sánh mô hình công bằng trên dữ liệu lệch lớp.
+Hàm `cross_val_score` từ `sklearn.model_selection` chạy vòng lặp này tự động (`cv=5` tự chia 5 fold giữ tỉ lệ lớp cho bài toán phân loại), còn khi truyền `StratifiedKFold(n_splits=5, shuffle=True, random_state=0)` vào `cross_val_score(..., cv=skf, scoring="f1")`, bạn cố định được seed xáo trộn và dùng chỉ số F1 để so sánh mô hình công bằng trên dữ liệu lệch lớp.
 
 ```python
 import numpy as np
@@ -282,7 +285,7 @@ Khi đo bằng F1 trên 5 fold, `DecisionTreeClassifier(max_depth=3)` vượt tr
 
 **1. Chỉ nhìn accuracy trên dữ liệu lệch lớp**
 
-Khi 95% mẫu thuộc lớp `0`, đoán toàn số `0` vẫn đạt accuracy `0.95` trong khi recall lớp hiếm bằng `0.0`. Luôn kiểm tra thêm `recall_score` hoặc `f1_score` (truyền `zero_division=0`) cho lớp thiểu số.
+Khi 95% mẫu thuộc lớp `0`, đoán toàn số `0` vẫn đạt accuracy `0.95` trong khi recall lớp hiếm bằng `0.0`. Luôn kiểm tra thêm `recall_score` hoặc `f1_score` cho lớp thiểu số (và truyền `zero_division=0` cho `precision_score` hoặc bất cứ chỗ nào mẫu số có thể bằng 0).
 
 ```python
 import numpy as np
@@ -291,8 +294,8 @@ from sklearn.metrics import accuracy_score, recall_score
 y_true = np.array([0] * 19 + [1])
 y_pred = np.zeros_like(y_true)
 
-print("accuracy:", round(float(accuracy_score(y_true, y_pred)), 3))               # accuracy: 0.95
-print("recall:  ", round(float(recall_score(y_true, y_pred, zero_division=0)), 3))  # recall:   0.0
+print("accuracy:", round(float(accuracy_score(y_true, y_pred)), 3))  # accuracy: 0.95
+print("recall:  ", round(float(recall_score(y_true, y_pred)), 3))    # recall:   0.0
 ```
 
 **2. Đảo thứ tự `y_true` và `y_pred` trong `confusion_matrix`**
@@ -314,29 +317,30 @@ print("correct:", confusion_matrix(y_true, y_pred).tolist())  # correct: [[2, 1]
 
 **3. Chuẩn hóa toàn bộ `X` trước khi gọi `cross_val_score` (rò rỉ dữ liệu)**
 
-Fit `StandardScaler` trên toàn bộ `X` trước khi chạy cross-validation khiến thông tin trung bình và độ lệch chuẩn của các fold test rò rỉ vào quá trình train. Ngay cả khi hai con số trung bình trên bộ dữ liệu nhỏ trông giống nhau (`0.895` và `0.895` dưới đây), quy trình bị rò rỉ vẫn sai về nguyên tắc và có thể làm điểm cao giả tạo trên dữ liệu thực tế lệch chuẩn — hãy đặt scaler vào trong `make_pipeline`.
+Fit `StandardScaler` trên toàn bộ `X` trước khi chạy cross-validation khiến thông tin trung bình và độ lệch chuẩn của các fold kiểm tra rò rỉ vào quá trình train, có thể thổi phồng điểm CV (`0.667` so với `0.633` bên dưới) trên dữ liệu phân bố lệch — hãy đặt scaler vào trong `make_pipeline`.
 
 ```python
 from sklearn.datasets import make_classification
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 X, y = make_classification(
-    n_samples=200, n_features=5, weights=[0.85], random_state=1
+    n_samples=40, n_features=4, n_informative=2, weights=[0.8], random_state=5
 )
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
 
 # Sai: scaler nhìn thấy mọi fold trước khi chia
 X_scaled = StandardScaler().fit_transform(X)
-leaked = cross_val_score(LogisticRegression(), X_scaled, y, cv=5)
+leaked = cross_val_score(KNeighborsClassifier(n_neighbors=3), X_scaled, y, cv=skf, scoring="f1")
 
 # Sửa: đặt scaler bên trong pipeline
-pipe = make_pipeline(StandardScaler(), LogisticRegression())
-clean = cross_val_score(pipe, X, y, cv=5)
+pipe = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=3))
+clean = cross_val_score(pipe, X, y, cv=skf, scoring="f1")
 
-print("leaked mean:", round(float(leaked.mean()), 3))  # leaked mean: 0.895
-print("clean mean: ", round(float(clean.mean()), 3))   # clean mean:  0.895
+print("leaked mean:", round(float(leaked.mean()), 3))  # leaked mean: 0.667
+print("clean mean: ", round(float(clean.mean()), 3))   # clean mean:  0.633
 ```
 
 **4. Báo cáo điểm trung bình CV mà bỏ qua `std`, hoặc chọn mô hình theo một fold tốt nhất**
@@ -370,7 +374,7 @@ for name, est in [("LogReg", LogisticRegression()), ("KNN(k=1)", KNeighborsClass
 
 - Trên dữ liệu lệch lớp, **accuracy** dễ đánh lừa bằng cách giấu đi số ca thiểu số bị bỏ sót — hãy luôn đo **baseline** bằng `DummyClassifier` trước.
 - **Confusion matrix** (`[[TN, FP], [FN, TP]]`) tách riêng báo động giả (`FP`) và ca bỏ sót (`FN`).
-- **Precision** đo độ tin cậy khi mô hình báo dương; **recall** đo tỉ lệ ca dương thật được bắt trúng; **F1** cân bằng cả hai (nhớ truyền `zero_division=0` khi có thể không có dự đoán dương nào).
+- **Precision** đo độ tin cậy khi mô hình báo dương; **recall** đo tỉ lệ ca dương thật được bắt trúng; **F1** cân bằng cả hai (nhớ truyền `zero_division=0` khi mẫu số có thể bằng 0, chẳng hạn `precision_score` khi không có dự đoán dương nào).
 - `classification_report(..., digits=3)` hiển thị điểm từng lớp cùng `macro avg` (trung bình đều các lớp) và `weighted avg` (có trọng số theo `support`).
 - Điều chỉnh **decision threshold** trên `.predict_proba(X)[:, 1]` để đánh đổi giữa precision và recall mà không cần huấn luyện lại.
 - Dùng **cross-validation** (`cross_val_score` và `StratifiedKFold`) với tiền xử lý nằm trong `Pipeline`, và luôn báo cáo `mean +/- std`.

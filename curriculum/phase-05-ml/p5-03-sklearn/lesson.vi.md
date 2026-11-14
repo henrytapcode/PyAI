@@ -2,7 +2,7 @@
 
 ## 1. Estimator: `fit`, `predict`, `score`
 
-Trong `scikit-learn`, mỗi mô hình là một object gọi là **estimator (bộ ước lượng)** với ba phương thức cốt lõi: `.fit(X_train, y_train)` học quy luật từ dữ liệu có nhãn, `.predict(X_new)` dự đoán cho các hàng mới, còn `.score(X, y)` chấm điểm mô hình (trả về **accuracy** với bộ phân loại, hoặc **R^2** với bộ hồi quy, trong đó `1.0` là khớp hoàn hảo).
+Trong `scikit-learn`, mỗi mô hình là một object gọi là **estimator (bộ ước lượng)** với ba phương thức cốt lõi: `.fit(X_train, y_train)` học quy luật từ dữ liệu có nhãn, `.predict(X_new)` dự đoán cho các hàng mới, còn `.score(X, y)` chấm điểm mô hình (trả về **accuracy** với bộ phân loại, hoặc **R^2** với bộ hồi quy, trong đó `1.0` là khớp hoàn hảo, `0.0` nghĩa là không hơn gì đoán giá trị trung bình, và có thể mang giá trị âm trên dữ liệu mới nếu dự đoán còn tệ hơn đoán trung bình).
 
 ```text
 LogisticRegression() ──> .fit(X, y) ──> .predict(X_new) ──> labels
@@ -40,7 +40,7 @@ Hãy để ý `.predict()` trả về mảng NumPy (nên dùng `.tolist()` để
 
 ## 2. Chia dữ liệu bằng `train_test_split`
 
-Thay vì tự viết `rng.permutation` và cắt chỉ số như ở `p5-02-supervised`, hàm `train_test_split` từ `sklearn.model_selection` xáo và tách `X`, `y` chỉ trong một lệnh. Hàm này tự động xáo trộn dữ liệu trước khi cắt (khắc phục luôn lỗi quên xáo dữ liệu đã sắp xếp ở `p5-02-supervised`), nhận `test_size` và `random_state` (hạt giống ngẫu nhiên) để lặp lại kết quả, và hỗ trợ `stratify=y` (chia giữ tỉ lệ lớp) để tập train và test giữ nguyên tỉ lệ nhãn gốc.
+Thay vì tự viết `rng.permutation` và cắt chỉ số như ở `p5-02-supervised`, hàm `train_test_split` từ `sklearn.model_selection` xáo và tách `X`, `y` chỉ trong một lệnh. Hàm này tự động xáo trộn dữ liệu trước khi cắt (khắc phục luôn lỗi quên xáo dữ liệu đã sắp xếp ở `p5-02-supervised`), nhận `test_size` và `random_state` (hạt giống ngẫu nhiên) để lặp lại kết quả, và hỗ trợ `stratify=y` (chia giữ tỉ lệ lớp) để tập train và test giữ nguyên tỉ lệ nhãn gốc (`np.bincount(..., minlength=2)` đếm số phần tử `0` và `1` trong mỗi tập).
 
 ```python
 import numpy as np
@@ -123,7 +123,7 @@ print("R^2:", round(reg.score(X, y), 3))              # R^2: 0.999
 
 Các mô hình dựa vào khoảng cách như `KNeighborsClassifier` gặp vấn đề ngay khi một feature mang giá trị hàng nghìn (như `tokens` từ `200` đến `4000`) còn feature khác nằm trong `[0, 1]` (như `error_rate`): chênh lệch vài trăm token sẽ lấn át hoàn toàn `error_rate`. `StandardScaler` từ `sklearn.preprocessing` đưa mọi cột về cùng thang đo bằng cách trừ đi trung bình và chia cho độ lệch chuẩn của tập train.
 
-Giống như bạn đã học ở `p5-02-supervised`, bạn **chỉ được phép** học thông số chuẩn hóa từ `X_train` (`scaler.fit_transform(X_train)`) rồi dùng lại đúng thông số đó trên `X_test` (`scaler.transform(X_test)`) để tránh **data leakage (rò rỉ dữ liệu)**.
+Giống như bạn đã học ở `p5-02-supervised`, bạn **chỉ được phép** học thông số chuẩn hóa từ `X_train` (`scaler.fit_transform(X_train)`) rồi dùng lại đúng thông số đó trên `X_test` (`scaler.transform(X_test)`) để tránh **data leakage (rò rỉ dữ liệu)**. Bên dưới, ta sinh dữ liệu mô phỏng bằng `rng.integers` và `rng.uniform`, nối hai mảng 1 chiều thành một bằng `np.concatenate`, rồi ghép các cột cạnh nhau thành ma trận `X` 2 chiều bằng `np.column_stack`.
 
 ```python
 import numpy as np
@@ -158,7 +158,7 @@ Hãy chú ý bước nhảy từ `0.5` (ngang tung đồng xu) lên `1.0` trên 
 
 ## 5. Nối các bước bằng `Pipeline`
 
-Tự gọi `fit_transform` và `transform` bằng tay rất dễ nhầm khi code nhiều bước. Hàm `make_pipeline` từ `sklearn.pipeline` nối các bước biến đổi tiền xử lý (như `StandardScaler()`) và estimator cuối cùng thành **một** đối tượng duy nhất: `.fit(X_train, y_train)` vừa chuẩn hóa vừa học trên tập train, còn `.predict(X_test)` và `.score(X_test, y_test)` tự động gọi `.transform(X_test)` bằng trung bình và độ lệch chuẩn của tập train — nhờ vậy bạn không thể vô tình làm rò rỉ tập test.
+Tự gọi `fit_transform` và `transform` bằng tay rất dễ nhầm khi code nhiều bước. Hàm `make_pipeline` từ `sklearn.pipeline` nối các bước biến đổi tiền xử lý (như `StandardScaler()`) và estimator cuối cùng thành **một** đối tượng duy nhất: `.fit(X_train, y_train)` vừa chuẩn hóa vừa học trên tập train, còn `.predict(X_test)` và `.score(X_test, y_test)` tự động gọi `.transform(X_test)` bằng trung bình và độ lệch chuẩn của tập train — nhờ vậy chặn được rò rỉ thống kê chuẩn hóa giữa train và test.
 
 ```mermaid
 flowchart LR
@@ -200,13 +200,13 @@ Hãy để ý `list(pipe.named_steps)` cho ra tên viết thường của từng
 
 ## 6. So sánh hai mô hình công bằng
 
-Để biết mô hình nào thực sự tổng quát hóa tốt hơn, mọi ứng viên phải được đánh giá trong cùng điều kiện: **dùng chung một lần chia** (cùng `random_state` và `stratify`), **tiền xử lý giống nhau bên trong pipeline**, và **chọn mô hình theo điểm test**.
+Để có cái nhìn đầu tiên trung thực xem mô hình nào tổng quát hóa tốt hơn, mọi ứng viên phải được đánh giá trong cùng điều kiện: **dùng chung một lần chia** (cùng `random_state` và `stratify`), **tiền xử lý giống nhau bên trong pipeline**, và **so sánh trên cùng phần held-out** (không bao giờ chọn theo điểm tập train).
 
 | so sánh công bằng | so sánh thiếu công bằng |
 |---|---|
 | mọi mô hình dùng đúng một `train_test_split` chung | mỗi mô hình tự chia ngẫu nhiên một lần khác nhau |
 | chuẩn hóa nằm trong `Pipeline` chỉ fit trên train | chuẩn hóa toàn bộ dữ liệu trước khi chia (rò rỉ dữ liệu) |
-| chọn mô hình thắng dựa trên điểm tập test | chọn mô hình thắng dựa trên điểm tập train |
+| so sánh các ứng viên trên cùng phần held-out (không chọn theo train) | chọn mô hình thắng dựa trên điểm tập train |
 
 Hàm `load_iris` từ `sklearn.datasets` nạp bộ dữ liệu hoa diên vĩ `iris` kinh điển (150 mẫu, 3 lớp) có sẵn ngay trong gói `scikit-learn` (không cần mạng).
 
@@ -238,10 +238,10 @@ for name, estimator in candidates:
 # Tree(d=2)  train=0.971 test=0.889
 ```
 
-Cả hai pipeline có điểm train khá sát nhau (`0.981` và `0.971`), nhưng trên tập test tách riêng thì `LogReg` nhỉnh hơn (`0.911` so với `0.889`).
+Cả hai pipeline có điểm train khá sát nhau (`0.981` và `0.971`), còn trên một lần chia held-out này thì `LogReg` nhỉnh hơn đúng 1 mẫu trên 45 (`0.911` so với `0.889`).
 
 > [!NOTE]
-> Dù đã chia công bằng, kết quả trên một lần chia train/test duy nhất vẫn phụ thuộc phần nào vào may rủi (những dòng nào rơi vào `test`). Ở bài `p5-04-evaluation`, bạn sẽ học **cross-validation** để đo trung bình qua nhiều lần chia và so sánh chắc chắn hơn.
+> Một lần chia train/test duy nhất chỉ là **cái nhìn đầu tiên** — chênh lệch 1 mẫu trên 45 vẫn nằm trong phần may rủi của phép chia. Để chọn mô hình thật sự đáng tin, bạn sẽ dùng **cross-validation trên tập train** (`p5-04-evaluation`) và giữ tập test để chấm **một lần duy nhất ở cuối** (`p5-05-mini-project`).
 
 ## 7. Lỗi thường gặp
 
@@ -345,6 +345,6 @@ for depth in [2, None]:
 
 - Mọi **estimator** trong `scikit-learn` đều dùng chung một API: `.fit(X_train, y_train)` để học, `.predict(X_new)` để dự đoán và `.score(X, y)` trả về accuracy (phân loại) hoặc R^2 (hồi quy).
 - Dùng `train_test_split(X, y, test_size=..., random_state=..., stratify=y)` để xáo dữ liệu tái lập được và giữ nguyên tỉ lệ các lớp.
-- Các mô hình như `KNeighborsClassifier` và `LogisticRegression` cần chuẩn hóa feature khi các cột lệch thang đo; `StandardScaler` chỉ được fit trên tập train.
-- Gói bước tiền xử lý và mô hình vào `make_pipeline(StandardScaler(), model)` để `.fit`, `.predict` và `.score` tự xử lý chuẩn hóa mà không bao giờ rò rỉ dữ liệu test.
-- So sánh các mô hình công bằng trên **cùng một lần chia** với quy trình pipeline giống nhau, và luôn chọn theo **điểm test**, tuyệt đối không chọn theo điểm train.
+- Các mô hình dựa vào khoảng cách như `KNeighborsClassifier` cần chuẩn hóa feature khi các cột lệch thang đo (và mô hình tuyến tính như `LogisticRegression` cũng hội tụ gọn hơn khi chuẩn hóa); `StandardScaler` chỉ được fit trên tập train.
+- Gói bước tiền xử lý và mô hình vào `make_pipeline(StandardScaler(), model)` để `.fit`, `.predict` và `.score` tự xử lý chuẩn hóa mà không rò rỉ thống kê chuẩn hóa giữa train và test.
+- So sánh các mô hình công bằng trên **cùng một phần held-out** với quy trình pipeline giống nhau (không chọn theo điểm train) để có cái nhìn đầu tiên; khi chọn mô hình thật sự, dùng cross-validation trên train (`p5-04-evaluation`) và chỉ chấm tập test một lần ở cuối (`p5-05-mini-project`).

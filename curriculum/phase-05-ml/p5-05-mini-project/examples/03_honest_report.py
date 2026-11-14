@@ -59,17 +59,16 @@ lr_cv = cross_val_score(logreg, X_train, y_train, cv=skf, scoring=f1_safe)
 tr_cv = cross_val_score(tree, X_train, y_train, cv=skf, scoring=f1_safe)
 
 oof_probs = cross_val_predict(logreg, X_train, y_train, cv=skf, method="predict_proba")[:, 1]
-chosen_t = 0.5
+target_recall = 0.80
+chosen_t = None
 for t in [0.5, 0.4, 0.3, 0.2]:
     rec = float(recall_score(y_train, (oof_probs >= t).astype("int64")))
-    if rec >= 0.80:
+    if rec >= target_recall:
         chosen_t = t
         break
 
 base = DummyClassifier(strategy="most_frequent").fit(X_train, y_train)
 base_preds = base.predict(X_test)
-logreg.fit(X_train, y_train)
-test_preds = (logreg.predict_proba(X_test)[:, 1] >= chosen_t).astype("int64")
 
 lr_m, lr_s = round(float(lr_cv.mean()), 3), round(float(lr_cv.std()), 3)
 tr_m, tr_s = round(float(tr_cv.mean()), 3), round(float(tr_cv.std()), 3)
@@ -77,12 +76,17 @@ print(f"test set: {len(y_test)} tickets ({int(y_test.sum())} urgent)")
 print(f"baseline: acc={round(float(accuracy_score(y_test, base_preds)), 3):.3f} F1=0.000")
 print(f"logreg CV F1: {lr_m:.3f} +/- {lr_s:.3f}")
 print(f"tree   CV F1: {tr_m:.3f} +/- {tr_s:.3f}")
-print(f"chosen threshold (train OOF recall>=0.80): {chosen_t}")
-print("test confusion matrix:", confusion_matrix(y_test, test_preds).tolist())
-print(
-    f"test metrics: prec={round(float(precision_score(y_test, test_preds, zero_division=0)), 3):.3f} "
-    f"rec={round(float(recall_score(y_test, test_preds)), 3):.3f} "
-    f"F1={round(float(f1_score(y_test, test_preds, zero_division=0)), 3):.3f}"
-)
+if chosen_t is None:
+    print(f"no threshold reaches recall >= {target_recall:.2f}")
+else:
+    logreg.fit(X_train, y_train)
+    test_preds = (logreg.predict_proba(X_test)[:, 1] >= chosen_t).astype("int64")
+    print(f"chosen threshold (train OOF recall>={target_recall:.2f}): {chosen_t}")
+    print("test confusion matrix:", confusion_matrix(y_test, test_preds).tolist())
+    print(
+        f"test metrics: prec={round(float(precision_score(y_test, test_preds, zero_division=0)), 3):.3f} "
+        f"rec={round(float(recall_score(y_test, test_preds)), 3):.3f} "
+        f"F1={round(float(f1_score(y_test, test_preds, zero_division=0)), 3):.3f}"
+    )
 if abs(lr_m - tr_m) < max(lr_s, tr_s):
     print("note: logreg and tree differ by less than one std; cannot claim one is clearly better")

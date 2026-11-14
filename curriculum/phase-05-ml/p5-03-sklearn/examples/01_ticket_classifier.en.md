@@ -10,4 +10,4 @@
 
 **Notice:** Because the normal (`20..159` tokens) and urgent (`120..319` tokens) ranges overlap slightly, test accuracy is `0.833` (5 of 6 test tickets) rather than a suspicious `1.0`.
 
-**Try it yourself:** Change `test_size=0.25` to `0.3` or adjust the `links` count of the third new ticket (`[95.0, 1.0]`) to `[95.0, 5.0]` and see how the prediction changes.
+**Try it yourself:** Change `test_size=0.25` to `0.3` (accuracy shifts to `0.875`) or increase the `tokens` count of the third new ticket (`[95.0, 1.0]`) to `[180.0, 1.0]` so its prediction flips from `0` to `1` (`[0, 1, 1]`).

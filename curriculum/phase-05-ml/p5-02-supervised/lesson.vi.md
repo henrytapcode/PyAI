@@ -75,7 +75,7 @@ print("Classification accuracy:", round(acc, 3))  # Classification accuracy: 0.7
 
 Ở bài `p5-01-math-bridge`, ta giải bài toán regression bằng cách khớp một đường thẳng nhờ gradient descent để thu nhỏ MSE. Với một bài toán classification nhị phân đơn giản, mô hình cơ bản nhất là **quy tắc một ngưỡng (threshold)**: cho trước điểm spam `score`, đoán `1` (spam) nếu `score >= t`, ngược lại đoán `0`.
 
-Bằng cách thử vài ngưỡng `t` khác nhau và đo **accuracy (độ chính xác)**, bạn chọn được ngưỡng đoán đúng nhiều nhất.
+Bằng cách thử vài ngưỡng `t` khác nhau và đo **accuracy** (tỉ lệ đoán đúng), bạn chọn được ngưỡng đoán đúng nhiều nhất.
 
 ```python
 import numpy as np
@@ -92,7 +92,7 @@ for t in [0.3, 0.5, 0.7]:
 # t=0.7: preds=[0, 0, 0, 0, 1, 1] acc=0.833
 ```
 
-Đây là bảng vết qua ba ngưỡng thử nghiệm:
+Đây là bảng theo dõi qua ba ngưỡng thử nghiệm:
 
 | `t` | `predictions` | `accuracy` |
 |---|---|---|
@@ -140,11 +140,11 @@ print("y_train:", y_train.tolist())      # y_train: [1, 0, 0, 1, 1, 0]
 print("y_test:", y_test.tolist())        # y_test: [1, 0]
 ```
 
-Hãy để ý `X_train` và `y_train` nhận 6 hàng đầu tiên sau khi xáo, còn `X_test` và `y_test` giữ nguyên 2 hàng còn lại để đánh giá.
+Hãy để ý `X_train` và `y_train` nhận 6 hàng đầu tiên sau khi xáo, còn `X_test` và `y_test` giữ nguyên 2 hàng còn lại để đánh giá. Lấy phần đầu sau khi xáo làm train hay làm test đều được miễn là áp dụng nhất quán cho cả `X` và `y` — trong bài tập đầu tiên bạn sẽ lấy `n_test` chỉ số đầu làm tập test.
 
 ## 5. Nhận ra overfitting bằng mắt
 
-Một mô hình quá linh hoạt có thể uốn lượn đi qua từng điểm nhiễu trong tập train để đạt sai số gần như bằng 0, nhưng lại sai lệch nặng trên tập test mới. Ta có thể nhìn thấy hiện tượng này ngay trên biểu đồ bằng cách khớp đường cong đa thức bậc `1`, `3` và `6` lên các điểm dữ liệu có nhiễu trong đoạn `[0, 1]`.
+Một mô hình quá linh hoạt có thể uốn lượn đi qua từng điểm nhiễu trong tập train để đạt sai số gần như bằng 0, nhưng lại sai lệch nặng trên tập test mới. Ta có thể nhìn thấy hiện tượng này ngay trên biểu đồ bằng cách khớp đường cong đa thức bậc `1`, `3` và `6` lên các điểm dữ liệu có nhiễu trong đoạn `[0, 1]`, trong đó `rng.normal(0.0, 0.12, size=len(x))` cộng thêm nhiễu phân phối chuẩn quanh `0.0` với độ lệch `0.12`.
 
 Hàm `np.polyfit(x, y, deg)` của NumPy khớp một đường cong đa thức bậc `deg` vào dữ liệu `(x, y)` rồi trả về các hệ số, còn `np.polyval(coeffs, x)` tính giá trị của đa thức đó tại các điểm `x` bất kỳ.
 
@@ -184,7 +184,7 @@ plt.show()
 # (hiện đường bậc 1 khá phẳng, đường bậc 3 ôm mượt hình vòng cung, còn đường bậc 6 lắc mạnh để chạm từng điểm train)
 ```
 
-| degree | train MSE | test MSE |
+| bậc | train MSE | test MSE |
 |---|---|---|
 | `1` | `0.079` | `0.302` |
 | `3` | `0.022` | `0.057` |
@@ -248,6 +248,8 @@ low, high = train.min(), train.max()
 clean = (test - low) / (high - low)
 print("clean test:", [round(float(v), 3) for v in clean])    # clean test: [1.5, 4.5]
 ```
+
+Để ý rằng giá trị chuẩn hóa sạch `clean test: [1.5, 4.5]` vượt ra ngoài đoạn `[0, 1]` — điều này hoàn toàn bình thường mỗi khi giá trị test nằm cao hơn `train.max()` (hoặc thấp hơn `train.min()`), vì tập test chỉ được quy đổi theo các mốc đo từ tập train.
 
 **3. Quên xáo dữ liệu đã sắp theo label trước khi chia**
 

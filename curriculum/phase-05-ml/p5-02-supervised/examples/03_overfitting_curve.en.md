@@ -9,6 +9,6 @@
 4. Lines 18–23 fit degrees `1`, `3`, and `6` using `np.polyfit` on `x_train` only, print `train_mse` and `test_mse`, and draw each curve with `np.polyval`.
 5. Lines 25–30 add the title, axis labels, legend, and grid, then display the figure.
 
-**Notice:** Degree `1` underfits (`test_mse = 0.283`), degree `3` hits the sweet spot (`test_mse = 0.018`), and degree `6` overfits badly (`train_mse = 0.004` yet `test_mse = 1.66`).
+**Notice:** Degree `1` underfits (`test_mse = 0.283`), degree `3` follows the arch cleanly among these three (`test_mse = 0.018`), and degree `6` overfits badly (`train_mse = 0.004` yet `test_mse = 1.66`).
 
-**Try it yourself:** Change `deg in [1, 3, 6]` to include degree `2` and check whether a parabola beats degree `3` on `test_mse`.
+**Try it yourself:** Change `deg in [1, 3, 6]` to include degree `2` — because the true curve is a parabola, degree `2` achieves an even lower `test_mse` (`0.011`) than degree `3`.

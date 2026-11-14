@@ -70,8 +70,8 @@ def test_write_report_omits_warning_when_gap_is_at_or_above_max_std():
         "best: logreg",
         "test size: 40",
     ]
-    # Boundary: exact equality (0.10 == 0.10) is NOT strictly less than max std
-    boundary = {"logreg": (0.80, 0.10), "tree": (0.70, 0.05)}
+    # Boundary: exact equality (0.75 - 0.5 == 0.25) is NOT strictly less than max std
+    boundary = {"logreg": (0.75, 0.25), "tree": (0.5, 0.125)}
     assert write_report(boundary, n_test=40)[-1] == "test size: 40"
 
 

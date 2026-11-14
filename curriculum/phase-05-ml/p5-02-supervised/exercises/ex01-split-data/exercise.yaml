@@ -11,10 +11,10 @@ hints:
       This uses the seeded permutation split from §4. With 10 rows and `test_ratio = 0.2`, `n_test = 2`: `X_test` and `y_test` take the first 2 shuffled indices, and `X_train` and `y_train` take the remaining 8.
     - |
       The plan:
-      1. Create `rng = np.random.default_rng(seed)` and shuffle indices `0..len(X)-1` with `rng.permutation(len(X))`.
-      2. Compute `n_test = int(round(len(X) * test_ratio))`.
-      3. Slice the first `n_test` indices as `test_idx` and the rest as `train_idx`.
-      4. Index both `X` and `y` with `train_idx` and `test_idx` and return `(X_train, X_test, y_train, y_test)`.
+      1. Create a seeded NumPy random generator from `seed`, then generate a shuffled permutation of all row indices.
+      2. Compute the number of test rows by multiplying the dataset length by `test_ratio` and rounding to the nearest integer.
+      3. Slice the first `n_test` shuffled indices for the test set and the remaining indices for the train set.
+      4. Index both `X` and `y` with those index slices and return the train arrays followed by the test arrays.
     - |
       The shape:
       ```python
@@ -31,10 +31,10 @@ hints:
       Bài này dùng phép chia hoán vị có seed ở §4. Với 10 hàng và `test_ratio = 0.2`, `n_test = 2`: `X_test` và `y_test` lấy 2 chỉ số đầu tiên sau khi xáo, còn `X_train` và `y_train` lấy 8 chỉ số còn lại.
     - |
       Kế hoạch:
-      1. Tạo `rng = np.random.default_rng(seed)` và xáo chỉ số `0..len(X)-1` bằng `rng.permutation(len(X))`.
-      2. Tính `n_test = int(round(len(X) * test_ratio))`.
-      3. Cắt `n_test` chỉ số đầu làm `test_idx` và phần còn lại làm `train_idx`.
-      4. Lấy phần tử từ cả `X` và `y` theo `train_idx` và `test_idx` rồi trả về `(X_train, X_test, y_train, y_test)`.
+      1. Tạo bộ sinh số ngẫu nhiên NumPy từ `seed` rồi sinh hoán vị xáo trộn của toàn bộ chỉ số hàng.
+      2. Tính số lượng hàng test bằng cách nhân số hàng của `X` với `test_ratio` rồi làm tròn thành số nguyên.
+      3. Cắt `n_test` chỉ số đầu tiên sau khi xáo làm chỉ số test và phần còn lại làm chỉ số train.
+      4. Lấy phần tử từ cả `X` lẫn `y` theo hai lát chỉ số đó rồi trả về hai mảng train trước, hai mảng test sau.
     - |
       Hình dạng của lời giải:
       ```python

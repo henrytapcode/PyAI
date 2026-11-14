@@ -28,7 +28,7 @@ Trả về:
     - `"baseline"`: `DummyClassifier(strategy="most_frequent")`
     - `"logreg"`: `make_pipeline(StandardScaler(), LogisticRegression())`
     - `"tree"`: `DecisionTreeClassifier(max_depth=3, random_state=0)`
-  - Chấm điểm F1 bằng `make_scorer(f1_score, zero_division=0)` (hoặc cách tương đương sạch warning) để điểm baseline `0.0` không phát sinh cảnh báo.
+  - Chấm điểm F1 bằng `make_scorer(f1_score, zero_division=0)` (hoặc cách tương đương xử lý mẫu số 0) để ghi rõ hành vi trả về `0.0` khi mẫu số bằng 0 thay vì dựa vào mặc định.
   - Trả về `{name: (mean, std)}` với cả hai số làm tròn `3` chữ số thập phân ở kiểu `float` Python. Không sửa đổi `X` hay `y`.
 - `write_report(results, n_test)`:
   - Ném `ValueError` nếu `results` không có mô hình nào ngoài `"baseline"` (rỗng hoặc chỉ có `"baseline"`).

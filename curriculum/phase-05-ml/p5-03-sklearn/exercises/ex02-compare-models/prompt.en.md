@@ -1,7 +1,7 @@
 Write two functions to compare candidate scikit-learn models on one shared split and pick the winner. Write your code inside each function and `return` the answer.
 
-1. `compare_models(X, y, models, seed)`: make **one** stratified 70/30 split with `random_state=seed`, fit a fresh clone of each estimator in `models` on `(X_train, y_train)`, and return a `dict[str, float]` mapping each model name (in the same key order) to its test accuracy rounded to 3 decimals.
-2. `best_model(scores)`: return the model name with the highest score; on a tie, return the name that comes first alphabetically; raise `ValueError` if `scores` is empty.
+1. `compare_models(X, y, models, seed)`: make **one** stratified 70/30 split with `random_state=seed`, fit a fresh clone of each estimator in `models` on `(X_train, y_train)`, and return a `dict[str, float]` mapping each model name (in the same key order) to its held-out accuracy rounded to 3 decimals.
+2. `best_model(scores)`: return the model name with the highest score; on a tie, return the name that comes first alphabetically; raise `ValueError` if `scores` is empty. The scores passed here are single held-out split scores for comparison; in `p5-04-evaluation` you will pass cross-validation scores into this same function.
 
 **Example**
 
@@ -30,6 +30,6 @@ best_model(scores)
 **Rules**
 
 - Split `(X, y)` **once** using `train_test_split(X, y, test_size=0.3, random_state=seed, stratify=y)`.
-- Clone every estimator with `sklearn.base.clone(model)` before calling `.fit(...)` so the objects passed in `models` remain unfitted.
+- Clone every estimator with `sklearn.base.clone(model)` (which returns a fresh, unfitted copy with the same hyperparameters) before calling `.fit(...)` so the objects passed in `models` remain unfitted.
 - Return Python `float` scores rounded to 3 decimal places, preserving the key order of `models`.
 - In `best_model(scores)`, raise `ValueError` when `scores` is empty and break ties alphabetically (`"alpha"` beats `"zeta"`).

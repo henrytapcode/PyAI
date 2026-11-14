@@ -11,4 +11,4 @@
 
 **Notice:** `Test MSE` (`0.002`) stays very close to `Train MSE` (`0.001`), which tells us the straight-line model generalized cleanly to unseen requests.
 
-**Try it yourself:** Change the seed from `42` to `7` and check whether `Train IDs`, `Test IDs`, and `Test MSE` stay small.
+**Try it yourself:** Change the seed from `42` to `7` and check how `Train IDs` and `Test IDs` change while `Test MSE` stays small.

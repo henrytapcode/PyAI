@@ -1,7 +1,7 @@
 Đội hỗ trợ của bạn muốn tự động gắn cờ các ticket khẩn cấp để chuyển ngay cho kỹ sư trực sự cố. Bạn sẽ đi từ một bảng log ticket thô lộn xộn tới con số đánh giá cuối cùng mà cả đội thật sự **tin được**. Ở bài này gần như không có kiến thức mới—bạn ghép lại những gì đã học ở phase 4 và phase 5, và điều quan trọng nhất là báo cáo kết quả thật trung thực.
 
 **Mới trong bài này**
-- `make_scorer(f1_score, zero_division=0)` — bọc hàm `f1_score` cho `cross_val_score` để mô hình không dự đoán ca dương nào trả về `0.0` êm đẹp mà không sinh warning.
+- `make_scorer(f1_score, zero_division=0)` — bọc hàm `f1_score` cho `cross_val_score` để ghi rõ ý định trả về `0.0` khi mẫu số bằng 0 (ví dụ khi một fold không có dự đoán dương) thay vì dựa vào mặc định.
 - `cross_val_predict(..., method="predict_proba")` — tính xác suất dự đoán ngoài-fold (out-of-fold) trên tập train giúp bạn chọn ngưỡng quyết định mà không chạm vào tập test.
 - **Target leakage** (rò rỉ nhãn mục tiêu) — một cột feature chỉ biết được *sau* khi đáp án đã có, khiến điểm train và CV cao vọt một cách giả tạo.
 
@@ -21,11 +21,11 @@ flowchart LR
 
 Chia công việc thành ba hàm gọn nhẹ, mỗi hàm đảm nhận đúng một việc:
 
-| Mảnh (Piece) | Đầu vào (Input) | Đầu ra (Output) |
+| Thành phần | Đầu vào | Đầu ra |
 |---|---|---|
 | `prepare_features(raw)` | `DataFrame` thô | cặp mảng NumPy `(X, y)` (`float64`, `"int64"`) |
 | `evaluate_models(X, y, seed)` | `(X, y)` tập train và `seed` | dict `{name: (mean, std)}` điểm CV F1 |
-| `write_report(results, n_test)` | dict CV và `n_test` | danh sách các dòng báo cáo chuẩn hóa |
+| `write_report(results, n_test)` | dict CV và `n_test` | danh sách các dòng báo cáo định dạng sẵn |
 
 Exercise 1 xây dựng `prepare_features`. Exercise 2 xây dựng `evaluate_models` và `write_report`.
 
@@ -103,7 +103,7 @@ t003       free         1902           1.0                    0       0   <- dup
 t042       Enterprise  1,638           1.0                    1       1   <- comma + leakage col
 ```
 
-Chỉ `23.7%` ticket (`57` trên `240`) là khẩn cấp nên accuracy thuần túy sẽ tâng bốc một mô hình vô dụng—còn `escalated_to_oncall` ghi nhận việc kỹ sư *đã* chuyển ca trực sau khi xử lý xong, tức thông tin không hề tồn tại khi ticket mới gửi tới.
+Chỉ `23.7%` ticket (`57` trên `240`) là khẩn cấp nên **accuracy** (tỉ lệ đoán đúng) thuần túy sẽ tâng bốc một mô hình vô dụng—còn `escalated_to_oncall` ghi nhận ticket sau đó có bị chuyển lên kỹ sư trực (on-call) hay không, thông tin chỉ có sau khi ticket đã được xử lý.
 
 ## 3. Phần 1: làm sạch và tạo feature
 
@@ -175,17 +175,17 @@ print("X shape:", X.shape, "y urgent:", int(y.sum()), "of", len(y))
 # X shape: (231, 4) y urgent: 57 of 231
 ```
 
-| vấn đề (problem) | cách sửa (fix) |
+| Vấn đề | Cách sửa |
 |---|---|
 | Khoảng trắng, hoa thường lộn xộn ở `plan` | `.astype(str).str.strip().str.lower()`, rồi map sang `0.0 / 1.0 / 2.0` |
 | Dấu phẩy trong `tokens` (`"1,638"`) | `.astype(str).str.replace(",", "", regex=False)` rồi `pd.to_numeric(..., errors="coerce")` |
 | Dòng trùng `ticket_id` | `df.drop_duplicates(subset=["ticket_id"], keep="first")` |
 | Ô số bị thiếu (`NaN`) | `df.dropna(subset=["tokens", "error_count", "hours_since_deploy", "plan_code"])` |
-| Cột hậu kiểm `escalated_to_oncall` | Loại khỏi danh sách cột feature đưa vào `X` |
+| Cột chỉ có sau khi biết kết quả `escalated_to_oncall` | Loại khỏi danh sách cột feature đưa vào `X` |
 
 ## 4. Phần 2: baseline và chọn mô hình bằng CV
 
-Tách `25%` dữ liệu sạch làm tập **holdout test** (tập giữ riêng) với `stratify=y` và cất kỹ. Chạy `StratifiedKFold(n_splits=5, shuffle=True, random_state=0)` chỉ trên `(X_train, y_train)`, truyền `make_scorer(f1_score, zero_division=0)` để baseline `DummyClassifier` toàn đoán `0` trả về `0.000` mà không phát `UndefinedMetricWarning`:
+Tách `25%` dữ liệu sạch làm tập **holdout test** (tập giữ riêng) với `stratify=y` và cất kỹ. Chạy `StratifiedKFold(n_splits=5, shuffle=True, random_state=0)` chỉ trên `(X_train, y_train)`, truyền `make_scorer(f1_score, zero_division=0)` để ghi rõ ý định trả về `0.000` khi mẫu số bằng 0 ở một fold nào đó thay vì dựa vào mặc định:
 
 ```python
 import numpy as np
@@ -248,7 +248,7 @@ for name, est in models:
 # tree     mean=0.701 std=0.140
 ```
 
-| model | CV F1 mean | CV F1 std |
+| Mô hình | Trung bình CV F1 | Độ lệch chuẩn CV F1 |
 |---|---|---|
 | `baseline` (`DummyClassifier`) | `0.000` | `0.000` |
 | `logreg` (`StandardScaler` + `LogisticRegression`) | `0.709` | `0.092` |
@@ -368,9 +368,9 @@ if abs(lr_mean - tr_mean) < max(lr_std, tr_std):
 # note: logreg and tree differ by less than one std; cannot claim one is clearly better
 ```
 
-| phát biểu trung thực (honest claim) | phát biểu gây hiểu nhầm (misleading claim) |
+| Phát biểu trung thực | Phát biểu gây hiểu nhầm |
 |---|---|
-| "CV F1 `0.709 +/- 0.092` qua 5 fold so với baseline `0.000`" | "Bộ phân loại của chúng tôi đạt độ chính xác 76%!" |
+| "CV F1 `0.709 +/- 0.092` qua 5 fold so với baseline `0.000`" | "Bộ phân loại của chúng tôi đạt accuracy 76%!" |
 | "Kiểm tra một lần trên `58` ticket test (`14` khẩn cấp); recall `0.929`, precision `0.500`" | "Mô hình bắt trúng 93% ticket khẩn cấp" (giấu cỡ mẫu và số báo động giả) |
 | "`logreg` (`0.709`) và `tree` (`0.701`) chênh nhau nhỏ hơn một độ lệch chuẩn (`0.008 < 0.140`)" | "`logreg` đã được chứng minh tốt hơn decision tree" |
 
@@ -381,7 +381,7 @@ if abs(lr_mean - tr_mean) < max(lr_std, tr_std):
 
 **1. Target leakage (`escalated_to_oncall`)**
 
-Giữ lại một cột chỉ được ghi nhận *sau* khi ticket đã được xử lý đồng nghĩa đưa đáp án trá hình vào đầu vào—khi một ticket mới vừa gửi lên, `escalated_to_oncall` chưa hề tồn tại. Cách sửa: bỏ mọi cột hậu kiểm trước khi tạo `X`.
+Giữ lại một cột chỉ được ghi nhận *sau* khi ticket đã được xử lý đồng nghĩa đưa đáp án trá hình vào đầu vào—khi một ticket mới vừa gửi lên, `escalated_to_oncall` chưa hề tồn tại. Cách sửa: bỏ mọi cột chỉ có sau khi biết kết quả trước khi tạo `X`.
 
 ```python
 import numpy as np
@@ -563,9 +563,9 @@ print("logreg   acc:", round(float(accuracy_score(y_test, m_preds)), 3), "f1:", 
 
 ## Tóm tắt
 
-- Luôn soi log thô trước (`shape`, `isna().sum()`, `value_counts()`, số ID trùng) và loại bỏ cột **target leakage** hậu kiểm trước khi tạo `X`.
-- Làm sạch phân loại, chuỗi số, dòng trùng (`keep="first"`) và dòng thiếu dữ liệu để tạo ma trận `X` (`float64`) đúng thứ tự cột cùng nhãn `y` (`"int64"`).
-- Tách riêng tập **holdout test** có `stratify=y` ngay từ đầu; chạy `StratifiedKFold` 5 fold so với baseline `DummyClassifier` bằng `make_scorer(f1_score, zero_division=0)`.
+- Soi log thô trước (`shape`, `isna().sum()`, `value_counts()`, số ID trùng) và bỏ các cột chỉ có sau khi biết kết quả (**target leakage**) trước khi tạo `X`.
+- Làm sạch cột phân nhóm, chuỗi số, dòng trùng (`keep="first"`) và dòng thiếu dữ liệu để tạo ma trận `X` (`float64`) đúng thứ tự cột cùng nhãn `y` (`"int64"`).
+- Tách riêng tập **holdout test** có `stratify=y` ngay từ đầu; chạy CV 5 fold bằng `StratifiedKFold` so với baseline `DummyClassifier` dùng `make_scorer(f1_score, zero_division=0)`.
 - Chỉnh ngưỡng quyết định chỉ trên CV của tập train (`cross_val_predict`), rồi đánh giá tập `test` **đúng một lần**.
 - Báo cáo đủ `baseline`, cỡ mẫu (`n_test` và số ca dương), `mean +/- std`, và cảnh báo khi hai mô hình chênh nhau chưa tới một độ lệch chuẩn.
 

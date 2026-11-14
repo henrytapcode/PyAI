@@ -32,7 +32,7 @@ hints:
     - |
       Kế hoạch:
       1. Chia mảng đặc trưng và nhãn theo tỉ lệ 75% train / 25% test bằng hàm tách có `stratify` ở §2 với `seed`.
-      2. Tạo một pipeline gồm bước chuẩn hóa thang đo trước rồi đến bộ phân loại hồi quy logistic.
+      2. Tạo một pipeline gồm bước chuẩn hóa thang đo trước rồi đến bộ phân loại `LogisticRegression`.
       3. Huấn luyện pipeline chỉ trên phần dữ liệu và nhãn của tập train.
       4. Chấm điểm pipeline đã huấn luyện trên tập test tách riêng và trả về kết quả làm tròn 3 chữ số thập phân dưới dạng `float` Python.
     - |

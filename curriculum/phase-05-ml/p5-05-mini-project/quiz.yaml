@@ -54,18 +54,18 @@ questions:
       clean = raw["tokens"].astype(str).str.replace(",", "", regex=False)
       nums = pd.to_numeric(clean, errors="___")
       print(nums.astype("___").tolist())
-    answer: ["coerce", "int64"]
+    answer: ["coerce", ["int64", "int32", "int"]]
     en:
-      prompt: "Fill in the `pd.to_numeric` error mode that turns invalid strings into `NaN`, and the 64-bit integer dtype string."
-      explanation: "`errors=\"coerce\"` turns unparseable entries into `NaN` instead of crashing, and `\"int64\"` ensures identical 64-bit integer output across 32-bit and 64-bit platforms."
+      prompt: "Fill in the `pd.to_numeric` error mode that turns invalid strings into `NaN`, and an integer dtype string so `.tolist()` prints `[1200, 300]`."
+      explanation: "`errors=\"coerce\"` turns unparseable entries into `NaN` instead of crashing, and `\"int64\"` converts the numeric values to 64-bit integers cleanly across 32-bit and 64-bit platforms."
     vi:
-      prompt: "Điền chế độ xử lý lỗi của `pd.to_numeric` để biến chuỗi lỗi thành `NaN`, và tên kiểu số nguyên 64-bit."
-      explanation: "`errors=\"coerce\"` biến giá trị không đọc được thành `NaN` thay vì văng lỗi, còn `\"int64\"` giữ kiểu số nguyên 64-bit đồng nhất giữa môi trường 32-bit và 64-bit."
+      prompt: "Điền chế độ xử lý lỗi của `pd.to_numeric` để biến chuỗi lỗi thành `NaN`, và tên kiểu số nguyên để `.tolist()` in ra `[1200, 300]`."
+      explanation: "`errors=\"coerce\"` biến giá trị không đọc được thành `NaN` thay vì văng lỗi, còn `\"int64\"` chuyển giá trị sang số nguyên 64-bit đồng nhất giữa môi trường 32-bit và 64-bit."
 
   - id: p5-05-q04
     type: mcq
     tags: [model-evaluation, data-cleaning]
-    difficulty: 2
+    difficulty: 1
     answer: 1
     en:
       prompt: "Your support-ticket table includes `escalated_to_oncall`, a column logged only after an engineer reviews the ticket and decides it was urgent. Why must this column be dropped before training?"
@@ -79,7 +79,7 @@ questions:
       prompt: "Bảng log ticket có cột `escalated_to_oncall` chỉ được ghi lại sau khi kỹ sư xem xét xong ticket. Vì sao bắt buộc phải bỏ cột này trước khi huấn luyện?"
       options:
         - "Vì cột `0/1` làm `StandardScaler` chia cho 0"
-        - "Vì đó là target leakage—cột hậu kiểm không tồn tại vào lúc ticket mới gửi tới"
+        - "Vì đó là target leakage—cột chỉ có sau khi biết kết quả, không tồn tại vào lúc ticket mới gửi tới"
         - "Vì `DecisionTreeClassifier` chỉ nhận feature số thực liên tục"
         - "Vì bỏ cột này làm tập holdout test có nhiều dòng hơn"
       explanation: "Feature chỉ biết được sau khi đã có kết quả sẽ làm rò rỉ đáp án lúc huấn luyện và CV, nhưng lại không có mặt khi dự đoán ticket mới ngoài thực tế."
@@ -138,16 +138,16 @@ questions:
         - "Because `cross_val_score` only supports regression metrics without `make_scorer`"
         - "Because `zero_division=0` forces `LogisticRegression` to balance class weights automatically"
         - "Because `StratifiedKFold` raises a `ValueError` unless F1 is wrapped in `make_scorer`"
-        - "Because a `DummyClassifier` predicting all `0`s triggers `UndefinedMetricWarning` on F1 without `zero_division=0`"
-      explanation: "When a fold has zero predicted positives (`TP + FP == 0`), default `f1_score` emits `UndefinedMetricWarning`; wrapping with `zero_division=0` returns `0.0` cleanly."
+        - "To state explicitly that F1 returns `0.0` when its denominator is zero (e.g. a fold with no predicted positives) rather than relying on defaults"
+      explanation: "On imbalanced data that still contains positive true labels, an all-zero baseline already evaluates without warning; passing `zero_division=0` makes the intended `0.0` fallback explicit whenever the F1 denominator is zero."
     vi:
       prompt: "Vì sao `evaluate_models` truyền `make_scorer(f1_score, zero_division=0)` vào `cross_val_score`?"
       options:
         - "Vì `cross_val_score` chỉ hỗ trợ metric hồi quy nếu không dùng `make_scorer`"
         - "Vì `zero_division=0` ép `LogisticRegression` tự động cân bằng trọng số lớp"
         - "Vì `StratifiedKFold` sẽ ném `ValueError` nếu F1 không được bọc bằng `make_scorer`"
-        - "Vì `DummyClassifier` đoán toàn `0` sẽ phát `UndefinedMetricWarning` khi tính F1 nếu thiếu `zero_division=0`"
-      explanation: "Khi một fold không có dự đoán dương nào (`TP + FP == 0`), `f1_score` mặc định sẽ cảnh báo chia 0; truyền `zero_division=0` giúp trả về `0.0` sạch sẽ."
+        - "Để ghi rõ ý định trả về `0.0` khi mẫu số bằng 0 (ví dụ một fold không có dự đoán dương) thay vì dựa vào mặc định"
+      explanation: "Trên dữ liệu lệch lớp vẫn có mẫu dương thật, mô hình đoán toàn `0` vốn không phát warning cho F1; truyền `zero_division=0` giúp ghi rõ quy ước trả về `0.0` mỗi khi mẫu số bằng 0."
 
   - id: p5-05-q08
     type: fill
@@ -165,13 +165,13 @@ questions:
       f1_safe = make_scorer(f1_score, zero_division=___)
       scores = cross_val_score(DummyClassifier(strategy="most_frequent"), X, y, cv=skf, scoring=___)
       print(round(float(scores.mean()), 3))
-    answer: ["0", "f1_safe"]
+    answer: [["0", "0.0"], "f1_safe"]
     en:
-      prompt: "Fill in the `zero_division` value and the `scoring` variable name so 5-fold CV on the majority-class dummy returns `0.0` without warnings."
-      explanation: "`zero_division=0` returns `0.0` when no positive predictions occur, and passing `scoring=f1_safe` applies that scorer across every fold."
+      prompt: "Fill in the `zero_division` value and the `scoring` variable name to make the `0.0` fallback explicit when running 5-fold CV on the majority-class dummy."
+      explanation: "`zero_division=0` (or `0.0`) explicitly specifies returning `0.0` when a denominator is zero, and passing `scoring=f1_safe` applies that scorer across every fold."
     vi:
-      prompt: "Điền giá trị `zero_division` và tên biến `scoring` để CV 5 fold của mô hình baseline trả về `0.0` không phát warning."
-      explanation: "`zero_division=0` trả về `0.0` khi không có dự đoán dương, và `scoring=f1_safe` áp dụng bộ chấm điểm đó cho mọi fold."
+      prompt: "Điền giá trị `zero_division` và tên biến `scoring` để ghi rõ quy ước trả về `0.0` khi chạy CV 5 fold cho mô hình baseline."
+      explanation: "`zero_division=0` (hoặc `0.0`) ghi rõ ý định trả về `0.0` khi mẫu số bằng 0, và `scoring=f1_safe` áp dụng bộ chấm điểm đó cho mọi fold."
 
   - id: p5-05-q09
     type: mcq
@@ -384,10 +384,10 @@ flashcards:
       scores = cross_val_score(DummyClassifier(strategy="most_frequent"), X_train, y_train, cv=skf, scoring=f1_safe)
     en:
       front: "Why wrap `f1_score` with `make_scorer(f1_score, zero_division=0)` in CV?"
-      back: "A majority-class `DummyClassifier` predicts zero positives, which makes `scoring=\"f1\"` emit `UndefinedMetricWarning`; `make_scorer(f1_score, zero_division=0)` returns `0.0` cleanly with no warnings."
+      back: "It states explicitly that F1 returns `0.0` whenever a denominator is zero (such as a fold with no predicted positives) rather than relying on defaults—when true positives exist in a fold, an all-zero baseline already returns `0.0` without warning."
     vi:
       front: "Vì sao cần bọc `f1_score` bằng `make_scorer(f1_score, zero_division=0)` trong CV?"
-      back: "`DummyClassifier` đoán lớp đa số sẽ không dự đoán ca dương nào nên `scoring=\"f1\"` phát `UndefinedMetricWarning`; dùng `make_scorer(f1_score, zero_division=0)` trả về `0.0` sạch sẽ."
+      back: "Cách này ghi rõ ý định trả về `0.0` khi mẫu số bằng 0 (như một fold không có dự đoán dương) thay vì dựa vào mặc định—khi fold vẫn có nhãn dương thật, mô hình đoán toàn `0` vốn đã trả về `0.0` không phát warning."
 
   - id: p5-05-f05
     tags: [model-evaluation]

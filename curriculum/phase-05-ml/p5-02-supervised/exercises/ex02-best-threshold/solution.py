@@ -17,6 +17,8 @@ def best_threshold(scores: np.ndarray, labels: np.ndarray) -> tuple[float, float
     Example: best_threshold(np.array([0.1, 0.4, 0.7, 0.9]), np.array([0, 0, 1, 1]))
     returns (0.7, 1.0)
     """
+    if len(scores) == 0:
+        return (0.0, 0.0)
     best_t = 0.0
     best_acc = -1.0
     for t in np.unique(scores):

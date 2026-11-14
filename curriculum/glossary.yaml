@@ -1319,7 +1319,7 @@ terms:
     related: [regression, supervised learning, accuracy]
 
   - term: accuracy
-    vi_term: accuracy (độ chính xác)
+    vi_term: accuracy (tỉ lệ đoán đúng)
     tags: [supervised-learning, evaluation]
     en: "The fraction of classification predictions that match the true labels: correct predictions divided by total examples."
     vi: "Tỉ lệ dự đoán phân loại khớp với nhãn thật: số lần đoán đúng chia cho tổng số ví dụ."
@@ -1332,8 +1332,8 @@ terms:
   - term: data leakage
     vi_term: data leakage (rò rỉ dữ liệu)
     tags: [supervised-learning, data-prep]
-    en: "When information from the test set accidentally influences training or preprocessing, giving an unrealistically optimistic test score."
-    vi: "Khi thông tin từ tập test vô tình lọt vào quá trình huấn luyện hoặc tiền xử lý, tạo ra điểm test lạc quan giả tạo."
+    en: "When training or preprocessing uses information from outside the training split (such as test-set statistics) or information unavailable at real prediction time, giving unrealistically optimistic scores."
+    vi: "Khi quá trình huấn luyện hoặc tiền xử lý dùng thông tin từ ngoài tập train (như thống kê của tập test) hoặc thông tin không có vào lúc dự đoán thực tế, tạo ra điểm số lạc quan giả tạo."
     example: "# Wrong: scale before split (leaks test min/max)\n# Fix: compute train_min, train_max on X_train only, then scale X_test"
     in_practice:
       en: "Computing min/max, mean/std, or vocabulary statistics on the whole dataset before splitting is the most common source of leakage in ML pipelines."
@@ -1449,6 +1449,17 @@ terms:
       en: "Always call `.score(X_test, y_test)` on held-out test data rather than training data alone so overfitting cannot hide behind a high score."
       vi: "Luôn gọi `.score(X_test, y_test)` trên tập test tách riêng thay vì chỉ nhìn tập train, tránh để overfitting ẩn sau điểm số cao giả tạo."
     related: [estimator, accuracy, predict, overfitting]
+
+  - term: R²
+    vi_term: R² (hệ số xác định)
+    tags: [supervised-learning, evaluation, sklearn]
+    en: "The coefficient of determination returned by regression `.score(X, y)`: `1.0` means a perfect fit, `0.0` means no better than predicting the mean target, and values can be negative on new data when predictions are worse than that mean baseline."
+    vi: "Hệ số xác định mà `.score(X, y)` trả về cho bài toán hồi quy: `1.0` là khớp hoàn hảo, `0.0` là không hơn gì việc đoán bằng giá trị trung bình của mục tiêu, và có thể âm trên dữ liệu mới khi dự đoán còn tệ hơn đường cơ sở trung bình đó."
+    example: "r2 = round(model.score(X_test, y_test), 3)  # 1.0 perfect, 0.0 mean baseline, < 0 worse"
+    in_practice:
+      en: "Because R² can drop below zero on a test split, a negative value warns you right away that the model overfits training noise or fails to generalise."
+      vi: "Vì R² có thể tụt xuống dưới 0 trên tập test, giá trị âm là cảnh báo ngay rằng mô hình đang quá khớp nhiễu tập train hoặc không tổng quát hóa được."
+    related: [score, regression, overfitting]
 
   - term: pipeline
     vi_term: pipeline (chuỗi xử lý)
@@ -1583,7 +1594,7 @@ terms:
     related: [confusion matrix, recall, true positive]
 
   - term: precision
-    vi_term: precision (độ chính xác dự đoán dương)
+    vi_term: precision (độ chuẩn khi báo dương)
     tags: [model-evaluation, sklearn]
     en: "The fraction of positive predictions that are actually positive: `TP / (TP + FP)`."
     vi: "Tỉ lệ các dự đoán dương thật sự đúng: `TP / (TP + FP)`."
@@ -1594,7 +1605,7 @@ terms:
     related: [recall, F1 score, false positive, decision threshold]
 
   - term: recall
-    vi_term: recall (độ phủ)
+    vi_term: recall (độ nhạy, tức tỉ lệ bắt được)
     tags: [model-evaluation, sklearn]
     en: "The fraction of actual positive examples that the model successfully caught: `TP / (TP + FN)`."
     vi: "Tỉ lệ các ca dương thật mà mô hình bắt trúng được: `TP / (TP + FN)`."
@@ -1618,8 +1629,8 @@ terms:
   - term: decision threshold
     vi_term: ngưỡng quyết định (decision threshold)
     tags: [model-evaluation]
-    en: "The probability cutoff (0.5 by default in `.predict()`) above which a classifier outputs class `1` instead of class `0`."
-    vi: "Mốc xác suất (mặc định là 0.5 trong `.predict()`) mà khi vượt qua nó bộ phân loại sẽ xuất lớp `1` thay vì lớp `0`."
+    en: "The probability cutoff above which a classifier outputs class `1` instead of class `0` (for binary `LogisticRegression`, `.predict()` corresponds to comparing `predict_proba(X)[:, 1]` against `0.5`)."
+    vi: "Mốc xác suất để bộ phân loại xuất lớp `1` thay vì lớp `0` (với `LogisticRegression` nhị phân, `.predict()` tương đương so sánh `predict_proba(X)[:, 1]` với `0.5`)."
     example: "probs = pipe.predict_proba(X_test)[:, 1]\npreds = (probs >= 0.3).astype(\"int64\")"
     in_practice:
       en: "Lowering the decision threshold from 0.5 to 0.3 lets you raise recall on urgent cases without retraining the model."
@@ -1651,8 +1662,8 @@ terms:
   - term: target leakage
     vi_term: target leakage (rò rỉ nhãn mục tiêu)
     tags: [model-evaluation, data-prep]
-    en: "A form of data leakage where a feature column encodes information only known after the label is decided, making training and CV scores look artificially near 1.0."
-    vi: "Một dạng rò rỉ dữ liệu khi một cột feature chứa thông tin chỉ biết được sau khi đáp án đã ngã ngũ, khiến điểm train và CV cao gần 1.0 một cách giả tạo."
+    en: "A form of data leakage where a feature column encodes information only known after the label is decided, making training and CV scores look suspiciously high."
+    vi: "Một dạng rò rỉ dữ liệu khi một cột feature chứa thông tin chỉ biết được sau khi đáp án đã ngã ngũ, khiến điểm train và CV cao bất thường một cách giả tạo."
     example: "# Drop post-outcome columns like escalated_to_oncall before building X\nX = df[[\"tokens\", \"error_count\", \"hours_since_deploy\", \"plan_code\"]]"
     in_practice:
       en: "For a ticket classifier, columns logged after a human resolves the ticket (such as escalation status or resolution time) are unavailable when a new ticket arrives and must be dropped."
@@ -1662,8 +1673,8 @@ terms:
   - term: holdout set
     vi_term: tập holdout (tập giữ riêng để kiểm tra cuối)
     tags: [model-evaluation, supervised-learning]
-    en: "A test split locked away from the start—excluded from feature tuning, cross-validation, and threshold selection—and scored only once at the end."
-    vi: "Phần dữ liệu test được khóa riêng ngay từ đầu—không dùng để chọn mô hình, chạy cross-validation hay chỉnh ngưỡng—và chỉ chấm điểm đúng một lần ở bước cuối."
+    en: "A test split locked away from the start—excluded from model selection, feature tuning, cross-validation, and threshold selection—and scored only once at the end."
+    vi: "Phần dữ liệu test được khóa riêng ngay từ đầu—không dùng cho chọn mô hình, chỉnh feature, cross-validation hay chọn ngưỡng—và chỉ chấm điểm đúng một lần ở bước cuối."
     example: "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, stratify=y, random_state=42)"
     in_practice:
       en: "Choosing models and thresholds on training CV while keeping the holdout set untouched ensures your final reported precision, recall, and F1 reflect unseen data."

@@ -1,7 +1,7 @@
 Your support team wants to flag urgent tickets automatically so they reach the on-call engineer right away. You will go from a messy raw ticket log to a final number your team can actually **trust**. Almost nothing here is new—you are combining everything you learned in phases 4 and 5, and the most important skill is reporting results honestly.
 
 **New in this lesson**
-- `make_scorer(f1_score, zero_division=0)` — wraps `f1_score` for `cross_val_score` so a model that predicts zero positives returns `0.0` cleanly without warnings.
+- `make_scorer(f1_score, zero_division=0)` — wraps `f1_score` for `cross_val_score` to make zero-denominator handling explicit (for instance, returning `0.0` if a fold has no predicted positives) instead of relying on the default.
 - `cross_val_predict(..., method="predict_proba")` — computes out-of-fold probabilities on the training set so you can choose a decision threshold without touching the test split.
 - **Target leakage** — a feature column that only exists *after* the true answer is known, inflating training and CV scores artificially.
 
@@ -185,7 +185,7 @@ print("X shape:", X.shape, "y urgent:", int(y.sum()), "of", len(y))
 
 ## 4. Part 2: baseline and model selection with CV
 
-Split `25%` of the clean rows into a holdout `test` set with `stratify=y` and lock it away. Run 5-fold `StratifiedKFold(n_splits=5, shuffle=True, random_state=0)` strictly on `(X_train, y_train)`, using `make_scorer(f1_score, zero_division=0)` so the all-zero `DummyClassifier` baseline returns `0.000` without triggering `UndefinedMetricWarning`:
+Split `25%` of the clean rows into a holdout `test` set with `stratify=y` and lock it away. Run 5-fold `StratifiedKFold(n_splits=5, shuffle=True, random_state=0)` strictly on `(X_train, y_train)`, passing `make_scorer(f1_score, zero_division=0)` to state explicitly that F1 returns `0.000` whenever a fold has a zero denominator (rather than relying on defaults):
 
 ```python
 import numpy as np

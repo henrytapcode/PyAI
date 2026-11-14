@@ -39,7 +39,7 @@ def test_threshold_for_recall_picks_largest_qualifying():
     y_true = np.array([1, 1, 1, 0])
     chosen = threshold_for_recall(probs, y_true, [0.2, 0.3, 0.5, 0.7], min_recall=0.65)
     assert type(chosen) is float
-    assert chosen == 0.5, "both 0.2, 0.3, and 0.5 give recall >= 0.65; pick the largest (0.5)"
+    assert chosen == 0.5, "0.2, 0.3, and 0.5 all give recall >= 0.65; pick the largest (0.5)"
 
 
 def test_threshold_for_recall_handles_unsorted_thresholds():

@@ -31,6 +31,20 @@ def test_best_threshold_picks_smallest_on_tie():
     assert acc == 0.75
 
 
+def test_best_threshold_picks_smallest_on_tie_unsorted():
+    scores = np.array([0.8, 0.2, 0.5, 0.5])
+    labels = np.array([1, 0, 0, 1])
+    t, acc = best_threshold(scores, labels)
+    assert t == pytest.approx(0.5), "even when scores is unsorted, ties must pick the smallest t"
+    assert acc == 0.75
+
+
+def test_best_threshold_returns_zeros_for_empty_array():
+    empty_scores = np.array([], dtype="float64")
+    empty_labels = np.array([], dtype="int64")
+    assert best_threshold(empty_scores, empty_labels) == (0.0, 0.0)
+
+
 def test_return_types_are_python_floats():
     scores = np.array([0.3, 0.6, 0.9])
     labels = np.array([0, 1, 1])

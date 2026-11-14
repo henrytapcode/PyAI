@@ -11,7 +11,7 @@ summary:
 level: beginner
 tags: [supervised-learning, ml, numpy]
 prerequisites: [p5-01-math-bridge, p4-02-pandas]
-duration_min: 14
+duration_min: 18
 outcomes:
   en:
     - "Features, labels and the train/test split"

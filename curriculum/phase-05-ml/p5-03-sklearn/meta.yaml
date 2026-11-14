@@ -11,7 +11,7 @@ summary:
 level: beginner
 tags: [sklearn, supervised-learning, ml]
 prerequisites: [p5-02-supervised]
-duration_min: 14
+duration_min: 18
 outcomes:
   en:
     - "fit, predict and score"

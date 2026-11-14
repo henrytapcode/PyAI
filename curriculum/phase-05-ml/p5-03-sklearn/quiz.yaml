@@ -156,7 +156,7 @@ questions:
       scaler.___(X_train)
       scaled = scaler.___(X_test)
       print(round(float(scaled[0, 0]), 3))
-    answer: ["fit", "transform"]
+    answer: [["fit", "fit_transform"], "transform"]
     en:
       prompt: "Fill in the two `StandardScaler` methods so `X_test` is scaled using only statistics learned from `X_train`."
       explanation: "Call `scaler.fit(X_train)` (never on `X_test`) to learn the training mean and std, then `scaler.transform(X_test)` to apply them cleanly without data leakage."
@@ -299,21 +299,21 @@ questions:
     difficulty: 3
     answer: 2
     en:
-      prompt: "Which workflow compares `LogisticRegression` and `DecisionTreeClassifier` fairly?"
+      prompt: "Which workflow compares `LogisticRegression` and `DecisionTreeClassifier` fairly as a first look?"
       options:
         - "Scale the whole dataset with `StandardScaler().fit_transform(X)`, split 70/30, and pick the model with highest training accuracy"
-        - "Give `LogisticRegression` `random_state=1` and `DecisionTreeClassifier` `random_state=2` in `train_test_split`, then compare test accuracy"
-        - "Split once with a fixed `random_state` and `stratify=y`, wrap each model in `make_pipeline(StandardScaler(), model)`, fit on train, and pick by test accuracy"
+        - "Give `LogisticRegression` `random_state=1` and `DecisionTreeClassifier` `random_state=2` in `train_test_split`, then compare held-out accuracy"
+        - "Split once with a fixed `random_state` and `stratify=y`, wrap each model in `make_pipeline(StandardScaler(), model)`, fit on train, and compare on the held-out split (never choosing by train accuracy)"
         - "Fit an unrestricted tree (`max_depth=None`) and pick whichever model hits `1.0` on the training set first"
-      explanation: "A fair comparison evaluates every candidate pipeline on the exact same held-out test split, prevents scaling leakage via `Pipeline`, and selects by test score rather than train score."
+      explanation: "A fair comparison evaluates every candidate pipeline on the exact same held-out split and prevents scaling leakage via `Pipeline`, never selecting by train score. In `p5-04`, you will use cross-validation on train for reliable selection and keep the test set for one final evaluation in `p5-05`."
     vi:
-      prompt: "Quy trình nào so sánh `LogisticRegression` và `DecisionTreeClassifier` một cách công bằng?"
+      prompt: "Quy trình nào so sánh `LogisticRegression` và `DecisionTreeClassifier` một cách công bằng cho cái nhìn đầu tiên?"
       options:
         - "Chuẩn hóa toàn bộ `X` bằng `StandardScaler().fit_transform(X)`, chia 70/30 rồi chọn mô hình có train accuracy cao nhất"
-        - "Dùng `random_state=1` cho `LogisticRegression` và `random_state=2` cho `DecisionTreeClassifier` trong `train_test_split`, rồi so test accuracy"
-        - "Chia dữ liệu một lần với `random_state` cố định và `stratify=y`, bọc từng mô hình trong `make_pipeline(StandardScaler(), model)`, fit trên train rồi chọn theo test accuracy"
+        - "Dùng `random_state=1` cho `LogisticRegression` và `random_state=2` cho `DecisionTreeClassifier` trong `train_test_split`, rồi so sánh điểm held-out"
+        - "Chia dữ liệu một lần với `random_state` cố định và `stratify=y`, bọc từng mô hình trong `make_pipeline(StandardScaler(), model)`, fit trên train rồi so sánh trên phần held-out (không chọn theo train accuracy)"
         - "Huấn luyện cây không giới hạn độ sâu (`max_depth=None`) và chọn mô hình nào đạt `1.0` trên tập train trước"
-      explanation: "So sánh công bằng phải chấm mọi pipeline ứng viên trên cùng một tập test tách riêng, tránh rò rỉ dữ liệu chuẩn hóa bằng `Pipeline`, và chọn theo điểm test chứ không phải điểm train."
+      explanation: "So sánh công bằng phải chấm mọi pipeline ứng viên trên cùng một phần held-out, tránh rò rỉ dữ liệu chuẩn hóa bằng `Pipeline`, và tuyệt đối không chọn theo điểm train. Sang `p5-04`, bạn sẽ dùng cross-validation trên train để chọn mô hình đáng tin cậy và giữ tập test để chấm một lần ở `p5-05`."
 
   - id: p5-03-q16
     type: parsons
@@ -399,7 +399,7 @@ flashcards:
     tags: [sklearn, evaluation]
     en:
       front: "What three rules make a comparison between two `scikit-learn` models fair?"
-      back: "1) Use the exact same train/test split (`random_state`), 2) apply identical preprocessing inside a `Pipeline`, and 3) select the winner strictly by test score (never train score)."
+      back: "1) Use the exact same split (`random_state`), 2) apply identical preprocessing inside a `Pipeline`, and 3) compare on the held-out split (never choose by train score) — then use CV on train (`p5-04`) to pick the final model and score test once (`p5-05`)."
     vi:
       front: "Ba quy tắc nào giúp so sánh hai mô hình `scikit-learn` một cách công bằng?"
-      back: "1) Dùng chung một lần chia train/test (`random_state`), 2) tiền xử lý giống nhau bên trong `Pipeline`, và 3) chọn mô hình thắng theo điểm test (không bao giờ chọn theo điểm train)."
+      back: "1) Dùng chung một lần chia (`random_state`), 2) tiền xử lý giống nhau bên trong `Pipeline`, và 3) so sánh trên phần held-out (không chọn theo điểm train) — sau đó dùng CV trên train (`p5-04`) để chọn mô hình cuối và chỉ chấm test một lần (`p5-05`)."

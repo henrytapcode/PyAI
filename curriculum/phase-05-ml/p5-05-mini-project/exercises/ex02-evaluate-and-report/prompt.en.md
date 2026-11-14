@@ -28,7 +28,7 @@ Returns:
     - `"baseline"`: `DummyClassifier(strategy="most_frequent")`
     - `"logreg"`: `make_pipeline(StandardScaler(), LogisticRegression())`
     - `"tree"`: `DecisionTreeClassifier(max_depth=3, random_state=0)`
-  - Score F1 with `make_scorer(f1_score, zero_division=0)` (or an equivalent warning-free method) so a `0.0` baseline score produces zero warnings.
+  - Score F1 with `make_scorer(f1_score, zero_division=0)` (or an equivalent zero-denominator setting) to make returning `0.0` on a zero denominator explicit rather than relying on defaults.
   - Return `{name: (mean, std)}` with both numbers rounded to `3` decimal places as plain Python `float`s. Do not modify `X` or `y`.
 - `write_report(results, n_test)`:
   - Raise `ValueError` if `results` has no non-baseline models (e.g., empty or only `"baseline"`).

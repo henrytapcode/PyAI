@@ -85,7 +85,7 @@ Notice that `51 + 0 + 7 + 2 = 60` test tickets, and out of `9` actual urgent tic
 
 From those four cells we get three focused metrics: **precision** asks *"when the model predicts urgent, how often is it right?"* (`TP / (TP + FP)`), **recall** asks *"out of all truly urgent tickets, how many did it catch?"* (`TP / (TP + FN)`), and the **F1 score** is their harmonic mean (`2 * precision * recall / (precision + recall)`), which drops toward zero if either one is low.
 
-In `sklearn.metrics`, `precision_score(y_true, y_pred)`, `recall_score(y_true, y_pred)`, and `f1_score(y_true, y_pred)` compute these three values directly. When a model makes zero positive predictions (`TP + FP == 0`), dividing by zero triggers an `UndefinedMetricWarning`, so pass `zero_division=0` whenever zero positive predictions are possible.
+In `sklearn.metrics`, `precision_score(y_true, y_pred)`, `recall_score(y_true, y_pred)`, and `f1_score(y_true, y_pred)` compute these three values directly. `zero_division=0` only matters when a metric's denominator is zero (`TP + FP == 0` for precision, `TP + FN == 0` for recall, or `TP + FP + FN == 0` for F1): predicting all zeros when real positives exist gives `recall = 0.0` and `F1 = 0.0` without warning, while `precision_score` triggers an `UndefinedMetricWarning` unless you pass `zero_division=0`.
 
 ```python
 import numpy as np
@@ -180,7 +180,7 @@ Each column shows `precision`, `recall`, `f1-score`, and `support` (how many tru
 
 ## 5. Decision thresholds and `predict_proba`
 
-Just like the threshold rule you wrote in `p5-02-supervised`, `.predict(X)` does not magically emit `0` or `1` — internally it compares a probability against a **decision threshold** of `0.5`. Calling `.predict_proba(X)[:, 1]` returns the predicted probability of class `1`, letting you lower the threshold to catch more urgent tickets (higher recall) at the cost of more false alarms (lower precision).
+For binary `LogisticRegression`, calling `.predict(X)` is equivalent to comparing `.predict_proba(X)[:, 1]` against a **decision threshold** of `0.5`. Calling `.predict_proba(X)[:, 1]` directly returns the predicted probability of class `1`, letting you lower the threshold to catch more urgent tickets (higher recall) at the cost of more false alarms (lower precision).
 
 Press **Visualize** on this block and watch `preds` and `rec` change as `t` drops from `0.5` down to `0.1`.
 
@@ -217,7 +217,10 @@ for t in [0.5, 0.3, 0.1]:
 | `0.3` | `0.889` | `0.889` |
 | `0.1` | `0.471` | `0.889` |
 
-Notice how lowering the threshold to `0.3` jumps recall from `0.222` to `0.889` (`8` of `9` urgent tickets caught) while precision stays at `0.889` — whereas dropping further to `0.1` adds false alarms without catching any extra urgent ticket.
+Notice how lowering the threshold to `0.3` jumps recall from `0.222` to `0.889` (`8` of `9` urgent tickets caught) while precision dips slightly from `1.0` to `0.889` — whereas dropping further to `0.1` adds false alarms without catching any extra urgent ticket.
+
+> [!WARNING]
+> Sweeping thresholds on `X_test` above is only to **illustrate** the precision/recall tradeoff. Never choose your final threshold by checking `X_test` — tune it on a validation split or out-of-fold probabilities from `X_train` (as you will do in `p5-05-mini-project`), and evaluate `X_test` once at the end.
 
 ## 6. Cross-validation
 
@@ -240,7 +243,7 @@ flowchart LR
     E --> F["Mean +/- std"]
 ```
 
-`cross_val_score` from `sklearn.model_selection` runs this loop automatically (`cv=5` uses 5 stratified folds for classifiers), and `StratifiedKFold` from `sklearn.model_selection` lets you fix `shuffle=True, random_state=0` and pass `scoring="f1"` to compare models fairly on imbalanced data.
+`cross_val_score` from `sklearn.model_selection` runs this loop automatically (`cv=5` uses 5 stratified folds for classifiers), and passing a `StratifiedKFold(n_splits=5, shuffle=True, random_state=0)` object to `cross_val_score(..., cv=skf, scoring="f1")` fixes the shuffle seed and uses F1 scoring to compare models fairly on imbalanced data.
 
 ```python
 import numpy as np
@@ -282,7 +285,7 @@ Notice that on 5-fold F1, `DecisionTreeClassifier(max_depth=3)` beats the linear
 
 **1. Checking only accuracy on an imbalanced dataset**
 
-When 95% of rows belong to class `0`, predicting all zeros achieves `0.95` accuracy while catching `0.0` of the rare class. Always inspect `recall_score` or `f1_score` (passing `zero_division=0`) for the minority class.
+When 95% of rows belong to class `0`, predicting all zeros achieves `0.95` accuracy while catching `0.0` of the rare class. Always inspect `recall_score` or `f1_score` for the minority class (and pass `zero_division=0` on `precision_score` or whenever a denominator might be zero).
 
 ```python
 import numpy as np
@@ -291,8 +294,8 @@ from sklearn.metrics import accuracy_score, recall_score
 y_true = np.array([0] * 19 + [1])
 y_pred = np.zeros_like(y_true)
 
-print("accuracy:", round(float(accuracy_score(y_true, y_pred)), 3))               # accuracy: 0.95
-print("recall:  ", round(float(recall_score(y_true, y_pred, zero_division=0)), 3))  # recall:   0.0
+print("accuracy:", round(float(accuracy_score(y_true, y_pred)), 3))  # accuracy: 0.95
+print("recall:  ", round(float(recall_score(y_true, y_pred)), 3))    # recall:   0.0
 ```
 
 **2. Swapping `y_true` and `y_pred` in `confusion_matrix`**
@@ -314,29 +317,30 @@ print("correct:", confusion_matrix(y_true, y_pred).tolist())  # correct: [[2, 1]
 
 **3. Scaling the full `X` before `cross_val_score` (data leakage)**
 
-Fitting `StandardScaler` on all of `X` before cross-validation leaks the mean and standard deviation of every validation fold into training. Even when two small synthetic numbers look identical (`0.895` vs `0.895` below), the leaked workflow is invalid and can inflate scores on skewed real data — put the scaler inside `make_pipeline`.
+Fitting `StandardScaler` on all of `X` before cross-validation leaks the mean and standard deviation of every validation fold into training, which can artificially inflate CV scores (`0.667` vs `0.633` below) — always put the scaler inside `make_pipeline`.
 
 ```python
 from sklearn.datasets import make_classification
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 X, y = make_classification(
-    n_samples=200, n_features=5, weights=[0.85], random_state=1
+    n_samples=40, n_features=4, n_informative=2, weights=[0.8], random_state=5
 )
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
 
 # Wrong: scaler sees every fold before splitting
 X_scaled = StandardScaler().fit_transform(X)
-leaked = cross_val_score(LogisticRegression(), X_scaled, y, cv=5)
+leaked = cross_val_score(KNeighborsClassifier(n_neighbors=3), X_scaled, y, cv=skf, scoring="f1")
 
 # Fix: scaler lives inside the pipeline
-pipe = make_pipeline(StandardScaler(), LogisticRegression())
-clean = cross_val_score(pipe, X, y, cv=5)
+pipe = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=3))
+clean = cross_val_score(pipe, X, y, cv=skf, scoring="f1")
 
-print("leaked mean:", round(float(leaked.mean()), 3))  # leaked mean: 0.895
-print("clean mean: ", round(float(clean.mean()), 3))   # clean mean:  0.895
+print("leaked mean:", round(float(leaked.mean()), 3))  # leaked mean: 0.667
+print("clean mean: ", round(float(clean.mean()), 3))   # clean mean:  0.633
 ```
 
 **4. Reporting mean CV without `std`, or picking by one lucky fold**
@@ -370,7 +374,7 @@ for name, est in [("LogReg", LogisticRegression()), ("KNN(k=1)", KNeighborsClass
 
 - On imbalanced data, plain **accuracy** hides missed minority cases — always measure a `DummyClassifier` **baseline** first.
 - A **confusion matrix** (`[[TN, FP], [FN, TP]]`) separates false alarms (`FP`) from missed positives (`FN`).
-- **Precision** measures how reliable positive predictions are; **recall** measures how many real positives you caught; **F1** balances both (pass `zero_division=0` when zero positives may be predicted).
+- **Precision** measures how reliable positive predictions are; **recall** measures how many real positives you caught; **F1** balances both (pass `zero_division=0` whenever a denominator can be zero, such as `precision_score` when zero positives are predicted).
 - `classification_report(..., digits=3)` shows per-class scores alongside `macro avg` (unweighted across classes) and `weighted avg` (weighted by `support`).
 - Adjust the **decision threshold** on `.predict_proba(X)[:, 1]` to trade precision for recall without retraining the model.
 - Use **cross-validation** (`cross_val_score` and `StratifiedKFold`) with preprocessing inside a `Pipeline`, and report `mean +/- std`.

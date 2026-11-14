@@ -103,7 +103,7 @@ plt.show()
 # (hiện đường cong hình chữ U chạm đáy 0.0 ngay tại w = 2.0)
 ```
 
-Thử từng giá trị trên lưới như vậy làm được với một tham số, nhưng mô hình thật có hàng triệu trọng số — ta cần cách thông minh hơn để tự tìm đáy thung lũng chữ U đó.
+Thử từng giá trị trên lưới như vậy làm được với một tham số (ở đây `np.argmin(losses)` trả về chỉ số của giá trị loss nhỏ nhất để tra lại `w` tương ứng), nhưng mô hình thật có hàng triệu trọng số — ta cần cách thông minh hơn để tự tìm đáy thung lũng chữ U đó.
 
 ## 4. Gradient = độ dốc = hướng xuống dốc
 
@@ -114,7 +114,7 @@ Thay vì nhớ công thức đạo hàm, ta có thể ước lượng độ dố
 | độ dốc (`slope`) | ý nghĩa | dịch chuyển `w` theo hướng nào |
 |---|---|---|
 | dương (`> 0`) | loss tăng khi `w` tăng | đi sang **trái** (giảm `w`) |
-| bằng không (`0`) | mặt phẳng ngay đáy thung lũng | dừng lại — bạn đã ở điểm thấp nhất |
+| bằng không (`0`) | phẳng ngang ngay đáy thung lũng | dừng lại — bạn đã ở điểm thấp nhất |
 | âm (`< 0`) | loss giảm khi `w` tăng | đi sang **phải** (tăng `w`) |
 
 ```python
@@ -183,7 +183,7 @@ for step in range(5):
 # step=4  w=1.992  loss=0.0
 ```
 
-Đây là bảng vết chính xác của năm bước đó khi `w` trượt dọc đường cong về gần `2.0`:
+Đây là bảng theo dõi từng bước chính xác của năm bước đó khi `w` trượt dọc đường cong về gần `2.0`:
 
 | bước | `w` | `loss` |
 |---|---|---|
