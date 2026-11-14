@@ -8,6 +8,7 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import { visualize } from "@/components/visualizer";
+import { useRunner } from "@/lib/local-runner";
 import { cn } from "@/lib/utils";
 
 type HastNode = {
@@ -66,6 +67,7 @@ export function CodeBlock({
   canVisualize?: boolean;
 }) {
   const t = useTranslations();
+  const runner = useRunner();
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -93,7 +95,7 @@ export function CodeBlock({
           {canVisualize && (
             <button
               type="button"
-              onClick={() => visualize(code)}
+              onClick={() => visualize(code, runner)}
               aria-label={t("lesson.visualize")}
               className="hit inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >

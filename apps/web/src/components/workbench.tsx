@@ -4,10 +4,12 @@ import { CheckCircle2, CircleDashed, FlaskConical, Loader2, Play, RotateCcw, Squ
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { CodeEditor } from "@/components/code-editor";
+import { LocalRunnerSetup } from "@/components/local-runner-setup";
 import { Button } from "@/components/ui/button";
 import { CountUp } from "@/components/count-up";
 import { Tooltip } from "@/components/ui/tooltip";
-import { python, usePythonStatus } from "@/lib/python";
+import { localRunner, useLocalRunnerStatus } from "@/lib/local-runner";
+import { python, runnerFor, usePythonStatus, type RunnerKind } from "@/lib/python";
 import type { TestRunResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +46,38 @@ export function PythonStatus() {
   );
 }
 
+export function LocalRunnerStatus() {
+  const status = useLocalRunnerStatus();
+  const t = useTranslations("localRunner");
+  const info = localRunner?.info;
+  const label =
+    status === "checking"
+      ? t("checking")
+      : (status === "connected" || status === "running") && info?.python
+        ? info.torch
+          ? t("connectedTorch", { python: info.python, torch: info.torch })
+          : t("connected", { python: info.python })
+        : t("offline");
+  return (
+    <Tooltip content={label}>
+      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span
+          className={cn(
+            "size-2 rounded-full",
+            status === "connected" && "bg-primary",
+            status === "running" && "bg-primary animate-pulse",
+            status === "checking" && "bg-warning animate-pulse",
+            status === "offline" && "bg-danger",
+            status === "unknown" && "bg-muted-foreground/40",
+          )}
+          aria-hidden="true"
+        />
+        <span className="hidden sm:inline">{t("label")}</span>
+      </span>
+    </Tooltip>
+  );
+}
+
 export interface WorkbenchProps {
   code: string;
   onCodeChange: (code: string) => void;
@@ -51,23 +85,33 @@ export interface WorkbenchProps {
   onTestResult?: (result: TestRunResult) => void;
   onReset?: () => void;
   highlightBlanks?: boolean;
+  runner?: RunnerKind;
   title?: React.ReactNode;
   className?: string;
 }
 
-export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, highlightBlanks, title, className }: WorkbenchProps) {
+export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, highlightBlanks, runner, title, className }: WorkbenchProps) {
   const t = useTranslations("editor");
   const te = useTranslations("exercise");
+  const tLocal = useTranslations("localRunner");
+  const isLocal = runner === "local";
   const status = usePythonStatus();
+  const localStatus = useLocalRunnerStatus();
   const [output, setOutput] = useState<OutLine[]>([]);
   const [result, setResult] = useState<TestRunResult | null>(null);
   const [panel, setPanel] = useState<"output" | "tests">("output");
   const [busy, setBusy] = useState<null | "run" | "check">(null);
   const [errorLine, setErrorLine] = useState<number | null>(null);
+  const [setupNeeded, setSetupNeeded] = useState(false);
 
   useEffect(() => {
-    python?.warmUp();
-  }, []);
+    setSetupNeeded(false);
+    if (isLocal) {
+      void localRunner?.check();
+    } else {
+      python?.warmUp();
+    }
+  }, [isLocal]);
 
   // New exercise -> clear the old test results.
   useEffect(() => {
@@ -82,7 +126,21 @@ export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, hi
     setPanel("output");
     setErrorLine(null);
     setOutput([]);
-    const res = await python.run(code, (text, stream) => setOutput((o) => [...o, { text, stream }]));
+    setSetupNeeded(false);
+    if (isLocal && localRunner.status !== "connected") {
+      const ok = await localRunner.check();
+      if (!ok) {
+        setSetupNeeded(true);
+        setBusy(null);
+        return;
+      }
+    }
+    const res = await runnerFor(runner).run(code, (text, stream) => setOutput((o) => [...o, { text, stream }]));
+    if (res.offline) {
+      setSetupNeeded(true);
+      setBusy(null);
+      return;
+    }
     if (res.timedOut) setOutput((o) => [...o, { text: t("timedOut"), stream: "error" }]);
     else if (res.stopped) setOutput((o) => [...o, { text: t("stopped"), stream: "info" }]);
     else if (!res.ok && res.error) {
@@ -96,22 +154,44 @@ export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, hi
   const check = async () => {
     if (busy || !tests) return;
     setBusy("check");
-    setPanel("tests");
     setErrorLine(null);
-    const res = await python.test(code, tests);
+    setSetupNeeded(false);
+    if (isLocal && localRunner.status !== "connected") {
+      const ok = await localRunner.check();
+      if (!ok) {
+        setPanel("output");
+        setSetupNeeded(true);
+        setBusy(null);
+        return;
+      }
+    }
+    setPanel("tests");
+    const res = await runnerFor(runner).test(code, tests);
+    if (res.offline) {
+      setPanel("output");
+      setSetupNeeded(true);
+      setBusy(null);
+      return;
+    }
+    if (res.stopped) {
+      setPanel("output");
+      setOutput((o) => [...o, { text: t("stopped"), stream: "info" }]);
+      setBusy(null);
+      return;
+    }
     setResult(res);
     setErrorLine(res.error?.line ?? null);
     onTestResult?.(res);
     setBusy(null);
   };
 
-  const stop = () => python.restart({ stopped: true });
+  const stop = () => runnerFor(runner).stop();
 
   return (
     <div className={cn("flex min-h-0 flex-col bg-code", className)}>
       <div className="flex h-11 items-center gap-2 border-b border-border bg-code px-3 py-1.5">
         <div className="min-w-0 flex-1 truncate text-sm font-medium">{title}</div>
-        <PythonStatus />
+        {isLocal ? <LocalRunnerStatus /> : <PythonStatus />}
         {onReset && (
           <Tooltip content={te("reset")}>
             <Button variant="ghost" size="icon-sm" onClick={onReset} aria-label={te("reset")}>
@@ -180,8 +260,12 @@ export function Workbench({ code, onCodeChange, tests, onTestResult, onReset, hi
         </div>
         <div className="min-h-0 flex-1 overflow-auto px-3 py-2 font-mono text-[13px]" aria-live="polite">
           {panel === "output" ? (
-            output.length === 0 ? (
-              <p className="font-sans text-sm text-muted-foreground">{status === "loading" ? t("pyLoading") : t("noOutput")}</p>
+            isLocal && setupNeeded ? (
+              <LocalRunnerSetup onConnected={() => setSetupNeeded(false)} />
+            ) : output.length === 0 ? (
+              <p className="font-sans text-sm text-muted-foreground">
+                {isLocal ? (localStatus === "checking" ? tLocal("checking") : t("noOutput")) : status === "loading" ? t("pyLoading") : t("noOutput")}
+              </p>
             ) : (
               (() => {
                 let figIndex = 0;

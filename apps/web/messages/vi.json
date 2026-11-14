@@ -185,6 +185,10 @@
     "playgroundSubtitle": "Nháp code với Python thật ngay trong trình duyệt. NumPy và Pandas tự tải khi import lần đầu.",
     "templates": "Mẫu",
     "templatesLabel": "Mẫu:",
+    "runnerLabel": "Nơi chạy",
+    "runnerGroupLabel": "Nơi chạy:",
+    "runnerBrowser": "Trình duyệt (Pyodide)",
+    "runnerLocal": "Runner cục bộ",
     "loading": "Đang tải editor…",
     "figureAlt": "Biểu đồ {n}"
   },
@@ -450,5 +454,19 @@
     "minimize": "Thu nhỏ",
     "viewSource": "Xem nguồn [{n}]",
     "emptyNotice": "Đặt câu hỏi về lý thuyết hoặc bài tập để nhận gợi ý từng bước mà không lo lộ đáp án!"
+  },
+  "localRunner": {
+    "label": "Local runner",
+    "connected": "Python {python}",
+    "connectedTorch": "Python {python} · torch {torch}",
+    "checking": "Đang kiểm tra local runner…",
+    "offline": "Chưa kết nối",
+    "title": "Cần bật local runner",
+    "description": "Bài này cần runner cục bộ vì dùng thư viện (torch, transformers, FastAPI) không chạy được trong trình duyệt.",
+    "runFromRoot": "Chạy lệnh này ở thư mục gốc của repo:",
+    "originHint": "Cần cho phép origin hiện tại ({origin}). Hãy chạy lệnh đầy đủ với --allow-origin:",
+    "retry": "Thử kết nối lại",
+    "checkingBtn": "Đang kiểm tra…",
+    "copyCommand": "Sao chép lệnh"
   }
 }

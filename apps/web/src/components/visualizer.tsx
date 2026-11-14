@@ -3,27 +3,29 @@
 import { ArrowRight, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Eye, Loader2, Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { LocalRunnerSetup } from "@/components/local-runner-setup";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { python } from "@/lib/python";
-import type { TraceResult, TraceStep } from "@/lib/types";
+import type { LocalTraceResult } from "@/lib/local-runner";
+import { runnerFor, type RunnerKind } from "@/lib/python";
+import type { TraceStep } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type VisualizerState = { code: string } | null;
+type VisualizerState = { code: string; runner?: RunnerKind } | null;
 
-let openVisualizer: ((code: string) => void) | null = null;
+let openVisualizer: ((code: string, runner?: RunnerKind) => void) | null = null;
 
 /** Open the step-through view for a piece of code from anywhere (a lesson block, the editor...). */
-export function visualize(code: string) {
-  openVisualizer?.(code);
+export function visualize(code: string, runner?: RunnerKind) {
+  openVisualizer?.(code, runner);
 }
 
 /** Mounted once (in the app shell). Renders the dialog when `visualize()` is called. */
 export function VisualizerHost() {
   const [state, setState] = useState<VisualizerState>(null);
   useEffect(() => {
-    openVisualizer = (code) => setState({ code });
+    openVisualizer = (code, runner) => setState({ code, runner });
     return () => {
       openVisualizer = null;
     };
@@ -31,27 +33,31 @@ export function VisualizerHost() {
   return (
     <Dialog open={!!state} onOpenChange={(o) => !o && setState(null)}>
       <DialogContent className="flex h-[min(88dvh,760px)] max-w-6xl flex-col gap-3 overflow-hidden p-0 sm:p-0">
-        {state && <Visualizer key={state.code} code={state.code} />}
+        {state && <Visualizer key={`${state.runner ?? "pyodide"}:${state.code}`} code={state.code} runner={state.runner} />}
       </DialogContent>
     </Dialog>
   );
 }
 
-function Visualizer({ code }: { code: string }) {
+function Visualizer({ code, runner }: { code: string; runner?: RunnerKind }) {
   const t = useTranslations("visualize");
-  const [result, setResult] = useState<TraceResult | null>(null);
+  const [result, setResult] = useState<LocalTraceResult | null>(null);
+  const [retryTick, setRetryTick] = useState(0);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    python.trace(code).then((r) => {
-      if (alive) setResult(r);
-    });
+    setResult(null);
+    runnerFor(runner)
+      .trace(code)
+      .then((r) => {
+        if (alive) setResult(r);
+      });
     return () => {
       alive = false;
     };
-  }, [code]);
+  }, [code, runner, retryTick]);
 
   const steps = result?.steps ?? [];
   const last = Math.max(0, steps.length - 1);
@@ -72,6 +78,7 @@ function Visualizer({ code }: { code: string }) {
 
   // Keyboard: ← → Home End, space to play
   useEffect(() => {
+    if (steps.length === 0) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") go(index + 1);
       else if (e.key === "ArrowLeft") go(index - 1);
@@ -84,7 +91,7 @@ function Visualizer({ code }: { code: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, index, last]);
+  }, [go, index, last, steps.length]);
 
   const lines = useMemo(() => code.replace(/\n$/, "").split("\n"), [code]);
   const atEnd = index === last;
@@ -120,6 +127,10 @@ function Visualizer({ code }: { code: string }) {
           <span className="flex items-center gap-2">
             <Loader2 className="size-4 animate-spin text-primary" aria-hidden="true" /> {t("tracing")}
           </span>
+        </div>
+      ) : result.offline ? (
+        <div className="min-h-0 flex-1 overflow-auto p-5">
+          <LocalRunnerSetup onConnected={() => setRetryTick((n) => n + 1)} />
         </div>
       ) : result.timedOut ? (
         <p className="m-5 rounded-md border border-danger/20 bg-danger-soft p-3 text-sm text-danger">{t("timedOut")}</p>

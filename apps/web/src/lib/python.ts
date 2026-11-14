@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { localRunner, type LocalTestRunResult, type LocalTraceResult } from "./local-runner";
 import type { TestRunResult, TraceResult } from "./types";
 
 export type PyStatus = "idle" | "loading" | "ready" | "running" | "error";
@@ -17,7 +18,10 @@ export interface RunResult {
   error: string | null;
   stopped?: boolean;
   timedOut?: boolean;
+  offline?: boolean;
 }
+
+export type RunnerKind = "pyodide" | "local";
 
 const TEST_TIMEOUT_MS = 15_000;
 const RUN_TIMEOUT_MS = 60_000;
@@ -155,4 +159,28 @@ export function usePythonStatus(): PyStatus {
     () => (python ? python.status : "idle"),
     () => "idle",
   );
+}
+
+export interface PythonRunner {
+  run: (code: string, onOutput?: (text: string, stream: "stdout" | "stderr" | "image") => void) => Promise<RunResult>;
+  test: (code: string, tests: string) => Promise<LocalTestRunResult>;
+  trace: (code: string) => Promise<LocalTraceResult>;
+  stop: () => void;
+}
+
+export function runnerFor(runner?: RunnerKind): PythonRunner {
+  if (runner === "local") {
+    return {
+      run: (code, onOutput) => localRunner.run(code, onOutput),
+      test: (code, tests) => localRunner.test(code, tests),
+      trace: (code) => localRunner.trace(code),
+      stop: () => localRunner.stop(),
+    };
+  }
+  return {
+    run: (code, onOutput) => python.run(code, onOutput),
+    test: (code, tests) => python.test(code, tests),
+    trace: (code) => python.trace(code),
+    stop: () => python.restart({ stopped: true }),
+  };
 }

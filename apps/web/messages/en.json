@@ -185,6 +185,10 @@
     "playgroundSubtitle": "A scratchpad with real Python in your browser. NumPy and Pandas load on first import.",
     "templates": "Templates",
     "templatesLabel": "Templates:",
+    "runnerLabel": "Runner",
+    "runnerGroupLabel": "Runner:",
+    "runnerBrowser": "Browser (Pyodide)",
+    "runnerLocal": "Local runner",
     "loading": "Loading editor…",
     "figureAlt": "Figure {n}"
   },
@@ -450,5 +454,19 @@
     "minimize": "Minimize",
     "viewSource": "View source [{n}]",
     "emptyNotice": "Ask anything about this lesson or exercise to get guidance without spoiling solutions!"
+  },
+  "localRunner": {
+    "label": "Local runner",
+    "connected": "Python {python}",
+    "connectedTorch": "Python {python} · torch {torch}",
+    "checking": "Checking local runner…",
+    "offline": "Not connected",
+    "title": "Local runner required",
+    "description": "This lesson requires the local runner because it uses libraries (torch, transformers, FastAPI) that cannot run in the browser.",
+    "runFromRoot": "Run this command from the repository root:",
+    "originHint": "Your browser origin ({origin}) needs to be allowed. Run with --allow-origin:",
+    "retry": "Try reconnecting",
+    "checkingBtn": "Checking…",
+    "copyCommand": "Copy command"
   }
 }

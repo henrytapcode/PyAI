@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Workbench } from "@/components/workbench";
 import { findLesson, neighbours, phaseOfLesson } from "@/lib/content";
 import { Tx, UntranslatedBadge, useLoc } from "@/lib/i18n";
+import { RunnerContext } from "@/lib/local-runner";
 import { useProgress } from "@/lib/progress";
 import { isLessonComplete, lessonParts } from "@/lib/selectors";
 import type { Lesson, TestRunResult } from "@/lib/types";
@@ -123,6 +124,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
   };
 
   return (
+    <RunnerContext.Provider value={meta.runner}>
     <div className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col lg:h-dvh">
       {/* Lesson header */}
       <header className="flex h-12 items-center gap-3 border-b border-border bg-background px-4">
@@ -340,6 +342,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                 if (window.confirm(te("resetConfirm"))) onExCode(exercise.starter);
               }}
               highlightBlanks={exercise.kind === "fill"}
+              runner={meta.runner}
               className="h-full"
             />
           ) : (
@@ -351,6 +354,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
               }
               code={scratch}
               onCodeChange={setScratch}
+              runner={meta.runner}
               className="h-full"
             />
           )}
@@ -381,6 +385,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
 
       <RagChat lessonId={meta.id} exerciseId={editingExercise ? exercise.id : null} />
     </div>
+    </RunnerContext.Provider>
   );
 }
 
