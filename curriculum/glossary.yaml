@@ -2334,3 +2334,58 @@ terms:
       en: "In-place changes like w -= lr * w.grad on a leaf tensor with requires_grad=True raise a RuntimeError unless wrapped in torch.no_grad()."
       vi: "Sửa tại chỗ như w -= lr * w.grad trên leaf tensor có requires_grad=True sẽ gây RuntimeError nếu không bọc trong torch.no_grad()."
     related: [tensor, computation graph, autograd]
+
+  - term: epoch
+    vi_term: epoch (một lượt qua toàn bộ dữ liệu)
+    tags: [pytorch, dl]
+    en: "One complete pass through every sample in the training dataset during model training."
+    vi: "Một lượt đi qua trọn vẹn toàn bộ mẫu trong tập huấn luyện khi train model."
+    example: "for epoch in range(1, 21):\n    for xb, yb in loader:\n        ..."
+    in_practice:
+      en: "Training logs report loss and validation accuracy once per epoch, and you use validation scores to pick how many epochs to train before stopping."
+      vi: "Log huấn luyện thường ghi loss và validation accuracy sau mỗi epoch, và bạn dùng điểm validation để chọn số epoch dừng phù hợp."
+    related: [batch, optimizer, overfitting]
+
+  - term: batch
+    vi_term: batch (nhóm nhỏ mẫu)
+    tags: [pytorch, dl]
+    en: "A small slice of examples (such as 16 or 32 rows) processed together for a single forward pass, backward pass, and optimizer update."
+    vi: "Một nhóm nhỏ các mẫu (ví dụ 16 hay 32 dòng) được đưa qua lượt tính xuôi, truyền ngược và cập nhật trọng số cùng một lúc."
+    example: "loader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=0)"
+    in_practice:
+      en: "Real datasets do not fit in memory all at once, so DataLoader feeds shuffled mini-batches of shape (batch_size, features) into the training loop."
+      vi: "Dữ liệu thật không nạp hết một lần vào bộ nhớ, nên DataLoader cắt và xáo trộn thành từng mini-batch có shape (batch_size, features) cho vòng lặp train."
+    related: [epoch, tensor, optimizer]
+
+  - term: optimizer
+    vi_term: optimizer (bộ tối ưu)
+    tags: [pytorch, dl]
+    en: "An object (such as torch.optim.SGD or Adam) that updates a model's parameters using their gradients (.grad) and clears those gradients between steps."
+    vi: "Đối tượng (như torch.optim.SGD hoặc Adam) tự động cập nhật các tham số của model dựa trên .grad và xóa gradient giữa các bước."
+    example: "optimizer = torch.optim.SGD(model.parameters(), lr=0.1)\noptimizer.zero_grad()\nloss.backward()\noptimizer.step()"
+    in_practice:
+      en: "Instead of writing with torch.no_grad() and .zero_() for each weight tensor by hand, every PyTorch training loop delegates parameter updates to an optimizer."
+      vi: "Thay vì tự viết torch.no_grad() và .zero_() cho từng tensor trọng số, mọi vòng lặp PyTorch đều giao việc cập nhật tham số cho optimizer."
+    related: [gradient descent, backward pass, epoch]
+
+  - term: logits
+    vi_term: logits (điểm thô trước softmax)
+    tags: [pytorch, dl]
+    en: "The raw, unnormalised scores output by the final linear layer of a classifier before probabilities or argmax are computed."
+    vi: "Các điểm số thô chưa chuẩn hóa mà tầng tuyến tính cuối của bộ phân loại trả ra, trước khi đổi thành xác suất hay lấy argmax."
+    example: "logits = model(x)            # shape (N, num_classes)\nloss = nn.CrossEntropyLoss()(logits, y)\npreds = logits.argmax(dim=1)"
+    in_practice:
+      en: "PyTorch's nn.CrossEntropyLoss expects raw logits directly (never apply softmax beforehand), and both classification models and LLMs output logits for every class or token."
+      vi: "nn.CrossEntropyLoss của PyTorch nhận thẳng logits thô (không qua softmax trước), và cả model phân loại lẫn LLM đều xuất logits cho từng lớp hoặc từng token."
+    related: [tensor, loss / mean squared error]
+
+  - term: state_dict
+    vi_term: state_dict (từ điển trọng số)
+    tags: [pytorch, dl]
+    en: "A Python dictionary mapping each layer parameter name in an nn.Module to its tensor of learned weights and biases."
+    vi: "Một dictionary Python ánh xạ tên từng tham số trong nn.Module tới tensor trọng số và bias đã học."
+    example: "torch.save(model.state_dict(), path)\nreloaded.load_state_dict(torch.load(path, weights_only=True))"
+    in_practice:
+      en: "Saving state_dict rather than the whole Python object keeps checkpoints portable and safe to load with weights_only=True."
+      vi: "Lưu state_dict thay vì lưu cả object Python giúp file checkpoint gọn, bền vững và nạp lại an toàn với weights_only=True."
+    related: [tensor, epoch]

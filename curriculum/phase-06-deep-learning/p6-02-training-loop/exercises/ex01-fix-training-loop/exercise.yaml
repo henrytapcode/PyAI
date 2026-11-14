@@ -1,0 +1,46 @@
+id: p6-02-ex01
+kind: debug
+title:
+  en: "Debug: fix the training loop"
+  vi: "Debug: sửa lỗi vòng lặp training"
+difficulty: 1
+tags: [pytorch, dl, debugging]
+hints:
+  en:
+    - |
+      This follows §2 and §3. The function already runs, so check two things: how gradients behave across epochs, and what type `losses` stores (look at `losses.append(loss)`).
+    - |
+      The plan:
+      1. Reset gradients on every epoch with `optimizer.zero_grad()` right before `loss.backward()`.
+      2. Extract the scalar Python float from `loss` with `loss.item()` and round it to 4 decimal places (`round(loss.item(), 4)`) before appending to `losses`.
+    - |
+      The shape inside the loop:
+      ```python
+      for _ in range(epochs):
+          preds = model(xs)
+          loss = loss_fn(preds, ys)
+          ...
+          loss.backward()
+          optimizer.step()
+          losses.append(round(..., 4))
+      ```
+      Remember that `optimizer.zero_grad()` clears old gradients before `backward()`, and `.item()` converts a 1-element tensor to a Python `float`.
+  vi:
+    - |
+      Bài này đi theo §2 và §3. Hàm hiện chạy được nhưng cho kết quả sai, nên hãy kiểm tra hai chỗ: gradient qua các epoch có bị cộng dồn không, và `losses.append(loss)` đang lưu kiểu dữ liệu gì.
+    - |
+      Kế hoạch:
+      1. Xóa gradient ở mỗi epoch bằng `optimizer.zero_grad()` ngay trước `loss.backward()`.
+      2. Rút số `float` Python từ `loss` bằng `loss.item()` và làm tròn 4 chữ số thập phân (`round(loss.item(), 4)`) trước khi thêm vào `losses`.
+    - |
+      Hình dạng bên trong vòng lặp:
+      ```python
+      for _ in range(epochs):
+          preds = model(xs)
+          loss = loss_fn(preds, ys)
+          ...
+          loss.backward()
+          optimizer.step()
+          losses.append(round(..., 4))
+      ```
+      Nhớ rằng `optimizer.zero_grad()` xóa gradient cũ trước `backward()`, còn `.item()` đổi tensor 1 phần tử sang `float` Python.

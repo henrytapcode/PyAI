@@ -1,0 +1,437 @@
+questions:
+  - id: p6-02-q01
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Why must `__init__` call `super().__init__()` when defining a class that subclasses `nn.Module`?"
+      options:
+        - "To automatically train the model for one epoch on creation"
+        - "To convert all weights from `float32` into `float64`"
+        - "To initialise `nn.Module`'s internal tracking so PyTorch registers every layer and parameter"
+        - "To freeze all parameters so `requires_grad` becomes `False`"
+      explanation: "`super().__init__()` sets up `nn.Module`'s internal dictionaries so attributes like `nn.Linear` layers appear in `model.parameters()` and `model.state_dict()`."
+    vi:
+      prompt: "Vì sao `__init__` phải gọi `super().__init__()` khi viết class kế thừa `nn.Module`?"
+      options:
+        - "Để tự động train model một epoch ngay lúc khởi tạo"
+        - "Để đổi toàn bộ trọng số từ `float32` sang `float64`"
+        - "Để khởi tạo bộ theo dõi nội bộ của `nn.Module` giúp PyTorch ghi nhận mọi tầng và tham số"
+        - "Để đóng băng mọi tham số khiến `requires_grad` chuyển thành `False`"
+      explanation: "`super().__init__()` thiết lập các cấu trúc bên trong của `nn.Module` để những tầng như `nn.Linear` được ghi nhận vào `model.parameters()` và `model.state_dict()`."
+
+  - id: p6-02-q02
+    type: output
+    tags: [pytorch]
+    difficulty: 1
+    code: |
+      import torch
+      import torch.nn as nn
+
+      torch.manual_seed(0)
+      net = nn.Sequential(nn.Linear(2, 4), nn.ReLU(), nn.Linear(4, 2))
+      print(sum(p.numel() for p in net.parameters()))
+    answer: "22"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`nn.Linear(2, 4)` has `2 * 4 + 4 = 12` parameters, `nn.ReLU()` has `0`, and `nn.Linear(4, 2)` has `4 * 2 + 2 = 10`, for a total of `22`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`nn.Linear(2, 4)` có `2 * 4 + 4 = 12` tham số, `nn.ReLU()` có `0`, và `nn.Linear(4, 2)` có `4 * 2 + 2 = 10`, tổng cộng là `22`."
+
+  - id: p6-02-q03
+    type: fill
+    tags: [pytorch, dl]
+    difficulty: 1
+    code: |
+      import torch
+      import torch.nn as nn
+
+      torch.manual_seed(0)
+
+      class SmallNet(nn.Module):
+          def __init__(self) -> None:
+              ___().__init__()
+              self.hidden = nn.Linear(2, 4)
+              self.act = nn.___()
+              self.out = nn.Linear(4, 2)
+
+          def forward(self, x: torch.Tensor) -> torch.Tensor:
+              return self.out(self.act(self.hidden(x)))
+
+      print(tuple(SmallNet()(torch.zeros(3, 2)).shape))
+    answer: ["super", "ReLU"]
+    en:
+      prompt: "Fill in the blanks to initialise the parent `nn.Module` and add a ReLU activation layer."
+      explanation: "Call `super().__init__()` at the start of `__init__` and instantiate `nn.ReLU()` for the activation."
+    vi:
+      prompt: "Điền vào hai chỗ trống để khởi tạo lớp cha `nn.Module` và thêm tầng kích hoạt ReLU."
+      explanation: "Gọi `super().__init__()` ở đầu `__init__` và tạo `nn.ReLU()` cho tầng kích hoạt."
+
+  - id: p6-02-q04
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "What does `nn.ReLU()` do between two `nn.Linear` layers?"
+      options:
+        - "Keeps positive numbers unchanged and replaces negative numbers with `0`, letting the model learn curved boundaries"
+        - "Converts raw logits into probabilities that sum to `1.0`"
+        - "Resets every parameter's `.grad` tensor back to zero"
+        - "Splits a dataset into shuffled mini-batches"
+      explanation: "ReLU (`max(0, x)`) introduces non-linearity by keeping positive values and zeroing negatives, so stacked linear layers do not collapse into a single line."
+    vi:
+      prompt: "`nn.ReLU()` làm gì khi đặt giữa hai tầng `nn.Linear`?"
+      options:
+        - "Giữ nguyên số dương và đổi số âm thành `0`, giúp mô hình học được đường ranh giới cong"
+        - "Chuyển logits thô thành xác suất có tổng bằng `1.0`"
+        - "Đặt lại tensor `.grad` của mọi tham số về `0`"
+        - "Chia tập dữ liệu thành các mini-batch đã xáo trộn"
+      explanation: "ReLU (`max(0, x)`) tạo tính phi tuyến bằng cách giữ số dương và đặt số âm về `0`, giúp nhiều tầng tuyến tính xếp chồng không bị gộp thành một đường thẳng duy nhất."
+
+  - id: p6-02-q05
+    type: parsons
+    tags: [pytorch]
+    difficulty: 1
+    lines:
+      - "import torch"
+      - "x = torch.zeros(4, 2)"
+      - "h = torch.nn.ReLU()(torch.nn.Linear(2, 4)(x))"
+      - "out = torch.nn.Linear(4, 2)(h)"
+      - "print(tuple(out.shape))"
+    en:
+      prompt: "Arrange these lines in order to run a `(4, 2)` batch through `Linear(2, 4) -> ReLU -> Linear(4, 2)` and print the output shape."
+      explanation: "Import `torch`, create input `x`, compute hidden tensor `h` from `x`, compute `out` from `h`, and print `tuple(out.shape)` (`(4, 2)`)."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để đưa batch `(4, 2)` qua `Linear(2, 4) -> ReLU -> Linear(4, 2)` và in shape đầu ra."
+      explanation: "Import `torch`, tạo đầu vào `x`, tính tensor ẩn `h` từ `x`, tính `out` từ `h`, rồi in `tuple(out.shape)` (`(4, 2)`)."
+
+  - id: p6-02-q06
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "After computing `loss = loss_fn(logits, yb)`, what is the correct order of the next three calls in a PyTorch training step?"
+      options:
+        - "`loss.backward()` -> `optimizer.zero_grad()` -> `optimizer.step()`"
+        - "`optimizer.zero_grad()` -> `loss.backward()` -> `optimizer.step()`"
+        - "`optimizer.step()` -> `loss.backward()` -> `optimizer.zero_grad()`"
+        - "`loss.backward()` -> `optimizer.step()` -> `model.eval()`"
+      explanation: "First clear old gradients (`zero_grad()`), then compute fresh gradients (`backward()`), and finally update weights using those gradients (`step()`)."
+    vi:
+      prompt: "Sau khi tính `loss = loss_fn(logits, yb)`, thứ tự đúng của ba lệnh tiếp theo trong một bước train PyTorch là gì?"
+      options:
+        - "`loss.backward()` -> `optimizer.zero_grad()` -> `optimizer.step()`"
+        - "`optimizer.zero_grad()` -> `loss.backward()` -> `optimizer.step()`"
+        - "`optimizer.step()` -> `loss.backward()` -> `optimizer.zero_grad()`"
+        - "`loss.backward()` -> `optimizer.step()` -> `model.eval()`"
+      explanation: "Trước hết xóa gradient cũ (`zero_grad()`), rồi tính gradient mới (`backward()`), và cuối cùng cập nhật trọng số dựa trên gradient đó (`step()`)."
+
+  - id: p6-02-q07
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What does `nn.CrossEntropyLoss()` expect as its first argument, and how do you extract predicted class labels from a model?"
+      options:
+        - "Probabilities after softmax, and `probs.sum(dim=1)`"
+        - "Integer class labels `(N,)`, and `labels.round()`"
+        - "One-hot vectors `(N, C)`, and `logits.mean(dim=1)`"
+        - "Raw unnormalised **logits** `(N, C)`, and `logits.argmax(dim=1)`"
+      explanation: "`nn.CrossEntropyLoss()` applies log-softmax internally so it takes raw logits `(N, C)`, and the highest-scoring class index per row is `logits.argmax(dim=1)`."
+    vi:
+      prompt: "`nn.CrossEntropyLoss()` nhận gì ở đối số đầu tiên, và bạn lấy nhãn dự đoán từ model bằng cách nào?"
+      options:
+        - "Xác suất sau softmax, và `probs.sum(dim=1)`"
+        - "Nhãn lớp kiểu số nguyên `(N,)`, và `labels.round()`"
+        - "Vector one-hot `(N, C)`, và `logits.mean(dim=1)`"
+        - "**Logits** thô chưa chuẩn hóa `(N, C)`, và `logits.argmax(dim=1)`"
+      explanation: "`nn.CrossEntropyLoss()` tự áp dụng log-softmax bên trong nên nhận thẳng logits thô `(N, C)`, còn chỉ số lớp có điểm cao nhất mỗi hàng là `logits.argmax(dim=1)`."
+
+  - id: p6-02-q08
+    type: parsons
+    tags: [pytorch, dl]
+    difficulty: 2
+    lines:
+      - "import torch"
+      - "w = torch.tensor(1.0, requires_grad=True)"
+      - "opt = torch.optim.SGD([w], lr=0.1)"
+      - "for _ in range(2):"
+      - "    opt.zero_grad()"
+      - "    ((w * 2.0 - 6.0) ** 2).backward()"
+      - "    opt.step()"
+      - "print(round(w.item(), 3), round(w.grad.item(), 3))"
+    en:
+      prompt: "Arrange these lines in order to run two optimizer steps (`zero_grad` -> `backward` -> `step`) and print `w` and `w.grad`."
+      explanation: "Create `w` and `opt`, then inside the loop call `opt.zero_grad()` before `.backward()` and `opt.step()` so `w` updates twice and `w.grad` holds the second step's gradient when printed."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để chạy hai bước optimizer (`zero_grad` -> `backward` -> `step`) và in `w` cùng `w.grad`."
+      explanation: "Tạo `w` và `opt`, rồi trong vòng lặp gọi `opt.zero_grad()` trước `.backward()` và `opt.step()` để `w` cập nhật hai lần và `w.grad` giữ gradient bước thứ hai khi in ra."
+
+  - id: p6-02-q09
+    type: output
+    tags: [pytorch, dl]
+    difficulty: 2
+    code: |
+      import torch
+
+      logits = torch.tensor([[2.1, 0.4, -1.0], [0.2, 1.8, 0.9]])
+      print(logits.argmax(dim=1).tolist())
+    answer: "[0, 1]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`dim=1` finds the index of the largest logit in each row: row 0 peaks at index `0` (`2.1`) and row 1 peaks at index `1` (`1.8`), giving `[0, 1]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`dim=1` tìm chỉ số của logit lớn nhất ở từng hàng: hàng 0 lớn nhất tại chỉ số `0` (`2.1`), hàng 1 lớn nhất tại chỉ số `1` (`1.8`), kết quả là `[0, 1]`."
+
+  - id: p6-02-q10
+    type: fill
+    tags: [pytorch, dl]
+    difficulty: 2
+    code: |
+      import torch
+      import torch.nn as nn
+
+      torch.manual_seed(0)
+      model = nn.Linear(1, 1)
+      loss_fn = nn.MSELoss()
+      optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
+
+      loss = loss_fn(model(torch.tensor([[2.0]])), torch.tensor([[5.0]]))
+      optimizer.___()
+      loss.___()
+      optimizer.___()
+      print(round(loss.item(), 3))
+    answer: ["zero_grad", "backward", "step"]
+    en:
+      prompt: "Fill in the three method names that clear old gradients, compute new ones, and update the parameters."
+      explanation: "Every PyTorch training step calls `optimizer.zero_grad()`, then `loss.backward()`, then `optimizer.step()`."
+    vi:
+      prompt: "Điền tên ba phương thức lần lượt dùng để xóa gradient cũ, tính gradient mới và cập nhật tham số."
+      explanation: "Mỗi bước huấn luyện trong PyTorch đều gọi `optimizer.zero_grad()`, rồi `loss.backward()`, rồi `optimizer.step()`."
+
+  - id: p6-02-q11
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "How do an **epoch** and a **batch** differ when training with `DataLoader`?"
+      options:
+        - "An **epoch** is one full pass over the training dataset; a **batch** is one small group of samples used for a single update step"
+        - "A **batch** is one full pass over the dataset; an **epoch** is a single sample"
+        - "An **epoch** runs only on validation data; a **batch** runs only on test data"
+        - "They are identical whenever `shuffle=True` is passed to `DataLoader`"
+      explanation: "A `DataLoader` splits the dataset into mini-batches; iterating over all batches once completes one epoch."
+    vi:
+      prompt: "**Epoch** và **batch** khác nhau như thế nào khi train bằng `DataLoader`?"
+      options:
+        - "**Epoch** là một lượt đi qua toàn bộ tập huấn luyện; **batch** là một nhóm nhỏ mẫu dùng cho một bước cập nhật trọng số"
+        - "**Batch** là một lượt đi qua toàn bộ dữ liệu; **epoch** là một mẫu đơn lẻ"
+        - "**Epoch** chỉ chạy trên dữ liệu validation; **batch** chỉ chạy trên dữ liệu test"
+        - "Hai khái niệm giống hệt nhau mỗi khi truyền `shuffle=True` cho `DataLoader`"
+      explanation: "`DataLoader` chia tập dữ liệu thành nhiều mini-batch; duyệt hết toàn bộ các batch đó một lần chính là xong một epoch."
+
+  - id: p6-02-q12
+    type: output
+    tags: [pytorch]
+    difficulty: 2
+    code: |
+      import torch
+      from torch.utils.data import DataLoader, TensorDataset
+
+      torch.manual_seed(0)
+      xs = torch.randn(50, 2)
+      ys = torch.zeros(50, dtype=torch.int64)
+      gen = torch.Generator().manual_seed(0)
+      loader = DataLoader(TensorDataset(xs, ys), batch_size=16, shuffle=True, num_workers=0, generator=gen)
+      print(len(loader))
+    answer: "4"
+    en:
+      prompt: "What does this code print?"
+      explanation: "50 samples divided into batches of 16 produce three full batches of 16 (`48` samples) plus one remainder batch of `2`, so `len(loader)` is `4`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "50 mẫu chia theo kích thước batch 16 cho ba batch đủ 16 (`48` mẫu) và một batch dư `2` mẫu, nên `len(loader)` bằng `4`."
+
+  - id: p6-02-q13
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why do you combine `model.eval()` and `with torch.no_grad():` when measuring validation accuracy?"
+      options:
+        - "`model.eval()` saves the `state_dict` to disk while `torch.no_grad()` runs `optimizer.step()`"
+        - "They raise a `RuntimeError` if any label has type `float32`"
+        - "`model.eval()` switches layers like dropout into evaluation mode, while `torch.no_grad()` skips building the computation graph to save memory and time"
+        - "`torch.no_grad()` resets weights to zero and `model.eval()` shuffles the validation batches"
+      explanation: "`model.eval()` controls layer behaviour during inference and `torch.no_grad()` disables autograd tracking. Remember to call `model.train()` before resuming training."
+    vi:
+      prompt: "Vì sao bạn kết hợp cả `model.eval()` lẫn `with torch.no_grad():` khi đo validation accuracy?"
+      options:
+        - "`model.eval()` lưu `state_dict` ra đĩa còn `torch.no_grad()` chạy `optimizer.step()`"
+        - "Chúng giúp báo `RuntimeError` ngay nếu nhãn có kiểu `float32`"
+        - "`model.eval()` chuyển các tầng như dropout sang chế độ đánh giá, còn `torch.no_grad()` bỏ qua việc dựng computation graph để tiết kiệm bộ nhớ và thời gian"
+        - "`torch.no_grad()` đặt lại trọng số về 0 và `model.eval()` xáo trộn các batch validation"
+      explanation: "`model.eval()` điều chỉnh hành vi của các tầng khi suy đoán và `torch.no_grad()` tắt theo dõi autograd. Nhớ gọi `model.train()` trước khi quay lại train tiếp."
+
+  - id: p6-02-q14
+    type: fill
+    tags: [pytorch, dl]
+    difficulty: 3
+    code: |
+      import tempfile
+      from pathlib import Path
+      import torch
+      import torch.nn as nn
+
+      torch.manual_seed(0)
+      model = nn.Linear(2, 2)
+      with tempfile.TemporaryDirectory() as tmp:
+          path = Path(tmp) / "weights.pt"
+          torch.save(model.state_dict(), path)
+          reloaded = nn.Linear(2, 2)
+          reloaded.load_state_dict(torch.load(path, ___=True))
+          reloaded.___()
+          print(reloaded.training)
+    answer: ["weights_only", "eval"]
+    en:
+      prompt: "Fill in both blanks to load saved weights safely and switch the reloaded model to evaluation mode."
+      explanation: "Pass `weights_only=True` to `torch.load(...)` for safe tensor loading, and call `reloaded.eval()` before running inference."
+    vi:
+      prompt: "Điền vào hai chỗ trống để nạp trọng số an toàn và chuyển model vừa nạp sang chế độ đánh giá."
+      explanation: "Truyền `weights_only=True` cho `torch.load(...)` để nạp tensor an toàn, rồi gọi `reloaded.eval()` trước khi dự đoán."
+
+  - id: p6-02-q15
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "You want to compare `lr=0.05` vs `lr=0.2` and choose between 20 or 40 epochs. How should you use the test set?"
+      options:
+        - "Evaluate test accuracy after every epoch and stop when test accuracy is highest"
+        - "Choose `lr` and epoch count using validation accuracy, and evaluate the test set **only once** at the very end"
+        - "Merge the test set into the `DataLoader` during the last 5 epochs"
+        - "Compare test accuracy across learning rates and pick whichever scores higher on test"
+      explanation: "Using the test set to pick hyperparameters or stopping epochs leaks test information into your decisions; tune on validation and evaluate test once at the end."
+    vi:
+      prompt: "Bạn muốn so sánh `lr=0.05` với `lr=0.2` và chọn giữa 20 hoặc 40 epoch. Bạn nên dùng tập test như thế nào?"
+      options:
+        - "Tính test accuracy sau mỗi epoch và dừng tại epoch có điểm test cao nhất"
+        - "Chọn `lr` và số epoch dựa trên validation accuracy, và chỉ đánh giá trên tập test **đúng một lần** ở cuối cùng"
+        - "Gộp tập test vào `DataLoader` trong 5 epoch cuối"
+        - "Chấm điểm test cho từng mức learning rate rồi chọn mức nào cho điểm test cao hơn"
+      explanation: "Dùng tập test để chọn siêu tham số hay số epoch sẽ làm rò rỉ thông tin từ test vào quyết định của bạn; luôn chỉnh bằng validation và chấm test đúng một lần ở cuối."
+
+  - id: p6-02-q16
+    type: output
+    tags: [pytorch, dl]
+    difficulty: 3
+    code: |
+      import torch
+      import torch.nn as nn
+
+      torch.manual_seed(0)
+      model = nn.Linear(2, 2)
+      x = torch.randn(3, 2)
+      a = model(x).requires_grad
+      model.eval()
+      with torch.no_grad():
+          b = model(x).requires_grad
+      print(a, b)
+    answer: "True False"
+    en:
+      prompt: "What does this code print?"
+      explanation: "By default `model(x)` tracks operations because model parameters have `requires_grad=True`, so `a` is `True`. Inside `with torch.no_grad():`, graph tracking is off, so `b` is `False`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Mặc định `model(x)` ghi lại phép tính vì các tham số có `requires_grad=True`, nên `a` là `True`. Bên trong `with torch.no_grad():`, việc dựng đồ thị bị tắt nên `b` là `False`."
+
+flashcards:
+  - id: p6-02-f01
+    tags: [pytorch, dl]
+    code: |
+      class TinyNet(nn.Module):
+          def __init__(self) -> None:
+              super().__init__()
+              self.hidden = nn.Linear(2, 8)
+    en:
+      front: "What two methods must a custom `nn.Module` define?"
+      back: "`__init__(self)` (starting with `super().__init__()` to register layers) and `forward(self, x)` (describing how inputs flow through the layers)."
+    vi:
+      front: "Một class kế thừa `nn.Module` cần định nghĩa hai phương thức nào?"
+      back: "`__init__(self)` (bắt đầu bằng `super().__init__()` để đăng ký các tầng) và `forward(self, x)` (mô tả đường đi của dữ liệu qua các tầng)."
+
+  - id: p6-02-f02
+    tags: [pytorch, dl]
+    code: |
+      logits = model(xb)
+      preds = logits.argmax(dim=1)
+    en:
+      front: "What are **logits**, and how do you convert them to predicted class labels?"
+      back: "Logits are raw, unnormalised scores `(N, C)` from the final linear layer; `nn.CrossEntropyLoss()` takes them directly, and `logits.argmax(dim=1)` gives the predicted class index per row."
+    vi:
+      front: "**Logits** là gì và làm sao đổi logits thành nhãn dự đoán?"
+      back: "Logits là điểm số thô chưa chuẩn hóa `(N, C)` từ tầng tuyến tính cuối; `nn.CrossEntropyLoss()` nhận thẳng logits đó, còn `logits.argmax(dim=1)` trả về nhãn dự đoán cho từng hàng."
+
+  - id: p6-02-f03
+    tags: [pytorch, dl]
+    code: |
+      logits = model(xb)
+      loss = loss_fn(logits, yb)
+      optimizer.zero_grad()
+      loss.backward()
+      optimizer.step()
+    en:
+      front: "What are the five lines of a standard PyTorch training step?"
+      back: "1) `logits = model(xb)`, 2) `loss = loss_fn(logits, yb)`, 3) `optimizer.zero_grad()`, 4) `loss.backward()`, 5) `optimizer.step()`."
+    vi:
+      front: "Năm dòng chuẩn của một bước huấn luyện PyTorch là gì?"
+      back: "1) `logits = model(xb)`, 2) `loss = loss_fn(logits, yb)`, 3) `optimizer.zero_grad()`, 4) `loss.backward()`, 5) `optimizer.step()`."
+
+  - id: p6-02-f04
+    tags: [pytorch, dl]
+    code: |
+      loader = DataLoader(
+          TensorDataset(X, y), batch_size=16, shuffle=True,
+          num_workers=0, generator=torch.Generator().manual_seed(0),
+      )
+    en:
+      front: "What is the difference between an **epoch** and a **batch**?"
+      back: "An **epoch** is one full pass through the entire training dataset; a **batch** is a small subset of samples processed together for one optimizer update."
+    vi:
+      front: "**Epoch** và **batch** khác nhau ở điểm nào?"
+      back: "**Epoch** là một lượt đi qua toàn bộ tập huấn luyện; **batch** là một nhóm nhỏ mẫu được xử lý cùng lúc cho một bước cập nhật của optimizer."
+
+  - id: p6-02-f05
+    tags: [pytorch, dl]
+    code: |
+      model.eval()
+      with torch.no_grad():
+          preds = model(X_val).argmax(dim=1)
+    en:
+      front: "Why use both `model.eval()` and `with torch.no_grad():` during evaluation?"
+      back: "`model.eval()` puts layers like dropout into evaluation mode, while `torch.no_grad()` disables graph recording to save memory and time. Call `model.train()` before training again."
+    vi:
+      front: "Vì sao khi đánh giá cần dùng cả `model.eval()` và `with torch.no_grad():`?"
+      back: "`model.eval()` chuyển các tầng như dropout sang chế độ đánh giá, còn `torch.no_grad()` tắt ghi đồ thị để tiết kiệm bộ nhớ và thời gian. Nhớ gọi `model.train()` trước khi train tiếp."
+
+  - id: p6-02-f06
+    tags: [pytorch, dl]
+    code: |
+      torch.save(model.state_dict(), path)
+      reloaded = TinyNet()
+      reloaded.load_state_dict(torch.load(path, weights_only=True))
+    en:
+      front: "What does `model.state_dict()` save, and why must you still instantiate `TinyNet()` first?"
+      back: "`state_dict()` saves only the learned weight and bias tensors, not the Python class code, so you must recreate the model class instance before calling `load_state_dict(...)`."
+    vi:
+      front: "`model.state_dict()` lưu gì, và vì sao vẫn phải khởi tạo `TinyNet()` trước khi nạp?"
+      back: "`state_dict()` chỉ lưu các tensor trọng số và bias chứ không lưu code của class, nên bạn phải tạo một instance của class đó trước rồi mới gọi `load_state_dict(...)`."

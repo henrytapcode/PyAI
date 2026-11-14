@@ -1,0 +1,31 @@
+id: p6-02-training-loop
+phase: p6
+order: 2
+kind: lesson
+title:
+  en: "The training loop"
+  vi: "Training loop"
+summary:
+  en: "Build models with nn.Module, train with built-in losses, torch.optim, and DataLoader, evaluate safely with model.eval() and torch.no_grad(), and save or reload state_dict."
+  vi: "Xây model bằng nn.Module, huấn luyện với hàm loss có sẵn, torch.optim và DataLoader, đánh giá an toàn bằng model.eval() và torch.no_grad(), rồi lưu và nạp state_dict."
+level: beginner
+tags: [pytorch, dl]
+prerequisites: [p6-01-tensors]
+duration_min: 18
+outcomes:
+  en:
+    - "Define a small nn.Module model"
+    - "Write a forward, loss, backward and step loop on CPU"
+    - "Iterate over mini-batches with TensorDataset and DataLoader"
+    - "Save a trained model and evaluate it on tiny synthetic data"
+  vi:
+    - "Định nghĩa một mô hình nn.Module nhỏ"
+    - "Viết vòng lặp forward, loss, backward và step trên CPU"
+    - "Duyệt dữ liệu theo từng mini-batch với TensorDataset và DataLoader"
+    - "Lưu model đã train và đánh giá trên dữ liệu tổng hợp (synthetic) nhỏ"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "PyTorch Tutorials: Build the Neural Network", vi: "PyTorch Tutorials: Build the Neural Network (EN)" }
+    url: "https://pytorch.org/tutorials/beginner/basics/buildmodel_tutorial.html"
+  - title: { en: "PyTorch Tutorials: Optimizing Model Parameters", vi: "PyTorch Tutorials: Optimizing Model Parameters (EN)" }
+    url: "https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html"

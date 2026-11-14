@@ -1,0 +1,4 @@
+epoch=10  loss=0.19
+epoch=20  loss=0.104
+epoch=30  loss=0.079
+final train accuracy: 0.98
