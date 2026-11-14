@@ -1,0 +1,535 @@
+id: mock-data-ml
+kind: mock
+title:
+  en: "Mock exam: Data & ML"
+  vi: "Thi thử: Dữ liệu & ML"
+description:
+  en: "24 interview-style questions on NumPy, pandas, cleaning, plotting, SQL, and machine learning. Aim for 80% or more."
+  vi: "24 câu hỏi kiểu phỏng vấn về NumPy, pandas, làm sạch dữ liệu, biểu đồ, SQL và machine learning. Mục tiêu từ 80% trở lên."
+duration_min: 35
+pass_score: 0.8
+questions:
+  # ---- data
+  - id: mock2-q01
+    type: output
+    tags: [numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      base_ms = np.array([[100], [200], [300]])
+      region_ms = np.array([15, 40])
+      total_ms = base_ms + region_ms
+      print(total_ms.shape, total_ms.tolist())
+    answer: "(3, 2) [[115, 140], [215, 240], [315, 340]]"
+    en:
+      prompt: "When estimating API latency across 3 model tiers and 2 regions, what does this broadcasting code print?"
+      explanation: "NumPy broadcasts `(3, 1)` with `(2,)` by stretching the size-1 column across 2 columns and the 1D array across 3 rows, yielding shape `(3, 2)`."
+    vi:
+      prompt: "Khi ước lượng độ trễ API cho 3 bậc model và 2 vùng máy chủ, đoạn code broadcasting này in ra gì?"
+      explanation: "NumPy broadcast mảng `(3, 1)` với `(2,)` bằng cách trải chiều kích thước 1 ra 2 cột và trải mảng 1D xuống 3 hàng, cho kết quả shape `(3, 2)`."
+
+  - id: mock2-q02
+    type: mcq
+    tags: [numpy]
+    difficulty: 3
+    answer: 1
+    code: |
+      # X has shape (100, 4): 100 chatbot requests, 4 numeric features
+      X_norm = (X - X.mean(axis=...)) / X.std(axis=...)
+    en:
+      prompt: "In a technical interview, `X` has shape `(100, 4)` (100 requests by 4 features). How should you compute z-score normalization so each feature has mean 0 and std 1?"
+      options:
+        - "Use `axis=1` to compute one mean and std per feature"
+        - "Use `axis=0` to compute one mean and std per feature"
+        - "Use `axis=1` to compute one mean and std per request"
+        - "Omit `axis` to compute one global mean and std across `X`"
+      explanation: "Features sit in the 4 columns, so `axis=0` aggregates down the 100 rows to return shape `(4,)`—one mean and std per feature column—which broadcasts cleanly across `(100, 4)`. Using `axis=1` aggregates per request row (`(100,)`), and omitting `axis` mixes unrelated feature scales."
+    vi:
+      prompt: "Trong buổi phỏng vấn, ma trận `X` có shape `(100, 4)` (100 request và 4 feature số). Bạn cần chuẩn hóa z-score thế nào để mỗi feature có trung bình 0 và độ lệch chuẩn 1?"
+      options:
+        - "Dùng `axis=1` để tính trung bình và độ lệch chuẩn theo từng feature"
+        - "Dùng `axis=0` để tính trung bình và độ lệch chuẩn theo từng feature"
+        - "Dùng `axis=1` để tính trung bình và độ lệch chuẩn theo từng request"
+        - "Bỏ `axis` để tính chung một trung bình và độ lệch chuẩn cho cả `X`"
+      explanation: "Các feature nằm theo 4 cột, nên `axis=0` tổng hợp dọc qua 100 hàng để ra mảng shape `(4,)`—mỗi feature một trung bình và độ lệch chuẩn—rồi broadcast khớp với `(100, 4)`. Dùng `axis=1` là tính theo từng hàng request (`(100,)`), còn bỏ `axis` thì gộp lẫn các đơn vị đo."
+
+  - id: mock2-q03
+    type: output
+    tags: [numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      tokens = np.array([120, 300, 450, 200])
+      window = tokens[1:3]
+      safe = tokens[1:3].copy()
+      window[0] = 999
+      safe[1] = 111
+      print(tokens.tolist(), safe.tolist())
+    answer: "[120, 999, 450, 200] [300, 111]"
+    en:
+      prompt: "You inspect a slice of token counts from an inference batch. What does this code print?"
+      explanation: "Slicing `tokens[1:3]` returns a view sharing memory with `tokens`, so `window[0] = 999` overwrites `tokens[1]`. Calling `.copy()` creates an independent array `safe`, so modifying `safe[1]` leaves `tokens[2]` untouched."
+    vi:
+      prompt: "Bạn kiểm tra một lát cắt số token từ lô dữ liệu suy luận. Đoạn code này in ra gì?"
+      explanation: "Cắt slice `tokens[1:3]` trả về một view dùng chung bộ nhớ với `tokens`, nên `window[0] = 999` làm đổi `tokens[1]`. Gọi `.copy()` tạo mảng `safe` độc lập, nên sửa `safe[1]` không ảnh hưởng tới `tokens[2]`."
+
+  - id: mock2-q04
+    type: output
+    tags: [pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      logs = pd.DataFrame({
+          "model": ["mini", "pro", "mini", "base", "pro"],
+          "cost": [0.02, 0.45, 0.04, 0.12, 0.55],
+      })
+      summary = logs.groupby("model")["cost"].mean().round(3).to_dict()
+      print(summary)
+    answer: "{'base': 0.12, 'mini': 0.03, 'pro': 0.5}"
+    en:
+      prompt: "You summarize LLM API token spend per model from request logs. What does this code print?"
+      explanation: "`groupby(\"model\")` sorts group keys alphabetically (`base`, `mini`, `pro`) and averages `cost` within each group: `0.12`, `(0.02 + 0.04) / 2 = 0.03`, and `(0.45 + 0.55) / 2 = 0.5`."
+    vi:
+      prompt: "Bạn tổng hợp chi phí token API trung bình theo từng model từ log request. Đoạn code này in ra gì?"
+      explanation: "`groupby(\"model\")` sắp xếp tên nhóm theo thứ tự chữ cái (`base`, `mini`, `pro`) rồi tính trung bình `cost` từng nhóm: `0.12`, `(0.02 + 0.04) / 2 = 0.03` và `(0.45 + 0.55) / 2 = 0.5`."
+
+  - id: mock2-q05
+    type: output
+    tags: [pandas]
+    difficulty: 3
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "route": ["chat", "search", "embed", "summary"],
+          "calls": [100, 300, 500, 150],
+          "unit_cost": [0.02, 0.01, 0.002, 0.03],
+      })
+      df["total"] = df["calls"] * df["unit_cost"]
+      top2 = df.sort_values("total", ascending=False).head(2)
+      print(top2["route"].tolist())
+    answer: "['summary', 'search']"
+    en:
+      prompt: "To find which two AI service routes drive the highest total spend, what does this code print?"
+      explanation: "Vectorized multiplication gives `total`: `chat=2.0`, `search=3.0`, `embed=1.0`, `summary=4.5`. Passing `ascending=False` puts the largest two first (`['summary', 'search']`); omitting it would sort ascending and print the two lowest."
+    vi:
+      prompt: "Để tìm hai endpoint AI tốn tổng chi phí cao nhất, đoạn code này in ra gì?"
+      explanation: "Phép nhân vector hóa cho `total`: `chat=2.0`, `search=3.0`, `embed=1.0`, `summary=4.5`. Truyền `ascending=False` xếp hai tuyến tốn nhất lên đầu (`['summary', 'search']`); nếu quên tham số này, bảng sẽ xếp tăng dần và in ra hai tuyến thấp nhất."
+
+  - id: mock2-q06
+    type: fill
+    tags: [pandas, data-cleaning]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "label": ["ok", "spam", "ok", "ok", "spam", "ok", "ok", "ok"],
+      })
+      ratios = (df["label"].___() / len(df)).round(3).to_dict()
+      print(ratios)
+    answer: ["value_counts"]
+    en:
+      prompt: "To check class imbalance on support tickets, fill in the pandas method so `ratios` prints `{'ok': 0.75, 'spam': 0.25}`."
+      explanation: "`df[\"label\"].value_counts()` returns the frequency of each unique label (`ok: 6`, `spam: 2`); dividing by `len(df)` (`8`) turns counts into class proportions."
+    vi:
+      prompt: "Để kiểm tra mức độ lệch lớp của các ticket hỗ trợ, điền tên phương thức pandas để `ratios` in ra `{'ok': 0.75, 'spam': 0.25}`."
+      explanation: "`df[\"label\"].value_counts()` đếm tần suất mỗi nhãn duy nhất (`ok: 6`, `spam: 2`); chia cho `len(df)` (`8`) biến số đếm thành tỉ lệ từng nhãn."
+
+  - id: mock2-q07
+    type: output
+    tags: [data-cleaning, pandas]
+    difficulty: 2
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "endpoint": ["/ask", "/ask", "/ask", "/ask", "/ask"],
+          "latency_ms": ["120", "timeout", "240", "N/A", "180"],
+      })
+      df["latency_ms"] = pd.to_numeric(df["latency_ms"], errors="coerce")
+      clean = df.dropna(subset=["latency_ms"])
+      print(len(clean), round(float(clean["latency_ms"].mean()), 3))
+    answer: "3 180.0"
+    en:
+      prompt: "A latency log column arrives as mixed strings. What does this cleaning snippet print?"
+      explanation: "`pd.to_numeric(..., errors=\"coerce\")` turns `\"timeout\"` and `\"N/A\"` into `NaN`, `dropna` leaves `3` valid rows (`120.0`, `240.0`, `180.0`), and their mean is `180.0`."
+    vi:
+      prompt: "Một cột log độ trễ chứa lẫn lộn số và chuỗi chữ. Đoạn code làm sạch này in ra gì?"
+      explanation: "`pd.to_numeric(..., errors=\"coerce\")` biến `\"timeout\"` và `\"N/A\"` thành `NaN`, `dropna` giữ lại `3` dòng hợp lệ (`120.0`, `240.0`, `180.0`), và trung bình của chúng là `180.0`."
+
+  - id: mock2-q08
+    type: mcq
+    tags: [data-cleaning, pandas]
+    difficulty: 3
+    answer: 2
+    code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          "name": [" Alice", "alice", "ALICE "],
+          "plan": ["free", "pro", "pro"],
+      })
+    en:
+      prompt: "These three rows represent the same customer with hidden whitespace and casing differences. Which step sequence deduplicates them into a single Alice row?"
+      options:
+        - "Call `drop_duplicates(subset=[\"name\"])` first, then `.str.strip().str.lower()`"
+        - "Run `.str.strip().str.lower()`, then `drop_duplicates(subset=[\"name\"], keep=False)`"
+        - "Run `.str.strip().str.lower()`, then `drop_duplicates(subset=[\"name\"])`"
+        - "Run `.str.strip().str.lower()`, then `df.dropna(subset=[\"name\"], how=\"any\")`"
+      explanation: "You must strip spaces and lowercase **before** `drop_duplicates`; otherwise all three look distinct and survive. `keep=False` drops every duplicate leaving zero rows, and `dropna` only removes missing (`NaN`) values."
+    vi:
+      prompt: "Ba dòng trên là cùng một khách hàng nhưng bị lẫn khoảng trắng và chữ hoa thường. Trình tự nào khử trùng đúng để chỉ giữ một dòng cho Alice?"
+      options:
+        - "Gọi `drop_duplicates(subset=[\"name\"])` trước, rồi `.str.strip().str.lower()`"
+        - "Chạy `.str.strip().str.lower()`, rồi `drop_duplicates(subset=[\"name\"], keep=False)`"
+        - "Chạy `.str.strip().str.lower()`, rồi `drop_duplicates(subset=[\"name\"])`"
+        - "Chạy `.str.strip().str.lower()`, rồi `df.dropna(subset=[\"name\"], how=\"any\")`"
+      explanation: "Phải cắt khoảng trắng và hạ chữ thường **trước** khi gọi `drop_duplicates`; nếu không cả ba chuỗi vẫn khác nhau và bị giữ lại hết. `keep=False` xóa sạch các dòng trùng khiến không còn dòng nào, còn `dropna` chỉ bỏ giá trị `NaN`."
+
+  - id: mock2-q09
+    type: mcq
+    tags: [plotting]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "For an AI monitoring dashboard, you want to show: (1) daily error rate over 30 days, (2) distribution of prompt lengths across requests, and (3) average cost per model. Which chart trio fits best?"
+      options:
+        - "(1) Line chart, (2) Histogram, (3) Bar chart"
+        - "(1) Bar chart, (2) Scatter plot, (3) Line chart"
+        - "(1) Line chart, (2) Bar chart, (3) Scatter plot"
+        - "(1) Histogram, (2) Line chart, (3) Bar chart"
+      explanation: "A line chart tracks trends over ordered time, a histogram buckets a single continuous distribution (prompt length), and a bar chart compares aggregate values across discrete categories (models)."
+    vi:
+      prompt: "Trên dashboard theo dõi hệ thống AI, bạn cần vẽ: (1) xu hướng tỉ lệ lỗi theo 30 ngày, (2) phân bố độ dài prompt của các request, và (3) chi phí trung bình theo từng model. Bộ ba biểu đồ nào phù hợp nhất?"
+      options:
+        - "(1) Biểu đồ đường, (2) Histogram, (3) Biểu đồ cột"
+        - "(1) Biểu đồ cột, (2) Scatter, (3) Biểu đồ đường"
+        - "(1) Biểu đồ đường, (2) Biểu đồ cột, (3) Scatter"
+        - "(1) Histogram, (2) Biểu đồ đường, (3) Biểu đồ cột"
+      explanation: "Biểu đồ đường thể hiện xu hướng theo thời gian liên tục, histogram gom khoảng để xem phân bố của một biến số (độ dài prompt), còn biểu đồ cột so sánh số liệu tổng hợp giữa các nhóm rời rạc (từng model)."
+
+  - id: mock2-q10
+    type: output
+    tags: [plotting]
+    difficulty: 2
+    code: |
+      import matplotlib.pyplot as plt
+
+      fig, axes = plt.subplots(1, 2)
+      axes[0].plot([1, 2, 3], [0.8, 0.5, 0.3])
+      axes[0].set_title("Train loss")
+      axes[1].bar(["mini", "pro"], [0.81, 0.89])
+      axes[1].set_title("Val accuracy")
+      print(len(axes), axes[1].get_title())
+      plt.close(fig)
+    answer: "2 Val accuracy"
+    en:
+      prompt: "When building side-by-side training and validation panels in a script, what does this code print?"
+      explanation: "`plt.subplots(1, 2)` returns a 1D array of `2` `Axes` objects (`axes[0]` and `axes[1]`), and `axes[1].get_title()` reads back `\"Val accuracy\"`."
+    vi:
+      prompt: "Khi tạo hai khung biểu đồ song song cho phần huấn luyện và kiểm định, đoạn code này in ra gì?"
+      explanation: "`plt.subplots(1, 2)` trả về mảng 1 chiều gồm `2` đối tượng `Axes` (`axes[0]` và `axes[1]`), và `axes[1].get_title()` đọc lại tiêu đề `\"Val accuracy\"`."
+
+  - id: mock2-q11
+    type: output
+    tags: [sql]
+    difficulty: 3
+    code: |
+      import sqlite3
+
+      conn = sqlite3.connect(":memory:")
+      conn.execute("CREATE TABLE feedback (model TEXT, rating INTEGER)")
+      with conn:
+          conn.executemany(
+              "INSERT INTO feedback (model, rating) VALUES (?, ?)",
+              [("mini", 4), ("mini", None), ("pro", 5), ("pro", 4), ("alpha", 3), ("alpha", 4)],
+          )
+      rows = conn.execute("""
+          SELECT model, ROUND(AVG(rating), 2)
+          FROM feedback
+          WHERE rating IS NOT NULL
+          GROUP BY model
+          HAVING COUNT(*) >= 2
+          ORDER BY model ASC
+      """).fetchall()
+      print(rows)
+      conn.close()
+    answer: "[('alpha', 3.5), ('pro', 4.5)]"
+    en:
+      prompt: "You want average ratings for models that have at least 2 non-null user ratings. What does this query print?"
+      explanation: "`WHERE rating IS NOT NULL` drops `(\"mini\", None)` before `GROUP BY`, leaving `mini` with `COUNT(*) = 1` so `HAVING COUNT(*) >= 2` filters it out. Both `alpha` (`3.5`) and `pro` (`4.5`) remain, sorted alphabetically by `ORDER BY model ASC`."
+    vi:
+      prompt: "Bạn muốn tính điểm đánh giá trung bình cho những model có ít nhất 2 lượt chấm hợp lệ (không rỗng). Đoạn truy vấn này in ra gì?"
+      explanation: "`WHERE rating IS NOT NULL` loại dòng `(\"mini\", None)` trước khi `GROUP BY`, khiến `mini` chỉ còn `COUNT(*) = 1` và bị `HAVING COUNT(*) >= 2` loại bỏ. Hai model `alpha` (`3.5`) và `pro` (`4.5`) được giữ lại và sắp theo thứ tự chữ cái nhờ `ORDER BY model ASC`."
+
+  - id: mock2-q12
+    type: parsons
+    tags: [sql]
+    difficulty: 2
+    lines:
+      - "import sqlite3"
+      - 'conn = sqlite3.connect(":memory:")'
+      - 'conn.execute("CREATE TABLE prompts (id INTEGER, tokens INTEGER)")'
+      - 'conn.executemany("INSERT INTO prompts (id, tokens) VALUES (?, ?)", [(1, 150), (2, 80)])'
+      - 'rows = conn.execute("SELECT id, tokens FROM prompts ORDER BY tokens ASC").fetchall()'
+      - "print(rows)"
+    en:
+      prompt: "Arrange these lines in order to create an in-memory `prompts` table, insert two rows safely with `?`, query ordered by `tokens` ascending, and print `[(2, 80), (1, 150)]`."
+      explanation: "Import `sqlite3`, open `:memory:`, create `prompts` before inserting with `executemany`, run the `SELECT ... ORDER BY` query after rows are inserted, and print `rows` last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo bảng `prompts` trong bộ nhớ, chèn hai dòng an toàn bằng `?`, truy vấn theo `tokens` tăng dần và in `[(2, 80), (1, 150)]`."
+      explanation: "Import `sqlite3`, mở `:memory:`, tạo bảng `prompts` trước khi chèn bằng `executemany`, chạy câu `SELECT ... ORDER BY` sau khi đã có dữ liệu rồi mới in `rows`."
+
+  # ---- ml
+  - id: mock2-q13
+    type: fill
+    tags: [ml-math, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      q = np.array([3.0, 4.0])
+      d = np.array([4.0, 3.0])
+      q_unit = q / ___(q)
+      d_unit = d / ___(d)
+      print(round(float(q_unit @ d_unit), 3))
+    answer: ["np.linalg.norm", "np.linalg.norm"]
+    en:
+      prompt: "Fill in the NumPy function that returns a vector's length in both blanks to normalize both vectors to unit length so their dot product equals cosine similarity (`0.96`)."
+      explanation: "Dividing each vector by its Euclidean length `np.linalg.norm(...)` produces unit vectors of length `1.0`, so `q_unit @ d_unit` directly equals cosine similarity (`0.6*0.8 + 0.8*0.6 = 0.96`)."
+    vi:
+      prompt: "Điền hàm NumPy trả về độ dài của vector vào cả hai chỗ trống để chuẩn hóa hai vector về độ dài 1, sao cho tích vô hướng của chúng bằng cosine similarity (`0.96`)."
+      explanation: "Chia mỗi vector cho độ dài Euclid `np.linalg.norm(...)` tạo các vector đơn vị có độ dài `1.0`, nên `q_unit @ d_unit` chính là cosine similarity (`0.6*0.8 + 0.8*0.6 = 0.96`)."
+
+  - id: mock2-q14
+    type: output
+    tags: [ml-math]
+    difficulty: 3
+    code: |
+      w = 0.0
+      lr = 0.25
+      for _ in range(3):
+          grad = 2 * (w - 3)
+          w = w - lr * grad
+          print(round(w, 3))
+    answer: "1.5\n2.25\n2.625"
+    en:
+      prompt: "You minimize the loss `(w - 3) ** 2` (whose slope is `2 * (w - 3)`) using 3 gradient descent steps. What does this code print?"
+      explanation: "Starting at `w = 0.0`, `grad = -6.0` steps `w` to `0.0 - 0.25 * (-6.0) = 1.5`; next `grad = -3.0` moves `w` to `2.25`; third step `grad = -1.5` moves `w` to `2.625`, steadily approaching the minimum at `w = 3`."
+    vi:
+      prompt: "Bạn tối thiểu hóa hàm loss `(w - 3) ** 2` (có đạo hàm `2 * (w - 3)`) qua 3 bước gradient descent. Đoạn code này in ra gì?"
+      explanation: "Bắt đầu tại `w = 0.0`, `grad = -6.0` đưa `w` tới `1.5`; bước hai `grad = -3.0` đưa `w` tới `2.25`; bước ba `grad = -1.5` đưa `w` tới `2.625`, tiến dần về đáy tại `w = 3`."
+
+  - id: mock2-q15
+    type: mcq
+    tags: [supervised-learning, data-prep]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "In an ML interview, a candidate calls `StandardScaler().fit_transform(X)` on all API log rows before calling `train_test_split`. Why is this order wrong?"
+      options:
+        - "`StandardScaler` raises a `ValueError` if fitted before splitting"
+        - "Fitting on all rows forces `train` and `test` to have equal size"
+        - "Unscaled test rows cannot be passed into `predict` after training"
+        - "Test-set mean and std leak into the training feature scaling"
+      explanation: "Calling `fit_transform(X)` before splitting computes the mean and standard deviation using test rows as well, leaking test distribution information into training. Always split first, then fit the scaler on `train` only."
+    vi:
+      prompt: "Khi phỏng vấn ML, một ứng viên gọi `StandardScaler().fit_transform(X)` trên toàn bộ log API rồi mới gọi `train_test_split`. Vì sao thứ tự này sai?"
+      options:
+        - "`StandardScaler` sẽ báo `ValueError` nếu fit trước khi chia tập"
+        - "Fit trên toàn bộ bảng ép tập `train` và `test` phải bằng nhau"
+        - "Các hàng test chưa chuẩn hóa sẽ không truyền vào `predict` được"
+        - "Trung bình và độ lệch chuẩn của test bị rò rỉ vào tập train"
+      explanation: "Gọi `fit_transform(X)` trước khi tách tập làm trung bình và độ lệch chuẩn tính cả phần test, gây rò rỉ thông tin tập test vào quá trình huấn luyện. Luôn chia tập trước rồi chỉ fit scaler trên `train`."
+
+  - id: mock2-q16
+    type: parsons
+    tags: [sklearn]
+    difficulty: 3
+    lines:
+      - "from sklearn import datasets, linear_model, model_selection, pipeline, preprocessing"
+      - "X, y = datasets.make_classification(n_samples=30, n_features=4, random_state=42)"
+      - 'scores = model_selection.cross_val_score(pipeline.make_pipeline(preprocessing.StandardScaler(), linear_model.LogisticRegression()), X, y, cv=model_selection.StratifiedKFold(n_splits=5, shuffle=True, random_state=0), scoring="f1")'
+      - "mean, std = round(float(scores.mean()), 3), round(float(scores.std()), 3)"
+      - 'print(f"{mean} +/- {std}")'
+    en:
+      prompt: "Arrange these lines in order to generate synthetic classification data, evaluate a `StandardScaler` + `LogisticRegression` pipeline with 5-fold `StratifiedKFold` F1 CV, and print `mean +/- std`."
+      explanation: "Import the `sklearn` submodules, generate `(X, y)`, run `cross_val_score` with `make_pipeline` and `StratifiedKFold`, round `scores.mean()` and `scores.std()`, and print `mean +/- std`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để sinh dữ liệu phân loại mẫu, đánh giá pipeline `StandardScaler` + `LogisticRegression` bằng `StratifiedKFold` 5 fold với `scoring=\"f1\"` rồi in `mean +/- std`."
+      explanation: "Import các module con của `sklearn`, sinh `(X, y)`, chạy `cross_val_score` cùng `make_pipeline` và `StratifiedKFold`, làm tròn `scores.mean()` và `scores.std()`, rồi in `mean +/- std`."
+
+  - id: mock2-q17
+    type: fill
+    tags: [sklearn, model-evaluation]
+    difficulty: 2
+    code: |
+      from sklearn.linear_model import LogisticRegression
+
+      X_tr = [[0.0], [1.0], [4.0], [5.0]]
+      y_tr = [0, 0, 1, 1]
+      model = LogisticRegression().fit(X_tr, y_tr)
+      t = 0.4
+      proba = model.predict_proba([[0.5], [3.0], [4.5]])[:, ___]
+      preds = (proba >= t).astype("int64")
+      print(preds.tolist())
+    answer: ["1"]
+    en:
+      prompt: "To classify urgent tickets with a custom threshold `t = 0.4`, fill in the column index that holds the probability of an urgent ticket (label `1`); `predict_proba` returns one column per class in the order of `model.classes_`."
+      explanation: "`predict_proba` returns a 2-column array `[P(class=0), P(class=1)]`, so slicing `[:, 1]` selects the positive class probabilities before applying `>= t`."
+    vi:
+      prompt: "Để phân loại ticket khẩn cấp theo ngưỡng tùy chỉnh `t = 0.4`, điền chỉ số cột chứa xác suất của ticket khẩn cấp (nhãn `1`); `predict_proba` trả về mỗi lớp một cột theo thứ tự của `model.classes_`."
+      explanation: "`predict_proba` trả về mảng 2 cột `[P(lớp=0), P(lớp=1)]`, nên cắt `[:, 1]` lấy đúng xác suất lớp dương trước khi so với ngưỡng `>= t`."
+
+  - id: mock2-q18
+    type: output
+    tags: [model-evaluation]
+    difficulty: 2
+    code: |
+      from sklearn.metrics import confusion_matrix
+
+      y_true = [0, 0, 0, 1, 1, 1, 1]
+      y_pred = [0, 1, 0, 1, 0, 1, 1]
+      tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel().tolist()
+      print(tn, fp, fn, tp)
+    answer: "2 1 1 3"
+    en:
+      prompt: "When auditing a spam detector's predictions, what does this confusion matrix snippet print?"
+      explanation: "`confusion_matrix(y_true, y_pred)` has layout `[[TN, FP], [FN, TP]]`, and `.ravel().tolist()` flattens it to `[tn, fp, fn, tp]` as plain Python ints: `2` true negatives, `1` false positive, `1` false negative, and `3` true positives."
+    vi:
+      prompt: "Khi kiểm tra kết quả của bộ lọc spam, đoạn code dùng confusion matrix này in ra gì?"
+      explanation: "`confusion_matrix(y_true, y_pred)` có bố cục `[[TN, FP], [FN, TP]]`, và `.ravel().tolist()` trải phẳng thành `[tn, fp, fn, tp]` dạng `int` Python: `2` TN, `1` FP, `1` FN và `3` TP."
+
+  - id: mock2-q19
+    type: mcq
+    tags: [model-evaluation]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "A fraud dataset has 1% fraudulent transactions. A model predicts `0` for every transaction and scores 99% accuracy. In an interview, what should you report instead?"
+      options:
+        - "Macro accuracy alongside the true negative count on test"
+        - "Fraud recall, precision, and F1 against a `DummyClassifier` baseline"
+        - "Weighted F1 score because it adjusts for class proportions"
+        - "Training accuracy to prove the solver converged properly"
+      explanation: "With 1% fraud, predicting all `0`s gives 99% accuracy while catching 0% of fraud. Report fraud-class recall, precision, and F1 alongside a `DummyClassifier` baseline (which gets `0.0` F1 and recall without warning, while `precision_score` needs `zero_division=0` when `TP + FP = 0`)."
+    vi:
+      prompt: "Một bộ dữ liệu gian lận có 1% giao dịch là gian lận. Mô hình đoán `0` cho mọi giao dịch và đạt tỉ lệ đoán đúng 99%. Khi phỏng vấn, bạn nên báo cáo gì thay thế?"
+      options:
+        - "Tỉ lệ đoán đúng trung bình cùng số lượng True Negative trên tập test"
+        - "Độ nhạy, độ chuẩn khi báo dương và F1 lớp gian lận so với `DummyClassifier`"
+        - "Chỉ số weighted F1 vì nó tự cân theo tỉ lệ số lượng từng lớp"
+        - "Tỉ lệ đoán đúng trên tập train để chứng minh bộ giải đã hội tụ"
+      explanation: "Với 1% gian lận, đoán toàn `0` đạt tỉ lệ đoán đúng 99% nhưng không bắt được ca gian lận nào. Cần báo cáo độ nhạy (tỉ lệ bắt được), độ chuẩn khi báo dương và F1 của lớp gian lận kèm baseline `DummyClassifier` (mô hình đoán toàn 0 trả F1/recall `0.0` không phát warning, còn `precision_score` cần `zero_division=0` khi `TP + FP = 0`)."
+
+  - id: mock2-q20
+    type: output
+    tags: [model-evaluation]
+    difficulty: 2
+    code: |
+      tp, fp, fn = 18, 6, 2
+      prec = tp / (tp + fp)
+      rec = tp / (tp + fn)
+      f1 = 2 * prec * rec / (prec + rec)
+      print(round(prec, 3), round(rec, 3), round(f1, 3))
+    answer: "0.75 0.9 0.818"
+    en:
+      prompt: "In a whiteboard interview, you are given `TP=18`, `FP=6`, and `FN=2` for an outage detector. What does this pure-Python calculation print?"
+      explanation: "`precision = 18 / (18 + 6) = 0.75`, `recall = 18 / (18 + 2) = 0.9`, and `f1 = 2 * 0.75 * 0.9 / (0.75 + 0.9) = 0.818`."
+    vi:
+      prompt: "Trong bài phỏng vấn bảng trắng, bạn nhận được `TP=18`, `FP=6`, `FN=2` cho bộ phát hiện sự cố. Đoạn code Python thuần này in ra gì?"
+      explanation: "Độ chuẩn khi báo dương `18 / (18 + 6) = 0.75`, độ nhạy (tỉ lệ bắt được) `18 / (18 + 2) = 0.9`, và `f1 = 2 * 0.75 * 0.9 / (0.75 + 0.9) = 0.818`."
+
+  - id: mock2-q21
+    type: mcq
+    tags: [model-evaluation]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "On a 100-ticket dataset with only 5 urgent tickets, why prefer `StratifiedKFold` over plain `KFold` for 5-fold cross-validation?"
+      options:
+        - "A plain `KFold` fold may end up with zero urgent tickets"
+        - "`StratifiedKFold` oversamples urgent tickets in every fold"
+        - "Plain `KFold` cannot shuffle rows before splitting folds"
+        - "`StratifiedKFold` automatically tunes `LogisticRegression`"
+      explanation: "With rare classes, plain `KFold` can place zero positive examples in a validation fold, making fold F1/recall undefined or wildly noisy. `StratifiedKFold` preserves the 5% urgent ratio (`1` urgent ticket) in every fold."
+    vi:
+      prompt: "Trên bộ dữ liệu 100 ticket chỉ có 5 ca khẩn cấp, vì sao nên dùng `StratifiedKFold` thay cho `KFold` thường khi chạy cross-validation 5 fold?"
+      options:
+        - "Một fold của `KFold` thường có thể không chứa ca khẩn cấp nào"
+        - "`StratifiedKFold` nhân bản thêm các ca khẩn cấp vào mỗi fold"
+        - "`KFold` thường không thể xáo trộn thứ tự hàng trước khi chia"
+        - "`StratifiedKFold` tự động tinh chỉnh tham số `LogisticRegression`"
+      explanation: "Khi lớp dương hiếm, `KFold` thường có thể tạo ra fold kiểm tra không có mẫu dương nào, làm điểm F1/độ nhạy bị lệch mạnh. `StratifiedKFold` giữ đúng tỉ lệ 5% (`1` ca khẩn cấp) ở mọi fold."
+
+  - id: mock2-q22
+    type: mcq
+    tags: [model-evaluation, data-prep]
+    difficulty: 3
+    answer: 2
+    code: |
+      from sklearn.linear_model import LogisticRegression
+      from sklearn.model_selection import cross_val_score
+      from sklearn.preprocessing import StandardScaler
+
+      X_s = StandardScaler().fit_transform(X)
+      scores = cross_val_score(LogisticRegression(), X_s, y, cv=5, scoring="f1")
+    en:
+      prompt: "In a code review, a candidate shares this CV snippet. What is the bug and how do you fix it?"
+      options:
+        - "CV score is too pessimistic; fix by setting `shuffle=False` in CV"
+        - "CV crashes on unscaled `y`; fix by scaling `y` alongside `X` first"
+        - "CV score is optimistic due to fold leakage; fix using `make_pipeline`"
+        - "Logistic regression ignores scaling; fix by dropping `StandardScaler`"
+      explanation: "Fitting `StandardScaler` on all of `X` before `cross_val_score` leaks every validation fold's mean and std into training, inflating CV scores. Wrapping `make_pipeline(StandardScaler(), LogisticRegression())` fits the scaler inside each training fold separately."
+    vi:
+      prompt: "Khi review code, một ứng viên viết đoạn CV như trên. Lỗi nằm ở đâu và cách sửa đúng là gì?"
+      options:
+        - "Điểm CV bị bi quan quá mức; sửa bằng cách đặt `shuffle=False`"
+        - "CV lỗi vì `y` chưa chuẩn hóa; sửa bằng cách chuẩn hóa cả `y`"
+        - "Điểm CV bị lạc quan do rò rỉ giữa các fold; sửa bằng `make_pipeline`"
+        - "Logistic regression bỏ qua thang đo; sửa bằng cách xóa `StandardScaler`"
+      explanation: "Fit `StandardScaler` trên toàn bộ `X` trước `cross_val_score` làm thống kê của các fold kiểm tra rò rỉ vào tập train, đẩy điểm CV cao giả tạo. Dùng `make_pipeline(StandardScaler(), LogisticRegression())` giúp scaler chỉ fit riêng trong từng fold train."
+
+  - id: mock2-q23
+    type: mcq
+    tags: [supervised-learning]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "You tune `DecisionTreeClassifier` using a validation split carved from `train`, leaving `test` untouched. `max_depth` 1..6 yields `(train_f1, val_f1)`: `1: (0.62, 0.60)`, `2: (0.74, 0.72)`, `3: (0.82, 0.79)`, `4: (0.89, 0.76)`, `5: (0.95, 0.71)`, `6: (0.99, 0.66)`. Which `max_depth` should you choose?"
+      options:
+        - "`max_depth=6`, because it achieves the highest `train_f1`"
+        - "`max_depth=1`, because `train_f1` and `val_f1` are closest"
+        - "Run all six depths on `test` and pick the best `test_f1`"
+        - "`max_depth=3`, because it achieves the highest `val_f1`"
+      explanation: "Choose hyperparameters by **validation** performance (`max_depth=3` peaks at `val_f1 = 0.79`). Beyond depth 3, `train_f1` climbs to `0.99` while `val_f1` drops—classic overfitting. Never choose by `train_f1` or peek at `test`."
+    vi:
+      prompt: "Bạn tinh chỉnh `DecisionTreeClassifier` trên tập validation tách từ `train`, giữ nguyên `test`. Với `max_depth` 1..6, các cặp `(train_f1, val_f1)` lần lượt là: `1: (0.62, 0.60)`, `2: (0.74, 0.72)`, `3: (0.82, 0.79)`, `4: (0.89, 0.76)`, `5: (0.95, 0.71)`, `6: (0.99, 0.66)`. Bạn nên chọn `max_depth` nào?"
+      options:
+        - "`max_depth=6`, vì cho điểm `train_f1` cao nhất trong bảng"
+        - "`max_depth=1`, vì `train_f1` và `val_f1` chênh nhau ít nhất"
+        - "Thử cả sáu độ sâu trên `test` rồi chọn `test_f1` cao nhất"
+        - "`max_depth=3`, vì cho điểm `val_f1` cao nhất trên validation"
+      explanation: "Siêu tham số phải được chọn theo điểm **validation** (`max_depth=3` đạt đỉnh `val_f1 = 0.79`). Từ độ sâu 4 trở đi, `train_f1` vọt lên `0.99` còn `val_f1` tụt dần do overfitting. Tuyệt đối không chọn theo `train_f1` hay thử nhiều lần trên `test`."
+
+  - id: mock2-q24
+    type: parsons
+    tags: [model-evaluation]
+    difficulty: 3
+    lines:
+      - "from sklearn import datasets, linear_model, metrics, model_selection"
+      - "X, y = datasets.make_classification(n_samples=40, n_features=4, random_state=2)"
+      - "X_tr, X_te, y_tr, y_te = model_selection.train_test_split(X, y, test_size=0.25, stratify=y, random_state=0)"
+      - 'print("cv", round(float(model_selection.cross_val_score(linear_model.LogisticRegression(), X_tr, y_tr, cv=5, scoring="f1").mean()), 3))'
+      - 'print("test", round(float(metrics.f1_score(y_te, linear_model.LogisticRegression().fit(X_tr, y_tr).predict(X_te))), 3))'
+    en:
+      prompt: "Arrange these lines in order to build an honest evaluation flow: split with `stratify=y`, check CV F1 on `X_tr` and print it first, then fit on `X_tr` and print the single F1 on `X_te` second."
+      explanation: "Split `X, y` with `stratify=y` first so `X_te` stays untouched, evaluate the model via `cross_val_score` on `(X_tr, y_tr)` only, then fit on `(X_tr, y_tr)` and compute F1 on `(X_te, y_te)` once at the end."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo quy trình đánh giá trung thực: tách dữ liệu với `stratify=y`, kiểm tra CV F1 trên `X_tr` và in trước, rồi mới fit trên `X_tr` và in F1 một lần trên `X_te`."
+      explanation: "Tách `X, y` với `stratify=y` trước để giữ `X_te` nguyên vẹn, kiểm chứng mô hình bằng `cross_val_score` chỉ trên `(X_tr, y_tr)`, rồi cuối cùng mới fit trên `(X_tr, y_tr)` và tính F1 trên `(X_te, y_te)` đúng một lần."
