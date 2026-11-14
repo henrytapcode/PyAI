@@ -1,0 +1,408 @@
+id: p5-phase-test
+kind: phase_test
+phase: p5
+title:
+  en: "Phase 5 test: Machine learning"
+  vi: "Bài kiểm tra Phase 5: Machine learning"
+description:
+  en: "18 questions covering ML math foundations, supervised learning, scikit-learn workflows, model evaluation, and end-to-end honest reporting."
+  vi: "18 câu hỏi về nền tảng toán cho ML, học có giám sát, quy trình scikit-learn, đánh giá mô hình và báo cáo trung thực từ đầu đến cuối."
+duration_min: 25
+pass_score: 0.7
+questions:
+  # ---- math
+  - id: p5-test-q01
+    type: output
+    tags: [ml-math, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      x = np.array([4.0, 2.0, 10.0])
+      w = np.array([0.25, -0.5, 0.3])
+      bias = 1.5
+      score = float(w @ x + bias)
+      print(round(score, 3))
+    answer: "4.5"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The dot product `w @ x` multiplies matching pairs and sums them (`0.25*4.0 + (-0.5)*2.0 + 0.3*10.0 = 1.0 - 1.0 + 3.0 = 3.0`), and adding `bias = 1.5` gives `4.5`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Tích vô hướng `w @ x` nhân từng cặp phần tử tương ứng rồi cộng lại (`0.25*4.0 + (-0.5)*2.0 + 0.3*10.0 = 1.0 - 1.0 + 3.0 = 3.0`), cộng thêm `bias = 1.5` được `4.5`."
+
+  - id: p5-test-q02
+    type: mcq
+    tags: [ml-math, numpy]
+    difficulty: 2
+    answer: 1
+    code: |
+      import numpy as np
+
+      q = np.array([1.0, 2.0])
+      doc = np.array([3.0, 1.0])
+      scaled_doc = 10.0 * doc
+    en:
+      prompt: "How do `q @ scaled_doc` and the cosine similarity between `q` and `scaled_doc` compare to using `doc`?"
+      options:
+        - "Both the dot product and cosine similarity increase by `10x` after scaling"
+        - "The dot product increases by `10x`, whereas cosine similarity stays unchanged"
+        - "Cosine similarity increases by `10x`, whereas the dot product stays unchanged"
+        - "Both metrics stay unchanged because scaling preserves the direction of `doc`"
+      explanation: "Scaling `doc` by `10.0` multiplies `q @ doc` by `10` (`5.0` -> `50.0`), but cosine similarity divides by `np.linalg.norm(q) * np.linalg.norm(scaled_doc)` so vector length cancels out and only direction matters."
+    vi:
+      prompt: "So với khi dùng `doc`, giá trị `q @ scaled_doc` và cosine similarity giữa `q` với `scaled_doc` thay đổi ra sao?"
+      options:
+        - "Cả tích vô hướng lẫn cosine similarity đều tăng gấp `10` lần sau khi nhân"
+        - "Tích vô hướng tăng gấp `10` lần, còn cosine similarity giữ nguyên giá trị"
+        - "Cosine similarity tăng gấp `10` lần, còn tích vô hướng giữ nguyên giá trị"
+        - "Hai giá trị này đều giữ nguyên vì phép nhân giữ nguyên hướng của `doc`"
+      explanation: "Nhân `doc` với `10.0` làm `q @ doc` tăng `10` lần (`5.0` -> `50.0`), nhưng cosine similarity chia cho `np.linalg.norm(q) * np.linalg.norm(scaled_doc)` nên độ dài vector bị triệt tiêu, chỉ còn lại góc hướng."
+
+  - id: p5-test-q03
+    type: fill
+    tags: [ml-math, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      y_true = np.array([10.0, 14.0, 16.0])
+      y_pred = np.array([12.0, 11.0, 16.0])
+      mse = float(np.___((y_pred - y_true) ** 2))
+      print(round(mse, 3))
+    answer: ["mean"]
+    en:
+      prompt: "Fill in the NumPy function name to compute the mean squared error (`4.333`) between `y_pred` and `y_true`."
+      explanation: "MSE averages the squared errors across all examples with `np.mean((y_pred - y_true) ** 2)` (`(4.0 + 9.0 + 0.0) / 3 = 4.333`), whereas `np.sum` would omit dividing by `3`."
+    vi:
+      prompt: "Điền tên hàm NumPy để tính mean squared error (`4.333`) giữa `y_pred` và `y_true`."
+      explanation: "MSE lấy trung bình của bình phương các sai số qua mọi mẫu bằng `np.mean((y_pred - y_true) ** 2)` (`(4.0 + 9.0 + 0.0) / 3 = 4.333`), còn `np.sum` sẽ thiếu bước chia cho `3`."
+
+  - id: p5-test-q04
+    type: mcq
+    tags: [ml-math]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "On a U-shaped loss curve whose bottom is at `w = 5.0`, your current weight is `w = 2.0` where the slope is `-6.0`. Using `w = w - lr * slope`, what happens with `lr = 0.2` versus `lr = 2.0`?"
+      options:
+        - "Both `lr = 0.2` and `lr = 2.0` decrease `w` because gradient descent always subtracts"
+        - "`lr = 0.2` moves `w` left away from `5.0`, whereas `lr = 2.0` stops right at `5.0`"
+        - "`lr = 0.2` moves `w` right to `3.2`, whereas `lr = 2.0` overshoots `5.0` to `14.0`"
+        - "You must switch the update rule to `w + lr * slope` whenever `slope` is negative"
+      explanation: "With `slope = -6.0`, `- lr * slope` is positive so `w` increases toward the minimum `5.0`: `lr = 0.2` moves cleanly to `3.2`, while an oversized `lr = 2.0` jumps all the way to `14.0` on the steeper opposite wall."
+    vi:
+      prompt: "Trên đường cong loss hình chữ U có đáy tại `w = 5.0`, trọng số hiện tại là `w = 2.0` với độ dốc `-6.0`. Theo công thức `w = w - lr * slope`, điều gì xảy ra khi dùng `lr = 0.2` so với `lr = 2.0`?"
+      options:
+        - "Cả `lr = 0.2` lẫn `lr = 2.0` đều làm giảm `w` vì gradient descent luôn trừ"
+        - "`lr = 0.2` đẩy `w` sang trái ra xa `5.0`, còn `lr = 2.0` dừng đúng tại `5.0`"
+        - "`lr = 0.2` tăng `w` sang phải tới `3.2`, còn `lr = 2.0` vọt qua `5.0` tới `14.0`"
+        - "Bạn phải đổi công thức thành `w + lr * slope` mỗi khi `slope` mang dấu âm"
+      explanation: "Khi `slope = -6.0`, đại lượng `- lr * slope` mang dấu dương nên `w` tăng dần về phía đáy `5.0`: `lr = 0.2` bước gọn tới `3.2`, trong khi `lr = 2.0` quá lớn làm nhảy vọt sang `14.0` ở sườn đối diện."
+
+  # ---- supervised
+  - id: p5-test-q05
+    type: parsons
+    tags: [supervised-learning, pandas]
+    difficulty: 1
+    lines:
+      - "import pandas as pd"
+      - 'raw = pd.DataFrame({"chars": [120, 450, 80, 600], "links": [0, 1, 0, 1], "is_spam": [0, 1, 0, 1]})'
+      - 'X, y = raw[["chars", "links"]].to_numpy(), raw["is_spam"].to_numpy()'
+      - "n_rows, n_cols = X.shape"
+      - "print(n_rows, n_cols, y.shape)"
+    en:
+      prompt: "Arrange these lines in order to extract a 2D feature matrix `X` and 1D label array `y` from `raw`, unpack `X.shape`, and print `4 2 (4,)`."
+      explanation: "Import `pandas`, build `raw`, extract 2D `X` and 1D `y` from `raw`, unpack `X.shape` into `(n_rows, n_cols)`, and print `n_rows, n_cols, y.shape` last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tách ma trận feature 2 chiều `X` và mảng nhãn 1 chiều `y` từ `raw`, lấy kích thước `X.shape` rồi in ra `4 2 (4,)`."
+      explanation: "Import `pandas`, tạo `raw`, tách `X` 2 chiều và `y` 1 chiều từ `raw`, gán `n_rows, n_cols = X.shape` rồi in `n_rows, n_cols, y.shape` ở cuối."
+
+  - id: p5-test-q06
+    type: mcq
+    tags: [supervised-learning, ml]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "From customer support logs, Model A predicts how many **minutes** a ticket will wait before first reply, and Model B predicts which **queue** (`billing`, `tech`, or `account`) should receive it. Which classification/regression pairing is right?"
+      options:
+        - "Model A is regression (continuous number); Model B is classification (discrete class)"
+        - "Model A is classification because minutes are integers; Model B is regression because queues are strings"
+        - "Both models are classification because both learn to predict from labelled `(X, y)` pairs"
+        - "Both models are regression as long as the input feature columns in `X` are numeric"
+      explanation: "Regression predicts a continuous quantity (wait time in minutes, evaluated with metrics such as MSE or R^2), whereas classification assigns each example to a discrete category (`billing`, `tech`, or `account`)."
+    vi:
+      prompt: "Từ dữ liệu log hỗ trợ, Mô hình A dự đoán một ticket phải chờ **bao nhiêu phút** trước khi được phản hồi đầu tiên, còn Mô hình B dự đoán ticket đó thuộc **nhóm xử lý nào** (`billing`, `tech` hay `account`). Cách phân loại bài toán nào đúng?"
+      options:
+        - "Mô hình A là regression (số liên tục); Mô hình B là classification (nhãn nhóm rời rạc)"
+        - "Mô hình A là classification vì số phút là số nguyên; Mô hình B là regression vì tên nhóm là chuỗi"
+        - "Hai mô hình A và B đều là classification vì cùng học từ bộ dữ liệu `(X, y)` có nhãn"
+        - "Hai mô hình A và B đều là regression miễn là mọi cột đặc trưng trong `X` đều là số"
+      explanation: "Regression dự đoán một giá trị số liên tục (thời gian chờ tính theo phút, đo bằng MSE hoặc R^2), còn classification gán mỗi mẫu vào một nhóm rời rạc (`billing`, `tech` hoặc `account`)."
+
+  - id: p5-test-q07
+    type: mcq
+    tags: [supervised-learning, evaluation]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Project A's model gets `train R^2 = 0.38` and `test R^2 = 0.36`. Project B's model gets `train R^2 = 0.99` and `test R^2 = 0.41`. Which diagnosis fits each project?"
+      options:
+        - "Project A shows overfitting; Project B shows underfitting on test"
+        - "Both models are overfitting because neither reaches `1.0` on test"
+        - "Project B generalizes well because `train R^2 = 0.99` is near perfect"
+        - "Project A shows underfitting; Project B shows overfitting to train"
+      explanation: "Low scores on both train and test point to underfitting (the model lacks capacity or informative features), whereas a near-perfect train score paired with a steep drop on test is classic overfitting."
+    vi:
+      prompt: "Mô hình của Dự án A đạt `train R^2 = 0.38` và `test R^2 = 0.36`. Mô hình của Dự án B đạt `train R^2 = 0.99` và `test R^2 = 0.41`. Chẩn đoán nào đúng cho hai dự án?"
+      options:
+        - "Dự án A bị overfitting trên train; Dự án B bị underfitting trên test"
+        - "Hai mô hình đều bị overfitting vì không mô hình nào đạt `1.0` ở test"
+        - "Dự án B tổng quát hóa tốt vì `train R^2 = 0.99` gần như hoàn hảo"
+        - "Dự án A bị underfitting dữ liệu; Dự án B bị overfitting với tập train"
+      explanation: "Điểm thấp trên cả train lẫn test là dấu hiệu underfitting (mô hình quá đơn giản hoặc thiếu feature tốt), còn điểm train gần tối đa nhưng rớt mạnh trên test là dấu hiệu kinh điển của overfitting."
+
+  # ---- sklearn
+  - id: p5-test-q08
+    type: output
+    tags: [sklearn, supervised-learning]
+    difficulty: 1
+    code: |
+      import numpy as np
+      from sklearn.linear_model import LinearRegression
+
+      X_tr = np.array([[1.0, 0.0], [2.0, 1.0], [3.0, 0.0], [4.0, 1.0]])
+      y_tr = np.array([2.0, 5.0, 6.0, 9.0])
+      reg = LinearRegression().fit(X_tr, y_tr)
+      pred = reg.predict(np.array([[5.0, 0.0]]))
+      print(round(float(pred[0]), 3))
+    answer: "10.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The four training rows follow `y = 2.0 * x0 + 1.0 * x1` (`2*1+0=2`, `2*2+1=5`, `2*3+0=6`, `2*4+1=9`), so `.fit()` learns those weights and `.predict([[5.0, 0.0]])` returns `2.0*5.0 + 1.0*0.0 = 10.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Bốn hàng huấn luyện tuân theo đúng quy luật `y = 2.0 * x0 + 1.0 * x1` (`2*1+0=2`, `2*2+1=5`, `2*3+0=6`, `2*4+1=9`), nên `.fit()` học ra trọng số này và `.predict([[5.0, 0.0]])` trả về `10.0`."
+
+  - id: p5-test-q09
+    type: fill
+    tags: [sklearn, data-prep]
+    difficulty: 2
+    code: |
+      import numpy as np
+      from sklearn.preprocessing import StandardScaler
+
+      X_train = np.array([[0.0], [10.0], [20.0]])
+      X_test = np.array([[30.0]])
+      scaler = StandardScaler()
+      X_tr_s = scaler.___(X_train)
+      X_te_s = scaler.___(X_test)
+      print(round(float(X_tr_s.mean()), 3), round(float(X_te_s[0, 0]), 3))
+    answer: ["fit_transform", "transform"]
+    en:
+      prompt: "Fill in the two `StandardScaler` methods so `X_train` is fitted and scaled in one call, and `X_test` is scaled using only statistics from `X_train` (printing `0.0 2.449`)."
+      explanation: "`fit_transform(X_train)` learns the training mean (`10.0`) and std (`8.165`) and returns the scaled training array; `transform(X_test)` applies those exact training statistics to `30.0` (`(30 - 10) / 8.165 = 2.449`) without leaking test stats."
+    vi:
+      prompt: "Điền hai phương thức của `StandardScaler` để vừa học vừa chuẩn hóa `X_train` trong một bước, còn `X_test` chỉ chuẩn hóa bằng thống kê học từ `X_train` (in ra `0.0 2.449`)."
+      explanation: "`fit_transform(X_train)` học trung bình (`10.0`) và độ lệch chuẩn (`8.165`) của tập train rồi trả về mảng đã chuẩn hóa; `transform(X_test)` áp đúng thống kê đó lên `30.0` (`(30 - 10) / 8.165 = 2.449`) mà không làm rò rỉ tập test."
+
+  - id: p5-test-q10
+    type: parsons
+    tags: [sklearn, data-prep]
+    difficulty: 3
+    lines:
+      - "from sklearn import datasets, model_selection, neighbors, pipeline, preprocessing"
+      - "X, y = datasets.make_classification(n_samples=20, n_features=4, random_state=42)"
+      - "X_tr, X_te, y_tr, y_te = model_selection.train_test_split(X, y, test_size=0.25, stratify=y, random_state=0)"
+      - "pipe = pipeline.make_pipeline(preprocessing.StandardScaler(), neighbors.KNeighborsClassifier(n_neighbors=3)).fit(X_tr, y_tr)"
+      - "print(round(pipe.score(X_te, y_te), 3))"
+    en:
+      prompt: "Arrange these lines in order to generate data, split it reproducibly, fit a leak-free `StandardScaler` + `KNeighborsClassifier` pipeline on train, and print the rounded test score."
+      explanation: "Import the `sklearn` submodules, generate `(X, y)`, split into train/test before any scaling, fit the `make_pipeline(...)` on `(X_tr, y_tr)` so scaling only sees train, and score `(X_te, y_te)` last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo dữ liệu, chia tách tái lập được, huấn luyện pipeline `StandardScaler` + `KNeighborsClassifier` không rò rỉ dữ liệu trên train rồi in điểm test đã làm tròn."
+      explanation: "Import các module con của `sklearn`, tạo `(X, y)`, chia train/test trước mọi phép chuẩn hóa, gọi `.fit()` trên `make_pipeline(...)` với `(X_tr, y_tr)` để scaler chỉ học từ train, rồi chấm `(X_te, y_te)` ở dòng cuối."
+
+  - id: p5-test-q11
+    type: mcq
+    tags: [sklearn, data-prep]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "A teammate splits 100 tickets (85 normal, 15 urgent) with `train_test_split(X, y, test_size=0.2)`. On one run `y_test` gets 1 urgent ticket; on the next run it gets 5. Which two keyword arguments fix both problems?"
+      options:
+        - "`shuffle=False` for fixed row order and `max_iter=1000` for solver stability"
+        - "`n_splits=5` for equal-sized folds and `zero_division=0` for rare classes"
+        - "`random_state=None` for balanced draws and `stratify=X` for feature balance"
+        - "`random_state=42` for reproducibility and `stratify=y` for class balance"
+      explanation: "Setting `random_state` fixes the random seed so every run produces the exact same split, and `stratify=y` guarantees `train` and `test` keep the same class proportions (`17` normal, `3` urgent in 20 test rows)."
+    vi:
+      prompt: "Đồng nghiệp của bạn chia 100 ticket (85 bình thường, 15 khẩn cấp) bằng `train_test_split(X, y, test_size=0.2)`. Lần chạy đầu `y_test` có 1 ca khẩn cấp, lần sau lại ra 5 ca. Hai tham số nào giải quyết dứt điểm cả hai vấn đề?"
+      options:
+        - "`shuffle=False` để cố định thứ tự hàng và `max_iter=1000` để bộ giải ổn định"
+        - "`n_splits=5` để chia đều kích thước fold và `zero_division=0` cho lớp hiếm"
+        - "`random_state=None` để lấy mẫu cân bằng và `stratify=X` để cân bằng feature"
+        - "`random_state=42` để kết quả lặp lại và `stratify=y` để giữ tỉ lệ lớp"
+      explanation: "Đặt `random_state` cố định hạt giống ngẫu nhiên để mọi lần chạy ra đúng một kết quả chia, còn `stratify=y` bảo đảm cả `train` lẫn `test` giữ đúng tỉ lệ lớp (`17` bình thường, `3` khẩn cấp trong 20 mẫu test)."
+
+  # ---- evaluation
+  - id: p5-test-q12
+    type: output
+    tags: [model-evaluation, sklearn]
+    difficulty: 3
+    code: |
+      import numpy as np
+      from sklearn.dummy import DummyClassifier
+      from sklearn.metrics import precision_score, recall_score
+
+      rng = np.random.default_rng(7)
+      X = rng.normal(size=(20, 2))
+      y = np.array([0] * 18 + [1] * 2)
+      dummy = DummyClassifier(strategy="most_frequent").fit(X, y)
+      preds = dummy.predict(X)
+      print(
+          round(float(dummy.score(X, y)), 3),
+          round(float(precision_score(y, preds, zero_division=0)), 3),
+          round(float(recall_score(y, preds)), 3),
+      )
+    answer: "0.9 0.0 0.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`DummyClassifier(strategy=\"most_frequent\")` predicts `0` for every row, earning `18/20 = 0.9` accuracy while catching none of the `2` positives (`recall = 0.0`). Because `TP + FP = 0`, `precision_score` uses `zero_division=0` to return `0.0` cleanly without an `UndefinedMetricWarning`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`DummyClassifier(strategy=\"most_frequent\")` đoán `0` cho mọi hàng nên đạt accuracy (tỉ lệ đoán đúng) `18/20 = 0.9` dù bỏ sót toàn bộ `2` mẫu dương (`recall = 0.0`). Vì `TP + FP = 0`, `precision_score` dùng `zero_division=0` để trả về `0.0` mà không phát `UndefinedMetricWarning`."
+
+  - id: p5-test-q13
+    type: mcq
+    tags: [model-evaluation]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Team A builds an automated account-ban filter with no human review (banning an innocent customer is costly). Team B builds a security-breach alert filter whose flags are checked by an engineer (missing a real breach is catastrophic). Which metric should each team prioritize?"
+      options:
+        - "Team A should prioritize recall; Team B should prioritize precision"
+        - "Team A should prioritize precision; Team B should prioritize recall"
+        - "Both teams should optimize overall accuracy (`(TP + TN) / N`) instead"
+        - "Both teams should raise the threshold to `0.95` to cut false negatives"
+      explanation: "Team A cannot afford false positives (`FP`), so it optimizes precision (`TP / (TP + FP)`). Team B cannot afford false negatives (`FN`), so it optimizes recall (`TP / (TP + FN)`). Raising the threshold to `0.95` actually reduces recall and increases false negatives."
+    vi:
+      prompt: "Đội A xây bộ lọc tự động khóa tài khoản không qua người duyệt (khóa nhầm khách hàng vô tội gây thiệt hại lớn). Đội B xây bộ lọc cảnh báo xâm nhập bảo mật để kỹ sư kiểm tra lại (bỏ sót ca xâm nhập thật cực kỳ nguy hiểm). Mỗi đội nên ưu tiên chỉ số nào?"
+      options:
+        - "Đội A nên ưu tiên chỉ số recall; Đội B nên ưu tiên chỉ số precision"
+        - "Đội A nên ưu tiên chỉ số precision; Đội B nên ưu tiên chỉ số recall"
+        - "Hai đội đều nên tối ưu chỉ số accuracy (tỉ lệ đoán đúng) tổng thể"
+        - "Hai đội đều nên tăng ngưỡng lên `0.95` để triệt tiêu false negative"
+      explanation: "Đội A ngại nhất báo động giả (`FP`) nên cần precision (độ chuẩn khi báo dương, `TP / (TP + FP)`). Đội B ngại nhất bỏ sót ca thật (`FN`) nên cần recall (độ nhạy, tức tỉ lệ bắt được, `TP / (TP + FN)`). Tăng ngưỡng lên `0.95` thực tế làm giảm recall và tăng false negative."
+
+  - id: p5-test-q14
+    type: output
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    code: |
+      import numpy as np
+      from sklearn.metrics import precision_score, recall_score
+
+      probs = np.array([0.9, 0.6, 0.4, 0.35, 0.1])
+      y_true = np.array([1, 1, 0, 1, 0])
+      for t in [0.7, 0.3]:
+          preds = (probs >= t).astype("int64")
+          p = round(float(precision_score(y_true, preds)), 3)
+          r = round(float(recall_score(y_true, preds)), 3)
+          print(t, p, r)
+    answer: "0.7 1.0 0.333\n0.3 0.75 1.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "At threshold `0.7`, `preds = [1, 0, 0, 0, 0]` (`TP=1, FP=0, FN=2`) gives precision `1.0` and recall `0.333`. Lowering the threshold to `0.3` sets `preds = [1, 1, 1, 1, 0]` (`TP=3, FP=1, FN=0`), raising recall to `1.0` while lowering precision to `0.75`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Ở ngưỡng `0.7`, `preds = [1, 0, 0, 0, 0]` (`TP=1, FP=0, FN=2`) cho precision (độ chuẩn khi báo dương) `1.0` và recall (độ nhạy, tức tỉ lệ bắt được) `0.333`. Hạ ngưỡng xuống `0.3` tạo `preds = [1, 1, 1, 1, 0]` (`TP=3, FP=1, FN=0`), giúp recall tăng lên `1.0` nhưng precision giảm xuống `0.75`."
+
+  - id: p5-test-q15
+    type: fill
+    tags: [model-evaluation, sklearn]
+    difficulty: 2
+    code: |
+      from sklearn.datasets import make_classification
+      from sklearn.linear_model import LogisticRegression
+      from sklearn.model_selection import StratifiedKFold, cross_val_score
+      from sklearn.pipeline import make_pipeline
+      from sklearn.preprocessing import StandardScaler
+
+      X, y = make_classification(n_samples=30, n_features=4, random_state=1)
+      skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
+      pipe = make_pipeline(StandardScaler(), LogisticRegression())
+      scores = ___(pipe, X, y, cv=skf, scoring="f1")
+      print(f"{round(float(scores.mean()), 3)} +/- {round(float(scores.___()), 3)}")
+    answer: ["cross_val_score", "std"]
+    en:
+      prompt: "Fill in the `sklearn.model_selection` function that evaluates `pipe` across `skf` folds and the array method that reports fold-to-fold spread (`mean +/- std`)."
+      explanation: "`cross_val_score(pipe, X, y, cv=skf, scoring=\"f1\")` returns an array of 5 stratified fold F1 scores, and `scores.std()` measures how much those fold scores vary around `scores.mean()` (`0.971 +/- 0.057`)."
+    vi:
+      prompt: "Điền tên hàm trong `sklearn.model_selection` để đánh giá `pipe` qua các fold `skf`, và phương thức đo độ biến thiên giữa các fold (`mean +/- std`)."
+      explanation: "`cross_val_score(pipe, X, y, cv=skf, scoring=\"f1\")` trả về mảng 5 điểm F1 trên các fold phân tầng, còn `scores.std()` đo mức dao động quanh `scores.mean()` (`0.971 +/- 0.057`)."
+
+  # ---- mini-project
+  - id: p5-test-q16
+    type: mcq
+    tags: [model-evaluation, data-prep]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "You want to compare `LogisticRegression` and `DecisionTreeClassifier` on a messy ticket CSV, pick a probability threshold, and report final performance honestly. Which end-to-end order is valid?"
+      options:
+        - "Clean data -> `train_test_split` -> choose model and threshold via CV on `X_train` -> fit on `X_train` and score `X_test` once"
+        - "Clean data -> `StandardScaler().fit_transform(X)` -> `train_test_split` -> compare models on `X_test` -> report best test score"
+        - "Clean data -> `train_test_split` -> pick the model and threshold with highest score on `X_test` -> re-check CV on `X_train`"
+        - "Clean data -> run 5-fold CV on all rows `(X, y)` to choose model and threshold -> `train_test_split` -> report score on `X_test`"
+      explanation: "To keep `X_test` genuinely unseen, hold it out before any scaling, model selection, or threshold tuning; do all comparisons and threshold tuning via CV inside `X_train`, then evaluate `X_test` exactly once at the end."
+    vi:
+      prompt: "Bạn muốn so sánh `LogisticRegression` và `DecisionTreeClassifier` trên một file CSV ticket bẩn, chọn ngưỡng xác suất và báo cáo kết quả cuối một cách trung thực. Trình tự nào sau đây hợp lệ?"
+      options:
+        - "Làm sạch dữ liệu -> `train_test_split` -> chọn mô hình và ngưỡng bằng CV trên `X_train` -> fit trên `X_train` rồi chấm `X_test` một lần"
+        - "Làm sạch dữ liệu -> `StandardScaler().fit_transform(X)` -> `train_test_split` -> so sánh trên `X_test` -> báo cáo điểm test cao nhất"
+        - "Làm sạch dữ liệu -> `train_test_split` -> chọn mô hình và ngưỡng cao nhất trên `X_test` -> kiểm tra lại bằng CV trên `X_train`"
+        - "Làm sạch dữ liệu -> chạy CV 5 fold trên toàn bộ `(X, y)` để chọn mô hình và ngưỡng -> `train_test_split` -> báo cáo điểm `X_test`"
+      explanation: "Để tập `X_test` thực sự chưa từng bị chạm tới, phải tách riêng nó trước mọi bước chuẩn hóa, chọn mô hình hay chỉnh ngưỡng; mọi so sánh và tinh chỉnh đều làm qua CV trên `X_train`, rồi chỉ chấm `X_test` một lần duy nhất ở bước cuối."
+
+  - id: p5-test-q17
+    type: mcq
+    tags: [model-evaluation, data-cleaning]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "Your team predicts whether a new customer order will be returned (`is_returned`). A model scores `0.98` F1 in CV when given `refund_issued_at` (non-null whenever a refund was processed), but fails completely in live checkout. Why?"
+      options:
+        - "`StratifiedKFold` accidentally duplicated rows across the CV folds"
+        - "`StandardScaler` cannot convert timestamp columns to `float64` values"
+        - "`refund_issued_at` is target leakage recorded only after the outcome"
+        - "Scoring `0.98` F1 means `LogisticRegression` used too small a step size"
+      explanation: "Features created after the outcome is already known (`refund_issued_at`) give away the label during CV while being missing (`NaN`) at prediction time for brand-new orders, so they must be dropped before training."
+    vi:
+      prompt: "Đội của bạn xây mô hình dự đoán đơn hàng mới có bị trả lại (`is_returned`) hay không. Mô hình đạt F1 `0.98` khi chạy CV nhờ có cột `refund_issued_at` (chỉ có giá trị khi đơn đã hoàn tiền), nhưng hoàn toàn thất bại khi chạy thực tế lúc đặt hàng. Vì sao?"
+      options:
+        - "`StratifiedKFold` đã vô tình nhân bản các dòng giữa các fold khi chạy CV"
+        - "`StandardScaler` không thể chuyển đổi cột thời gian sang dạng `float64`"
+        - "`refund_issued_at` là target leakage vì chỉ được ghi nhận sau kết quả"
+        - "Điểm F1 `0.98` chứng tỏ bước nhảy của `LogisticRegression` đặt quá nhỏ"
+      explanation: "Những cột chỉ phát sinh sau khi kết quả đã ngã ngũ (`refund_issued_at`) làm lộ đáp án trong lúc CV nhưng luôn trống khi dự đoán đơn mới ngoài thực tế, nên bắt buộc phải loại bỏ trước khi huấn luyện."
+
+  - id: p5-test-q18
+    type: output
+    tags: [model-evaluation]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      cv_logreg = np.array([0.78, 0.64, 0.72])
+      cv_tree = np.array([0.75, 0.66, 0.70])
+      gap = abs(float(cv_logreg.mean() - cv_tree.mean()))
+      max_std = max(float(cv_logreg.std()), float(cv_tree.std()))
+      print(round(gap, 3), round(max_std, 3), gap < max_std)
+    answer: "0.01 0.057 True"
+    en:
+      prompt: "What does this code print when checking whether `cv_logreg` and `cv_tree` differ by less than one fold standard deviation?"
+      explanation: "The means are `0.7133` and `0.7033` (`gap = 0.01`), while `cv_logreg` has `std = 0.057` (`max_std = 0.057`). Since `0.01 < 0.057` (`True`), the gap is smaller than one std, so an honest report notes that neither model is clearly better."
+    vi:
+      prompt: "Đoạn code này in ra gì khi kiểm tra xem hai mô hình `cv_logreg` và `cv_tree` có chênh nhau nhỏ hơn một độ lệch chuẩn giữa các fold hay không?"
+      explanation: "Giá trị trung bình lần lượt là `0.7133` và `0.7033` (`gap = 0.01`), còn `cv_logreg` có `std = 0.057` (`max_std = 0.057`). Vì `0.01 < 0.057` (`True`), mức chênh nhỏ hơn một độ lệch chuẩn nên báo cáo trung thực cần ghi rõ chưa thể khẳng định mô hình nào vượt trội hơn."
