@@ -8,6 +8,6 @@
 3. Dòng 12–13 đếm xem có bao nhiêu ô biến thành `NaN` (`2`) và in dưới dạng `int` Python thuần.
 4. Dòng 15–18 bỏ các hàng `NaN`, ép `price` sang `"int64"`, rồi in bảng sạch cùng tổng doanh thu.
 
-**Để ý:** nếu không có `errors="coerce"`, `pd.to_numeric` sẽ sập với `ValueError` ngay khi gặp `"N/A"` hoặc `"free"`.
+**Để ý:** nếu không có `errors="coerce"`, `pd.to_numeric` sẽ báo lỗi `ValueError` ngay khi gặp `"N/A"` hoặc `"free"`.
 
 **Tự thử:** đổi `"free"` ở dòng 6 thành `" 450 "` rồi xem `Unreadable prices` giảm từ `2` xuống `1`.

@@ -2,7 +2,7 @@ Trong **học có giám sát (supervised learning)**, mô hình học từ các 
 
 ## 1. Feature và label
 
-Mỗi bộ dữ liệu có giám sát đều chia thành hai phần: **`X`** (các **feature** — đặc trưng đầu vào, xếp thành bảng với mỗi hàng là một ví dụ và mỗi cột là một đại lượng đo) và **`y`** (**label** — nhãn hay đáp án đúng của từng hàng).
+Mỗi bộ dữ liệu có giám sát đều chia thành hai phần: **`X`** (các **feature** — đặc trưng đầu vào, xếp thành bảng với mỗi hàng là một ví dụ và mỗi cột là một đại lượng đo) và **`y`** (**label** — nhãn, hay đáp án đúng của từng hàng).
 
 ```text
            X (features)           |  y (label)
@@ -73,7 +73,7 @@ print("Classification accuracy:", round(acc, 3))  # Classification accuracy: 0.7
 
 ## 3. Mô hình đơn giản nhất: một ngưỡng
 
-Ở bài `p5-01-math-bridge`, ta giải bài toán regression bằng cách khớp một đường thẳng nhờ gradient descent để thu nhỏ MSE. Với một bài toán classification nhị phân đơn giản, mô hình cơ bản nhất là **quy tắc một ngưỡng (threshold)**: cho trước điểm spam `score`, đoán `1` (spam) nếu `score >= t`, ngược lại đoán `0`.
+Ở bài `p5-01-math-bridge`, ta giải bài toán regression bằng cách khớp (fit) một đường thẳng nhờ gradient descent để thu nhỏ MSE. Với một bài toán classification nhị phân đơn giản, mô hình cơ bản nhất là **quy tắc một ngưỡng (threshold)**: cho trước điểm spam `score`, đoán `1` (spam) nếu `score >= t`, ngược lại đoán `0`.
 
 Bằng cách thử vài ngưỡng `t` khác nhau và đo **accuracy** (tỉ lệ đoán đúng), bạn chọn được ngưỡng đoán đúng nhiều nhất.
 
@@ -115,7 +115,7 @@ flowchart LR
     E --> F["Báo cáo điểm"]
 ```
 
-Để xáo hàng một cách lặp lại được, `rng = np.random.default_rng(42)` tạo bộ sinh số ngẫu nhiên có seed cố định và `rng.permutation(len(X))` trả về mảng chỉ số hàng `0..len(X)-1` đã xáo ngẫu nhiên. Sau đó, dùng lát cắt chỉ số đã xáo (`idx[:split]` cho train và `idx[split:]` cho test) để lấy phần tử từ cả `X` lẫn `y` giúp mỗi hàng feature luôn đi đúng với label của nó.
+Để xáo hàng theo thứ tự tái lập được (chạy lại vẫn ra y hệt), `rng = np.random.default_rng(42)` tạo bộ sinh số ngẫu nhiên có seed cố định và `rng.permutation(len(X))` trả về mảng chỉ số hàng `0..len(X)-1` đã xáo ngẫu nhiên. Sau đó, dùng mảng chỉ số đã xáo được cắt ra (`idx[:split]` cho train và `idx[split:]` cho test) để lấy phần tử từ cả `X` lẫn `y` giúp mỗi hàng feature luôn đi đúng với label của nó.
 
 Bấm **Visualize** ở khối code này để xem `idx` xáo thứ tự hàng rồi tách `X` và `y` thành hai tập train và test.
 
@@ -144,9 +144,9 @@ Hãy để ý `X_train` và `y_train` nhận 6 hàng đầu tiên sau khi xáo, 
 
 ## 5. Nhận ra overfitting bằng mắt
 
-Một mô hình quá linh hoạt có thể uốn lượn đi qua từng điểm nhiễu trong tập train để đạt sai số gần như bằng 0, nhưng lại sai lệch nặng trên tập test mới. Ta có thể nhìn thấy hiện tượng này ngay trên biểu đồ bằng cách khớp đường cong đa thức bậc `1`, `3` và `6` lên các điểm dữ liệu có nhiễu trong đoạn `[0, 1]`, trong đó `rng.normal(0.0, 0.12, size=len(x))` cộng thêm nhiễu phân phối chuẩn quanh `0.0` với độ lệch `0.12`.
+Một mô hình quá linh hoạt có thể uốn lượn đi qua từng điểm nhiễu trong tập train để đạt sai số gần như bằng 0, nhưng lại sai lệch nặng trên tập test mới (**overfitting** — học vẹt / khớp quá mức). Ta có thể nhìn thấy hiện tượng này ngay trên biểu đồ bằng cách khớp đường cong đa thức bậc `1`, `3` và `6` lên các điểm dữ liệu có nhiễu trong đoạn `[0, 1]`, trong đó `rng.normal(0.0, 0.12, size=len(x))` cộng thêm nhiễu hình chuông quanh `0.0` với độ lệch chuẩn `0.12`.
 
-Hàm `np.polyfit(x, y, deg)` của NumPy khớp một đường cong đa thức bậc `deg` vào dữ liệu `(x, y)` rồi trả về các hệ số, còn `np.polyval(coeffs, x)` tính giá trị của đa thức đó tại các điểm `x` bất kỳ.
+Hàm `np.polyfit(x, y, deg)` của NumPy khớp một đường cong đa thức bậc `deg` theo dữ liệu `(x, y)` rồi trả về các hệ số, còn `np.polyval(coeffs, x)` tính giá trị của đa thức đó tại các điểm `x` bất kỳ.
 
 ```python
 import matplotlib.pyplot as plt
@@ -194,14 +194,14 @@ Hãy chú ý cái bẫy ở đây: bậc `6` trông có vẻ "đẹp nhất" tr�
 
 ## 6. Underfitting, vừa khớp và overfitting
 
-So sánh song song sai số trên tập train và tập test giúp bạn biết ngay mô hình đang rơi vào trạng thái nào và cần chỉnh hướng nào tiếp theo.
+So sánh song song sai số trên tập train và tập test giúp bạn biết ngay mô hình đang rơi vào trạng thái nào — **underfitting** (học chưa tới), **good fit** (vừa khớp) hay **overfitting** (khớp quá mức) — và cần chỉnh hướng nào tiếp theo.
 
-| | underfitting | good fit (vừa khớp) | overfitting |
+| | underfitting (chưa khớp) | good fit (vừa khớp) | overfitting (khớp quá mức) |
 |---|---|---|---|
 | sai số train | cao | thấp | rất thấp (gần 0) |
 | sai số test | cao | thấp (gần bằng train) | cao hơn train rất nhiều |
 | dấu hiệu trên biểu đồ | mô hình quá cứng, bỏ sót đường cong chính | đường cong đi mượt theo xu hướng thật | đường cong ngoằn ngoèo để bám từng điểm nhiễu |
-| cách khắc phục | chọn mô hình linh hoạt hơn hoặc thêm feature tốt hơn | giữ mô hình và kiểm chứng trên dữ liệu mới | dùng mô hình đơn giản hơn, thêm dữ liệu, hoặc regularization |
+| cách khắc phục | chọn mô hình linh hoạt hơn hoặc thêm feature tốt hơn | giữ mô hình và kiểm chứng trên dữ liệu mới | dùng mô hình đơn giản hơn, thêm dữ liệu, hoặc dùng **regularization** (phạt độ phức tạp) |
 
 > [!TIP]
 > Luôn so sánh **train error** và **test error** cạnh nhau: một mức train error thật nhỏ không có ý nghĩa gì nếu test error vẫn cao.
@@ -210,7 +210,7 @@ So sánh song song sai số trên tập train và tập test giúp bạn biết 
 
 **1. Đánh giá trên chính tập train**
 
-Báo cáo điểm trên đúng những dòng vừa dùng để khớp mô hình sẽ che giấu overfitting đằng sau một con số sai số đẹp giả tạo.
+Chấm điểm trên chính những dòng vừa dùng để huấn luyện (fit) mô hình sẽ che giấu overfitting đằng sau một con số sai số đẹp giả tạo.
 
 ```python
 import numpy as np
@@ -229,7 +229,7 @@ print("test MSE:", round(float(np.mean((np.polyval(c6, x_test) - y_test) ** 2)),
 # test MSE: 0.79    (cách sửa: luôn đánh giá trên tập test tách riêng)
 ```
 
-**2. Data leakage: chuẩn hóa trước khi chia train/test**
+**2. Data leakage (rò rỉ dữ liệu): chuẩn hóa trước khi chia train/test**
 
 Tính `min` và `max` (giống hàm `min_max_scale` ở bài `p4-01-numpy`) trên **toàn bộ** dữ liệu sẽ làm thông tin từ tập test lọt vào phép chuẩn hóa.
 
@@ -249,7 +249,7 @@ clean = (test - low) / (high - low)
 print("clean test:", [round(float(v), 3) for v in clean])    # clean test: [1.5, 4.5]
 ```
 
-Để ý rằng giá trị chuẩn hóa sạch `clean test: [1.5, 4.5]` vượt ra ngoài đoạn `[0, 1]` — điều này hoàn toàn bình thường mỗi khi giá trị test nằm cao hơn `train.max()` (hoặc thấp hơn `train.min()`), vì tập test chỉ được quy đổi theo các mốc đo từ tập train.
+Để ý rằng kết quả chuẩn hóa sạch `clean test: [1.5, 4.5]` vượt ra ngoài đoạn `[0, 1]` — điều này hoàn toàn bình thường mỗi khi giá trị test nằm cao hơn `train.max()` (hoặc thấp hơn `train.min()`), vì tập test chỉ được quy đổi theo các mốc min/max của tập train.
 
 **3. Quên xáo dữ liệu đã sắp theo label trước khi chia**
 
@@ -274,7 +274,7 @@ print("shuffled zeros/ones:", int((good_test == 0).sum()), int((good_test == 1).
 
 **4. Chia dữ liệu mà không đặt random seed**
 
-Gọi `np.random.default_rng()` mà không truyền seed sẽ tạo ra một thứ tự xáo khác nhau sau mỗi lần chạy, làm điểm test nhảy liên tục và rất khó tái hiện lỗi để debug. Cách sửa là truyền một số nguyên cố định như `rng = np.random.default_rng(42)`.
+Gọi `np.random.default_rng()` mà không truyền seed sẽ tạo ra một thứ tự xáo khác nhau sau mỗi lần chạy, khiến điểm test thay đổi liên tục và rất khó tái hiện lỗi để debug. Cách sửa là truyền một số nguyên cố định như `rng = np.random.default_rng(42)`.
 
 ```python
 import numpy as np
@@ -288,6 +288,6 @@ print("seeded permutation:", rng.permutation(6).tolist())
 
 - **Học có giám sát (supervised learning)** ghép **feature** `X` (bảng 2D hàng × cột) với **label** `y` (đáp án 1D) để học quy luật áp dụng cho dữ liệu mới.
 - **Regression** dự đoán số liên tục (đo bằng MSE), còn **classification** dự đoán nhóm rời rạc (đo bằng **accuracy** `(pred == y).mean()`).
-- Luôn **xáo dữ liệu** bằng bộ sinh có seed (`np.random.default_rng(seed).permutation(...)`) và **chia train/test** trước khi tính các thông số chuẩn hóa để tránh **data leakage**.
+- Luôn **xáo dữ liệu** bằng bộ sinh có seed (`np.random.default_rng(seed).permutation(...)`) và **chia train/test** trước khi tính các thông số chuẩn hóa để tránh **data leakage** (rò rỉ dữ liệu).
 - **Underfitting** cho sai số cao ở cả train lẫn test; **overfitting** cho sai số train rất nhỏ nhưng sai số test cao vọt.
-- Luôn so sánh điểm train và test cạnh nhau để chắc chắn mô hình tổng quát hóa tốt.
+- Luôn so sánh điểm train và test cạnh nhau để chắc chắn mô hình **generalize** (tổng quát hóa) tốt trên dữ liệu mới.

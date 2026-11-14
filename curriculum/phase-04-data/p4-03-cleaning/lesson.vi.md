@@ -1,8 +1,8 @@
-Dữ liệu thực tế hiếm khi sạch sẽ khi đi vào script của bạn: điểm đánh giá bị bỏ trống, `" GPT-4o"` và `"gpt-4o"` bị coi là hai mô hình khác nhau, con số lại lưu dưới dạng chữ `"1,200"`, và cùng một dòng bị lặp lại hai lần. Nếu đưa dữ liệu bẩn thẳng vào bước đánh giá hay huấn luyện mô hình, kết quả sẽ sai lệch theo đúng nghĩa "garbage in, garbage out" (rác vào thì rác ra). **Data cleaning** (làm sạch dữ liệu) bằng **pandas** giúp bạn biến log thô thành đầu vào đáng tin cậy chỉ qua vài bước lặp lại được.
+Dữ liệu thực tế hiếm khi sạch gọn khi vào script của bạn: điểm đánh giá bị bỏ trống, `" GPT-4o"` và `"gpt-4o"` bị coi là hai mô hình khác nhau, con số lại lưu dưới dạng chữ `"1,200"`, và cùng một dòng bị lặp lại hai lần. Nếu đưa dữ liệu bẩn thẳng vào bước đánh giá hay huấn luyện mô hình, kết quả sẽ sai lệch theo đúng nghĩa "garbage in, garbage out" (rác vào thì rác ra). **Data cleaning** (làm sạch dữ liệu) bằng **pandas** giúp bạn biến log thô thành đầu vào đáng tin cậy chỉ qua vài bước lặp lại được.
 
 ## 1. Soi dữ liệu trước
 
-Trước khi sửa bất cứ thứ gì, hãy kiểm tra kích thước bảng, kiểu dữ liệu từng cột, số ô thiếu và các giá trị phân loại hiện có để biết cột nào đang hỏng. Hãy xem một bảng log lộn xộn qua `.shape`, `.dtypes`, `.isna().sum()`, `.unique()`, `.nunique()` (đếm số giá trị phân biệt) và `.value_counts()` — giống như đi một vòng kiểm tra xe trước khi mở nắp capo.
+Trước khi sửa bất cứ thứ gì, hãy kiểm tra kích thước bảng, kiểu dữ liệu từng cột, số ô thiếu và các giá trị riêng biệt của cột phân loại để biết cột nào đang hỏng. Hãy xem một bảng log lộn xộn qua `.shape`, `.dtypes`, `.isna().sum()`, `.unique()`, `.nunique()` (đếm số giá trị khác nhau) và `.value_counts()` — giống như đi một vòng quanh xe trước khi mở nắp capo.
 
 ```python
 import io
@@ -39,7 +39,7 @@ print(df["model"].value_counts())
 # Name: count, dtype: int64
 ```
 
-Hãy để ý ngay ba manh mối: `tokens` bị đọc thành `object` (chuỗi) vì có `"1,200"`, `rating` có `1` **missing value** (giá trị thiếu), còn `" GPT-4o"` và `"gpt-4o"` bị tách làm hai nhóm đếm riêng chỉ vì dư dấu cách đầu và khác chữ hoa thường.
+Hãy để ý ngay ba manh mối: `tokens` bị đọc thành `object` (chuỗi) vì có `"1,200"`, `rating` có `1` **missing value** (giá trị thiếu), còn `" GPT-4o"` và `"gpt-4o"` bị tách thành hai mục đếm riêng chỉ vì dư dấu cách đầu và khác chữ hoa thường.
 
 ## 2. Xử lý giá trị thiếu
 
@@ -83,11 +83,11 @@ Bảng theo dõi dưới đây cho thấy `valid["score"].fillna(4.0)` cập nh�
 | 4 | `NaN` | `4.0` |
 
 > [!TIP]
-> Hãy bỏ hàng khi thiếu trường định danh bắt buộc như `user` hay `text`; chỉ điền bằng `.median()` khi thiếu một cột số phụ và hàng đó vẫn còn giá trị sử dụng.
+> Hãy bỏ hàng khi thiếu trường định danh bắt buộc như `user` hay `text`; chỉ điền bằng `.median()` khi thiếu một cột số phụ và hàng đó vẫn còn hữu ích.
 
 ## 3. Sửa kiểu dữ liệu
 
-Các cột trông như số (`"1,200"`, `" 350 "`) hoặc boolean (`"yes"`, `"no"`) thường bị nạp thành chuỗi `object` do dính dấu phẩy, khoảng trắng hay chữ `"N/A"`. Hãy xóa ký tự thừa bằng `.str.replace(...)`, dùng **type coercion** (ép kiểu an toàn) với `pd.to_numeric(..., errors="coerce")` để chuỗi không đọc được biến thành `NaN` thay vì làm sập code, và đổi `"yes"`/`"no"` bằng `.map(...)`. Khi chắc chắn không còn `NaN`, bạn gọi `.astype("int64")` để đưa cột về số nguyên.
+Các cột trông như số (`"1,200"`, `" 350 "`) hoặc boolean (`"yes"`, `"no"`) thường bị nạp thành chuỗi `object` do dính dấu phẩy, khoảng trắng hay chuỗi `"N/A"`. Hãy xóa ký tự thừa bằng `.str.replace(...)`, dùng **type coercion** (ép kiểu) an toàn với `pd.to_numeric(..., errors="coerce")` để chuỗi không đọc được biến thành `NaN` thay vì làm lỗi chương trình, và đổi `"yes"`/`"no"` bằng `.map(...)`. Khi chắc chắn không còn `NaN`, bạn gọi `.astype("int64")` để đưa cột về số nguyên.
 
 ```text
   raw (object)          str.replace         to_numeric          dropna + astype("int64")
@@ -122,11 +122,11 @@ print(ready.dtypes)
 # dtype: object
 ```
 
-Để ý `pd.to_numeric` trả về `float64` trước vì `NaN` là một giá trị số thực; bỏ `NaN` xong thì `.astype("int64")` mới chạy được.
+Để ý là `pd.to_numeric` trả về `float64` trước vì `NaN` là một giá trị số thực; bỏ `NaN` xong thì `.astype("int64")` mới chạy được.
 
 ## 4. Làm sạch văn bản
 
-Tên nhãn lộn xộn thường giấu khoảng trắng ở hai đầu, chữ hoa thường lẫn lộn và dấu nối không đồng nhất (`" GPT-4o "`, `"gpt_4o"`, `" gpt-4o"`). Bạn nối các phương thức qua `.str` — `.str.strip()`, `.str.lower()` và `.str.replace(...)` — để chuẩn hóa cả cột một lượt và gộp các biến thể bị tách lẻ.
+Tên nhãn lộn xộn thường dính khoảng trắng ở hai đầu, viết hoa thường lẫn lộn và dấu nối không đồng nhất (`" GPT-4o "`, `"gpt_4o"`, `" gpt-4o"`). Bạn nối các phương thức qua `.str` — `.str.strip()`, `.str.lower()` và `.str.replace(...)` — để chuẩn hóa cả cột một lượt và gộp các biến thể của cùng một nhãn.
 
 ```python
 import pandas as pd
@@ -148,11 +148,11 @@ print(cleaned.value_counts())
 # Name: count, dtype: int64
 ```
 
-Bấm **Visualize** ở khối code này để xem `raw` đi qua từng bước `stripped`, `lowered` rồi `cleaned`, cho tới khi cả ba biến thể của `gpt-4o` gộp thành số đếm `3`. Truyền `regex=False` vào `.str.replace` báo cho pandas thay đúng chuỗi ký tự gốc chứ không dùng biểu thức chính quy.
+Bấm **Visualize** ở khối code này để xem `raw` đi qua từng bước `stripped`, `lowered` rồi `cleaned`, cho tới khi cả ba biến thể của `gpt-4o` gộp thành số đếm `3`. Truyền `regex=False` vào `.str.replace` báo cho pandas thay đúng chuỗi ký tự nguyên văn chứ không hiểu đó là **regular expression** (biểu thức chính quy).
 
 ## 5. Dòng trùng và dòng không hợp lệ
 
-Ngay cả khi văn bản và kiểu dữ liệu đã gọn, bảng vẫn có thể chứa **duplicate** (dòng trùng) hoặc giá trị ngoài khoảng cho phép như đánh giá `9` trên thang 1–5. Hãy dùng `.duplicated()` để phát hiện dòng lặp, lọc bằng `.between(low, high)` **trước**, rồi mới gọi `.drop_duplicates(subset=..., keep="last")` để dòng hỏng không bao giờ giữ lại thay cho dòng hợp lệ trước đó.
+Ngay cả khi văn bản và kiểu dữ liệu đã gọn, bảng vẫn có thể chứa **duplicate** (dòng trùng) hoặc giá trị ngoài khoảng cho phép như đánh giá `9` trên thang 1–5. Hãy dùng `.duplicated()` để phát hiện dòng lặp, lọc bằng `.between(low, high)` **trước**, rồi mới gọi `.drop_duplicates(subset=..., keep="last")` để dòng hỏng không bao giờ bị giữ lại thay cho dòng hợp lệ trước đó.
 
 ```python
 import pandas as pd
@@ -176,7 +176,7 @@ Hãy để ý hai chi tiết: `.between(1, 5)` lọc bỏ `9` trước (tính c�
 
 ## 6. Gộp thành pipeline
 
-Trong dự án thật, bạn bọc toàn bộ các bước làm sạch vào một hàm `clean(df)` bắt đầu bằng `df = df.copy()` để không làm biến đổi dữ liệu gốc của nơi gọi. Đi theo một trình tự rõ ràng — soi dữ liệu, chuẩn hóa chữ, ép kiểu, xử lý thiếu, kiểm tra khoảng hợp lệ, rồi mới bỏ trùng — giúp tránh các lỗi tinh vi như giữ nhầm một dòng trùng có giá trị hỏng.
+Trong dự án thật, bạn bọc toàn bộ các bước làm sạch vào một hàm `clean(df)` bắt đầu bằng `df = df.copy()` để không làm biến đổi dữ liệu gốc truyền vào. Đi theo một trình tự rõ ràng — soi dữ liệu, chuẩn hóa chữ, ép kiểu, xử lý giá trị thiếu, kiểm tra khoảng hợp lệ, rồi mới bỏ trùng — giúp tránh các lỗi tinh vi như giữ nhầm một dòng trùng có giá trị hỏng.
 
 ```mermaid
 flowchart TD
@@ -196,7 +196,7 @@ flowchart TD
 | Chuyển chuỗi số lộn xộn sang số | `pd.to_numeric(..., errors="coerce")` |
 | Chuẩn hóa nhãn văn bản | `.str.strip().str.lower().str.replace(...)` |
 | Lọc giá trị nằm trong khoảng | `df[df["col"].between(low, high)]` |
-| Loại bỏ khóa bị trùng | `df.drop_duplicates(subset=[...], keep="last")` |
+| Loại bỏ dòng trùng khóa | `df.drop_duplicates(subset=[...], keep="last")` |
 
 Xem hàm `clean(raw_df)` gom toàn bộ các bước trên thành một pipeline dùng lại được:
 
@@ -243,7 +243,7 @@ d1 = d1.fillna(0)
 print(d1["score"].tolist())   # [4.0, 0.0]
 ```
 
-Cách sửa: luôn gán kết quả trả về vào biến (`d1 = d1.fillna(0)`).
+Cách sửa: luôn gán lại kết quả trả về vào biến (`d1 = d1.fillna(0)`).
 
 **Gọi `.astype("int64")` khi cột vẫn còn `NaN`.** Kiểu `int64` chuẩn không chứa được `NaN`, nên pandas báo lỗi `IntCastingNaNError`:
 
@@ -274,9 +274,9 @@ print(scores.isna().tolist())        # [False, True]
 Cách sửa: luôn kiểm tra giá trị thiếu bằng `.isna()` (hoặc `.notna()`).
 
 > [!WARNING]
-> Đừng bao giờ viết `col == np.nan` hay `col != None` để lọc số thiếu — phép so sánh đó âm thầm trả về mặt nạ sai mà không báo lỗi nào.
+> Đừng bao giờ viết `col == np.nan` hay `col != None` để lọc số thiếu — phép so sánh đó âm thầm trả về bộ lọc (mask) sai mà không báo lỗi nào.
 
-**Gọi `.strip()` thẳng trên Series thay vì `.str.strip()`.** Các phương thức xử lý chuỗi nằm dưới bộ truy cập `.str`, không nằm trực tiếp trên đối tượng `Series`:
+**Gọi `.strip()` thẳng trên Series thay vì `.str.strip()`.** Các phương thức xử lý chuỗi nằm trong nhóm phương thức `.str`, không nằm trực tiếp trên đối tượng `Series`:
 
 ```python
 import pandas as pd
