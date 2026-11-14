@@ -404,14 +404,32 @@ def main() -> int:
 
     rep = Report()
     validators = _validators()
-    syllabus = load_yaml(CURRICULUM / "syllabus.yaml")
+    syllabus_path = CURRICULUM / "syllabus.yaml"
+    syllabus = load_yaml(syllabus_path)
     topics = set(load_yaml(CURRICULUM / "topics.yaml")["topics"])
     lesson_index = {les["id"]: (ph, les) for ph in syllabus["phases"] for les in ph["lessons"]}
-    check_i18n_obj(rep, CURRICULUM / "syllabus.yaml", syllabus, "", args.allow_missing_vi)
+    check_i18n_obj(rep, syllabus_path, syllabus, "", args.allow_missing_vi)
+    for ph in syllabus["phases"]:
+        if "runner" in ph:
+            if ph["runner"] != "local":
+                rep.error(
+                    syllabus_path,
+                    f"phase {ph['id']}: invalid runner {ph['runner']!r} (move to lesson)",
+                )
+            else:
+                rep.error(
+                    syllabus_path,
+                    f"phase {ph['id']}: phase-level 'runner' is disallowed (move to lesson)",
+                )
     for lid, (_, les) in lesson_index.items():
+        if "runner" in les and les["runner"] != "local":
+            rep.error(
+                syllabus_path,
+                f"{lid}: invalid runner {les['runner']!r} (only 'local' is allowed)",
+            )
         for pre in les.get("prerequisites", []):
             if pre not in lesson_index:
-                rep.error(CURRICULUM / "syllabus.yaml", f"{lid}: unknown prerequisite '{pre}'")
+                rep.error(syllabus_path, f"{lid}: unknown prerequisite '{pre}'")
 
     scope = (args.path.resolve() if args.path else CURRICULUM)
     ids: set[str] = set()

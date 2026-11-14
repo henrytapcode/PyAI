@@ -1,7 +1,8 @@
 # Syllabus: single source of truth for the learning path.
 # A lesson listed here becomes "ready" once a matching folder exists under its phase
 # (curriculum/<phase.dir>/<lesson.id>/). Otherwise the app shows it as "coming soon".
-# Phases 0-3: detailed (phases 1-3 written in M2). Phases 4-8: outline (filled in at M3/M4).
+# Phases 0-5 detailed; phases 6-8 detailed in M4 (lessons written later).
+# Lessons marked `runner: local` run on the local runner instead of Pyodide in the browser.
 
 phases:
   - id: p0
@@ -307,52 +308,155 @@ phases:
     dir: phase-06-deep-learning
     order: 6
     icon: network
-    runner: local
     title: { en: "Deep learning", vi: "Deep learning" }
     summary:
       en: "PyTorch basics, the training loop, Hugging Face, small fine-tunes."
       vi: "PyTorch cơ bản, training loop, Hugging Face, fine-tune nhỏ."
     lessons:
-      - { id: p6-01-tensors, title: { en: "Tensors & autograd", vi: "Tensor & autograd" }, prerequisites: [p5-01-math-bridge] }
-      - { id: p6-02-training-loop, title: { en: "The training loop", vi: "Training loop" }, prerequisites: [p6-01-tensors] }
-      - { id: p6-03-huggingface, title: { en: "Hugging Face pipelines", vi: "Pipeline Hugging Face" }, prerequisites: [p6-02-training-loop] }
-      - { id: p6-04-fine-tune, title: { en: "A small fine-tune", vi: "Fine-tune nhỏ" }, prerequisites: [p6-03-huggingface] }
+      - id: p6-01-tensors
+        runner: local
+        title: { en: "Tensors & autograd", vi: "Tensor & autograd" }
+        prerequisites: [p5-01-math-bridge]
+        outcomes:
+          en: ["Create CPU tensors and check shape and dtype", "Run vectorised ops and matrix multiplication", "Compute gradients automatically with autograd"]
+          vi: ["Tạo tensor trên CPU, đọc shape và dtype", "Thực hiện phép tính vector và nhân ma trận", "Tính gradient tự động với autograd"]
+      - id: p6-02-training-loop
+        runner: local
+        title: { en: "The training loop", vi: "Training loop" }
+        prerequisites: [p6-01-tensors]
+        outcomes:
+          en: ["Define a small nn.Module model", "Write a forward, loss, backward and step loop on CPU", "Save a trained model and evaluate it on tiny synthetic data"]
+          vi: ["Định nghĩa một mô hình nn.Module nhỏ", "Viết vòng lặp forward, loss, backward và step trên CPU", "Lưu model đã train và đánh giá trên dữ liệu tổng hợp (synthetic) nhỏ"]
+      - id: p6-03-huggingface
+        runner: local
+        title: { en: "Hugging Face pipelines", vi: "Pipeline Hugging Face" }
+        prerequisites: [p6-02-training-loop]
+        outcomes:
+          en: ["Load small cached models offline on CPU", "Tokenize text and run inference with pipeline()", "Inspect logits and predicted labels"]
+          vi: ["Nạp model nhỏ có sẵn trong cache ở chế độ offline trên CPU", "Tokenize văn bản và chạy inference với pipeline()", "Đọc logits và nhãn dự đoán"]
+      - id: p6-04-fine-tune
+        kind: project
+        runner: local
+        title: { en: "Mini-project: a small fine-tune", vi: "Mini-project: fine-tune nhỏ" }
+        prerequisites: [p6-03-huggingface]
+        outcomes:
+          en: ["Fine-tune a small cached classifier on a tiny dataset on CPU", "Compare accuracy before and after fine-tuning", "Run predictions on new text samples"]
+          vi: ["Fine-tune một model phân loại nhỏ từ cache trên tập dữ liệu nhỏ bằng CPU", "So sánh tỉ lệ đoán đúng (accuracy) trước và sau khi fine-tune", "Chạy dự đoán trên mẫu văn bản mới"]
 
   - id: p7
     dir: phase-07-llm
     order: 7
     icon: sparkles
-    runner: local
     title: { en: "LLM & GenAI", vi: "LLM & GenAI" }
     summary:
-      en: "LLM APIs, structured output, embeddings, vector DB, RAG, tool use, agents, evals."
-      vi: "API LLM, structured output, embedding, vector DB, RAG, tool use, agent, eval."
+      en: "LLM APIs, structured output, embeddings, vector DB, RAG, tool use, agents, evals (using a fake LLM client, no API key needed)."
+      vi: "API LLM, structured output, embedding, vector DB, RAG, tool use, agent, eval (dùng fake LLM client, không cần API key)."
     lessons:
-      - { id: p7-01-llm-api, title: { en: "Calling an LLM API", vi: "Gọi API LLM" }, prerequisites: [p2-05-typing] }
-      - { id: p7-02-structured-output, title: { en: "Structured output", vi: "Structured output" }, prerequisites: [p7-01-llm-api] }
-      - { id: p7-03-embeddings, title: { en: "Embeddings", vi: "Embedding" }, prerequisites: [p7-01-llm-api] }
-      - { id: p7-04-vector-db, title: { en: "Vector databases", vi: "Vector database" }, prerequisites: [p7-03-embeddings] }
-      - { id: p7-05-rag, title: { en: "RAG", vi: "RAG" }, prerequisites: [p7-04-vector-db] }
-      - { id: p7-06-tool-use, title: { en: "Tool use", vi: "Tool use" }, prerequisites: [p7-02-structured-output] }
-      - { id: p7-07-agents, title: { en: "Simple agents", vi: "Agent đơn giản" }, prerequisites: [p7-06-tool-use] }
-      - { id: p7-08-evals, title: { en: "Evals", vi: "Eval" }, prerequisites: [p7-05-rag] }
-      - { id: p7-09-mini-project-rag, kind: project, title: { en: "Mini-project: RAG", vi: "Mini-project: RAG" }, prerequisites: [p7-08-evals] }
-      - { id: p7-10-mini-project-agent, kind: project, title: { en: "Mini-project: simple agent", vi: "Mini-project: agent đơn giản" }, prerequisites: [p7-07-agents] }
+      - id: p7-01-llm-api
+        title: { en: "Calling an LLM API", vi: "Gọi API LLM" }
+        prerequisites: [p2-05-typing, p3-01-pytest]
+        outcomes:
+          en: ["Send prompts and system messages with a fake LLM client", "Control temperature and read token usage", "See how real API calls load keys from .env"]
+          vi: ["Gửi prompt và system message qua fake LLM client", "Điều chỉnh temperature và đọc lượng token sử dụng", "Hiểu cách gọi API thật khi đọc key từ file .env"]
+      - id: p7-02-structured-output
+        title: { en: "Structured output", vi: "Structured output" }
+        prerequisites: [p7-01-llm-api]
+        outcomes:
+          en: ["Design JSON schemas and dataclasses for model outputs", "Parse and validate structured replies from the fake client", "Handle invalid output with retries or fallbacks"]
+          vi: ["Thiết kế schema JSON và dataclass cho đầu ra của model", "Phân tích và kiểm tra kết quả có cấu trúc từ fake client", "Xử lý đầu ra sai định dạng bằng retry hoặc fallback"]
+      - id: p7-03-embeddings
+        title: { en: "Embeddings", vi: "Embedding" }
+        prerequisites: [p7-01-llm-api, p5-01-math-bridge]
+        outcomes:
+          en: ["Generate text embeddings with the fake client", "Measure similarity with NumPy cosine similarity", "Rank documents by semantic relevance"]
+          vi: ["Tạo embedding văn bản bằng fake client", "Đo độ tương đồng bằng cosine similarity với NumPy", "Xếp hạng tài liệu theo mức độ liên quan ngữ nghĩa"]
+      - id: p7-04-vector-db
+        title: { en: "Vector databases", vi: "Vector database" }
+        prerequisites: [p7-03-embeddings, p4-01-numpy]
+        outcomes:
+          en: ["Build a tiny in-memory vector store with NumPy", "Index chunks with metadata and filter search", "Retrieve top-k nearest matches"]
+          vi: ["Xây vector store nhỏ trong bộ nhớ bằng NumPy", "Lưu chunk kèm metadata và tìm kiếm có lọc", "Truy xuất top-k kết quả gần nhất"]
+      - id: p7-05-rag
+        title: { en: "RAG", vi: "RAG" }
+        prerequisites: [p7-04-vector-db]
+        outcomes:
+          en: ["Split documents into overlapping chunks", "Combine retrieval with grounded prompts via the fake client", "Cite source chunks and avoid unsupported claims"]
+          vi: ["Chia tài liệu thành các chunk có phần gối nhau", "Kết hợp truy xuất ngữ cảnh với prompt qua fake client", "Trích dẫn nguồn và hạn chế suy diễn ngoài tài liệu"]
+      - id: p7-06-tool-use
+        title: { en: "Tool use", vi: "Tool use" }
+        prerequisites: [p7-02-structured-output]
+        outcomes:
+          en: ["Describe Python functions as tool schemas", "Route tool calls from the fake LLM client to code", "Feed tool results back to produce a final answer"]
+          vi: ["Mô tả hàm Python thành tool schema", "Điều phối tool call từ fake LLM client tới hàm xử lý", "Đưa kết quả tool trở lại model để tạo câu trả lời cuối"]
+      - id: p7-07-agents
+        title: { en: "Simple agents", vi: "Agent đơn giản" }
+        prerequisites: [p7-06-tool-use]
+        outcomes:
+          en: ["Implement a bounded observe-think-act loop", "Guard against infinite loops with max steps", "Trace multi-step decisions with the fake client"]
+          vi: ["Cài đặt vòng lặp observe-think-act có giới hạn bước", "Ngăn vòng lặp vô hạn bằng max steps", "Theo dõi quyết định nhiều bước với fake client"]
+      - id: p7-08-evals
+        title: { en: "Evals", vi: "Eval" }
+        prerequisites: [p7-05-rag, p5-04-evaluation]
+        outcomes:
+          en: ["Build small eval datasets with expected facts", "Score retrieval hit rate and answer faithfulness", "Compare two RAG configurations on the same eval set"]
+          vi: ["Tạo tập eval nhỏ kèm thông tin kỳ vọng", "Chấm tỉ lệ truy xuất trúng và độ trung thực câu trả lời", "So sánh hai cấu hình RAG trên cùng một tập eval"]
+      - id: p7-09-mini-project-rag
+        kind: project
+        title: { en: "Mini-project: RAG", vi: "Mini-project: RAG" }
+        prerequisites: [p7-08-evals]
+        outcomes:
+          en: ["Build an end-to-end RAG pipeline using the fake client", "Evaluate retrieval and grounded answers on a test set"]
+          vi: ["Xây pipeline RAG hoàn chỉnh với fake client", "Đánh giá khả năng truy xuất và câu trả lời bám nguồn trên tập test"]
+      - id: p7-10-mini-project-agent
+        kind: project
+        title: { en: "Mini-project: simple agent", vi: "Mini-project: agent đơn giản" }
+        prerequisites: [p7-07-agents]
+        outcomes:
+          en: ["Build a tool-using agent with safe step limits", "Test multi-step tool execution deterministically"]
+          vi: ["Xây agent dùng tool có giới hạn bước an toàn", "Kiểm thử luồng gọi tool nhiều bước một cách tất định"]
 
   - id: p8
     dir: phase-08-production
     order: 8
     icon: rocket
-    runner: local
     title: { en: "Production", vi: "Production" }
     summary:
       en: "FastAPI, Docker basics, caching, monitoring, cost and latency."
       vi: "FastAPI, Docker cơ bản, cache, monitoring, chi phí và độ trễ."
     lessons:
-      - { id: p8-01-fastapi, title: { en: "FastAPI services", vi: "Dịch vụ FastAPI" }, prerequisites: [p2-05-typing] }
-      - { id: p8-02-docker, title: { en: "Docker basics", vi: "Docker cơ bản" }, prerequisites: [p8-01-fastapi] }
-      - { id: p8-03-caching, title: { en: "Caching", vi: "Cache" }, prerequisites: [p8-01-fastapi] }
-      - { id: p8-04-monitoring, title: { en: "Monitoring, cost & latency", vi: "Monitoring, chi phí & độ trễ" }, prerequisites: [p8-03-caching] }
+      - id: p8-01-fastapi
+        runner: local
+        title: { en: "FastAPI services", vi: "Dịch vụ FastAPI" }
+        prerequisites: [p2-05-typing]
+        outcomes:
+          en: ["Define GET and POST routes with Pydantic schemas", "Validate request payloads and return HTTP status codes", "Test endpoints locally with FastAPI TestClient"]
+          vi: ["Định nghĩa route GET và POST với schema Pydantic", "Kiểm tra dữ liệu đầu vào và trả về mã trạng thái HTTP", "Kiểm thử endpoint cục bộ bằng FastAPI TestClient"]
+      - id: p8-02-docker
+        title: { en: "Docker basics", vi: "Docker cơ bản" }
+        prerequisites: [p8-01-fastapi]
+        outcomes:
+          en: ["Read a Dockerfile and explain FROM, COPY, RUN and CMD", "Write a clean Dockerfile for a Python service", "Use .dockerignore and layer ordering to keep images small"]
+          vi: ["Đọc Dockerfile và hiểu FROM, COPY, RUN, CMD", "Viết Dockerfile gọn gàng cho một dịch vụ Python", "Dùng .dockerignore và sắp xếp layer để image nhỏ gọn"]
+      - id: p8-03-caching
+        title: { en: "Caching", vi: "Cache" }
+        prerequisites: [p8-01-fastapi]
+        outcomes:
+          en: ["Implement an in-memory TTL and LRU cache", "Choose cache keys for prompts and embeddings", "Measure cache hit rate and invalidation edge cases"]
+          vi: ["Cài đặt bộ nhớ đệm TTL và LRU trong RAM", "Chọn cache key phù hợp cho prompt và embedding", "Đo cache hit rate và xử lý hết hạn dữ liệu"]
+      - id: p8-04-monitoring
+        title: { en: "Monitoring, cost & latency", vi: "Monitoring, chi phí & độ trễ" }
+        prerequisites: [p8-03-caching]
+        outcomes:
+          en: ["Log structured request metrics with latency and token counts", "Compute p50/p95 latency and estimated token cost", "Set simple budget and latency alerts"]
+          vi: ["Ghi log metric có cấu trúc gồm độ trễ và số token", "Tính độ trễ p50/p95 và ước lượng chi phí token", "Đặt ngưỡng cảnh báo chi phí và độ trễ đơn giản"]
+      - id: p8-05-mini-project
+        kind: project
+        runner: local
+        title: { en: "Mini-project: ship a RAG service", vi: "Mini-project: đưa dịch vụ RAG lên production" }
+        prerequisites: [p8-04-monitoring, p7-09-mini-project-rag]
+        outcomes:
+          en: ["Wrap the RAG pipeline in a FastAPI service", "Add response caching plus latency and cost tracking", "Verify routes and metrics with TestClient"]
+          vi: ["Gói pipeline RAG thành một dịch vụ FastAPI", "Thêm cache phản hồi và theo dõi độ trễ cùng chi phí", "Kiểm thử các route và metric bằng TestClient"]
 
 capstones:
   - id: cap-01-rag-chatbot

@@ -126,6 +126,8 @@ def main() -> int:
                 "prerequisites": item.get("prerequisites", []),
                 "ready": ready,
             }
+            if item.get("runner"):
+                summary["runner"] = item["runner"]
             if ready:
                 try:
                     lesson = build_lesson(lesson_dir)
@@ -134,6 +136,8 @@ def main() -> int:
                     summary["ready"] = False
                     lessons.append(summary)
                     continue
+                if item.get("runner"):
+                    lesson["meta"]["runner"] = item["runner"]
                 write_json(OUT / "lessons" / f"{item['id']}.json", lesson)
                 lesson_count += 1
                 meta = lesson["meta"]
@@ -152,7 +156,8 @@ def main() -> int:
                 for q in lesson["quiz"]["questions"]:
                     review["questions"].append({**q, "lessonId": item["id"]})
             lessons.append(summary)
-        phases.append({k: v for k, v in phase.items() if k not in ("lessons", "dir")} | {"lessons": lessons})
+        phase_meta = {k: v for k, v in phase.items() if k not in ("lessons", "dir", "runner")}
+        phases.append(phase_meta | {"lessons": lessons})
 
     exams = []
     exam_files = sorted(CURRICULUM.glob("*/phase-test.yaml")) + sorted((CURRICULUM / "placement").glob("*.yaml")) \

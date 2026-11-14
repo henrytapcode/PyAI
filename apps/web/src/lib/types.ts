@@ -84,6 +84,7 @@ export interface LessonMeta {
   duration_min: number;
   outcomes: I18n<string[]>;
   review_by: string;
+  runner?: "local";
   further_reading?: { title: I18n; url: string }[];
 }
 
@@ -104,6 +105,7 @@ export interface LessonSummary {
   outcomes?: I18n<string[]>;
   prerequisites: string[];
   ready: boolean;
+  runner?: "local";
   duration?: number;
   tags?: string[];
   exerciseIds?: string[];
@@ -116,7 +118,6 @@ export interface Phase {
   icon: string;
   title: I18n;
   summary: I18n;
-  runner?: "local";
   skippable_by_placement?: boolean;
   lessons: LessonSummary[];
 }

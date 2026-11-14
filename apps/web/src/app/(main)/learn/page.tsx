@@ -87,7 +87,7 @@ export default function LearnPage() {
 
                 <div className="flex flex-col items-start gap-2 sm:items-end sm:shrink-0">
                   <div className="flex flex-wrap gap-1.5 sm:justify-end">
-                    {phase.runner === "local" && (
+                    {phase.lessons.some((l) => l.runner === "local") && (
                       <Badge variant="outline" className="border-foreground/25 text-foreground">
                         <Cpu className="size-3.5" aria-hidden="true" /> {t("localRunner")}
                       </Badge>
