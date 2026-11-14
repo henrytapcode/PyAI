@@ -1,0 +1,407 @@
+questions:
+  - id: p6-01-q01
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is the default floating-point `dtype` of `torch.tensor([1.0, 2.0])`, and why?"
+      options:
+        - "`float64`, to match NumPy's default precision"
+        - "`float32`, because deep learning models run faster and use half the memory"
+        - "`float16`, because tensors only store small weights"
+        - "`int64`, unless you pass `dtype=float`"
+      explanation: "Unlike NumPy (`float64`), PyTorch defaults to `float32` so neural network math uses half the memory and runs faster."
+    vi:
+      prompt: "Kiểu số thực mặc định (`dtype`) của `torch.tensor([1.0, 2.0])` là gì và vì sao?"
+      options:
+        - "`float64`, để khớp độ chính xác mặc định của NumPy"
+        - "`float32`, vì mô hình deep learning chạy nhanh hơn và tốn ít bộ nhớ hơn một nửa"
+        - "`float16`, vì tensor chỉ lưu các trọng số nhỏ"
+        - "`int64`, trừ khi bạn truyền `dtype=float`"
+      explanation: "Khác với NumPy (`float64`), PyTorch mặc định dùng `float32` để các phép tính mạng neural nhẹ bộ nhớ gấp đôi và chạy nhanh hơn."
+
+  - id: p6-01-q02
+    type: output
+    tags: [pytorch]
+    difficulty: 1
+    code: |
+      import torch
+
+      t = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+      print(tuple(t.shape), t.dtype)
+    answer: "(2, 3) torch.float32"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`t` has 2 rows and 3 columns, so `tuple(t.shape)` is `(2, 3)`, and floating-point tensors default to `torch.float32`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`t` có 2 hàng và 3 cột nên `tuple(t.shape)` là `(2, 3)`, và tensor số thực mặc định có kiểu `torch.float32`."
+
+  - id: p6-01-q03
+    type: fill
+    tags: [pytorch]
+    difficulty: 1
+    code: |
+      import torch
+
+      grid = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+      col_sums = grid.sum(___=0)
+      print([round(v, 3) for v in col_sums.tolist()])
+    answer: ["dim"]
+    en:
+      prompt: "Fill in the keyword argument name that PyTorch uses instead of NumPy's `axis` to sum down each column."
+      explanation: "PyTorch reductions like `.sum()` and `.mean()` accept `dim=` where NumPy uses `axis=`."
+    vi:
+      prompt: "Điền tên tham số từ khóa mà PyTorch dùng thay cho `axis` của NumPy để cộng dọc theo từng cột."
+      explanation: "Các hàm gộp trong PyTorch như `.sum()` và `.mean()` dùng `dim=` tại chỗ mà NumPy dùng `axis=`."
+
+  - id: p6-01-q04
+    type: parsons
+    tags: [pytorch]
+    difficulty: 1
+    lines:
+      - "import torch"
+      - "a = torch.tensor([2.0, 4.0])"
+      - "b = a + 1.0"
+      - "print([round(v, 3) for v in b.tolist()])"
+    en:
+      prompt: "Arrange these lines in order to create a tensor `a`, add `1.0` to every element, and print the rounded Python list."
+      explanation: "Import `torch` first, create `a`, compute `b` from `a`, and print the rounded `.tolist()` output last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo tensor `a`, cộng `1.0` vào mọi phần tử và in ra list Python đã làm tròn."
+      explanation: "Import `torch` trước, tạo `a`, tính `b` từ `a`, rồi cuối cùng in kết quả `.tolist()` đã làm tròn."
+
+  - id: p6-01-q05
+    type: mcq
+    tags: [pytorch]
+    difficulty: 1
+    answer: 2
+    code: |
+      import torch
+      t = torch.tensor([1.0, 2.0, 3.0])
+      t.item()
+    en:
+      prompt: "What happens when you call `t.item()` on this 3-element tensor?"
+      options:
+        - "It returns the list `[1.0, 2.0, 3.0]`"
+        - "It returns the first element `1.0`"
+        - "It raises a `RuntimeError` because `.item()` only works on single-element tensors"
+        - "It returns the sum `6.0`"
+      explanation: "`.item()` extracts one Python number from a 1-element tensor; for multi-element tensors you use `.tolist()`."
+    vi:
+      prompt: "Điều gì xảy ra khi bạn gọi `t.item()` trên tensor có 3 phần tử này?"
+      options:
+        - "Trả về list `[1.0, 2.0, 3.0]`"
+        - "Trả về phần tử đầu tiên `1.0`"
+        - "Gây lỗi `RuntimeError` vì `.item()` chỉ dùng được cho tensor có đúng một phần tử"
+        - "Trả về tổng `6.0`"
+      explanation: "`.item()` rút một số Python từ tensor có 1 phần tử; với tensor nhiều phần tử, bạn phải dùng `.tolist()`."
+
+  - id: p6-01-q06
+    type: output
+    tags: [pytorch]
+    difficulty: 2
+    code: |
+      import torch
+
+      batch = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+      weights = torch.tensor([0.5, 1.5])
+      scores = batch @ weights + 1.0
+      print([round(v, 3) for v in scores.tolist()])
+    answer: "[4.5, 8.5]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`batch @ weights` gives `[1*0.5 + 2*1.5, 3*0.5 + 4*1.5] = [3.5, 7.5]`, and adding `1.0` broadcasts across both rows to give `[4.5, 8.5]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`batch @ weights` cho `[1*0.5 + 2*1.5, 3*0.5 + 4*1.5] = [3.5, 7.5]`, cộng `1.0` được broadcast cho cả hai hàng thành `[4.5, 8.5]`."
+
+  - id: p6-01-q07
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "What does `requires_grad=True` do when you create a leaf tensor `w`?"
+      options:
+        - "It tells PyTorch to track operations on `w` in a computation graph so `loss.backward()` fills `w.grad`"
+        - "It immediately runs gradient descent on `w` without a loop"
+        - "It converts `w` from `float32` to `float64` for extra precision"
+        - "It automatically resets `w.grad` to zero after every forward pass"
+      explanation: "`requires_grad=True` enables autograd tracking on `w`; you still call `loss.backward()` to compute `.grad` and `.grad.zero_()` to clear it."
+    vi:
+      prompt: "`requires_grad=True` làm gì khi bạn tạo một leaf tensor `w`?"
+      options:
+        - "Báo cho PyTorch ghi lại các phép tính trên `w` vào computation graph để `loss.backward()` điền vào `w.grad`"
+        - "Chạy ngay gradient descent trên `w` mà không cần vòng lặp"
+        - "Đổi kiểu của `w` từ `float32` sang `float64` để tăng độ chính xác"
+        - "Tự động đặt lại `w.grad` về 0 sau mỗi lượt tính xuôi"
+      explanation: "`requires_grad=True` bật theo dõi autograd trên `w`; bạn vẫn phải tự gọi `loss.backward()` để tính `.grad` và `.grad.zero_()` để xóa nó."
+
+  - id: p6-01-q08
+    type: fill
+    tags: [pytorch, dl]
+    difficulty: 2
+    code: |
+      import torch
+
+      w = torch.tensor(2.0, requires_grad=True)
+      loss = (w * 3.0 - 12.0) ** 2
+      loss.___()
+      print(round(w.grad.item(), 3))
+    answer: ["backward"]
+    en:
+      prompt: "Fill in the method name that walks backward through the computation graph to populate `w.grad`."
+      explanation: "Calling `loss.backward()` triggers the backward pass and stores the gradient of `loss` with respect to `w` inside `w.grad`."
+    vi:
+      prompt: "Điền tên phương thức dùng để đi ngược computation graph và điền giá trị vào `w.grad`."
+      explanation: "Gọi `loss.backward()` kích hoạt lượt truyền ngược và lưu gradient của `loss` theo `w` vào `w.grad`."
+
+  - id: p6-01-q09
+    type: output
+    tags: [pytorch, dl]
+    difficulty: 2
+    code: |
+      import torch
+
+      w = torch.tensor(1.0, requires_grad=True)
+      loss = (w * 2.0 - 6.0) ** 2
+      loss.backward()
+      print(round(w.grad.item(), 3))
+    answer: "-16.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "At `w = 1.0`, `2*w - 6 = -4`. The derivative of `(2*w - 6)**2` is `2 * (2*w - 6) * 2 = 4 * (-4) = -16.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Tại `w = 1.0`, `2*w - 6 = -4`. Đạo hàm của `(2*w - 6)**2` là `2 * (2*w - 6) * 2 = 4 * (-4) = -16.0`."
+
+  - id: p6-01-q10
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Why must you call `w.grad.zero_()` after updating `w` in each training step?"
+      options:
+        - "Because `w.grad` turns into `None` unless you reset it to zero"
+        - "Because `.zero_()` moves `w.grad` back into `torch.no_grad()`"
+        - "Because PyTorch refuses to run a second `loss.backward()` if `w.grad` is non-zero"
+        - "Because PyTorch adds new gradients onto the existing `w.grad` instead of overwriting it"
+      explanation: "PyTorch accumulates gradients across `backward()` calls, so forgetting `.grad.zero_()` mixes old gradients with the current step's gradient."
+    vi:
+      prompt: "Vì sao bạn phải gọi `w.grad.zero_()` sau khi cập nhật `w` ở mỗi bước huấn luyện?"
+      options:
+        - "Vì `w.grad` sẽ biến thành `None` nếu không đặt lại về 0"
+        - "Vì `.zero_()` đưa `w.grad` trở vào khối `torch.no_grad()`"
+        - "Vì PyTorch từ chối chạy `loss.backward()` lần thứ hai nếu `w.grad` khác 0"
+        - "Vì PyTorch cộng dồn gradient mới vào `w.grad` hiện có thay vì ghi đè"
+      explanation: "PyTorch cộng dồn gradient qua các lần gọi `backward()`, nên quên `.grad.zero_()` sẽ trộn lẫn gradient của các bước cũ vào bước hiện tại."
+
+  - id: p6-01-q11
+    type: parsons
+    tags: [pytorch, dl]
+    difficulty: 2
+    lines:
+      - "import torch"
+      - "w = torch.tensor(1.0, requires_grad=True)"
+      - "loss = (w * 3.0 - 9.0) ** 2"
+      - "loss.backward()"
+      - "print(round(w.grad.item(), 3))"
+    en:
+      prompt: "Arrange these lines in order to compute and print the gradient of `(w * 3.0 - 9.0) ** 2` at `w = 1.0`."
+      explanation: "Import `torch`, create leaf tensor `w`, compute `loss` from `w`, run `loss.backward()`, and finally print `w.grad.item()`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tính và in gradient của `(w * 3.0 - 9.0) ** 2` tại `w = 1.0`."
+      explanation: "Import `torch`, tạo leaf tensor `w`, tính `loss` từ `w`, gọi `loss.backward()`, rồi cuối cùng in `w.grad.item()`."
+
+  - id: p6-01-q12
+    type: fill
+    tags: [pytorch, dl]
+    difficulty: 2
+    code: |
+      import torch
+
+      w = torch.tensor(1.0, requires_grad=True)
+      loss = (w * 2.0 - 6.0) ** 2
+      loss.backward()
+      with torch.___():
+          w -= 0.05 * w.grad
+      w.grad.___()
+      print(round(w.item(), 3))
+    answer: ["no_grad", "zero_"]
+    en:
+      prompt: "Fill in both blanks to safely update `w` without recording the step in the graph and then reset `w.grad`."
+      explanation: "Wrap the in-place update in `with torch.no_grad():` and clear the accumulated gradient with `w.grad.zero_()`."
+    vi:
+      prompt: "Điền vào hai chỗ trống để cập nhật `w` an toàn mà không ghi vào đồ thị rồi đặt lại `w.grad`."
+      explanation: "Bọc phép cập nhật tại chỗ trong `with torch.no_grad():` và xóa gradient đã cộng dồn bằng `w.grad.zero_()`."
+
+  - id: p6-01-q13
+    type: mcq
+    tags: [pytorch]
+    difficulty: 2
+    answer: 1
+    code: |
+      import torch
+      a = torch.ones((3, 4))
+      b = torch.ones(3)
+      a @ b
+    en:
+      prompt: "Why does `a @ b` raise a `RuntimeError` here?"
+      options:
+        - "Because `torch.ones` creates integer tensors that cannot be multiplied"
+        - "Because a `(3, 4)` matrix requires a 1D vector of length `4`, not length `3`"
+        - "Because `@` only works when both tensors are 2D matrices"
+        - "Because neither `a` nor `b` has `requires_grad=True`"
+      explanation: "Matrix-vector multiplication `(m, n) @ (n,)` requires the inner dimensions to match (`4 != 3`), so `b` would need length `4`."
+    vi:
+      prompt: "Vì sao phép tính `a @ b` ở đây gây ra `RuntimeError`?"
+      options:
+        - "Vì `torch.ones` tạo tensor số nguyên không nhân được"
+        - "Vì ma trận `(3, 4)` cần nhân với vector 1D dài `4`, không phải dài `3`"
+        - "Vì `@` chỉ dùng được khi hai tensor đều là ma trận 2D"
+        - "Vì `a` và `b` đều chưa bật `requires_grad=True`"
+      explanation: "Phép nhân ma trận-vector `(m, n) @ (n,)` đòi hỏi hai chiều bên trong bằng nhau (`4 != 3`), nên `b` phải có độ dài `4`."
+
+  - id: p6-01-q14
+    type: output
+    tags: [pytorch, dl]
+    difficulty: 3
+    code: |
+      import torch
+
+      w = torch.tensor(1.0, requires_grad=True)
+      for _ in range(2):
+          loss = (w * 3.0 - 9.0) ** 2
+          loss.backward()
+      print(round(w.grad.item(), 3))
+    answer: "-72.0"
+    en:
+      prompt: "What does this code print? (Watch closely for `.zero_()`.)"
+      explanation: "Each pass computes a gradient of `2 * (3 - 9) * 3 = -36.0`. Because `w.grad.zero_()` is missing, the two `backward()` calls accumulate to `-36.0 + (-36.0) = -72.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì? (Hãy để ý xem có `.zero_()` hay không.)"
+      explanation: "Mỗi lượt tính ra gradient là `2 * (3 - 9) * 3 = -36.0`. Vì thiếu `w.grad.zero_()`, hai lần `backward()` cộng dồn lại thành `-36.0 + (-36.0) = -72.0`."
+
+  - id: p6-01-q15
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 3
+    answer: 2
+    code: |
+      import torch
+      w = torch.tensor(1.0, requires_grad=True)
+      loss = (w * 3.0 - 9.0) ** 2
+      loss.backward()
+      w -= 0.05 * w.grad
+    en:
+      prompt: "What happens when the line `w -= 0.05 * w.grad` runs without `with torch.no_grad():`?"
+      options:
+        - "It updates `w` normally and clears `w.grad` automatically"
+        - "It skips the update and leaves `w` unchanged at `1.0`"
+        - "It raises a `RuntimeError` because an in-place op cannot modify a leaf tensor with `requires_grad=True`"
+        - "It runs `loss.backward()` a second time inside the graph"
+      explanation: "Autograd forbids in-place edits on leaf tensors that require gradients while tracking is active; wrapping the update in `with torch.no_grad():` avoids recording it."
+    vi:
+      prompt: "Điều gì xảy ra khi dòng `w -= 0.05 * w.grad` chạy bên ngoài `with torch.no_grad():`?"
+      options:
+        - "`w` vẫn cập nhật bình thường và `w.grad` tự động về 0"
+        - "Bỏ qua phép cập nhật và giữ nguyên `w` ở `1.0`"
+        - "Gây `RuntimeError` vì không được sửa tại chỗ một leaf tensor đang bật `requires_grad=True`"
+        - "Tự động chạy `loss.backward()` thêm một lần nữa trong đồ thị"
+      explanation: "Autograd cấm sửa tại chỗ lên leaf tensor có `requires_grad=True` khi đang theo dõi đồ thị; bọc phép cập nhật trong `with torch.no_grad():` sẽ tắt theo dõi ở bước đó."
+
+  - id: p6-01-q16
+    type: parsons
+    tags: [pytorch, dl]
+    difficulty: 3
+    lines:
+      - "import torch"
+      - "w = torch.tensor(0.0, requires_grad=True)"
+      - "loss = (w * 2.0 - 4.0) ** 2"
+      - "loss.backward()"
+      - "with torch.no_grad():"
+      - "    w -= 0.1 * w.grad"
+      - "w.grad.zero_()"
+      - "print(round(w.item(), 3), round(w.grad.item(), 3))"
+    en:
+      prompt: "Arrange these lines in order to perform one complete autograd gradient descent step on `w`, clear `w.grad`, and print both `w` and `w.grad`."
+      explanation: "Import `torch`, define `w`, compute `loss`, run `loss.backward()`, update `w` inside `with torch.no_grad():`, zero `w.grad` so `w.grad.item()` becomes `0.0`, and print both values."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để thực hiện trọn vẹn một bước gradient descent bằng autograd cho `w`, xóa `w.grad`, rồi in cả `w` lẫn `w.grad`."
+      explanation: "Import `torch`, tạo `w`, tính `loss`, gọi `loss.backward()`, cập nhật `w` trong `with torch.no_grad():`, xóa `w.grad` để `w.grad.item()` về `0.0`, rồi in cả hai giá trị."
+
+flashcards:
+  - id: p6-01-f01
+    tags: [pytorch, dl]
+    code: |
+      t = torch.tensor([[1.0, 2.0, 3.0]])
+      print(tuple(t.shape), t.dtype)  # (1, 3) torch.float32
+    en:
+      front: "What is a tensor's default float `dtype` in PyTorch, and why?"
+      back: "`torch.float32` (unlike NumPy's `float64`), because deep learning models run faster and use half the memory at 32-bit precision."
+    vi:
+      front: "Kiểu số thực mặc định (`dtype`) của tensor trong PyTorch là gì và vì sao?"
+      back: "`torch.float32` (khác với `float64` của NumPy), vì mô hình deep learning chạy nhanh hơn và tốn ít bộ nhớ hơn một nửa ở độ chính xác 32-bit."
+
+  - id: p6-01-f02
+    tags: [pytorch]
+    code: |
+      grid.sum(dim=0)
+      scores = requests @ weights + bias
+    en:
+      front: "How do PyTorch reductions and matrix math differ from NumPy?"
+      back: "Element-wise ops, broadcasting, and `@` work the same, but `.sum()` and `.mean()` take `dim=` instead of NumPy's `axis=`."
+    vi:
+      front: "Các hàm gộp và phép tính ma trận trong PyTorch khác NumPy ở điểm nào?"
+      back: "Phép tính từng phần tử, broadcasting và `@` giống hệt nhau, nhưng `.sum()` và `.mean()` dùng `dim=` thay cho `axis=` của NumPy."
+
+  - id: p6-01-f03
+    tags: [pytorch]
+    code: |
+      round(scalar.item(), 3)
+      [round(v, 3) for v in vec.tolist()]
+    en:
+      front: "How should you extract numbers from a tensor for clean printing?"
+      back: "Use `.item()` for a single-element tensor and `.tolist()` for multi-element tensors, then `round(..., 3)`."
+    vi:
+      front: "Nên rút số từ tensor bằng cách nào để in ra gọn sạch?"
+      back: "Dùng `.item()` cho tensor đúng một phần tử và `.tolist()` cho tensor nhiều phần tử, rồi gọi `round(..., 3)`."
+
+  - id: p6-01-f04
+    tags: [pytorch, dl]
+    code: |
+      w = torch.tensor(1.0, requires_grad=True)
+      loss = ((w * xs - ys) ** 2).mean()
+      loss.backward()
+    en:
+      front: "What happens when `loss.backward()` is called?"
+      back: "Autograd walks backward through the computation graph and fills `.grad` on every leaf tensor that has `requires_grad=True`."
+    vi:
+      front: "Điều gì xảy ra khi gọi `loss.backward()`?"
+      back: "Autograd đi ngược qua computation graph và điền giá trị đạo hàm vào `.grad` của từng leaf tensor có `requires_grad=True`."
+
+  - id: p6-01-f05
+    tags: [pytorch, dl]
+    code: |
+      with torch.no_grad():
+          w -= lr * w.grad
+    en:
+      front: "Why must parameter updates be wrapped in `with torch.no_grad():`?"
+      back: "It prevents the update step from being added to the computation graph and avoids the `RuntimeError` from modifying a leaf tensor in place."
+    vi:
+      front: "Vì sao bước cập nhật tham số phải đặt trong `with torch.no_grad():`?"
+      back: "Để phép cập nhật không bị ghi vào computation graph và tránh lỗi `RuntimeError` khi sửa tại chỗ một leaf tensor."
+
+  - id: p6-01-f06
+    tags: [pytorch, dl]
+    code: |
+      w.grad.zero_()
+    en:
+      front: "Why do you call `w.grad.zero_()` at the end of every training step?"
+      back: "PyTorch accumulates (adds) new gradients onto `w.grad` on every `backward()` call instead of overwriting it."
+    vi:
+      front: "Vì sao phải gọi `w.grad.zero_()` ở cuối mỗi bước huấn luyện?"
+      back: "PyTorch cộng dồn gradient mới vào `w.grad` sau mỗi lần `backward()` chứ không tự ghi đè."

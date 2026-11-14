@@ -1,0 +1,3 @@
+# Hand-written tensor gradient formula
+
+Instead of calling `loss.backward()`, this version computes the MSE slope directly with `(2.0 * (w * xs - ys) * xs).mean()` and updates a plain Python `float`, so it avoids building a computation graph or needing `torch.no_grad()` and `.grad.zero_()`. For a one-parameter linear model whose derivative formula is short and known, the hand-written version is slightly faster and simpler. However, as soon as a neural network stacks dozens of layers with millions of parameters, deriving and maintaining every gradient formula by hand becomes impossible — which is why `autograd` is essential for real deep learning models.

@@ -1,0 +1,52 @@
+id: p6-01-ex02
+kind: code
+title:
+  en: "Write: autograd slope and gradient descent"
+  vi: "Viết code: tính độ dốc và gradient descent bằng autograd"
+difficulty: 2
+tags: [pytorch, dl]
+hints:
+  en:
+    - |
+      This follows §4 (`loss.backward()` and `.grad`) and §5 (`torch.no_grad()` and `.grad.zero_()`). For `xs = torch.tensor([1.0, 2.0])` and `ys = torch.tensor([3.0, 6.0])`, `slope_at(3.0, xs, ys)` is `0.0` because `3.0 * xs` already matches `ys`.
+    - |
+      The plan:
+      1. In `slope_at`, create a fresh leaf tensor `w = torch.tensor(float(w_value), requires_grad=True)`, compute `loss = ((w * xs - ys) ** 2).mean()`, call `loss.backward()`, and return `round(w.grad.item(), 3)`.
+      2. In `fit_slope`, initialise `w = torch.tensor(0.0, requires_grad=True)`.
+      3. Repeat `steps` times: compute the MSE loss, call `loss.backward()`, update `w -= lr * w.grad` inside `with torch.no_grad():`, and zero `w.grad` with `w.grad.zero_()`.
+      4. After the loop, return `round(w.item(), 3)` as a Python `float`.
+    - |
+      The shape for `fit_slope`:
+      ```python
+      w = torch.tensor(0.0, requires_grad=True)
+      for _ in range(steps):
+          loss = ...
+          loss.backward()
+          with torch.no_grad():
+              w -= ...
+          ...
+      return round(w.item(), 3)
+      ```
+      Remember to also implement `slope_at` with a fresh tensor on every call so gradients never carry over between calls.
+  vi:
+    - |
+      Bài này đi theo §4 (`loss.backward()` và `.grad`) và §5 (`torch.no_grad()` và `.grad.zero_()`). Với `xs = torch.tensor([1.0, 2.0])` và `ys = torch.tensor([3.0, 6.0])`, `slope_at(3.0, xs, ys)` bằng `0.0` vì `3.0 * xs` đã khớp hoàn toàn `ys`.
+    - |
+      Kế hoạch:
+      1. Trong `slope_at`, tạo một leaf tensor mới `w = torch.tensor(float(w_value), requires_grad=True)`, tính `loss = ((w * xs - ys) ** 2).mean()`, gọi `loss.backward()` và trả về `round(w.grad.item(), 3)`.
+      2. Trong `fit_slope`, khởi tạo `w = torch.tensor(0.0, requires_grad=True)`.
+      3. Lặp `steps` lần: tính MSE loss, gọi `loss.backward()`, cập nhật `w -= lr * w.grad` bên trong `with torch.no_grad():`, rồi xóa gradient bằng `w.grad.zero_()`.
+      4. Sau vòng lặp, trả về `round(w.item(), 3)` dưới dạng `float` Python.
+    - |
+      Hình dạng của `fit_slope`:
+      ```python
+      w = torch.tensor(0.0, requires_grad=True)
+      for _ in range(steps):
+          loss = ...
+          loss.backward()
+          with torch.no_grad():
+              w -= ...
+          ...
+      return round(w.item(), 3)
+      ```
+      Đừng quên viết cả hàm `slope_at` bằng một tensor mới ở mỗi lần gọi để gradient không bị cộng dồn giữa các lần.

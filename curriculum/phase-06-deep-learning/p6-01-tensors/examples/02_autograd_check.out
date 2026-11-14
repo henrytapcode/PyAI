@@ -1,0 +1,3 @@
+w grad: autograd=-19.0, numeric=-19.0
+b grad: autograd=-5.0, numeric=-5.0
+match: True

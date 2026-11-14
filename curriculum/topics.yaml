@@ -46,6 +46,7 @@ topics:
   data:         { en: "Data (NumPy/Pandas)", vi: "Dữ liệu (NumPy/Pandas)" }
   ml:           { en: "Machine learning", vi: "Machine learning" }
   dl:           { en: "Deep learning", vi: "Deep learning" }
+  pytorch:      { en: "PyTorch", vi: "PyTorch" }
   llm:          { en: "LLM & GenAI", vi: "LLM & GenAI" }
   rag:          { en: "RAG", vi: "RAG" }
   agents:       { en: "Agents", vi: "Agent" }

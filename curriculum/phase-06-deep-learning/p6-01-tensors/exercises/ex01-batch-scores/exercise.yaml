@@ -1,0 +1,38 @@
+id: p6-01-ex01
+kind: fill
+title:
+  en: "Fill in: batch scoring with tensors"
+  vi: "Điền khuyết: chấm điểm theo batch bằng tensor"
+difficulty: 1
+tags: [pytorch, dl]
+hints:
+  en:
+    - |
+      This uses matrix-vector multiplication (`@`) from §2 and `.tolist()` from §3. For `features = torch.tensor([[1.0, 2.0]])`, `weights = torch.tensor([0.5, 1.0])`, and `bias = 0.5`, the batch score is `[3.0]`.
+    - |
+      The plan:
+      1. Multiply the 2D `features` tensor by the 1D `weights` tensor with `@` and add `bias`.
+      2. Convert the resulting 1D score tensor into a Python list with `.tolist()`.
+      3. Round each value to 3 decimal places and return the list.
+    - |
+      The shape:
+      ```python
+      scores = features @ ... + ...
+      return [round(v, 3) for v in scores....()]
+      ```
+      Remember that `@` returns a 1D tensor and `.tolist()` turns it into a list of Python floats.
+  vi:
+    - |
+      Bài này dùng phép nhân ma trận-vector (`@`) ở §2 và `.tolist()` ở §3. Với `features = torch.tensor([[1.0, 2.0]])`, `weights = torch.tensor([0.5, 1.0])` và `bias = 0.5`, điểm của batch là `[3.0]`.
+    - |
+      Kế hoạch:
+      1. Nhân tensor 2D `features` với vector 1D `weights` bằng `@` rồi cộng `bias`.
+      2. Đổi tensor điểm 1D vừa tính sang list Python bằng `.tolist()`.
+      3. Làm tròn từng giá trị tới 3 chữ số thập phân rồi trả về list đó.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      scores = features @ ... + ...
+      return [round(v, 3) for v in scores....()]
+      ```
+      Nhớ rằng `@` trả về một tensor 1D và `.tolist()` chuyển nó thành list gồm các `float` Python.

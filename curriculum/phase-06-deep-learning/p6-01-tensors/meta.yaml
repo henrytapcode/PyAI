@@ -1,0 +1,31 @@
+id: p6-01-tensors
+phase: p6
+order: 1
+kind: lesson
+title:
+  en: "Tensors & autograd"
+  vi: "Tensor & autograd"
+summary:
+  en: "Create CPU tensors in PyTorch, run NumPy-like vectorised operations and matrix multiplication, and compute gradients automatically with autograd."
+  vi: "Tạo tensor trên CPU với PyTorch, thực hiện phép tính vector và nhân ma trận giống NumPy, rồi tính gradient tự động bằng autograd."
+level: beginner
+tags: [pytorch, dl]
+prerequisites: [p5-01-math-bridge]
+duration_min: 17
+outcomes:
+  en:
+    - "Create CPU tensors and check shape and dtype"
+    - "Run vectorised ops and matrix multiplication"
+    - "Compute gradients automatically with autograd"
+    - "Update parameters inside torch.no_grad() and zero gradients each step"
+  vi:
+    - "Tạo tensor trên CPU, đọc shape và dtype"
+    - "Thực hiện phép tính vector và nhân ma trận"
+    - "Tính gradient tự động với autograd"
+    - "Cập nhật tham số trong torch.no_grad() và xóa gradient sau mỗi bước"
+review_by: "2027-11-01"
+further_reading:
+  - title: { en: "PyTorch Tutorials: Tensors", vi: "PyTorch Tutorials: Tensors (EN)" }
+    url: "https://pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html"
+  - title: { en: "PyTorch Tutorials: Automatic Differentiation with torch.autograd", vi: "PyTorch Tutorials: Automatic Differentiation with torch.autograd (EN)" }
+    url: "https://pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html"

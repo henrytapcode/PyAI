@@ -1,0 +1,3 @@
+# Công thức gradient viết tay trên tensor
+
+Thay vì gọi `loss.backward()`, phiên bản này tính thẳng độ dốc của MSE bằng công thức `(2.0 * (w * xs - ys) * xs).mean()` rồi cập nhật một biến `float` Python bình thường, nên không cần dựng computation graph hay dùng `torch.no_grad()` và `.grad.zero_()`. Với mô hình tuyến tính chỉ có một tham số và công thức đạo hàm ngắn gọn, cách viết tay này chạy nhanh hơn một chút và ít dòng hơn. Tuy nhiên, khi mạng neural chồng nhiều tầng với hàng triệu tham số, việc tự suy và bảo trì từng công thức gradient bằng tay là bất khả thi — đó là lý do `autograd` trở thành công cụ không thể thiếu trong deep learning.

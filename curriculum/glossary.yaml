@@ -2278,3 +2278,59 @@ terms:
       en: "If an LLM user or web form sends crafted input into an f-string SQL query, it can leak private chat logs; always pass values through ? placeholders instead."
       vi: "Nếu người dùng LLM hoặc form web gửi chuỗi độc hại vào câu SQL ghép bằng f-string, toàn bộ lịch sử chat có thể bị lộ; luôn truyền giá trị qua placeholder ?."
     related: [placeholder / parameterized query, prompt injection, validation]
+
+  # ---------------------------------------------------------- Deep learning & PyTorch
+  - term: tensor
+    vi_term: tensor (mảng nhiều chiều của PyTorch)
+    tags: [pytorch, dl]
+    en: "PyTorch's multi-dimensional array for numbers, similar to a NumPy ndarray, that can also track operations for automatic gradient computation."
+    vi: "Mảng số nhiều chiều của PyTorch, tương tự ndarray trong NumPy, nhưng có thể ghi lại các phép tính để tự động tính gradient."
+    example: "import torch\nx = torch.tensor([[1.0, 2.0], [3.0, 4.0]])"
+    in_practice:
+      en: "Every input batch, model weight, and attention score in a neural network or LLM is stored and multiplied as tensors."
+      vi: "Mọi batch đầu vào, trọng số mô hình và điểm attention trong mạng neural hay LLM đều được lưu và nhân dưới dạng tensor."
+    related: [autograd, leaf tensor]
+
+  - term: autograd
+    vi_term: autograd (tính đạo hàm tự động)
+    tags: [pytorch, dl]
+    en: "PyTorch's automatic differentiation engine that records operations on tensors with requires_grad=True and computes their gradients during .backward()."
+    vi: "Bộ tính đạo hàm tự động của PyTorch, ghi lại các phép tính trên tensor có requires_grad=True và tính gradient khi gọi .backward()."
+    example: "w = torch.tensor(1.0, requires_grad=True)\nloss = (w * 3.0 - 9.0) ** 2\nloss.backward()"
+    in_practice:
+      en: "Instead of deriving gradient formulas by hand for millions of weights, you write the forward pass and let autograd compute every parameter's .grad."
+      vi: "Thay vì tự viết công thức đạo hàm cho hàng triệu trọng số, bạn chỉ cần viết lượt tính xuôi và để autograd tự tính .grad cho từng tham số."
+    related: [computation graph, backward pass, gradient]
+
+  - term: computation graph
+    vi_term: computation graph (đồ thị tính toán)
+    tags: [pytorch, dl]
+    en: "The directed graph of tensors and operations that PyTorch builds on the fly during the forward pass so .backward() knows how to propagate gradients back."
+    vi: "Đồ thị có hướng gồm các tensor và phép tính mà PyTorch tự dựng trong lúc tính xuôi, giúp .backward() biết đường truyền gradient ngược về."
+    example: "# w -> w * x -> - y -> ** 2 -> mean -> loss"
+    in_practice:
+      en: "Updating weights must happen inside torch.no_grad() so the update step itself is not added to the computation graph."
+      vi: "Bước cập nhật trọng số phải nằm trong torch.no_grad() để chính phép cập nhật không bị ghi thêm vào computation graph."
+    related: [autograd, backward pass, leaf tensor]
+
+  - term: backward pass
+    vi_term: backward pass (lượt truyền ngược)
+    tags: [pytorch, dl]
+    en: "Walking backward through the computation graph from the scalar loss to each parameter (via loss.backward()) to fill .grad with the slope of the loss."
+    vi: "Quá trình đi ngược đồ thị tính toán từ giá trị loss vô hướng về từng tham số (bằng loss.backward()) để điền độ dốc của loss vào .grad."
+    example: "loss.backward()\nprint(round(w.grad.item(), 3))"
+    in_practice:
+      en: "PyTorch accumulates gradients across backward passes, so you call .zero_() after each weight update before the next step."
+      vi: "PyTorch cộng dồn gradient qua các lượt truyền ngược, nên sau mỗi lần cập nhật trọng số bạn phải gọi .zero_() trước bước tiếp theo."
+    related: [autograd, computation graph, gradient descent]
+
+  - term: leaf tensor
+    vi_term: leaf tensor (tensor lá)
+    tags: [pytorch, dl]
+    en: "A tensor created directly by the user (not as the output of an operation), such as a trainable weight with requires_grad=True, where .grad is stored."
+    vi: "Tensor do người dùng tạo trực tiếp (không phải kết quả của một phép tính), như trọng số cần huấn luyện với requires_grad=True, nơi PyTorch lưu .grad."
+    example: "w = torch.tensor(0.0, requires_grad=True)  # leaf tensor"
+    in_practice:
+      en: "In-place changes like w -= lr * w.grad on a leaf tensor with requires_grad=True raise a RuntimeError unless wrapped in torch.no_grad()."
+      vi: "Sửa tại chỗ như w -= lr * w.grad trên leaf tensor có requires_grad=True sẽ gây RuntimeError nếu không bọc trong torch.no_grad()."
+    related: [tensor, computation graph, autograd]
