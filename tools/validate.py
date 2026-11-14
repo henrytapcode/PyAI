@@ -42,6 +42,9 @@ from referencing.jsonschema import DRAFT202012
 
 # In-process tracer and browser runner run matplotlib code inside validate.py.
 os.environ.setdefault("MPLBACKEND", "Agg")
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
 
 ROOT = Path(__file__).resolve().parent.parent
 CURRICULUM = ROOT / "curriculum"
@@ -216,7 +219,7 @@ def check_explained_code(rep: Report, py: Path, args, what: str) -> None:
     check_md_parity(rep, en, vi, args.allow_missing_vi)
 
 
-def check_examples(rep: Report, lesson_dir: Path, args) -> None:
+def check_examples(rep: Report, lesson_dir: Path, args, timeout: int = 15) -> None:
     ex_dir = lesson_dir / "examples"
     if not ex_dir.exists():
         rep.error(lesson_dir, "missing examples/ folder")
@@ -226,7 +229,7 @@ def check_examples(rep: Report, lesson_dir: Path, args) -> None:
         rep.error(ex_dir, "no example .py files")
     for py in files:
         out_file = py.with_suffix(".out")
-        code, out, err = run_python(py.read_text("utf-8"), cwd=ex_dir)
+        code, out, err = run_python(py.read_text("utf-8"), cwd=ex_dir, timeout=timeout)
         if code != 0:
             rep.error(py, f"example crashed:\n{err.strip()[-600:]}")
         elif not out_file.exists():
@@ -376,7 +379,13 @@ def check_missing_models(rep: Report, syllabus: dict, scope: Path) -> set[Path]:
 
 
 def check_questions(
-    rep: Report, path: Path, questions: list, ids: set, topics: set, skip_code: bool = False
+    rep: Report,
+    path: Path,
+    questions: list,
+    ids: set,
+    topics: set,
+    skip_code: bool = False,
+    timeout: int = 15,
 ) -> None:
     for q in questions:
         qid = q.get("id", "?")
@@ -396,7 +405,7 @@ def check_questions(
                     rep.error(path, f"{qid}: duplicate options in '{lang}'")
         code = q.get("code", "")
         if not skip_code and q["type"] == "output":
-            rc, out, err = run_python(code)
+            rc, out, err = run_python(code, timeout=timeout)
             if rc != 0:
                 rep.error(path, f"{qid}: code crashes: {err.strip()[-300:]}")
             elif norm_out(out) != norm_out(q["answer"]):
@@ -410,11 +419,11 @@ def check_questions(
                 for a in q["answer"]:
                     first = a[0] if isinstance(a, list) else a
                     filled = filled.replace("___", first, 1)
-                rc, _, err = run_python(filled)
+                rc, _, err = run_python(filled, timeout=timeout)
                 if rc != 0:
                     rep.error(path, f"{qid}: code with answers filled in crashes: {err.strip()[-300:]}")
         elif not skip_code and q["type"] == "parsons":
-            rc, _, err = run_python("\n".join(q["lines"]) + "\n")
+            rc, _, err = run_python("\n".join(q["lines"]) + "\n", timeout=timeout)
             if rc != 0:
                 rep.error(path, f"{qid}: parsons lines in given order crash: {err.strip()[-300:]}")
             if len(set(q["lines"])) != len(q["lines"]):
@@ -532,10 +541,12 @@ def main() -> int:
                 continue
             rep.count("lessons")
             skip_code = lesson_dir in skip_code_lessons
+            les_entry = lesson_index.get(meta["id"])
+            code_timeout = 60 if les_entry and les_entry[1].get("runner") == "local" else 15
             check_i18n_obj(rep, meta_path, meta, "", args.allow_missing_vi)
             check_md_parity(rep, lesson_dir / "lesson.en.md", lesson_dir / "lesson.vi.md", args.allow_missing_vi)
             if not skip_code:
-                check_examples(rep, lesson_dir, args)
+                check_examples(rep, lesson_dir, args, timeout=code_timeout)
             ex_root = lesson_dir / "exercises"
             ex_dirs = sorted(p for p in ex_root.iterdir() if p.is_dir()) if ex_root.exists() else []
             if not ex_dirs:
@@ -550,7 +561,13 @@ def main() -> int:
                 quiz = load_yaml(quiz_path)
                 if check_schema(rep, validators["quiz"], quiz, quiz_path):
                     check_questions(
-                        rep, quiz_path, quiz["questions"], ids, topics, skip_code=skip_code
+                        rep,
+                        quiz_path,
+                        quiz["questions"],
+                        ids,
+                        topics,
+                        skip_code=skip_code,
+                        timeout=code_timeout,
                     )
                     qs = quiz["questions"]
                     if len(qs) < QUIZ_MIN_QUESTIONS:

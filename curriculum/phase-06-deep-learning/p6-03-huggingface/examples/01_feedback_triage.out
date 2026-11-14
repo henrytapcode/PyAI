@@ -1,0 +1,7 @@
+POSITIVE  0.997  Clear steps and solved my setup issue right away.
+NEGATIVE  1.0  The reply ignored my question and gave a broken URL.
+POSITIVE  0.972  Helpful example code, worked on the first try.
+NEGATIVE  1.0  Too slow and kept looping on the same error.
+POSITIVE  0.999  Nice summary, very easy to follow.
+NEGATIVE  0.997  It made up a flag that does not exist in this CLI.
+negative count: 3/6

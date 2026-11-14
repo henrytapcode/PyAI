@@ -1,0 +1,31 @@
+id: p6-03-huggingface
+phase: p6
+order: 3
+kind: lesson
+title:
+  en: "Hugging Face pipelines"
+  vi: "Pipeline Hugging Face"
+summary:
+  en: "Load cached Hugging Face models offline on CPU, understand tokenizers, input_ids, attention_mask, logits, and softmax, and check where a pretrained model fails on your own data."
+  vi: "Nạp model Hugging Face có sẵn trong cache ở chế độ offline trên CPU, hiểu tokenizer, input_ids, attention_mask, logits và softmax, đồng thời kiểm tra những chỗ model có sẵn bị sai trên dữ liệu của bạn."
+level: beginner
+tags: [huggingface, pytorch, dl]
+prerequisites: [p6-02-training-loop]
+duration_min: 18
+outcomes:
+  en:
+    - "Load small cached models offline on CPU"
+    - "Tokenize text and run inference with pipeline()"
+    - "Inspect logits, softmax probabilities, and predicted labels"
+    - "Evaluate where a pretrained model fails on neutral, sarcastic, or out-of-domain text"
+  vi:
+    - "Nạp model nhỏ có sẵn trong cache ở chế độ offline trên CPU"
+    - "Tokenize văn bản và chạy inference với pipeline()"
+    - "Đọc logits, xác suất softmax và nhãn dự đoán"
+    - "Nhận biết khi nào model train sẵn dự đoán sai trên câu trung tính, mỉa mai hoặc ngoài lĩnh vực"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "Hugging Face LLM Course: Behind the pipeline", vi: "Hugging Face LLM Course: Behind the pipeline (EN)" }
+    url: "https://huggingface.co/learn/llm-course/chapter2/2"
+  - title: { en: "Model card: distilbert-base-uncased-finetuned-sst-2-english", vi: "Model card: distilbert-base-uncased-finetuned-sst-2-english (EN)" }
+    url: "https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english"

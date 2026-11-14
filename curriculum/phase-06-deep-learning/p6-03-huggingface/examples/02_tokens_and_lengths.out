@@ -1,0 +1,8 @@
+tokens= 2  Worked!
+tokens= 5  Fast and helpful answer.
+tokens= 9  Chatbot reconnected after timeout.
+tokens=10  The bot repeated the same broken link three times.
+longest token count: 10
+padded batch shape: (4, 12)
+truncated length: 8
+truncated tokens: ['[CLS]', 'users', 'asked', 'why', 'the', 'search', 'end', '[SEP]']

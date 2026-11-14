@@ -1,0 +1,4 @@
+POSITIVE  0.991  Fast and helpful answer, solved my bug!
+NEGATIVE  0.999  The bot kept repeating the wrong link.
+POSITIVE  0.998  Thanks, that worked after I restarted.
+match: True

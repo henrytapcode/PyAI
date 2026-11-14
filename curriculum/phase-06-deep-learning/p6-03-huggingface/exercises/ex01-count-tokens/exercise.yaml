@@ -1,0 +1,38 @@
+id: p6-03-ex01
+kind: fill
+title:
+  en: "Fill: count non-special tokens"
+  vi: "Điền khuyết: đếm số token không tính token đặc biệt"
+difficulty: 1
+tags: [huggingface, strings]
+hints:
+  en:
+    - |
+      This uses `tokenizer.tokenize(text)` from §2, which splits a string into subword tokens without adding `[CLS]` or `[SEP]`. For `["Great!", "Chatbot logs!"]` you must return `[2, 4]`.
+    - |
+      The plan:
+      1. Loop over every `text` in `texts`.
+      2. Call `tokenizer.tokenize(text)` to get the list of subword pieces without `[CLS]` or `[SEP]`.
+      3. Take `len(...)` of that list (already a Python `int`), collect into `counts`, and return `counts`.
+    - |
+      The shape of the solution:
+      ```python
+      counts = [len(tokenizer.___(text)) for text in texts]
+      return ...
+      ```
+      Remember that `tokenizer.tokenize(text)` excludes `[CLS]` and `[SEP]`, while `tokenizer(text)["input_ids"]` includes both special tokens.
+  vi:
+    - |
+      Bài này dùng `tokenizer.tokenize(text)` ở §2 để tách chuỗi thành các token con mà không thêm `[CLS]` hay `[SEP]`. Với `["Great!", "Chatbot logs!"]` hàm phải trả về `[2, 4]`.
+    - |
+      Kế hoạch:
+      1. Duyệt qua từng chuỗi `text` trong `texts`.
+      2. Gọi `tokenizer.tokenize(text)` để lấy danh sách mảnh token chưa có `[CLS]` và `[SEP]`.
+      3. Lấy `len(...)` của danh sách đó (đã là `int` Python), gom vào `counts`, rồi `return counts`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      counts = [len(tokenizer.___(text)) for text in texts]
+      return ...
+      ```
+      Nhớ rằng `tokenizer.tokenize(text)` không gồm `[CLS]` và `[SEP]`, còn `tokenizer(text)["input_ids"]` có thêm cả hai token đặc biệt đó.

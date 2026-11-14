@@ -12,6 +12,9 @@ import pytest
 
 # Force non-interactive backend so matplotlib never opens GUI windows during pytest.
 os.environ.setdefault("MPLBACKEND", "Agg")
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
 
 
 class ExerciseModule(pytest.Module):

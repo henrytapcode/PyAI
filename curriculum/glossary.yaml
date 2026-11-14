@@ -2389,3 +2389,70 @@ terms:
       en: "Saving state_dict rather than the whole Python object keeps checkpoints portable and safe to load with weights_only=True."
       vi: "Lưu state_dict thay vì lưu cả object Python giúp file checkpoint gọn, bền vững và nạp lại an toàn với weights_only=True."
     related: [tensor, epoch]
+
+  # ---------------------------------------------------------- Hugging Face & transformers
+  - term: Hugging Face Hub
+    vi_term: Hugging Face Hub
+    tags: [huggingface, dl]
+    en: "An online repository of pretrained models, tokenizers, and datasets where each model has a repo ID and commit revisions."
+    vi: "Kho lưu trữ trực tuyến các model đã train sẵn, tokenizer và bộ dữ liệu, nơi mỗi model có mã repo và các commit revision riêng."
+    example: "REPO = \"distilbert/distilbert-base-uncased-finetuned-sst-2-english\"\nREV = \"714eb0fa89d2f80546fda750413ed43d93601a13\""
+    in_practice:
+      en: "You rarely train a transformer from scratch; you pick a model from the Hub, pin a revision commit hash so results stay reproducible, and cache it locally for offline runs."
+      vi: "Bạn hiếm khi train transformer từ đầu; bạn chọn một model trên Hub, ghim mã commit revision để kết quả không đổi theo thời gian, và lưu cache cục bộ để chạy offline."
+    related: [pretrained model, tokenizer, cache]
+
+  - term: pretrained model
+    vi_term: pretrained model (mô hình đã train sẵn)
+    tags: [huggingface, dl]
+    en: "A neural network whose weights were already trained on a large dataset so you can run inference immediately or fine-tune it on your own task."
+    vi: "Mạng neural có trọng số đã được huấn luyện trước trên tập dữ liệu lớn để bạn chạy dự đoán ngay hoặc fine-tune cho bài toán của mình."
+    example: "model = AutoModelForSequenceClassification.from_pretrained(\n    REPO, revision=REV, local_files_only=True\n)"
+    in_practice:
+      en: "A pretrained sentiment model works out of the box on standard English reviews, but you must evaluate it on your own domain data before trusting its scores."
+      vi: "Một model phân tích cảm xúc đã train sẵn chạy được ngay trên đánh giá tiếng Anh thông thường, nhưng bạn phải kiểm thử trên dữ liệu thật của mình trước khi tin vào điểm số của nó."
+    related: [Hugging Face Hub, fine-tuning, inference]
+
+  - term: tokenizer
+    vi_term: tokenizer (bộ tách chữ thành token)
+    tags: [huggingface, dl]
+    en: "A component paired with a pretrained model that splits raw text into subword tokens, adds special tokens such as [CLS] and [SEP], and maps them to integer IDs."
+    vi: "Thành phần đi kèm một pretrained model dùng để tách văn bản thô thành các token con, thêm token đặc biệt như [CLS] và [SEP], rồi ánh xạ sang các số nguyên ID."
+    example: "tokenizer = AutoTokenizer.from_pretrained(REPO, revision=REV, local_files_only=True)\nbatch = tokenizer([\"Great!\"], padding=True, truncation=True, return_tensors=\"pt\")"
+    in_practice:
+      en: "Always load the exact tokenizer paired with your model so vocabulary IDs, casing rules (such as uncased), and special tokens match what the model expects."
+      vi: "Luôn nạp đúng tokenizer đi kèm với model để bảng từ vựng ID, quy tắc chữ hoa/thường (như uncased) và các token đặc biệt khớp với model."
+    related: [token, input_ids, attention_mask]
+
+  - term: input_ids
+    vi_term: input_ids (chỉ số ID của các token)
+    tags: [huggingface, dl]
+    en: "The integer tensor produced by a tokenizer where each number is the vocabulary index of a token, including [CLS], [SEP], and padding IDs."
+    vi: "Tensor số nguyên do tokenizer tạo ra, trong đó mỗi con số là chỉ số từ vựng của một token, bao gồm [CLS], [SEP] và ID đệm (padding)."
+    example: "ids = tokenizer(\"Chatbot logs!\")[\"input_ids\"]\n# [101, 11834, 18384, 15664, 999, 102]"
+    in_practice:
+      en: "Models never read raw strings; they look up embeddings for each integer in input_ids, so batching requires padding shorter rows to the same sequence length."
+      vi: "Model không bao giờ đọc chuỗi thô; nó tra bảng embedding theo từng số trong input_ids, nên khi gộp batch phải đệm các câu ngắn cho bằng độ dài."
+    related: [tokenizer, token, attention_mask]
+
+  - term: attention_mask
+    vi_term: attention_mask (mặt nạ đánh dấu token thật)
+    tags: [huggingface, dl]
+    en: "A binary tensor of 1s and 0s with the same shape as input_ids that tells the model which positions are real tokens (1) and which are padding (0)."
+    vi: "Tensor nhị phân gồm 1 và 0 có cùng shape với input_ids, báo cho model biết vị trí nào là token thật (1) và vị trí nào là phần đệm padding (0)."
+    example: "batch = tokenizer([\"Great!\", \"Fast and helpful.\"], padding=True, return_tensors=\"pt\")\nprint(batch[\"attention_mask\"].tolist())"
+    in_practice:
+      en: "Without passing attention_mask (via **batch), padded short sentences would attend to meaningless padding zeros and produce wrong predictions."
+      vi: "Nếu không truyền attention_mask (qua **batch), các câu ngắn được đệm thêm số 0 sẽ bị model chú ý nhầm vào phần đệm và cho kết quả sai."
+    related: [input_ids, tokenizer, batch]
+
+  - term: softmax
+    vi_term: softmax (hàm chuyển logits thành xác suất)
+    tags: [huggingface, pytorch, dl]
+    en: "A mathematical function that turns a row of raw logits into positive probabilities between 0 and 1 that sum to 1.0."
+    vi: "Hàm toán học biến một hàng logits thô thành các xác suất dương nằm trong [0, 1] và có tổng bằng 1.0."
+    example: "probs = torch.softmax(out.logits, dim=1)\nscore = round(probs[0, pred_id].item(), 3)"
+    in_practice:
+      en: "CrossEntropyLoss takes raw logits during training, while at inference time you apply torch.softmax(logits, dim=1) to turn logits into human-readable confidence scores."
+      vi: "CrossEntropyLoss nhận thẳng logits thô khi train, còn lúc suy đoán bạn gọi torch.softmax(logits, dim=1) để đổi logits thành điểm xác suất dễ đọc."
+    related: [logits, tensor, classification]
