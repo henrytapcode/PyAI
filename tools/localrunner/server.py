@@ -77,6 +77,7 @@ def _child_env() -> dict[str, str]:
     env["MPLBACKEND"] = "Agg"
     env["HF_HUB_OFFLINE"] = "1"
     env["TRANSFORMERS_OFFLINE"] = "1"
+    env["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
     return env
 
 

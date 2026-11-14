@@ -116,6 +116,7 @@ def test_child_env_and_isolated_cwd():
 import os
 print(os.environ.get("HF_HUB_OFFLINE"))
 print(os.environ.get("TRANSFORMERS_OFFLINE"))
+print(os.environ.get("HF_HUB_DISABLE_PROGRESS_BARS"))
 print(os.getcwd())
 """
     repo_root = str(Path(__file__).resolve().parents[2].resolve())
@@ -127,7 +128,8 @@ print(os.getcwd())
     lines = "".join(m["text"] for m in msgs if m["type"] == "stdout").strip().splitlines()
     assert lines[0] == "1"
     assert lines[1] == "1"
-    assert str(Path(lines[2]).resolve()) != repo_root
+    assert lines[2] == "1"
+    assert str(Path(lines[3]).resolve()) != repo_root
 
 
 def test_test_endpoint_matches_runner():

@@ -31,6 +31,7 @@ import re
 import subprocess
 import sys
 import tokenize
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -45,8 +46,11 @@ os.environ.setdefault("MPLBACKEND", "Agg")
 ROOT = Path(__file__).resolve().parent.parent
 CURRICULUM = ROOT / "curriculum"
 SCHEMA_DIR = ROOT / "tools" / "schema"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools" / "pyrunner"))
 from runner import run_tests  # noqa: E402
+from tools.localrunner.models import MODELS, model_path  # noqa: E402
 from tracer import trace  # noqa: E402
 
 LANGS = ("en", "vi")
@@ -304,7 +308,76 @@ def _check_tags(rep: Report, where: Path, tags, topics: set) -> None:
             rep.error(where, f"unknown tag '{t}' (add it to curriculum/topics.yaml)")
 
 
-def check_questions(rep: Report, path: Path, questions: list, ids: set, topics: set) -> None:
+def lessons_needing_models(
+    lesson_dirs: Iterable[Path],
+    models: list[dict] = MODELS,
+) -> dict[Path, list[str]]:
+    """Return ``{lesson_dir: [model_key, ...]}`` for lessons mentioning a model repo_id."""
+    needed: dict[Path, list[str]] = {}
+    for lesson_dir in lesson_dirs:
+        if not lesson_dir.is_dir():
+            continue
+        texts: list[str] = []
+        for f in sorted(lesson_dir.rglob("*")):
+            if f.is_file() and f.suffix in (".py", ".md"):
+                texts.append(f.read_text(encoding="utf-8", errors="replace"))
+        if not texts:
+            continue
+        combined = "\n".join(texts)
+        keys = [m["key"] for m in models if m["repo_id"] in combined]
+        if keys:
+            needed[lesson_dir] = keys
+    return needed
+
+
+def check_missing_models(rep: Report, syllabus: dict, scope: Path) -> set[Path]:
+    """Check cached models needed by ready local-runner lessons in scope.
+
+    Reports one error per missing model and returns lesson directories whose code
+    execution should be skipped to avoid cascading errors.
+    """
+    local_lesson_dirs: list[Path] = []
+    for phase in syllabus["phases"]:
+        phase_dir = CURRICULUM / phase["dir"]
+        if not phase_dir.exists():
+            continue
+        for les in phase["lessons"]:
+            if les.get("runner") != "local":
+                continue
+            lesson_dir = phase_dir / les["id"]
+            if not (lesson_dir.is_dir() and (lesson_dir / "meta.yaml").exists()):
+                continue
+            if scope in (lesson_dir, *lesson_dir.parents) or lesson_dir in scope.parents:
+                local_lesson_dirs.append(lesson_dir)
+
+    needed = lessons_needing_models(local_lesson_dirs, MODELS)
+    if not needed:
+        return set()
+
+    needed_keys = {k for keys in needed.values() for k in keys}
+    missing_keys: set[str] = set()
+    for m in MODELS:
+        key = m["key"]
+        if key in needed_keys and model_path(key) is None:
+            missing_keys.add(key)
+            rep.error(
+                "models",
+                f"missing cached model '{key}' ({m['repo_id']}); "
+                "run: uv run python tools/localrunner/fetch_models.py",
+            )
+
+    if not missing_keys:
+        return set()
+    return {
+        lesson_dir
+        for lesson_dir, keys in needed.items()
+        if any(k in missing_keys for k in keys)
+    }
+
+
+def check_questions(
+    rep: Report, path: Path, questions: list, ids: set, topics: set, skip_code: bool = False
+) -> None:
     for q in questions:
         qid = q.get("id", "?")
         _unique(rep, ids, qid, path)
@@ -322,13 +395,13 @@ def check_questions(rep: Report, path: Path, questions: list, ids: set, topics: 
                 if len(set(opts)) != len(opts):
                     rep.error(path, f"{qid}: duplicate options in '{lang}'")
         code = q.get("code", "")
-        if q["type"] == "output":
+        if not skip_code and q["type"] == "output":
             rc, out, err = run_python(code)
             if rc != 0:
                 rep.error(path, f"{qid}: code crashes: {err.strip()[-300:]}")
             elif norm_out(out) != norm_out(q["answer"]):
                 rep.error(path, f"{qid}: answer {q['answer']!r} but code prints {out.strip()!r}")
-        elif q["type"] == "fill":
+        elif not skip_code and q["type"] == "fill":
             blanks = code.count("___")
             if blanks != len(q["answer"]):
                 rep.error(path, f"{qid}: {blanks} blanks but {len(q['answer'])} answers")
@@ -340,7 +413,7 @@ def check_questions(rep: Report, path: Path, questions: list, ids: set, topics: 
                 rc, _, err = run_python(filled)
                 if rc != 0:
                     rep.error(path, f"{qid}: code with answers filled in crashes: {err.strip()[-300:]}")
-        elif q["type"] == "parsons":
+        elif not skip_code and q["type"] == "parsons":
             rc, _, err = run_python("\n".join(q["lines"]) + "\n")
             if rc != 0:
                 rep.error(path, f"{qid}: parsons lines in given order crash: {err.strip()[-300:]}")
@@ -433,6 +506,7 @@ def main() -> int:
 
     scope = (args.path.resolve() if args.path else CURRICULUM)
     ids: set[str] = set()
+    skip_code_lessons = check_missing_models(rep, syllabus, scope)
 
     for phase in syllabus["phases"]:
         phase_dir = CURRICULUM / phase["dir"]
@@ -457,22 +531,27 @@ def main() -> int:
             if not in_scope:
                 continue
             rep.count("lessons")
+            skip_code = lesson_dir in skip_code_lessons
             check_i18n_obj(rep, meta_path, meta, "", args.allow_missing_vi)
             check_md_parity(rep, lesson_dir / "lesson.en.md", lesson_dir / "lesson.vi.md", args.allow_missing_vi)
-            check_examples(rep, lesson_dir, args)
+            if not skip_code:
+                check_examples(rep, lesson_dir, args)
             ex_root = lesson_dir / "exercises"
             ex_dirs = sorted(p for p in ex_root.iterdir() if p.is_dir()) if ex_root.exists() else []
             if not ex_dirs:
                 rep.error(lesson_dir, "lesson has no exercises")
-            for ex_dir in ex_dirs:
-                check_exercise(rep, ex_dir, validators, ids, topics, args)
+            if not skip_code:
+                for ex_dir in ex_dirs:
+                    check_exercise(rep, ex_dir, validators, ids, topics, args)
             quiz_path = lesson_dir / "quiz.yaml"
             if not quiz_path.exists():
                 rep.error(lesson_dir, "missing quiz.yaml")
             else:
                 quiz = load_yaml(quiz_path)
                 if check_schema(rep, validators["quiz"], quiz, quiz_path):
-                    check_questions(rep, quiz_path, quiz["questions"], ids, topics)
+                    check_questions(
+                        rep, quiz_path, quiz["questions"], ids, topics, skip_code=skip_code
+                    )
                     qs = quiz["questions"]
                     if len(qs) < QUIZ_MIN_QUESTIONS:
                         rep.error(quiz_path, f"question bank has {len(qs)} questions, needs >= {QUIZ_MIN_QUESTIONS}")
