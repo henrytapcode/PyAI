@@ -184,10 +184,19 @@ export interface PortfolioProject {
 }
 
 /** Output of tools/pyrunner/tracer.py (the Visualize view). */
+export interface TraceTable {
+  kind: "dataframe" | "series" | "array";
+  shape: [number, number];
+  columns: string[];
+  index: string[];
+  rows: string[][];
+}
+
 export interface TraceVar {
   name: string;
   type: string;
   repr: string;
+  table?: TraceTable;
 }
 
 export interface TraceStep {

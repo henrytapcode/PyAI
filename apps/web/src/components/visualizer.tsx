@@ -2,7 +2,7 @@
 
 import { ArrowRight, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Eye, Loader2, Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -177,17 +177,67 @@ function Visualizer({ code }: { code: string }) {
                         <tbody>
                           {frame.vars.map((v) => {
                             const old = before?.vars.find((x) => x.name === v.name);
-                            const changed = !old || old.repr !== v.repr;
+                            const changed = !old || old.repr !== v.repr || JSON.stringify(old.table) !== JSON.stringify(v.table);
+                            const isChanged = changed && index > 0;
+                            const table = v.table;
+                            const isPartial = table ? table.shape[0] > table.rows.length || table.shape[1] > table.columns.length : false;
                             return (
-                              <tr key={v.name} className={cn("border-b border-border/50 last:border-0", changed && index > 0 && "bg-warning-soft text-warning-ink transition-colors")}>
-                                <td className="w-1/3 px-3 py-1.5 font-medium">{v.name}</td>
-                                <td className="px-3 py-1.5 break-all">{v.repr}</td>
-                                <td className="w-0 px-3 py-1.5 text-right">
-                                  <Badge variant="muted" className="font-mono">
-                                    {v.type}
-                                  </Badge>
-                                </td>
-                              </tr>
+                              <Fragment key={v.name}>
+                                <tr className={cn(!table && "border-b border-border/50 last:border-0", isChanged && "bg-warning-soft text-warning-ink transition-colors")}>
+                                  <td className="w-1/3 px-3 py-1.5 font-medium">{v.name}</td>
+                                  <td className="px-3 py-1.5 break-all">
+                                    {table ? (
+                                      <span className="text-muted-foreground">{t("tableShape", { rows: table.shape[0], cols: table.shape[1] })}</span>
+                                    ) : (
+                                      v.repr
+                                    )}
+                                  </td>
+                                  <td className="w-0 px-3 py-1.5 text-right">
+                                    <Badge variant="muted" className="font-mono">
+                                      {v.type}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                                {table && (
+                                  <tr className={cn("border-b border-border/50 last:border-0", isChanged && "bg-warning-soft text-warning-ink transition-colors")}>
+                                    <td colSpan={3} className="px-3 pb-2.5 pt-0.5">
+                                      <div className="w-0 min-w-full overflow-x-auto">
+                                        <table className="border-collapse border border-border bg-card font-mono text-[11px] text-foreground">
+                                          <thead>
+                                            <tr className="bg-muted/40">
+                                              <th className="border border-border px-2 py-1 whitespace-nowrap" />
+                                              {table.columns.map((col, ci) => (
+                                                <th key={ci} className="border border-border px-2 py-1 text-left font-medium whitespace-nowrap">
+                                                  {col}
+                                                </th>
+                                              ))}
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {table.rows.map((row, ri) => (
+                                              <tr key={ri}>
+                                                <th scope="row" className="border border-border px-2 py-1 text-right font-normal text-muted-foreground whitespace-nowrap">
+                                                  {table.index[ri]}
+                                                </th>
+                                                {row.map((cell, ci) => (
+                                                  <td key={ci} className="border border-border px-2 py-1 whitespace-nowrap">
+                                                    {cell}
+                                                  </td>
+                                                ))}
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                      {isPartial && (
+                                        <p className="mt-1 text-[11px] text-muted-foreground">
+                                          {t("tablePartial", { rows: table.rows.length, cols: table.columns.length })}
+                                        </p>
+                                      )}
+                                    </td>
+                                  </tr>
+                                )}
+                              </Fragment>
                             );
                           })}
                         </tbody>

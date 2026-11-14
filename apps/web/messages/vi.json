@@ -415,7 +415,9 @@
     "forward": "Tiếp",
     "last": "Bước cuối",
     "slider": "Bước",
-    "keys": "← → để chuyển bước, Space để chạy"
+    "keys": "← → để chuyển bước, Space để chạy",
+    "tableShape": "{rows} × {cols}",
+    "tablePartial": "Đang hiện {rows} dòng và {cols} cột đầu tiên."
   },
   "assistant": {
     "title": "Hỏi trợ giảng",

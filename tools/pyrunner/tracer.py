@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import io
 import json
+import math
 import sys
 import types
 from contextlib import redirect_stdout
@@ -20,6 +21,9 @@ from contextlib import redirect_stdout
 FILENAME = "<main>"
 MAX_STEPS = 600
 MAX_REPR = 120
+MAX_TABLE_ROWS = 8
+MAX_TABLE_COLS = 6
+MAX_CELL_CHARS = 24
 HIDDEN_TYPES = (types.ModuleType,)
 
 
@@ -63,12 +67,90 @@ def _short(value) -> str:
     return text if len(text) <= MAX_REPR else text[: MAX_REPR - 3] + "..."
 
 
+def _cell(value) -> str:
+    if (
+        type(value).__module__ == "numpy"
+        and getattr(value, "ndim", None) == 0
+        and hasattr(value, "item")
+    ):
+        value = value.item()
+    if value is None:
+        return "None"
+    if isinstance(value, bool):
+        return "True" if value else "False"
+    if isinstance(value, float):
+        if math.isnan(value):
+            return "NaN"
+        text = format(value, ".6g")
+    else:
+        text = str(value)
+    return text if len(text) <= MAX_CELL_CHARS else text[: MAX_CELL_CHARS - 1] + "…"
+
+
+def _table(value) -> dict | None:
+    cls = type(value)
+    cls_name = cls.__name__
+    if cls_name not in ("DataFrame", "Series", "ndarray"):
+        return None
+    mod = cls.__module__
+    is_df = cls_name == "DataFrame" and mod.startswith("pandas")
+    is_series = cls_name == "Series" and mod.startswith("pandas")
+    is_array = cls_name == "ndarray" and mod == "numpy"
+    if not (is_df or is_series or is_array):
+        return None
+
+    try:
+        with redirect_stdout(io.StringIO()):
+            if is_df:
+                n_rows, n_cols = value.shape
+                sub = value.iloc[:MAX_TABLE_ROWS, :MAX_TABLE_COLS]
+                return {
+                    "kind": "dataframe",
+                    "shape": [int(n_rows), int(n_cols)],
+                    "columns": [str(c) for c in sub.columns],
+                    "index": [str(i) for i in sub.index],
+                    "rows": [
+                        [_cell(v) for v in row]
+                        for row in sub.itertuples(index=False, name=None)
+                    ],
+                }
+            if is_series:
+                n_rows = len(value)
+                sub = value.iloc[:MAX_TABLE_ROWS]
+                col = "" if value.name is None else str(value.name)
+                return {
+                    "kind": "series",
+                    "shape": [int(n_rows), 1],
+                    "columns": [col],
+                    "index": [str(i) for i in sub.index],
+                    "rows": [[_cell(v)] for v in sub],
+                }
+            if getattr(value, "ndim", None) != 2:
+                return None
+            n_rows, n_cols = value.shape
+            sub = value[:MAX_TABLE_ROWS, :MAX_TABLE_COLS]
+            r_lim, c_lim = sub.shape
+            return {
+                "kind": "array",
+                "shape": [int(n_rows), int(n_cols)],
+                "columns": [str(i) for i in range(c_lim)],
+                "index": [str(i) for i in range(r_lim)],
+                "rows": [[_cell(v) for v in row] for row in sub],
+            }
+    except Exception:  # noqa: BLE001 - broken pandas/numpy repr or object __str__ must never crash trace
+        return None
+
+
 def _vars(frame) -> list[dict]:
     items = []
     for name, value in frame.f_locals.items():
         if name.startswith("__") or isinstance(value, HIDDEN_TYPES):
             continue
-        items.append({"name": name, "type": type(value).__name__, "repr": _short(value)})
+        entry: dict = {"name": name, "type": type(value).__name__, "repr": _short(value)}
+        table = _table(value)
+        if table is not None:
+            entry["table"] = table
+        items.append(entry)
     return items
 
 

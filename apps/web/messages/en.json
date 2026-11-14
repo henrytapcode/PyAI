@@ -415,7 +415,9 @@
     "forward": "Next",
     "last": "Last step",
     "slider": "Step",
-    "keys": "← → to step, Space to play"
+    "keys": "← → to step, Space to play",
+    "tableShape": "{rows} × {cols}",
+    "tablePartial": "Showing the first {rows} rows and {cols} columns."
   },
   "assistant": {
     "title": "Ask Assistant",
