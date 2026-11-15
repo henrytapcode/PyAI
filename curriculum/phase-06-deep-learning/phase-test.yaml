@@ -1,0 +1,385 @@
+id: p6-phase-test
+kind: phase_test
+phase: p6
+title:
+  en: "Phase 6 test: Deep learning"
+  vi: "Bài kiểm tra Phase 6: Deep learning"
+description:
+  en: "16 questions covering PyTorch tensors and autograd, training loops with DataLoader, Hugging Face tokenizers and models, and end-to-end fine-tuning."
+  vi: "16 câu hỏi về tensor và autograd trong PyTorch, vòng lặp huấn luyện với DataLoader, tokenizer và model Hugging Face, cùng quy trình fine-tune hoàn chỉnh."
+duration_min: 25
+pass_score: 0.7
+questions:
+  # ---- tensors
+  - id: p6-test-q01
+    type: output
+    tags: [pytorch]
+    difficulty: 1
+    code: |
+      import torch
+
+      grid = torch.tensor([[2.0, 4.0, 6.0], [1.0, 3.0, 5.0]])
+      offset = torch.tensor([[10.0], [20.0]])
+      shifted = grid + offset
+      print(tuple(shifted.shape), round(shifted[1, 2].item(), 3), [round(v, 3) for v in shifted[0].tolist()])
+    answer: "(2, 3) 25.0 [12.0, 14.0, 16.0]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`offset` has shape `(2, 1)` and broadcasts across the 3 columns of `grid` `(2, 3)`, adding `10.0` to row 0 and `20.0` to row 1. Thus `shifted` has shape `(2, 3)`, `shifted[1, 2].item()` is `25.0`, and row 0 `.tolist()` is `[12.0, 14.0, 16.0]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`offset` có shape `(2, 1)` nên broadcast dọc theo 3 cột của `grid` `(2, 3)`, cộng `10.0` vào hàng 0 và `20.0` vào hàng 1. Nhờ đó `shifted` có shape `(2, 3)`, `shifted[1, 2].item()` bằng `25.0`, và hàng 0 qua `.tolist()` là `[12.0, 14.0, 16.0]`."
+
+  - id: p6-test-q02
+    type: output
+    tags: [pytorch, dl]
+    difficulty: 2
+    code: |
+      import torch
+
+      w = torch.tensor(2.0, requires_grad=True)
+      b = torch.tensor(1.0, requires_grad=True)
+      pred = w * 3.0 + b
+      loss = (pred - 10.0) ** 2
+      loss.backward()
+      print(round(w.grad.item(), 3), round(b.grad.item(), 3))
+    answer: "-18.0 -6.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "At `w = 2.0` and `b = 1.0`, `pred = 7.0` and `pred - 10.0 = -3.0`. The derivative of `(pred - 10.0) ** 2` with respect to `pred` is `2 * (-3.0) = -6.0`. By the chain rule, `w.grad = -6.0 * 3.0 = -18.0` and `b.grad = -6.0 * 1.0 = -6.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Tại `w = 2.0` và `b = 1.0`, ta có `pred = 7.0` và `pred - 10.0 = -3.0`. Đạo hàm của `(pred - 10.0) ** 2` theo `pred` bằng `2 * (-3.0) = -6.0`. Theo quy tắc dây chuyền, `w.grad = -6.0 * 3.0 = -18.0` và `b.grad = -6.0 * 1.0 = -6.0`."
+
+  - id: p6-test-q03
+    type: fill
+    tags: [pytorch, dl]
+    difficulty: 2
+    code: |
+      import torch
+
+      w = torch.tensor(4.0, ___=True)
+      loss = (w - 1.0) ** 2
+      loss.backward()
+      with torch.___():
+          w -= 0.25 * w.grad
+      print(round(w.item(), 3))
+    answer: ["requires_grad", "no_grad"]
+    en:
+      prompt: "Fill in the tensor argument that enables gradient tracking on `w` and the context manager that wraps the in-place parameter update."
+      explanation: "Pass `requires_grad=True` when creating leaf tensor `w` so autograd builds the graph, and wrap `w -= 0.25 * w.grad` inside `with torch.no_grad():` so the update itself is not tracked or rejected as an in-place leaf edit."
+    vi:
+      prompt: "Điền tên tham số giúp bật theo dõi gradient trên `w` và context manager dùng để bọc bước cập nhật tham số tại chỗ."
+      explanation: "Truyền `requires_grad=True` khi tạo leaf tensor `w` để autograd dựng đồ thị, và đặt `w -= 0.25 * w.grad` bên trong `with torch.no_grad():` để bước cập nhật không bị ghi vào đồ thị và tránh lỗi sửa tại chỗ leaf tensor."
+
+  - id: p6-test-q04
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 3
+    answer: 0
+    code: |
+      import torch
+
+      w = torch.tensor(5.0, requires_grad=True)
+      for _ in range(2):
+          loss = (w - 1.0) ** 2
+          loss.backward()
+          with torch.no_grad():
+              w -= 0.25 * w.grad
+      print(round(w.item(), 3))
+    en:
+      prompt: "The minimum of `(w - 1.0) ** 2` is at `w = 1.0`, yet this loop prints `0.0` instead of stopping at `2.0`. Which bug causes this overshoot?"
+      options:
+        - "`w.grad.zero_()` is missing, accumulating step 1's `8.0` onto step 2's `4.0`"
+        - "`with torch.no_grad():` freezes `w.grad` at its initial step-1 value"
+        - "`loss.backward()` divides each new gradient by the iteration count"
+        - "An in-place `-=` update inside `torch.no_grad()` doubles `lr` on step 2"
+      explanation: "On step 1, `w.grad` becomes `2 * (5 - 1) = 8.0` and `w` moves to `3.0`. Because `w.grad.zero_()` is missing, step 2 adds its fresh gradient `4.0` onto `8.0` (`12.0`), so `3.0 - 0.25 * 12.0 = 0.0` overshoots `1.0`."
+    vi:
+      prompt: "Đáy của `(w - 1.0) ** 2` nằm tại `w = 1.0`, nhưng vòng lặp này lại in `0.0` thay vì dừng ở `2.0`. Lỗi nào gây ra hiện tượng nhảy vọt qua đáy này?"
+      options:
+        - "Thiếu `w.grad.zero_()`, làm `8.0` ở bước 1 cộng dồn vào `4.0` ở bước 2"
+        - "`with torch.no_grad():` đóng băng `w.grad` ở đúng giá trị của bước 1"
+        - "`loss.backward()` tự động chia mỗi gradient mới cho số lượt chạy"
+        - "Phép trừ tại chỗ `-=` trong `torch.no_grad()` tự nhân đôi `lr` ở bước 2"
+      explanation: "Ở bước 1, `w.grad` bằng `2 * (5 - 1) = 8.0` và `w` dịch về `3.0`. Vì thiếu `w.grad.zero_()`, bước 2 cộng thêm gradient mới `4.0` vào `8.0` thành `12.0`, khiến `3.0 - 0.25 * 12.0 = 0.0` vượt quá đáy `1.0`."
+
+  # ---- training-loop
+  - id: p6-test-q05
+    type: parsons
+    tags: [pytorch, dl]
+    difficulty: 2
+    lines:
+      - "import torch"
+      - "torch.manual_seed(0)"
+      - "model = torch.nn.Linear(2, 2)"
+      - "opt = torch.optim.SGD(model.parameters(), lr=0.1)"
+      - "for _ in range(2):"
+      - "    logits = model(torch.tensor([[1.0, -1.0], [-1.0, 1.0]]))"
+      - "    loss = torch.nn.CrossEntropyLoss()(logits, torch.tensor([0, 1], dtype=torch.int64))"
+      - "    opt.zero_grad()"
+      - "    loss.backward()"
+      - "    opt.step()"
+      - "print(round(loss.item(), 3))"
+    en:
+      prompt: "Arrange these lines in order to initialise a reproducible `Linear(2, 2)` model, run two training steps in the standard 5-step order (forward -> loss -> `zero_grad` -> `backward` -> `step`), and print the step-2 loss."
+      explanation: "Seed PyTorch before creating `model` so initial weights are reproducible, build `opt` from `model.parameters()`, run the 5-step sequence inside the loop (`logits`, `loss`, `opt.zero_grad()`, `loss.backward()`, `opt.step()`), and print the final rounded loss."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để khởi tạo `Linear(2, 2)` tái lập được, chạy hai bước train theo chuẩn 5 bước (forward -> loss -> `zero_grad` -> `backward` -> `step`) rồi in loss của bước 2."
+      explanation: "Đặt seed trước khi tạo `model` để trọng số khởi tạo lặp lại được, tạo `opt` từ `model.parameters()`, chạy đúng trình tự 5 bước trong vòng lặp (`logits`, `loss`, `opt.zero_grad()`, `loss.backward()`, `opt.step()`) rồi in loss đã làm tròn."
+
+  - id: p6-test-q06
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 3
+    answer: 2
+    code: |
+      import torch
+      import torch.nn as nn
+
+      logits = torch.tensor([[1.5, -0.5], [-0.2, 1.2]])
+      labels = torch.tensor([0.0, 1.0])
+      loss = nn.CrossEntropyLoss()(logits, labels)
+    en:
+      prompt: "Running this code raises a `RuntimeError`. Which fix resolves the error?"
+      options:
+        - "Reshape `labels` into a 2D column tensor of shape `(2, 1)`"
+        - "Apply `torch.softmax(logits, dim=1)` before calling the loss"
+        - "Create `labels` with `dtype=torch.int64` and shape `(2,)`"
+        - "Pass `requires_grad=True` when creating `labels` above"
+      explanation: "`nn.CrossEntropyLoss()` expects raw unnormalised logits of shape `(N, C)` and 1D integer class indices of dtype `torch.int64` (`Long`) with shape `(N,)`, not floating-point tensors."
+    vi:
+      prompt: "Chạy đoạn code này sẽ gặp lỗi `RuntimeError`. Cách sửa nào sau đây khắc phục đúng lỗi đó?"
+      options:
+        - "Đổi hình dạng `labels` thành tensor cột 2 chiều có shape `(2, 1)`"
+        - "Gọi `torch.softmax(logits, dim=1)` trước khi truyền vào hàm loss"
+        - "Tạo `labels` với kiểu `dtype=torch.int64` và có shape `(2,)`"
+        - "Truyền thêm `requires_grad=True` khi khởi tạo tensor `labels`"
+      explanation: "`nn.CrossEntropyLoss()` đòi hỏi logits thô shape `(N, C)` và nhãn lớp 1 chiều dạng chỉ số nguyên `torch.int64` (`Long`) có shape `(N,)`, không nhận tensor số thực."
+
+  - id: p6-test-q07
+    type: output
+    tags: [pytorch, data-prep]
+    difficulty: 1
+    code: |
+      import torch
+      from torch.utils.data import DataLoader, TensorDataset
+
+      X = torch.zeros(35, 4)
+      y = torch.zeros(35, dtype=torch.int64)
+      loader = DataLoader(TensorDataset(X, y), batch_size=12, shuffle=False, num_workers=0)
+      print(len(loader), [len(xb) for xb, _ in loader])
+    answer: "3 [12, 12, 11]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "With `35` samples and `batch_size=12`, `DataLoader` yields two full batches of `12` (`24` samples) plus one remainder batch of `11`, so `len(loader)` is `3` and the batch lengths are `[12, 12, 11]`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Với `35` mẫu và `batch_size=12`, `DataLoader` chia thành hai batch đủ `12` (`24` mẫu) và một batch cuối còn lại `11` mẫu, nên `len(loader)` là `3` và độ dài từng batch là `[12, 12, 11]`."
+
+  - id: p6-test-q08
+    type: fill
+    tags: [pytorch, model-evaluation]
+    difficulty: 3
+    code: |
+      import torch
+      import torch.nn as nn
+
+      net = nn.Sequential(nn.Linear(2, 2), nn.Dropout(0.5))
+      net.___()
+      with torch.___():
+          eval_flag = net.training
+          grad_flag = net(torch.ones(2, 2)).requires_grad
+      net.___()
+      print(eval_flag, grad_flag, net.training)
+    answer: ["eval", "no_grad", "train"]
+    en:
+      prompt: "Fill in the three blanks to switch `net` into evaluation mode without tracking gradients during validation, then switch back to training mode (`False False True`)."
+      explanation: "`net.eval()` disables dropout (`net.training == False`), `with torch.no_grad():` skips building the computation graph (`requires_grad == False`), and `net.train()` restores training mode (`net.training == True`) before the next epoch."
+    vi:
+      prompt: "Điền vào ba chỗ trống để chuyển `net` sang chế độ đánh giá không dựng đồ thị khi đo validation, rồi bật lại chế độ huấn luyện (`False False True`)."
+      explanation: "`net.eval()` tắt dropout (`net.training == False`), `with torch.no_grad():` bỏ qua việc dựng đồ thị tính toán (`requires_grad == False`), và `net.train()` khôi phục chế độ huấn luyện (`net.training == True`) trước epoch kế tiếp."
+
+  # ---- huggingface
+  - id: p6-test-q09
+    type: mcq
+    tags: [huggingface, data-prep]
+    difficulty: 1
+    answer: 3
+    code: |
+      tokens_a = ["[CLS]", "un", "##seen", "bug", "[SEP]", "[PAD]", "[PAD]"]
+      mask_a = [1, 1, 1, 1, 1, 0, 0]
+    en:
+      prompt: "In this padded DistilBERT token sequence and its `attention_mask` row, what do `\"##seen\"` and the two `0`s in `mask_a` indicate?"
+      options:
+        - "`\"##seen\"` is an out-of-vocab error; `0` marks `[CLS]` and `[SEP]`"
+        - "`\"##seen\"` starts a second sentence; `0` marks truncated trailing words"
+        - "`\"##seen\"` is a class label token; `0` marks uppercased characters"
+        - "`\"##seen\"` is a subword continuation; `0` marks `[PAD]` filler positions"
+      explanation: "Subword tokenizers split compound or rare words using `##` on continuation pieces (`\"un\"` + `\"##seen\"`), wrap sequences with `[CLS]`/`[SEP]`, and set `0` in `attention_mask` on `[PAD]` positions so attention ignores padding."
+    vi:
+      prompt: "Trong chuỗi token đã đệm của DistilBERT cùng hàng `attention_mask` này, `\"##seen\"` và hai số `0` trong `mask_a` biểu thị điều gì?"
+      options:
+        - "`\"##seen\"` là lỗi từ ngoài từ điển; `0` đánh dấu `[CLS]` và `[SEP]`"
+        - "`\"##seen\"` mở đầu một câu mới; `0` đánh dấu các từ bị cắt bớt ở cuối"
+        - "`\"##seen\"` là token nhãn phân loại; `0` đánh dấu các chữ cái viết hoa"
+        - "`\"##seen\"` là mảnh từ nối tiếp; `0` đánh dấu các vị trí đệm `[PAD]`"
+      explanation: "Tokenizer tách nhỏ từ ghép hoặc từ hiếm bằng tiền tố `##` ở mảnh nối tiếp (`\"un\"` + `\"##seen\"`), bọc câu bằng `[CLS]`/`[SEP]`, và đặt `0` trong `attention_mask` tại các vị trí `[PAD]` để mô hình bỏ qua phần đệm."
+
+  - id: p6-test-q10
+    type: fill
+    tags: [huggingface, pytorch]
+    difficulty: 2
+    code: |
+      from types import SimpleNamespace
+      import torch
+
+      def model(input_ids: torch.Tensor, attention_mask: torch.Tensor) -> SimpleNamespace:
+          return SimpleNamespace(logits=torch.tensor([[0.0, 0.0], [-10.0, 10.0]]))
+
+      id2label = {0: "NEGATIVE", 1: "POSITIVE"}
+      batch = {
+          "input_ids": torch.tensor([[101, 2307, 102], [101, 3492, 102]]),
+          "attention_mask": torch.tensor([[1, 1, 1], [1, 1, 1]]),
+      }
+      logits = model(___).logits
+      probs = torch.softmax(logits, dim=1)
+      preds = [___[i] for i in probs.argmax(dim=1).tolist()]
+      print(preds, round(probs[0, 0].item(), 3))
+    answer: [["**batch", "** batch"], "id2label"]
+    en:
+      prompt: "Fill in the argument expression that unpacks `batch` as keyword arguments for `model(...)` and the mapping name that converts class IDs to label strings."
+      explanation: "`batch` is a dict mapping `'input_ids'` and `'attention_mask'`, so `**batch` unpacks them as named arguments (`input_ids=..., attention_mask=...`). After `torch.softmax(logits, dim=1)`, `id2label[i]` maps each winning class index to its string label."
+    vi:
+      prompt: "Điền biểu thức truyền `batch` thành các tham số có tên cho `model(...)` và tên từ điển ánh xạ chỉ số lớp sang tên nhãn."
+      explanation: "`batch` là dict chứa `'input_ids'` và `'attention_mask'`, nên `**batch` bung chúng thành tham số từ khóa (`input_ids=..., attention_mask=...`). Sau `torch.softmax(logits, dim=1)`, `id2label[i]` đổi từng chỉ số lớp thắng cuộc thành chuỗi nhãn."
+
+  - id: p6-test-q11
+    type: mcq
+    tags: [huggingface]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why is Hugging Face's `pipeline` helper treated as a black box compared to writing explicit `tokenizer` + `model` code?"
+      options:
+        - "It hides tokenization, raw logits, and softmax behind one inference call"
+        - "It runs `AdamW` updates inside each call, blocking reproducible outputs"
+        - "It strips `[CLS]` and `[SEP]` tokens, ignoring `attention_mask` padding"
+        - "It converts all outputs to `float64` tensors, disabling `torch.no_grad()`"
+      explanation: "The `pipeline` helper bundles tokenization, model forward pass, softmax, and `id2label` into a single call, which is great for quick demos but hides raw logits, custom padding control, and access to a fine-tuning loop."
+    vi:
+      prompt: "Vì sao hàm `pipeline` của Hugging Face được xem là một hộp đen so với việc tự viết từng bước `tokenizer` + `model`?"
+      options:
+        - "Nó giấu bước tokenize, logits thô và softmax sau một lần gọi dự đoán"
+        - "Nó chạy `AdamW` trong mỗi lần gọi nên không thể tái lập cùng kết quả"
+        - "Nó cắt bỏ hai token `[CLS]` và `[SEP]` rồi bỏ qua `attention_mask`"
+        - "Nó ép toàn bộ đầu ra thành `float64` và tự tắt khối `torch.no_grad()`"
+      explanation: "Hàm `pipeline` đóng gói cả tokenization, truyền xuôi qua model, softmax và tra `id2label` vào một lệnh duy nhất; rất tiện để thử nhanh nhưng giấu mất logits thô, quyền chỉnh padding và vòng lặp fine-tune."
+
+  - id: p6-test-q12
+    type: mcq
+    tags: [huggingface, model-evaluation]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "A pretrained 2-class sentiment model (`NEGATIVE` / `POSITIVE`) outputs `POSITIVE` with `score = 0.97` on the neutral notice `\"Server maintenance starts at 02:00 UTC.\"`. Why can it be so confident on a neutral text?"
+      options:
+        - "Softmax boosts any unseen vocabulary token above `0.95` automatically"
+        - "The tokenizer skipped `[SEP]`, shifting all attention onto `\"02:00\"`"
+        - "With no neutral class, a higher positive logit drives softmax to `0.97`"
+        - "Using `pipeline` disables `model.eval()`, inflating random dropout scores"
+      explanation: "A binary model has no `NEUTRAL` or `UNKNOWN` label, so every input is forced into one of two buckets. A high softmax score only reflects the gap between the two raw logits, not real-world correctness on your domain."
+    vi:
+      prompt: "Một model cảm xúc 2 lớp có sẵn (`NEGATIVE` / `POSITIVE`) dự đoán `POSITIVE` với `score = 0.97` cho thông báo trung tính `\"Server maintenance starts at 02:00 UTC.\"`. Vì sao nó lại tự tin cao như vậy trên một câu trung tính?"
+      options:
+        - "Hàm softmax tự động đẩy mọi từ chưa gặp bao giờ lên mức trên `0.95`"
+        - "Tokenizer đã bỏ sót `[SEP]`, dồn toàn bộ attention vào cụm `\"02:00\"`"
+        - "Do thiếu nhãn trung tính, logit dương lớn hơn kéo softmax lên `0.97`"
+        - "Dùng `pipeline` làm tắt `model.eval()`, khiến dropout thổi phồng điểm số"
+      explanation: "Mô hình 2 lớp không có nhãn `NEUTRAL` hay `UNKNOWN`, nên mọi câu đầu vào đều bị ép vào một trong hai nhãn. Điểm softmax cao chỉ phản ánh độ chênh giữa hai logit thô chứ không chứng minh dự đoán đúng trên dữ liệu thực tế."
+
+  # ---- fine-tune
+  - id: p6-test-q13
+    type: mcq
+    tags: [huggingface, dl]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "When loading BERT-Tiny with `num_labels=2`, the `LOAD REPORT` marks `classifier.weight` and `classifier.bias` as `MISSING`. Which training setup should follow?"
+      options:
+        - "Freeze all layers and run `pipeline` directly without training"
+        - "Fine-tune with `AdamW` using a small learning rate such as `5e-4`"
+        - "Fine-tune with `SGD` at `lr=0.5` so random weights converge in one step"
+        - "Re-download the checkpoint because `MISSING` signals a broken file"
+      explanation: "Because BERT-Tiny was pretrained for masked-word prediction, the 2-class `classifier` head is newly created with random weights (`MISSING`). You must fine-tune it with `AdamW` and a small learning rate (`5e-4`) so the new head learns while the pretrained encoder weights are not destroyed."
+    vi:
+      prompt: "Khi nạp BERT-Tiny với `num_labels=2`, bảng `LOAD REPORT` báo `classifier.weight` và `classifier.bias` ở trạng thái `MISSING`. Bước huấn luyện nào nên thực hiện tiếp theo?"
+      options:
+        - "Đóng băng toàn bộ tầng và gọi thẳng `pipeline` mà không cần train"
+        - "Fine-tune bằng `AdamW` với learning rate nhỏ như `5e-4`"
+        - "Fine-tune bằng `SGD` với `lr=0.5` để đầu mới hội tụ chỉ sau một bước"
+        - "Tải lại file checkpoint vì `MISSING` báo hiệu dữ liệu mô hình bị hỏng"
+      explanation: "Vì BERT-Tiny vốn được pretrain để đoán từ bị che, đầu phân loại `classifier` 2 lớp vừa được gắn mới với trọng số ngẫu nhiên (`MISSING`). Bạn cần fine-tune bằng `AdamW` với learning rate nhỏ (`5e-4`) để đầu mới học được mà không phá hỏng phần thân ngôn ngữ có sẵn."
+
+  - id: p6-test-q14
+    type: output
+    tags: [dl, model-evaluation]
+    difficulty: 2
+    code: |
+      history = [
+          (1, 0.500, 0.685),
+          (2, 0.938, 0.425),
+          (3, 0.938, 0.315),
+          (4, 0.875, 0.355),
+      ]
+      best_epoch, best_acc, best_loss = 0, -1.0, 999.0
+      for epoch, val_acc, val_loss in history:
+          if val_acc > best_acc or (val_acc == best_acc and val_loss < best_loss):
+              best_epoch, best_acc, best_loss = epoch, val_acc, val_loss
+      print(best_epoch, best_acc, best_loss)
+    answer: "3 0.938 0.315"
+    en:
+      prompt: "What does this validation checkpoint selector print?"
+      explanation: "Epochs 2 and 3 tie on highest validation accuracy (`0.938`), and the tie-breaker `val_loss < best_loss` picks epoch `3` because `0.315 < 0.425`. Epoch `4` drops to `0.875`, so epoch `3` wins."
+    vi:
+      prompt: "Đoạn code chọn checkpoint theo validation này in ra gì?"
+      explanation: "Epoch 2 và 3 có cùng tỉ lệ đoán đúng cao nhất trên validation (`0.938`), và điều kiện phụ `val_loss < best_loss` chọn epoch `3` vì `0.315 < 0.425`. Epoch `4` giảm xuống `0.875`, nên epoch `3` được chọn."
+
+  - id: p6-test-q15
+    type: parsons
+    tags: [pytorch, data-prep]
+    difficulty: 2
+    lines:
+      - "import torch"
+      - "gen = torch.Generator().manual_seed(27)"
+      - "idx = torch.randperm(20, generator=gen).tolist()"
+      - "train_i, val_i, test_i = idx[:12], idx[12:16], idx[16:]"
+      - "print(len(train_i), len(val_i), len(test_i))"
+    en:
+      prompt: "Arrange these lines in order to create a reproducible 12/4/4 train/validation/test index split from 20 tickets and print the split sizes."
+      explanation: "Import `torch`, seed a `torch.Generator` (`manual_seed(27)`), generate a reproducible permutation with `torch.randperm(20, generator=gen)`, slice `idx` into 12/4/4 train/val/test indices, and print the three sizes."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tách 20 ticket thành các chỉ số train/validation/test theo tỉ lệ 12/4/4 tái lập được và in kích thước từng tập."
+      explanation: "Import `torch`, đặt seed cho `torch.Generator` (`manual_seed(27)`), tạo hoán vị tái lập bằng `torch.randperm(20, generator=gen)`, cắt `idx` thành ba phần 12/4/4 cho train/val/test rồi in kích thước ba tập."
+
+  - id: p6-test-q16
+    type: mcq
+    tags: [huggingface, model-evaluation]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "You sweep 10 fine-tuning epochs and plan to save and reload the best model for routing tickets (`\"bug\"` / `\"billing\"`). Which workflow is valid?"
+      options:
+        - "Pick the epoch with highest test accuracy; call `torch.save(model.state_dict())` to preserve `id2label`"
+        - "Pick the epoch on validation; save and reload the directory with `save_pretrained` to keep `id2label`"
+        - "Pick the epoch with lowest train loss; reload only `AutoTokenizer` from disk to restore `id2label`"
+        - "Pick the epoch on test after each batch; pass `num_labels=2` again on reload to keep `id2label`"
+      explanation: "Tuning epochs on the test split leaks test information into model selection; always pick epochs on validation and evaluate test once at the end. Saving with `model.save_pretrained()` writes both weights and `config.json` (including `id2label`), so reloading that saved directory with `AutoModelForSequenceClassification` restores the label mapping automatically."
+    vi:
+      prompt: "Bạn chạy thử 10 epoch fine-tune và định lưu lại mô hình tốt nhất để nạp lại phân loại ticket (`\"bug\"` / `\"billing\"`). Quy trình nào sau đây hợp lệ?"
+      options:
+        - "Chọn epoch có tỉ lệ đoán đúng trên test cao nhất; gọi `torch.save(model.state_dict())` để giữ `id2label`"
+        - "Chọn epoch bằng validation; lưu bằng `save_pretrained` rồi nạp lại cả thư mục để giữ `id2label`"
+        - "Chọn epoch có train loss thấp nhất; chỉ nạp lại `AutoTokenizer` từ đĩa để khôi phục `id2label`"
+        - "Chọn epoch theo tập test sau từng batch; truyền lại `num_labels=2` lúc nạp để giữ `id2label`"
+      explanation: "Nhìn tập test để chọn epoch làm rò rỉ thông tin tập test vào quyết định mô hình; luôn chọn epoch trên validation và chỉ chấm test một lần cuối. Lưu bằng `model.save_pretrained()` ghi cả trọng số lẫn `config.json` (chứa `id2label`), nên khi nạp lại thư mục đó bằng `AutoModelForSequenceClassification`, ánh xạ nhãn được khôi phục tự động."
