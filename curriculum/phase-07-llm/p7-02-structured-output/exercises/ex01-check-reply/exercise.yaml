@@ -1,0 +1,64 @@
+id: p7-02-ex01
+kind: fill
+title:
+  en: "Fill: validate a parsed JSON reply"
+  vi: "Điền chỗ trống: kiểm tra phản hồi JSON đã parse"
+difficulty: 1
+tags: [llm, json]
+hints:
+  en:
+    - |
+      This uses the schema validation pattern from §3. For `data={"name": "Lan", "order_id": True}` against a schema requiring `name` (`string`) and `order_id` (`integer`), you must return `["wrong type: order_id"]`.
+    - |
+      The plan:
+      1. In the first loop, check whether each required field name is absent from the input dictionary, and record a missing-field message if so.
+      2. In the second loop, check whether an integer or number field actually received a boolean value, and record a wrong-type message before running the general type check.
+      3. Finally, use Python's runtime type-checking helper against the expected Python type from the lookup map.
+    - |
+      The shape inside the function:
+      ```python
+      for key in schema.get("required", []):
+          if ...:
+              errors.append(f"missing: {key}")
+
+      for key, spec in schema.get("properties", {}).items():
+          if key not in data:
+              continue
+          expected_type = spec.get("type", "")
+          value = data[key]
+          if expected_type in ("integer", "number") and isinstance(value, bool):
+              errors.append(f"wrong type: {key}")
+              continue
+          expected = type_map.get(expected_type)
+          if expected is not None and not ...:
+              errors.append(f"wrong type: {key}")
+      ```
+      Remember that in Python `bool` is a subclass of `int`, so booleans must be rejected before checking `int` or `(int, float)`.
+  vi:
+    - |
+      Bài này dùng mẫu kiểm tra schema ở §3. Với `data={"name": "Lan", "order_id": True}` và schema yêu cầu `name` (`string`) cùng `order_id` (`integer`), hàm phải trả về `["wrong type: order_id"]`.
+    - |
+      Kế hoạch:
+      1. Ở vòng lặp đầu tiên, kiểm tra xem từng tên trường bắt buộc có vắng mặt trong dictionary đầu vào hay không để ghi nhận lỗi thiếu trường.
+      2. Ở vòng lặp thứ hai, kiểm tra xem trường kiểu số nguyên hoặc số thực có đang nhận giá trị đúng/sai hay không để báo lỗi sai kiểu trước khi kiểm tra kiểu tổng quát.
+      3. Cuối cùng, kiểm tra kiểu lúc chạy của giá trị với kiểu Python tương ứng lấy từ bảng ánh xạ.
+    - |
+      Hình dạng bên trong hàm:
+      ```python
+      for key in schema.get("required", []):
+          if ...:
+              errors.append(f"missing: {key}")
+
+      for key, spec in schema.get("properties", {}).items():
+          if key not in data:
+              continue
+          expected_type = spec.get("type", "")
+          value = data[key]
+          if expected_type in ("integer", "number") and isinstance(value, bool):
+              errors.append(f"wrong type: {key}")
+              continue
+          expected = type_map.get(expected_type)
+          if expected is not None and not ...:
+              errors.append(f"wrong type: {key}")
+      ```
+      Nhớ rằng trong Python `bool` là lớp con của `int`, nên phải loại giá trị boolean trước khi kiểm tra `int` hay `(int, float)`.

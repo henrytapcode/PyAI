@@ -1,0 +1,5 @@
+Reply 1: ok -> {'name': 'Lan', 'order_id': 1042}
+Reply 2: ok -> {'name': 'Minh', 'order_id': 2088}
+Reply 3: ok -> {'name': 'An', 'order_id': 3100}
+Reply 4: error -> invalid JSON: Expecting value
+Reply 5: error -> no JSON object found in reply

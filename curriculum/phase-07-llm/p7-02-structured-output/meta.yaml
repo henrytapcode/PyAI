@@ -1,0 +1,29 @@
+id: p7-02-structured-output
+phase: p7
+order: 2
+kind: lesson
+title:
+  en: "Structured output"
+  vi: "Structured output"
+summary:
+  en: "Ask an LLM for JSON matching a schema, parse and validate the reply without trusting it, convert it into typed dataclasses or Pydantic models, and retry or fall back when output is invalid."
+  vi: "Yêu cầu LLM trả về JSON theo schema, parse và kiểm tra kết quả thay vì tin mù quáng, chuyển sang dataclass hoặc Pydantic model có kiểu, rồi retry hoặc dùng fallback khi đầu ra hỏng."
+level: beginner
+tags: [llm]
+prerequisites: [p7-01-llm-api]
+duration_min: 14
+outcomes:
+  en:
+    - "Design JSON schemas and dataclasses for model outputs"
+    - "Parse and validate structured replies from the fake client"
+    - "Handle invalid output with retries or fallbacks"
+  vi:
+    - "Thiết kế schema JSON và dataclass cho đầu ra của model"
+    - "Phân tích và kiểm tra kết quả có cấu trúc từ fake client"
+    - "Xử lý đầu ra sai định dạng bằng retry hoặc fallback"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "JSON Schema: Getting Started Step-By-Step", vi: "JSON Schema: Getting Started Step-By-Step (EN)" }
+    url: "https://json-schema.org/learn/getting-started-step-by-step"
+  - title: { en: "Pydantic: Models", vi: "Pydantic: Models (EN)" }
+    url: "https://docs.pydantic.dev/latest/concepts/models/"

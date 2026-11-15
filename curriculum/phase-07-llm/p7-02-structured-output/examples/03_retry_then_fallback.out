@@ -1,0 +1,10 @@
+--- Run 1: recovers on attempt 2 ---
+Attempt 1: invalid (wrong type: order_id)
+Attempt 2: valid
+Result: {'name': 'Lan', 'order_id': 1042, 'urgent': True}
+--- Run 2: falls back after 3 failures ---
+Attempt 1: invalid (parse error: substring not found)
+Attempt 2: invalid (missing: order_id; missing: urgent)
+Attempt 3: invalid (wrong type: order_id)
+Falling back after 3 failed attempts
+Result: {'name': 'unknown', 'order_id': 0, 'urgent': False, 'needs_review': True}

@@ -1847,6 +1847,28 @@ terms:
       vi: "Bạn đưa schema cho API LLM (hoặc sinh nó từ model Pydantic hay dataclass) để câu trả lời có đúng các trường code của bạn mong đợi."
     related: [structured output, function calling, type hint]
 
+  - term: parse
+    vi_term: parse (phân tích cú pháp)
+    tags: [json, strings]
+    en: "Turning raw text (such as a JSON string from an LLM) into structured Python objects like dicts, lists, and numbers."
+    vi: "Biến văn bản thô (như chuỗi JSON từ LLM) thành đối tượng Python có cấu trúc như dict, list và số."
+    example: "import json\ndata = json.loads('{\"name\": \"Lan\", \"order_id\": 1042}')"
+    in_practice:
+      en: "Model replies often arrive wrapped in markdown fences or extra prose, so you clean the slice between { and } before calling json.loads()."
+      vi: "Phản hồi của model hay bị bọc trong fence markdown hoặc kèm câu dẫn, nên bạn thường cắt phần từ { tới } trước khi gọi json.loads()."
+    related: [JSON, structured output, validation]
+
+  - term: fallback
+    vi_term: fallback (phương án dự phòng)
+    tags: [llm, exceptions]
+    en: "A safe default value or backup path returned when primary calls and retries fail, so the program degrades gracefully instead of crashing."
+    vi: "Giá trị mặc định an toàn hoặc hướng xử lý dự phòng được trả về khi các lần gọi chính và retry đều thất bại, giúp chương trình không bị sập."
+    example: "ticket = get_ticket(client, messages, schema) or {\"needs_review\": True}"
+    in_practice:
+      en: "If an LLM keeps returning broken JSON after three retries, returning None or flagging the item for human review keeps the batch job running."
+      vi: "Nếu LLM vẫn trả JSON hỏng sau ba lần thử lại, trả về None hoặc gắn cờ cần người xem lại sẽ giúp pipeline không bị dừng giữa chừng."
+    related: [retry with backoff, structured output, validation]
+
   - term: function calling
     vi_term: function calling (gọi hàm)
     tags: [agents]

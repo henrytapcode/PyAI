@@ -1,0 +1,395 @@
+questions:
+  - id: p7-02-q01
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Why ask an LLM for JSON instead of free-form prose when building an app?"
+      options:
+        - "JSON responses are always free of API token charges"
+        - "Code can parse JSON fields reliably into dicts"
+        - "JSON automatically fixes hallucinations on the server"
+        - "Free-form prose cannot be stored in Python strings"
+      explanation: "Prose phrasing varies between calls and breaks string `.split()` logic, whereas JSON maps straight into Python dicts with predictable keys."
+    vi:
+      prompt: "Vì sao khi xây ứng dụng ta cần yêu cầu LLM trả về JSON thay vì văn xuôi tự do?"
+      options:
+        - "Phản hồi JSON luôn miễn phí không bị tính tiền token"
+        - "Code có thể parse các trường JSON thành dict ổn định"
+        - "JSON tự động sửa mọi lỗi bịa thông tin phía server"
+        - "Văn xuôi tự do không lưu được vào biến chuỗi Python"
+      explanation: "Văn xuôi thay đổi câu chữ giữa các lần gọi làm gãy `.split()`, còn JSON ánh xạ thẳng thành dict Python với tên khóa ổn định."
+
+  - id: p7-02-q02
+    type: output
+    tags: [llm]
+    difficulty: 1
+    code: |
+      import json
+      from pyai_llm import FakeLLM
+
+      schema = {
+          "type": "object",
+          "properties": {"name": {"type": "string"}, "order_id": {"type": "integer"}},
+          "required": ["name", "order_id"],
+      }
+      resp = FakeLLM().chat(
+          [{"role": "user", "content": "name: Lan, order_id: 1042"}],
+          response_format={"type": "json", "schema": schema},
+      )
+      data = json.loads(resp.content)
+      print(data["name"], data["order_id"])
+    answer: "Lan 1042"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`FakeLLM` extracts `name` (`\"Lan\"`) and `order_id` (`1042`) into a JSON string, and `json.loads()` parses it into a Python `dict`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`FakeLLM` trích `name` (`\"Lan\"`) và `order_id` (`1042`) thành chuỗi JSON, rồi `json.loads()` parse thành `dict` Python."
+
+  - id: p7-02-q03
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What happens if you pass `'```json\\n{\"name\": \"Lan\"}\\n```'` straight to `json.loads()`?"
+      options:
+        - "It returns the dict without the markdown fences"
+        - "It returns a plain string containing the inner text"
+        - "It raises a json.JSONDecodeError on character zero"
+        - "It drops the outer backticks and keeps a list"
+      explanation: "`json.loads()` requires pure JSON; leading markdown backticks cause `json.JSONDecodeError` at the very first character."
+    vi:
+      prompt: "Điều gì xảy ra khi truyền thẳng `'```json\\n{\"name\": \"Lan\"}\\n```'` vào `json.loads()`?"
+      options:
+        - "Nó trả về dictionary sau khi tự bỏ dấu fence markdown"
+        - "Nó trả về một chuỗi văn bản chứa phần chữ bên trong"
+        - "Nó ném lỗi json.JSONDecodeError ngay từ ký tự đầu"
+        - "Nó bỏ dấu nháy ngược ngoài cùng và trả về một list"
+      explanation: "`json.loads()` đòi hỏi chuỗi JSON thuần; dấu fence markdown ở đầu làm phát sinh `json.JSONDecodeError` ngay tại ký tự 0."
+
+  - id: p7-02-q04
+    type: fill
+    tags: [llm]
+    difficulty: 1
+    code: |
+      schema_required = ["name", "order_id", "urgent"]
+      data = {"name": "Lan", "urgent": True}
+      missing = [k for k in schema_required if k ___ data]
+      print(missing)
+    answer: ["not in"]
+    en:
+      prompt: "Fill in the membership operator to collect every required key missing from `data`."
+      explanation: "Using `k not in data` collects `\"order_id\"` cleanly without raising a `KeyError`."
+    vi:
+      prompt: "Điền toán tử kiểm tra thành viên để thu thập mọi khóa bắt buộc bị thiếu trong `data`."
+      explanation: "Dùng `k not in data` thu thập được `\"order_id\"` an toàn mà không gây `KeyError`."
+
+  - id: p7-02-q05
+    type: parsons
+    tags: [llm]
+    difficulty: 1
+    lines:
+      - "import json"
+      - "data = json.loads('{\"name\": \"An\", \"order_id\": 7}')"
+      - 'valid = isinstance(data["order_id"], int) and not isinstance(data["order_id"], bool)'
+      - 'print(data["name"], valid)'
+    en:
+      prompt: "Arrange these lines to parse a JSON string, verify `order_id` is a true `int` (not a `bool`), and print the result."
+      explanation: "Import `json`, call `json.loads(...)` to build `data`, check `order_id` is `int` and not `bool` in `valid`, then print `data[\"name\"]` and `valid`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để parse chuỗi JSON, kiểm tra `order_id` là `int` thật (không phải `bool`) rồi in kết quả."
+      explanation: "Import `json`, gọi `json.loads(...)` tạo `data`, kiểm tra `order_id` là `int` và không phải `bool` trong `valid`, rồi in `data[\"name\"]` và `valid`."
+
+  - id: p7-02-q06
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why must a JSON validator check for `bool` before checking `int` in Python?"
+      options:
+        - "Because bool is a subclass of int in Python"
+        - "Because json.loads converts integers into booleans"
+        - "Because Python treats zero as an invalid integer"
+        - "Because isinstance raises TypeError on booleans"
+      explanation: "In Python, `bool` subclasses `int`, so `isinstance(True, int)` returns `True` unless you reject `bool` first."
+    vi:
+      prompt: "Vì sao trình kiểm tra JSON bằng Python phải kiểm tra `bool` trước khi kiểm tra `int`?"
+      options:
+        - "Vì bool là lớp con của int trong Python"
+        - "Vì json.loads tự đổi mọi số nguyên thành boolean"
+        - "Vì Python coi số không là số nguyên không hợp lệ"
+        - "Vì isinstance ném TypeError khi gặp boolean"
+      explanation: "Trong Python, `bool` kế thừa từ `int`, nên `isinstance(True, int)` trả về `True` nếu không chặn `bool` trước."
+
+  - id: p7-02-q07
+    type: output
+    tags: [llm]
+    difficulty: 2
+    code: |
+      values = [42, True, "42"]
+      results = [not isinstance(v, bool) and isinstance(v, int) for v in values]
+      print(results)
+    answer: "[True, False, False]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`42` is an `int` and not a `bool` (`True`); `True` is rejected by `not isinstance(v, bool)` (`False`); `\"42\"` is a `str` (`False`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`42` là `int` không phải `bool` (`True`); `True` bị chặn bởi `not isinstance(v, bool)` (`False`); `\"42\"` là `str` (`False`)."
+
+  - id: p7-02-q08
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "When `FakeLLM` receives `'hello there'` with `response_format`, what is the trap in `{\"name\": \"\", \"order_id\": 0, \"urgent\": false}`?"
+      options:
+        - "The keys are sorted differently from the schema"
+        - "The output cannot be decoded with json.loads"
+        - "The booleans are formatted as lowercase strings"
+        - "The types pass while business values are missing"
+      explanation: "Every field has the right Python type (`str`, `int`, `bool`), so type validation passes even though the user gave no real ticket information."
+    vi:
+      prompt: "Khi `FakeLLM` nhận `'hello there'` kèm `response_format`, cái bẫy trong `{\"name\": \"\", \"order_id\": 0, \"urgent\": false}` là gì?"
+      options:
+        - "Thứ tự các khóa bị đảo khác với thứ tự trong schema"
+        - "Chuỗi kết quả không thể giải mã bằng json.loads"
+        - "Giá trị boolean bị viết thành chuỗi chữ thường"
+        - "Kiểu dữ liệu hợp lệ nhưng thiếu thông tin thật"
+      explanation: "Mọi trường đều đúng kiểu Python (`str`, `int`, `bool`) nên bước kiểm kiểu cho qua dù người dùng không cung cấp thông tin ticket nào."
+
+  - id: p7-02-q09
+    type: fill
+    tags: [llm]
+    difficulty: 2
+    code: |
+      from dataclasses import dataclass
+
+      @dataclass
+      class Ticket:
+          name: str
+          order_id: int
+
+          def ___ (self) -> None:
+              if not self.name.strip() or self.order_id <= 0:
+                  raise ValueError("invalid ticket")
+
+      try:
+          Ticket(name="", order_id=0)
+      except ValueError as err:
+          print(err)
+    answer: ["__post_init__"]
+    en:
+      prompt: "Fill in the dataclass hook method name that runs automatically after `__init__` to validate fields."
+      explanation: "Dataclasses automatically invoke `__post_init__(self)` right after assigning fields in `__init__`, making it ideal for business-rule checks."
+    vi:
+      prompt: "Điền tên phương thức của dataclass tự động chạy sau `__init__` để kiểm tra hợp lệ các trường."
+      explanation: "Dataclass tự gọi `__post_init__(self)` ngay sau khi gán các trường ở `__init__`, rất phù hợp để kiểm tra quy tắc nghiệp vụ."
+
+  - id: p7-02-q10
+    type: parsons
+    tags: [llm]
+    difficulty: 2
+    lines:
+      - "from pyai_llm import FakeLLM"
+      - "client = FakeLLM(script=['bad', '{\"name\": \"Lan\"}'])"
+      - 'reply = client.chat([{"role": "user", "content": "ticket"}]).content'
+      - 'history = [{"role": "user", "content": "ticket"}, {"role": "assistant", "content": reply}]'
+      - 'history.append({"role": "user", "content": "Return only JSON."})'
+      - 'print([m["role"] for m in history], client.chat(history).content)'
+    en:
+      prompt: "Arrange these lines to capture a bad reply, append error feedback to `history`, and print the roles plus the retried reply."
+      explanation: "Import `FakeLLM`, create `client`, get `reply`, build `history` with the `assistant` reply, append the `user` retry prompt, then print the roles and the second `chat(history)` reply."
+    vi:
+      prompt: "Sắp xếp các dòng sau để lưu phản hồi hỏng, nối phản hồi lỗi vào `history` rồi in danh sách role và kết quả gọi lại."
+      explanation: "Import `FakeLLM`, tạo `client`, lấy `reply`, dựng `history` kèm tin nhắn `assistant`, nối tin nhắn `user` yêu cầu trả JSON, rồi in các role và kết quả `chat(history)` lần hai."
+
+  - id: p7-02-q11
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What should your structured-output helper do after all retry attempts still fail validation?"
+      options:
+        - "Keep retrying in a while True loop until valid"
+        - "Return a safe fallback value or flag for review"
+        - "Disable schema checking for the remaining items"
+        - "Pass the raw unparsed string to the database"
+      explanation: "Returning a safe fallback (such as `None` or a record marked `needs_review=True`) keeps your pipeline running without crashing or corrupting data."
+    vi:
+      prompt: "Hàm gọi structured output nên làm gì sau khi đã hết lượt retry mà kết quả vẫn sai?"
+      options:
+        - "Tiếp tục thử trong vòng lặp while True tới khi đúng"
+        - "Trả về giá trị fallback an toàn hoặc gắn cờ xem lại"
+        - "Tắt bước kiểm tra schema cho các mục còn lại"
+        - "Lưu thẳng chuỗi văn bản thô chưa parse vào database"
+      explanation: "Trả về fallback an toàn (như `None` hoặc bản ghi có cờ `needs_review=True`) giúp pipeline tiếp tục chạy mà không sập hay làm hỏng dữ liệu."
+
+  - id: p7-02-q12
+    type: output
+    tags: [llm]
+    difficulty: 2
+    code: |
+      import json
+
+      raw = 'Sure! Here is JSON:\n```json\n{"name": "An", "order_id": 7}\n```'
+      clean = raw[raw.index("{") : raw.rindex("}") + 1]
+      data = json.loads(clean)
+      print(data["name"], data["order_id"])
+    answer: "An 7"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Slicing from the first `{` to `rindex('}') + 1` strips the conversational prefix and markdown fences so `json.loads()` succeeds."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Cắt từ `{` đầu tiên tới `rindex('}') + 1` loại bỏ câu dẫn và fence markdown để `json.loads()` parse thành công."
+
+  - id: p7-02-q13
+    type: fill
+    tags: [llm]
+    difficulty: 2
+    code: |
+      partial = {"name": "Lan"}
+      order_id = partial.___("order_id", 0)
+      print(order_id)
+    answer: ["get"]
+    en:
+      prompt: "Fill in the dict method name that safely reads `\"order_id\"` with default `0` instead of raising `KeyError`."
+      explanation: "`dict.get(key, default)` returns `0` when `\"order_id\"` is absent instead of raising `KeyError`."
+    vi:
+      prompt: "Điền tên phương thức của dict để đọc an toàn khóa `\"order_id\"` với mặc định `0` thay vì ném `KeyError`."
+      explanation: "`dict.get(key, default)` trả về `0` khi thiếu khóa `\"order_id\"` thay vì gây `KeyError`."
+
+  - id: p7-02-q14
+    type: mcq
+    tags: [llm]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "Why is calling `eval(reply)` to parse an LLM reply a serious security risk?"
+      options:
+        - "eval converts every integer key into a float"
+        - "eval refuses double-quoted keys in JSON objects"
+        - "eval executes arbitrary Python code in the text"
+        - "eval removes required keys from nested dicts"
+      explanation: "Because `eval()` runs any Python expression inside `reply`, untrusted or prompt-injected model output can execute malicious code."
+    vi:
+      prompt: "Vì sao gọi `eval(reply)` để parse phản hồi của LLM là rủi ro bảo mật nghiêm trọng?"
+      options:
+        - "eval tự đổi mọi khóa kiểu số nguyên thành số thực"
+        - "eval không đọc được khóa đặt trong dấu nháy kép"
+        - "eval thực thi mã Python bất kỳ nằm trong chuỗi"
+        - "eval tự động xóa các khóa bắt buộc trong dict"
+      explanation: "Vì `eval()` chạy mọi biểu thức Python trong `reply`, văn bản bị prompt injection từ model có thể thực thi code độc hại."
+
+  - id: p7-02-q15
+    type: output
+    tags: [llm]
+    difficulty: 3
+    code: |
+      import json
+      from pyai_llm import FakeLLM
+
+      schema = {
+          "type": "object",
+          "properties": {
+              "name": {"type": "string"},
+              "order_id": {"type": "integer"},
+              "urgent": {"type": "boolean"},
+          },
+          "required": ["name", "order_id", "urgent"],
+      }
+      resp = FakeLLM().chat(
+          [{"role": "user", "content": "hello there"}],
+          response_format={"type": "json", "schema": schema},
+      )
+      data = json.loads(resp.content)
+      print(data["name"] == "", data["order_id"], data["urgent"])
+    answer: "True 0 False"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Because `'hello there'` contains no matching values, `FakeLLM` emits fake empty defaults (`\"\"`, `0`, `False`), so `data[\"name\"] == \"\"` is `True`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Vì `'hello there'` không có thông tin khớp schema, `FakeLLM` sinh giá trị rỗng giả (`\"\"`, `0`, `False`), nên `data[\"name\"] == \"\"` là `True`."
+
+  - id: p7-02-q16
+    type: fill
+    tags: [llm]
+    difficulty: 3
+    code: |
+      def retry_prompt(messages: list[dict[str, str]], bad_reply: str, error_msg: str) -> list[dict[str, str]]:
+          history = [dict(m) for m in messages]
+          history.append({"role": "___", "content": bad_reply})
+          history.append({"role": "___", "content": f"Invalid JSON: {error_msg}"})
+          return history
+
+      msgs = [{"role": "user", "content": "ticket"}]
+      out = retry_prompt(msgs, "not json", "Expecting value")
+      print([m["role"] for m in out], len(msgs))
+    answer: ["assistant", "user"]
+    en:
+      prompt: "Fill in the two message roles appended before retrying so the model sees its broken reply and the error feedback."
+      explanation: "Append the model's invalid output with role `\"assistant\"` followed by the error feedback with role `\"user\"`, leaving `msgs` untouched (`len(msgs) == 1`)."
+    vi:
+      prompt: "Điền hai role tin nhắn cần nối trước khi retry để model thấy lại phản hồi sai của nó và thông báo lỗi."
+      explanation: "Nối phản hồi sai của model với role `\"assistant\"`, rồi nối phản hồi lỗi với role `\"user\"`, đồng thời giữ nguyên `msgs` (`len(msgs) == 1`)."
+
+flashcards:
+  - id: p7-02-f01
+    tags: [llm]
+    en:
+      front: "JSON schema"
+      back: "A dictionary describing expected JSON structure: root `type`, `properties` with field types, and `required` key names."
+    vi:
+      front: "JSON schema"
+      back: "Dictionary mô tả cấu trúc JSON mong muốn: `type` gốc, `properties` ghi tên và kiểu từng trường, và `required` liệt kê các khóa bắt buộc."
+  - id: p7-02-f02
+    tags: [llm]
+    en:
+      front: "Why check `bool` before `int` in Python?"
+      back: "`bool` is a subclass of `int`, so `isinstance(True, int)` is `True`. Reject `bool` first when validating integer or number fields."
+    vi:
+      front: "Vì sao phải kiểm `bool` trước `int` trong Python?"
+      back: "`bool` là lớp con của `int` nên `isinstance(True, int)` là `True`. Cần loại `bool` trước khi kiểm tra trường kiểu `integer` hoặc `number`."
+  - id: p7-02-f03
+    tags: [llm]
+    en:
+      front: "Fake empty values"
+      back: "Placeholder defaults like `\"\"`, `0`, or `False` that pass JSON parsing and type checks even though real data was missing."
+    vi:
+      front: "Giá trị rỗng giả"
+      back: "Các giá trị mặc định như `\"\"`, `0`, `False` vẫn qua bước parse JSON và kiểm kiểu dù dữ liệu thật bị thiếu; cần chặn bằng kiểm tra nghiệp vụ."
+  - id: p7-02-f04
+    tags: [llm]
+    code: |
+      clean = raw[raw.index("{") : raw.rindex("}") + 1]
+      data = json.loads(clean)
+    en:
+      front: "How to strip fences and prose around JSON"
+      back: "Find the first `{` and last `}`, slice that substring, then pass it to `json.loads()` (never `eval()`)."
+    vi:
+      front: "Cách tách JSON khỏi fence markdown và câu dẫn"
+      back: "Tìm dấu `{` đầu tiên và `}` cuối cùng, cắt đoạn chuỗi đó rồi đưa vào `json.loads()` (tuyệt đối không dùng `eval()`)."
+  - id: p7-02-f05
+    tags: [llm]
+    en:
+      front: "Retry with error feedback"
+      back: "Append the invalid `assistant` reply and a `user` message explaining the parse/validation error to a copy of `messages`, then call `chat()` again."
+    vi:
+      front: "Retry kèm phản hồi lỗi"
+      back: "Nối phản hồi `assistant` bị sai cùng tin nhắn `user` nêu rõ lỗi vào bản sao của `messages`, rồi gọi lại `chat()`."
+  - id: p7-02-f06
+    tags: [llm]
+    en:
+      front: "Fallback"
+      back: "A safe default return value (such as `None` or a record flagged `needs_review=True`) used when retries run out, avoiding a crash."
+    vi:
+      front: "Fallback (phương án dự phòng)"
+      back: "Giá trị mặc định an toàn (như `None` hoặc bản ghi có cờ `needs_review=True`) trả về khi hết lượt retry để chương trình không bị sập."

@@ -1,0 +1,110 @@
+id: p7-02-ex02
+kind: code
+title:
+  en: "Write: parse and retry structured LLM replies"
+  vi: "Viết code: parse và retry phản hồi có cấu trúc"
+difficulty: 2
+tags: [llm, json, exceptions]
+hints:
+  en:
+    - |
+      This combines slice-based JSON parsing from §7 with the error-feedback retry loop from §6. For `'Here:\n{"name": "Lan"}\n'`, `parse_reply` returns `{"name": "Lan"}`; for a `FakeLLM` script with one broken reply followed by a valid JSON reply, `get_ticket` returns `(data, 2)`.
+    - |
+      The plan:
+      1. In `parse_reply`, locate the opening brace and closing brace positions in the text; if either is missing or out of order, raise a value error.
+      2. Slice that substring, decode it with the standard JSON loader, and verify the decoded object is a dictionary before returning it.
+      3. In `get_ticket`, make a shallow copy of the caller's message list so the original list stays untouched.
+      4. Loop from attempt one up to the attempt limit, calling the client with the JSON response format, parsing and validating the reply, and returning the data and attempt count as soon as no errors remain.
+      5. On any parse or schema error, append both the assistant's raw reply and a user message explaining the error to the copied history, and return `None` with the attempt limit if all tries fail.
+    - |
+      The shape of the solution:
+      ```python
+      def parse_reply(text: str) -> dict:
+          start = text.find("{")
+          end = text.rfind("}")
+          if start == -1 or end == -1 or end < start:
+              raise ValueError("no JSON object found")
+          ...
+          if not isinstance(data, dict):
+              raise ValueError("expected JSON object")
+          return data
+
+
+      def get_ticket(
+          client: FakeLLM,
+          messages: list[dict[str, str]],
+          schema: dict,
+          max_attempts: int = 3,
+      ) -> tuple[dict | None, int]:
+          history = [dict(m) for m in messages]
+          for attempt in range(1, max_attempts + 1):
+              raw = client.chat(
+                  history,
+                  response_format={"type": "json", "schema": schema},
+              ).content or ""
+              try:
+                  ...
+              except ValueError as err:
+                  errors = [str(err)]
+                  data = {}
+              if not errors:
+                  return data, attempt
+              history.append({"role": "assistant", "content": raw})
+              history.append({
+                  "role": "user",
+                  "content": f"Your JSON was invalid: {'; '.join(errors)}. Return only JSON.",
+              })
+          return None, max_attempts
+      ```
+      Notice that `json.JSONDecodeError` is a subclass of `ValueError`, so catching `ValueError` handles both missing braces and malformed JSON.
+  vi:
+    - |
+      Bài này kết hợp cắt chuỗi JSON ở §7 với vòng lặp retry kèm phản hồi lỗi ở §6. Với `'Here:\n{"name": "Lan"}\n'`, `parse_reply` trả về `{"name": "Lan"}`; với `FakeLLM` có 1 lượt trả lời hỏng rồi 1 lượt đúng, `get_ticket` trả về `(data, 2)`.
+    - |
+      Kế hoạch:
+      1. Trong `parse_reply`, tìm vị trí dấu ngoặc nhọn mở đầu tiên và dấu ngoặc nhọn đóng cuối cùng; nếu thiếu hoặc sai thứ tự thì báo lỗi giá trị.
+      2. Cắt đoạn chuỗi đó, giải mã bằng thư viện JSON chuẩn và kiểm tra kết quả phải là dictionary trước khi trả về.
+      3. Trong `get_ticket`, tạo bản sao của danh sách tin nhắn đầu vào để không làm thay đổi danh sách gốc của người gọi.
+      4. Lặp từ lượt thử thứ nhất đến số lượt tối đa: gọi client với định dạng JSON, parse và kiểm tra kết quả bằng hàm hỗ trợ, rồi trả về ngay dữ liệu cùng số lượt nếu không có lỗi.
+      5. Khi có lỗi parse hoặc lỗi kiểm tra, nối thêm câu trả lời cũ của assistant và tin nhắn user nêu lỗi vào bản sao lịch sử, và nếu hết lượt thì trả về `None` cùng số lượt tối đa.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      def parse_reply(text: str) -> dict:
+          start = text.find("{")
+          end = text.rfind("}")
+          if start == -1 or end == -1 or end < start:
+              raise ValueError("no JSON object found")
+          ...
+          if not isinstance(data, dict):
+              raise ValueError("expected JSON object")
+          return data
+
+
+      def get_ticket(
+          client: FakeLLM,
+          messages: list[dict[str, str]],
+          schema: dict,
+          max_attempts: int = 3,
+      ) -> tuple[dict | None, int]:
+          history = [dict(m) for m in messages]
+          for attempt in range(1, max_attempts + 1):
+              raw = client.chat(
+                  history,
+                  response_format={"type": "json", "schema": schema},
+              ).content or ""
+              try:
+                  ...
+              except ValueError as err:
+                  errors = [str(err)]
+                  data = {}
+              if not errors:
+                  return data, attempt
+              history.append({"role": "assistant", "content": raw})
+              history.append({
+                  "role": "user",
+                  "content": f"Your JSON was invalid: {'; '.join(errors)}. Return only JSON.",
+              })
+          return None, max_attempts
+      ```
+      Lưu ý `json.JSONDecodeError` là lớp con của `ValueError`, nên chỉ cần bắt `ValueError` là xử lý được cả thiếu ngoặc lẫn JSON lỗi cú pháp.

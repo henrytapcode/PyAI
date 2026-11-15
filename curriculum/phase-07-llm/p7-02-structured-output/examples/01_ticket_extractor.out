@@ -1,0 +1,3 @@
+Email 1: Ticket(name='Lan', order_id=1042, urgent=True)
+Email 2: rejected (missing customer name)
+Email 3: Ticket(name='Minh', order_id=2088, urgent=False)
