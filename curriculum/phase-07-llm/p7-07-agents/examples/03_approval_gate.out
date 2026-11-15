@@ -1,0 +1,5 @@
+stopped_reason: needs_approval
+pending: {'id': 'call_2', 'tool': 'issue_refund', 'args': {'order_id': '1042', 'amount': 45.0}}
+step 1: lookup_order({'order_id': '1042'}) -> delayed ($45.00)
+decision (False): rejected: issue_refund({'order_id': '1042', 'amount': 45.0})
+decision (True) : refunded $45.00 for order 1042

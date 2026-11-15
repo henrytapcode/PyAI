@@ -2699,3 +2699,80 @@ terms:
       en: "An allowlist protects your system if prompt injection tricks the model into requesting a destructive or unregistered function."
       vi: "Allowlist bảo vệ hệ thống nếu prompt injection lừa model đề nghị gọi một hàm nguy hiểm hoặc không nằm trong danh sách được cấp phép."
     related: [side effect, dispatch, prompt injection]
+
+  - term: agent loop
+    vi_term: agent loop (vòng lặp agent)
+    tags: [llm, agents, loops]
+    en: "A bounded loop that repeatedly calls an LLM with conversation history and tools, executes any proposed tool call, and feeds the result back until a stop condition is met."
+    vi: "Vòng lặp có giới hạn liên tục gọi LLM kèm lịch sử hội thoại và danh sách tool, chạy tool được đề xuất rồi đưa kết quả lại cho tới khi chạm điều kiện dừng."
+    example: "for step in range(1, max_steps + 1):\n    resp = client.chat(messages, tools=tools)\n    if not resp.tool_calls:\n        break"
+    in_practice:
+      en: "Every tool-using agent is built around this bounded loop rather than an open-ended while True, so failures always terminate cleanly."
+      vi: "Mọi agent dùng tool đều xoay quanh vòng lặp có giới hạn này thay vì vòng lặp vô hạn, giúp lỗi luôn dừng lại gọn gàng."
+    related: [agent, observe-think-act, max steps, stop condition]
+
+  - term: observe-think-act
+    vi_term: observe-think-act (quan sát – suy nghĩ – hành động)
+    tags: [llm, agents]
+    en: "The recurring three-phase cycle of an agent step: observe the messages and latest tool output, think by asking the model what to do next, and act by running a tool."
+    vi: "Chu trình ba pha lặp lại ở mỗi bước của agent: quan sát tin nhắn và kết quả tool mới nhất, suy nghĩ bằng cách hỏi model bước kế tiếp, rồi hành động qua việc chạy tool."
+    example: "# observe messages -> think via client.chat(messages, tools=tools) -> act via dispatch()"
+    in_practice:
+      en: "Structuring logs and code around observe, think, and act makes multi-step agent failures much easier to trace and debug."
+      vi: "Tổ chức code và log theo ba pha quan sát, suy nghĩ, hành động giúp việc theo dõi và debug agent nhiều bước dễ hơn nhiều."
+    related: [agent, agent loop, ReAct]
+
+  - term: ReAct
+    vi_term: ReAct (kết hợp suy luận và hành động)
+    tags: [llm, agents]
+    en: "Reason + Act: an agent prompting pattern where the model alternates between reasoning steps and tool calls, using each tool observation to guide the next thought."
+    vi: "Reason + Act: mẫu thiết kế agent trong đó model luân phiên giữa bước suy luận và gọi tool, dùng kết quả quan sát từ tool để dẫn hướng suy nghĩ tiếp theo."
+    example: "# Thought: check order status -> Action: lookup_order('1042') -> Observation: shipped"
+    in_practice:
+      en: "Modern tool-calling APIs implement the ReAct cycle natively by alternating assistant tool_calls messages with tool observation messages."
+      vi: "Các API gọi tool hiện đại triển khai chu trình ReAct bằng cách xen kẽ message tool_calls của assistant với message quan sát từ tool."
+    related: [agent, observe-think-act, trace]
+
+  - term: max steps
+    vi_term: max steps (giới hạn số bước)
+    tags: [agents, loops]
+    en: "A hard upper limit on how many chat iterations an agent loop can execute before stopping."
+    vi: "Giới hạn cứng tối đa số lượt gọi model mà vòng lặp agent được phép chạy trước khi dừng."
+    example: "for step in range(1, max_steps + 1):\n    ..."
+    in_practice:
+      en: "Setting max_steps alongside a token budget guarantees a stuck or looping agent cannot run forever and drain your API bill."
+      vi: "Đặt max_steps cùng với ngân sách token đảm bảo agent bị kẹt không thể chạy mãi và đốt hết tiền API."
+    related: [agent loop, stop condition]
+
+  - term: trace
+    vi_term: trace (nhật ký từng bước)
+    tags: [agents, logging]
+    en: "A structured step-by-step record of every tool call, arguments, and observation an agent produced while solving a task."
+    vi: "Bản ghi có cấu trúc theo từng bước về mọi lời gọi tool, tham số và kết quả quan sát mà agent tạo ra khi xử lý tác vụ."
+    example: "trace.append({\"step\": step, \"tool\": tc.name, \"args\": args, \"observation\": obs})"
+    in_practice:
+      en: "When an agent returns a wrong answer, the trace is the first artifact engineers read and log into monitoring dashboards."
+      vi: "Khi agent trả lời sai, trace là thứ đầu tiên kỹ sư đọc và gửi vào hệ thống monitoring."
+    related: [agent, logging, observe-think-act]
+
+  - term: stop condition
+    vi_term: stop condition (điều kiện dừng)
+    tags: [agents, system-design]
+    en: "An explicit rule that ends an agent loop cleanly, such as receiving a final answer, hitting max_steps, repeating the exact same tool call, exceeding a token budget, or needing human approval."
+    vi: "Quy tắc rõ ràng giúp kết thúc vòng lặp agent an toàn, như có câu trả lời cuối, chạm max_steps, lặp lại đúng lời gọi tool trước, vượt ngân sách token hoặc chờ người duyệt."
+    example: "if total_tokens > token_budget:\n    return {\"stopped_reason\": \"budget\", \"steps\": step, \"trace\": trace}"
+    in_practice:
+      en: "Returning a specific stopped_reason lets callers and UIs react differently to normal completion, budget exhaustion, loops, or pending approvals."
+      vi: "Trả về mã stopped_reason cụ thể giúp code gọi và giao diện xử lý khác nhau giữa hoàn thành bình thường, hết ngân sách, kẹt lặp hay chờ duyệt."
+    related: [agent loop, max steps, side effect]
+
+  - term: workflow
+    vi_term: workflow (luồng xử lý cố định)
+    tags: [system-design, agents]
+    en: "A deterministic sequence of LLM and code steps decided upfront by your program, as opposed to an agent that picks steps dynamically at runtime."
+    vi: "Chuỗi các bước LLM và code tất định do chương trình quy định sẵn từ đầu, khác với agent tự chọn bước tiếp theo khi chạy."
+    example: "# Fixed pipeline: text -> extract_json() -> summarize() -> translate()"
+    in_practice:
+      en: "Prefer a workflow whenever the task steps are predictable, because fixed pipelines are cheaper, faster, and far easier to test than agents."
+      vi: "Hãy ưu tiên workflow mỗi khi các bước có thể đoán trước, vì luồng cố định rẻ hơn, nhanh hơn và dễ kiểm thử hơn agent rất nhiều."
+    related: [agent, pipeline, system-design]

@@ -1,0 +1,4 @@
+stopped_reason: final steps: 3
+step 1: lookup_order({'order_id': '1042'}) -> shipped (FastPost)
+step 2: estimate_delivery({'carrier': 'FastPost'}) -> 2 business days
+answer: Order 1042 shipped via FastPost and arrives in 2 business days.

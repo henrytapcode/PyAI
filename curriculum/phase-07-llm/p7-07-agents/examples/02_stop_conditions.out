@@ -1,0 +1,4 @@
+normal completion          -> stopped_reason=final, steps=2, tokens=43
+alternating tools past cap -> stopped_reason=max_steps, steps=3, tokens=86
+stuck repeating same call  -> stopped_reason=repeat, steps=2, tokens=46
+tight token budget         -> stopped_reason=budget, steps=2, tokens=46

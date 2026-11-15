@@ -1,0 +1,96 @@
+id: p7-07-ex02
+kind: code
+title:
+  en: "Code: build a guarded multi-step agent loop"
+  vi: "Viết code: xây dựng vòng lặp agent nhiều bước có bảo vệ"
+difficulty: 2
+tags: [agents, llm, functions]
+hints:
+  en:
+    - |
+      This combines the bounded agent loop from §2, trace recording from §3, and stop conditions (`budget`, `final`, `repeat`, `max_steps`) from §4. On a 3-step scripted task, it returns `{"answer": ..., "stopped_reason": "final", "steps": 3, "trace": [...]}`.
+    - |
+      The plan:
+      1. Initialize the message list with the user task, an empty trace list, a zero token counter, and a lookup map of required parameters per tool.
+      2. Loop from step 1 through the step cap, call the model with the messages and tools, and add the response token count to the running total.
+      3. Check the stop conditions in order: if the token budget is set and exceeded, return a budget stop; if no tool calls remain, return the final answer.
+      4. Take the first tool call: if its name and arguments match the previous trace entry, return a repeat stop without running the tool; otherwise dispatch it safely, append both the assistant tool-call message and the tool result message, and append a trace dictionary.
+      5. After the loop finishes all steps without stopping early, return a max-steps stop.
+    - |
+      Function skeleton:
+      ```python
+      import json
+
+
+      def run_agent(
+          client,
+          task: str,
+          tools: list[dict],
+          registry: dict,
+          max_steps: int = 5,
+          token_budget: int | None = None,
+      ) -> dict:
+          required_map = {
+              t["name"]: set(t.get("parameters", {}).get("required", []))
+              for t in tools
+          }
+          messages = [{"role": "user", "content": task}]
+          trace: list[dict] = []
+          total_tokens = 0
+
+          for step in range(1, max_steps + 1):
+              resp = client.chat(messages, tools=tools)
+              total_tokens += resp.usage.total_tokens
+              if token_budget is not None and total_tokens > token_budget:
+                  return {"answer": "", "stopped_reason": "budget", "steps": step, "trace": trace}
+              if not resp.tool_calls:
+                  return {"answer": resp.content or "", "stopped_reason": "final", "steps": step, "trace": trace}
+              tc = resp.tool_calls[0]
+              ...
+
+          return {"answer": "", "stopped_reason": "max_steps", "steps": max_steps, "trace": trace}
+      ```
+  vi:
+    - |
+      Bài này kết hợp vòng lặp agent ở §2, ghi trace ở §3 và các điều kiện dừng (`budget`, `final`, `repeat`, `max_steps`) ở §4. Với tác vụ 3 bước dùng kịch bản, hàm trả về `{"answer": ..., "stopped_reason": "final", "steps": 3, "trace": [...]}`.
+    - |
+      Kế hoạch:
+      1. Khởi tạo danh sách tin nhắn với yêu cầu người dùng, danh sách trace rỗng, bộ đếm token bằng không và bảng tra các tham số bắt buộc của từng tool.
+      2. Lặp từ bước 1 đến giới hạn bước, gọi chat kèm danh sách tin nhắn và danh sách tool, rồi cộng tổng token của phản hồi vào bộ đếm.
+      3. Kiểm tra các điều kiện dừng theo đúng thứ tự: nếu có đặt ngân sách token và tổng đã vượt ngưỡng thì dừng vì ngân sách; nếu không còn yêu cầu gọi tool thì trả về câu trả lời cuối.
+      4. Lấy yêu cầu gọi tool đầu tiên: nếu tên và tham số giống hệt mục cuối trong trace thì dừng vì lặp mà không chạy tool; ngược lại hãy điều phối an toàn, nối cả tin nhắn assistant lẫn tin nhắn kết quả tool vào lịch sử, rồi ghi thêm một bản ghi vào trace.
+      5. Nếu chạy hết mọi bước mà chưa dừng sớm thì trả về kết quả dừng do chạm giới hạn bước.
+    - |
+      Khung hàm:
+      ```python
+      import json
+
+
+      def run_agent(
+          client,
+          task: str,
+          tools: list[dict],
+          registry: dict,
+          max_steps: int = 5,
+          token_budget: int | None = None,
+      ) -> dict:
+          required_map = {
+              t["name"]: set(t.get("parameters", {}).get("required", []))
+              for t in tools
+          }
+          messages = [{"role": "user", "content": task}]
+          trace: list[dict] = []
+          total_tokens = 0
+
+          for step in range(1, max_steps + 1):
+              resp = client.chat(messages, tools=tools)
+              total_tokens += resp.usage.total_tokens
+              if token_budget is not None and total_tokens > token_budget:
+                  return {"answer": "", "stopped_reason": "budget", "steps": step, "trace": trace}
+              if not resp.tool_calls:
+                  return {"answer": resp.content or "", "stopped_reason": "final", "steps": step, "trace": trace}
+              tc = resp.tool_calls[0]
+              ...
+
+          return {"answer": "", "stopped_reason": "max_steps", "steps": max_steps, "trace": trace}
+      ```

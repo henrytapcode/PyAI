@@ -1,0 +1,409 @@
+questions:
+  - id: p7-07-q01
+    type: mcq
+    tags: [agents, system-design]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is the key difference between a fixed workflow and an agent?"
+      options:
+        - "A workflow uses Python dicts while an agent uses SQL"
+        - "An agent lets the model pick the next step dynamically"
+        - "A workflow can run tools while an agent cannot call tools"
+        - "An agent runs only once without reading observations"
+      explanation: "In a fixed workflow, your Python code decides all steps upfront; in an agent, the model chooses each next step after reading prior tool observations."
+    vi:
+      prompt: "Điểm khác biệt cốt lõi giữa một workflow cố định và một agent là gì?"
+      options:
+        - "Workflow dùng dict Python còn agent phải dùng SQL"
+        - "Agent để model tự chọn bước tiếp theo tùy tình huống"
+        - "Workflow chạy được tool còn agent thì không gọi tool"
+        - "Agent chỉ chạy một lần mà không đọc kết quả quan sát"
+      explanation: "Ở workflow cố định, code Python quy định sẵn toàn bộ các bước; ở agent, model tự quyết định bước kế tiếp sau khi đọc kết quả của bước trước."
+
+  - id: p7-07-q02
+    type: mcq
+    tags: [agents, loops]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Why must every agent loop enforce a `max_steps` cap?"
+      options:
+        - "Python forbids functions containing more than five lines"
+        - "FakeLLM deletes every tool schema after three chat calls"
+        - "It stops runaway loops from draining cost and time"
+        - "It forces every tool to return JSON instead of text"
+      explanation: "Without `max_steps`, a model that keeps requesting tools spins forever, burning API budget and time (or raising `IndexError` on an exhausted script)."
+    vi:
+      prompt: "Vì sao mọi vòng lặp agent đều phải đặt giới hạn `max_steps`?"
+      options:
+        - "Python cấm các hàm dài quá năm dòng code"
+        - "FakeLLM tự động xóa tool schema sau ba lần gọi chat"
+        - "Chặn vòng lặp vô tận đốt tiền và thời gian"
+        - "Ép mọi tool trả JSON thay vì chuỗi"
+      explanation: "Thiếu `max_steps`, một model cứ gọi tool mãi sẽ chạy vô tận làm cạn ngân sách và thời gian (hoặc văng `IndexError` khi hết script)."
+
+  - id: p7-07-q03
+    type: mcq
+    tags: [agents, system-design]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "When should you avoid building an agent and use a fixed workflow instead?"
+      options:
+        - "When the steps and their order are known upfront"
+        - "When tool results change which tool comes next"
+        - "When you need to recover from unknown tool errors"
+        - "When a human must review a refund request"
+      explanation: "If every step and its order are already fixed ahead of time, a deterministic pipeline is cheaper, faster, and much easier to test than an agent."
+    vi:
+      prompt: "Khi nào bạn KHÔNG nên dùng agent mà nên viết workflow cố định?"
+      options:
+        - "Khi số bước và thứ tự đã cố định trước"
+        - "Khi kết quả tool quyết định bước kế tiếp sau đó"
+        - "Khi cần đọc lỗi tool rồi thử lại tham số khác"
+        - "Khi cần người duyệt trước lúc thực hiện hoàn tiền"
+      explanation: "Nếu các bước và thứ tự đã biết trước hoàn toàn, workflow cố định rẻ hơn, nhanh hơn và dễ viết test hơn agent rất nhiều."
+
+  - id: p7-07-q04
+    type: output
+    tags: [agents, llm]
+    difficulty: 1
+    code: |
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(script=[
+          {"tool_calls": [{"name": "lookup_order", "arguments": {"order_id": "1042"}}]},
+          "Order 1042 is shipped.",
+      ])
+      messages = [{"role": "user", "content": "Where is 1042?"}]
+      trace = []
+      for step in range(1, 4):
+          resp = client.chat(messages)
+          if not resp.tool_calls:
+              print(f"{step}|{len(trace)}|{resp.content}")
+              break
+          tc = resp.tool_calls[0]
+          messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": tc.arguments}]})
+          messages.append({"role": "tool", "tool_call_id": tc.id, "content": "shipped"})
+          trace.append(tc.name)
+    answer: "2|1|Order 1042 is shipped."
+    en:
+      prompt: "What does this code print?"
+      explanation: "Step 1 proposes `lookup_order` and appends one entry to `trace`; step 2 returns the final string, so `step` is `2` and `len(trace)` is `1`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Bước 1 đề xuất `lookup_order` và ghi 1 phần tử vào `trace`; bước 2 trả về chuỗi cuối nên `step` là `2` và `len(trace)` là `1`."
+
+  - id: p7-07-q05
+    type: fill
+    tags: [agents, loops]
+    difficulty: 1
+    code: |
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(script=[
+          {"tool_calls": [{"name": "ping", "arguments": {}}]},
+          {"tool_calls": [{"name": "ping", "arguments": {}}]},
+      ])
+      stopped = "final"
+      for step in range(1, ___ + 1):
+          resp = client.chat([{"role": "user", "content": "hi"}])
+          if not resp.tool_calls:
+              break
+      else:
+          stopped = ___
+      print(stopped)
+    answer:
+      - "2"
+      - ['"max_steps"', "'max_steps'"]
+    en:
+      prompt: "Fill in the two blanks so a 2-step loop ends with `stopped == \"max_steps\"` when tools keep getting requested."
+      explanation: "Looping `range(1, 2 + 1)` executes 2 steps; when the `for` loop finishes without `break`, the `else` branch sets `stopped = \"max_steps\"`."
+    vi:
+      prompt: "Điền vào hai chỗ trống để vòng lặp 2 bước kết thúc với `stopped == \"max_steps\"` khi model cứ gọi tool mãi."
+      explanation: "Vòng lặp `range(1, 2 + 1)` chạy 2 bước; khi vòng `for` kết thúc mà không gặp `break`, nhánh `else` gán `stopped = \"max_steps\"`."
+
+  - id: p7-07-q06
+    type: mcq
+    tags: [agents, logging]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What is the main purpose of recording a step-by-step `trace` in an agent?"
+      options:
+        - "To bypass `max_steps` when a task needs more turns"
+        - "To replace JSON Schema checks on every tool parameter"
+        - "To let FakeLLM generate answers without any script list"
+        - "To inspect which tool call and observation failed"
+      explanation: "A trace stores `(step, tool, args, observation)` for every action so you can pinpoint exactly which step went wrong—and feed monitoring logs in production."
+    vi:
+      prompt: "Mục đích chính của việc ghi `trace` từng bước trong agent là gì?"
+      options:
+        - "Vượt qua giới hạn `max_steps` khi tác vụ dài hơn"
+        - "Thay thế hoàn toàn bước kiểm tra JSON Schema tham số"
+        - "Giúp FakeLLM tự trả lời mà không cần danh sách script"
+        - "Xem lại bước gọi tool và quan sát nào bị sai"
+      explanation: "Trace lưu `(step, tool, args, observation)` của từng bước để bạn biết chính xác bước nào sai, và phục vụ log monitoring ngoài thực tế."
+
+  - id: p7-07-q07
+    type: output
+    tags: [agents, dicts]
+    difficulty: 2
+    code: |
+      decisions = [
+          ("lookup_order", {"order_id": "1042"}),
+          ("lookup_order", {"order_id": "1042"}),
+          ("final", "done"),
+      ]
+      trace = []
+      reason = "max_steps"
+      for step, (kind, payload) in enumerate(decisions, 1):
+          if kind == "final":
+              reason = "final"
+              break
+          if trace and trace[-1][0] == kind and trace[-1][1] == payload:
+              reason = "repeat"
+              break
+          trace.append((kind, payload))
+      print(reason, step, len(trace))
+    answer: "repeat 2 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Step 1 records `lookup_order`; step 2 proposes the exact same tool and args, triggering `repeat` before appending to `trace`, so `step=2` and `len(trace)=1`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Bước 1 ghi `lookup_order`; bước 2 lặp lại đúng tool và tham số nên dừng với `repeat` trước khi ghi thêm vào `trace`, do đó `step=2` và `len(trace)=1`."
+
+  - id: p7-07-q08
+    type: parsons
+    tags: [agents, loops]
+    difficulty: 2
+    lines:
+      - "from pyai_llm import FakeLLM"
+      - "client = FakeLLM()"
+      - "tc = client.chat([{\"role\": \"user\", \"content\": \"ping\"}], tools=[{\"name\": \"ping\", \"description\": \"ping\"}]).tool_calls[0]"
+      - "messages = [{\"role\": \"assistant\", \"content\": None, \"tool_calls\": [{\"id\": tc.id, \"name\": tc.name, \"arguments\": {}}]}]"
+      - "messages.append({\"role\": \"tool\", \"tool_call_id\": tc.id, \"content\": \"pong\"})"
+      - "print(client.chat(messages).content)"
+    en:
+      prompt: "Arrange these lines in order to extract a tool call, build the `assistant` and `tool` messages, and print the reply."
+      explanation: "Import and create `FakeLLM()`, fetch `tc` from `chat()`, build `messages` starting with the `assistant` (`tool_calls`) dict, append the `tool` dict, and call `client.chat(messages)`."
+    vi:
+      prompt: "Sắp xếp các dòng theo đúng thứ tự để lấy tool call, tạo cặp message `assistant` và `tool`, rồi in phản hồi cuối."
+      explanation: "Import và tạo `FakeLLM()`, lấy `tc` từ `chat()`, dựng `messages` bắt đầu bằng dict `assistant` (`tool_calls`), nối dict `tool`, rồi gọi `client.chat(messages)`."
+
+  - id: p7-07-q09
+    type: mcq
+    tags: [agents, exceptions]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What happens when a tool returns `\"error: order 9999 not found\"` as a `tool` observation?"
+      options:
+        - "Python immediately aborts the whole agent with RuntimeError"
+        - "The model reads the error and can try another call"
+        - "FakeLLM deletes that tool from the registry dictionary"
+        - "The loop skips appending the assistant message to history"
+      explanation: "Returning errors inside the `tool` message keeps the agent alive so the model can inspect what failed and self-correct on the next step."
+    vi:
+      prompt: "Điều gì xảy ra khi tool trả về `\"error: order 9999 not found\"` làm quan sát trong message `tool`?"
+      options:
+        - "Python lập tức dừng cả agent bằng ngoại lệ RuntimeError"
+        - "Model đọc thông báo lỗi đó và có thể thử cách khác"
+        - "FakeLLM tự động xóa tool đó khỏi dictionary registry"
+        - "Vòng lặp bỏ qua bước nối message assistant vào lịch sử"
+      explanation: "Đưa chuỗi lỗi vào message `tool` giúp agent không bị sập, để model đọc được nguyên nhân và tự sửa ở bước kế tiếp."
+
+  - id: p7-07-q10
+    type: fill
+    tags: [agents, dicts]
+    difficulty: 2
+    code: |
+      def is_repeat(history: list[tuple[str, dict]], name: str, args: dict) -> bool:
+          if not ___:
+              return False
+          last_name, last_args = history[___]
+          return last_name == name and last_args == args
+
+      print(is_repeat([("a", {"x": 1}), ("b", {"x": 2})], "a", {"x": 1}))
+    answer:
+      - "history"
+      - "-1"
+    en:
+      prompt: "Fill in the blanks so `is_repeat` checks only the immediately preceding entry in `history`."
+      explanation: "Check `if not history:` for empty histories, then inspect `history[-1]`—matching an older entry like `(\"a\", {\"x\": 1})` at index 0 is not an immediate repeat."
+    vi:
+      prompt: "Điền vào chỗ trống để `is_repeat` chỉ so sánh với bước ngay trước đó trong `history`."
+      explanation: "Kiểm tra `if not history:` khi rỗng, rồi lấy `history[-1]`—trùng với một bước cũ hơn như `(\"a\", {\"x\": 1})` ở vị trí 0 không phải là lặp liên tiếp."
+
+  - id: p7-07-q11
+    type: output
+    tags: [agents, llm]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(script=[
+          {"tool_calls": [{"name": "lookup_order", "arguments": {"order_id": "1042"}}]},
+          "Shipped.",
+      ])
+      messages = [{"role": "user", "content": "Check 1042"}]
+      total = 0
+      budget = 10
+      for step in range(1, 4):
+          resp = client.chat(messages)
+          total += resp.usage.total_tokens
+          if total > budget:
+              print("budget", step, total > budget)
+              break
+    answer: "budget 1 True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Even a short prompt plus tool call tokens exceeds `budget = 10` on step 1, so the token-budget check stops the loop immediately at `step == 1`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Ngay cả prompt ngắn kèm token của tool call cũng vượt `budget = 10` ở bước 1, nên chốt chặn ngân sách dừng vòng lặp ngay tại `step == 1`."
+
+  - id: p7-07-q12
+    type: mcq
+    tags: [agents, loops]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "An agent skips appending the `tool` result message after calling `lookup_order`. What guard catches this bug cleanly?"
+      options:
+        - "The `final` check returns the missing tool output automatically"
+        - "The `needs_approval` gate repairs the conversation history"
+        - "The `repeat` guard stops duplicate calls"
+        - "The `json.dumps` call fixes the message list format"
+      explanation: "Without the `tool` observation in `messages`, the model repeats the exact same tool call on the next turn, and the `repeat` guard catches it immediately."
+    vi:
+      prompt: "Một agent quên nối message kết quả `tool` sau khi chạy `lookup_order`. Lớp bảo vệ nào bắt được lỗi này ngay?"
+      options:
+        - "Kiểm tra `final` tự trả về kết quả tool bị thiếu"
+        - "Cổng `needs_approval` tự sửa lại lịch sử hội thoại"
+        - "Chốt chặn `repeat` dừng khi cùng lời gọi lặp lại"
+        - "Hàm `json.dumps` tự động bổ sung message bị thiếu"
+      explanation: "Vì thiếu quan sát `tool` trong `messages`, model sẽ gọi lại y hệt tool và tham số cũ ở lượt sau, và chốt chặn `repeat` bắt được ngay."
+
+  - id: p7-07-q13
+    type: fill
+    tags: [agents, functions]
+    difficulty: 3
+    code: |
+      def check_stop(total_tokens: int, budget: int | None, has_tool_calls: bool, repeated: bool) -> str:
+          if budget is not None and total_tokens ___ budget:
+              return "budget"
+          if not ___:
+              return "final"
+          if repeated:
+              return "repeat"
+          return "continue"
+
+      print(check_stop(15, 10, False, False))
+    answer:
+      - ">"
+      - "has_tool_calls"
+    en:
+      prompt: "Fill in the blanks so `budget` is checked before `final`, stopping when `total_tokens` exceeds `budget`."
+      explanation: "Use `>` so exceeding `budget` stops with `\"budget\"` even if `has_tool_calls` is `False`, and check `if not has_tool_calls:` second."
+    vi:
+      prompt: "Điền vào chỗ trống để điều kiện `budget` được kiểm tra trước `final`, dừng khi `total_tokens` vượt `budget`."
+      explanation: "Dùng `>` để khi vượt `budget` thì dừng với `\"budget\"` kể cả lúc `has_tool_calls` là `False`, rồi mới kiểm tra `if not has_tool_calls:`."
+
+  - id: p7-07-q14
+    type: parsons
+    tags: [agents, functions]
+    difficulty: 3
+    lines:
+      - "def run_gate(tool_name: str, approved: bool) -> str:"
+      - "    if tool_name == \"issue_refund\" and not approved:"
+      - "        return \"needs_approval\""
+      - "    return \"executed\""
+      - "out = run_gate(\"issue_refund\", False)"
+      - "out = f\"{out} -> {run_gate('issue_refund', True)}\""
+      - "print(out)"
+    en:
+      prompt: "Arrange these lines to build an approval gate and print `needs_approval -> executed`."
+      explanation: "Define `run_gate` checking `tool_name == \"issue_refund\" and not approved` before returning `\"executed\"`, then call it with `False`, format with the `True` result, and print."
+    vi:
+      prompt: "Sắp xếp các dòng để tạo cổng duyệt và in ra `needs_approval -> executed`."
+      explanation: "Định nghĩa `run_gate` kiểm tra `tool_name == \"issue_refund\" and not approved` trước khi trả `\"executed\"`, sau đó gọi với `False`, ghép tiếp kết quả với `True`, rồi in ra."
+
+  - id: p7-07-q15
+    type: mcq
+    tags: [agents, system-design]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "Your agent has read-only tools plus `issue_refund`. What is the safest way to handle a refund proposal?"
+      options:
+        - "Pause with `needs_approval` until a human confirms"
+        - "Let the model set `confirmed=True` in its arguments"
+        - "Run `issue_refund` first and ask for approval later"
+        - "Disable `max_steps` so the refund always finishes"
+      explanation: "Human-in-the-loop pauses the loop with `stopped_reason == \"needs_approval\"` and only executes irreversible side effects after external human confirmation."
+    vi:
+      prompt: "Agent của bạn có các tool chỉ đọc cùng với `issue_refund`. Cách an toàn nhất khi agent đề xuất hoàn tiền là gì?"
+      options:
+        - "Dừng với `needs_approval` chờ con người xác nhận"
+        - "Cho phép model tự truyền `confirmed=True` trong tham số"
+        - "Chạy `issue_refund` trước rồi mới xin duyệt sau"
+        - "Tắt giới hạn `max_steps` để hoàn tiền luôn xong"
+      explanation: "Cơ chế human-in-the-loop cho vòng lặp dừng lại ở `stopped_reason == \"needs_approval\"` và chỉ thực thi tác dụng phụ khi có xác nhận bên ngoài từ con người."
+
+flashcards:
+  - id: p7-07-f01
+    tags: [agents]
+    en:
+      front: "Observe–Think–Act loop"
+      back: "The core agent cycle: observe messages and tool results, let the model think (pick a tool or final reply), act by running the tool, and feed the observation back."
+    vi:
+      front: "Vòng lặp Observe–Think–Act"
+      back: "Chu trình cốt lõi của agent: quan sát lịch sử và kết quả tool, để model suy nghĩ (chọn tool hoặc trả lời cuối), hành động chạy tool rồi đưa quan sát trở lại."
+
+  - id: p7-07-f02
+    tags: [agents, loops]
+    en:
+      front: "max_steps"
+      back: "A hard upper bound on how many chat iterations an agent loop may run, preventing runaway cost and infinite loops."
+    vi:
+      front: "max_steps"
+      back: "Giới hạn cứng số lượt gọi chat tối đa của vòng lặp agent, giúp chặn chi phí tăng vọt và vòng lặp vô tận."
+
+  - id: p7-07-f03
+    tags: [agents, logging]
+    en:
+      front: "Agent trace"
+      back: "A structured list of `{step, tool, args, observation}` records logged on every tool call so you can debug failures step by step."
+    vi:
+      front: "Trace của agent"
+      back: "Danh sách bản ghi có cấu trúc `{step, tool, args, observation}` lưu ở mỗi bước gọi tool để lần ra nguyên nhân khi agent sai."
+
+  - id: p7-07-f04
+    tags: [agents]
+    en:
+      front: "Four standard stop conditions"
+      back: "`final` (no tool calls), `max_steps` (step cap reached), `repeat` (exact same tool and args twice in a row), and `budget` (token total exceeded `token_budget`)."
+    vi:
+      front: "Bốn điều kiện dừng chuẩn"
+      back: "`final` (hết tool call), `max_steps` (chạm trần bước), `repeat` (gọi lại đúng tool và tham số liên tiếp), và `budget` (tổng token vượt `token_budget`)."
+
+  - id: p7-07-f05
+    tags: [agents, system-design]
+    en:
+      front: "Fixed workflow vs. agent"
+      back: "Use a fixed workflow (pipeline) when steps and order are known upfront; use an agent only when the next step depends on mid-way observations."
+    vi:
+      front: "Workflow cố định vs. agent"
+      back: "Dùng workflow cố định khi số bước và thứ tự đã biết trước; chỉ dùng agent khi bước kế tiếp phụ thuộc vào kết quả giữa chừng."
+
+  - id: p7-07-f06
+    tags: [agents]
+    en:
+      front: "Human-in-the-loop (`needs_approval`)"
+      back: "Pausing the agent loop before an irreversible side-effect tool (such as `issue_refund`) so a human approver must confirm before execution."
+    vi:
+      front: "Human-in-the-loop (`needs_approval`)"
+      back: "Cho vòng lặp agent tạm dừng trước các tool có tác dụng phụ không đảo ngược được (như `issue_refund`) để con người duyệt rồi mới chạy."

@@ -1,0 +1,42 @@
+id: p7-07-ex01
+kind: fill
+title:
+  en: "Fill: detect repeated tool calls"
+  vi: "Điền chỗ trống: phát hiện tool call bị lặp"
+difficulty: 1
+tags: [agents, loops, dicts]
+hints:
+  en:
+    - |
+      This implements the repeat-detection stop guard from §4. For `history=[("lookup_order", {"order_id": "1042"})]`, calling `is_repeat(history, "lookup_order", {"order_id": "1042"})` must return `True`.
+    - |
+      The plan:
+      1. Return false right away when the history list has no entries.
+      2. Unpack the tool name and argument dictionary from the final entry in history.
+      3. Return true only when both the previous name equals the new name and the previous dictionary equals the new arguments.
+    - |
+      Function skeleton:
+      ```python
+      def is_repeat(history: list[tuple[str, dict]], name: str, args: dict) -> bool:
+          if not history:
+              return False
+          last_name, last_args = history[-1]
+          return ...
+      ```
+  vi:
+    - |
+      Bài này cài đặt bộ phát hiện lặp ở §4. Với `history=[("lookup_order", {"order_id": "1042"})]`, gọi `is_repeat(history, "lookup_order", {"order_id": "1042"})` phải trả về `True`.
+    - |
+      Kế hoạch:
+      1. Trả về sai ngay nếu danh sách lịch sử đang rỗng.
+      2. Tách tên tool và dictionary tham số từ phần tử cuối cùng trong lịch sử.
+      3. Chỉ trả về đúng khi tên ở bước cuối trùng với tên mới và dictionary tham số ở bước cuối bằng với dictionary tham số mới.
+    - |
+      Khung hàm:
+      ```python
+      def is_repeat(history: list[tuple[str, dict]], name: str, args: dict) -> bool:
+          if not history:
+              return False
+          last_name, last_args = history[-1]
+          return ...
+      ```

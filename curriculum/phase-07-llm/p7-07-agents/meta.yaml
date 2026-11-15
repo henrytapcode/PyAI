@@ -1,0 +1,29 @@
+id: p7-07-agents
+phase: p7
+order: 7
+kind: lesson
+title:
+  en: "Simple agents"
+  vi: "Agent đơn giản"
+summary:
+  en: "Build a bounded observe-think-act agent loop with FakeLLM, record step-by-step traces, enforce stop conditions (max steps, repeat detection, token budgets), recover from tool errors, and gate side-effect actions behind human approval."
+  vi: "Xây dựng vòng lặp agent observe-think-act có giới hạn bằng FakeLLM, ghi trace từng bước, đặt điều kiện dừng (max steps, chống lặp, ngân sách token), tự phục hồi khi tool lỗi và chặn hành động có tác dụng phụ chờ người duyệt."
+level: beginner
+tags: [llm, loops, functions, agents]
+prerequisites: [p7-06-tool-use]
+duration_min: 15
+outcomes:
+  en:
+    - "Implement a bounded observe-think-act loop"
+    - "Guard against infinite loops with max steps"
+    - "Trace multi-step decisions with the fake client"
+  vi:
+    - "Cài đặt vòng lặp observe-think-act có giới hạn bước"
+    - "Ngăn vòng lặp vô hạn bằng max steps"
+    - "Theo dõi quyết định nhiều bước với fake client"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "ReAct: Synergizing Reasoning and Acting in Language Models (arXiv:2210.03629)", vi: "ReAct: Synergizing Reasoning and Acting in Language Models (arXiv:2210.03629)" }
+    url: "https://arxiv.org/abs/2210.03629"
+  - title: { en: "Anthropic: Building Effective Agents", vi: "Anthropic: Building Effective Agents (EN)" }
+    url: "https://www.anthropic.com/engineering/building-effective-agents"
