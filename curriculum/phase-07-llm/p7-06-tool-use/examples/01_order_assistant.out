@@ -1,0 +1,8 @@
+Q: Check status for order "1042"
+  tool=lookup_order args={'order_id': '1042'}
+  result={"item": "Mechanical Keyboard", "status": "shipped", "carrier": "FastPost"}
+A: Based on the tool result: {"item": "Mechanical Keyboard", "status": "shipped", "carrier": "FastPost"}
+Q: Estimate delivery days for carrier "FastPost"
+  tool=estimate_delivery args={'carrier': 'FastPost'}
+  result=estimated delivery in 2 business days via FastPost
+A: Based on the tool result: estimated delivery in 2 business days via FastPost

@@ -1,0 +1,6 @@
+User: Refund order 1042 ($45) -> Refund of 45.0 for order 1042 is complete.
+User: Refund order 1043 ($250) -> Refund of 250.0 was blocked because it exceeds the 100.0 limit.
+
+Action log:
+ - APPROVED issue_refund {'order_id': '1042', 'amount': 45.0} -> {"status": "refunded", "order_id": "1042", "amount": 45.0}
+ - BLOCKED issue_refund {'order_id': '1043', 'amount': 250.0}: exceeds limit 100.0

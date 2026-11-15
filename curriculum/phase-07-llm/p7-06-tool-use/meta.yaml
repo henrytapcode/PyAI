@@ -1,0 +1,29 @@
+id: p7-06-tool-use
+phase: p7
+order: 6
+kind: lesson
+title:
+  en: "Tool use"
+  vi: "Tool use"
+summary:
+  en: "Describe Python functions with JSON schemas, inspect tool calls proposed by the model, dispatch them safely through a registry, guard side effects, and return tool results for a final answer."
+  vi: "Mô tả hàm Python bằng JSON schema, đọc yêu cầu gọi tool từ model, điều phối an toàn qua registry, bảo vệ các hàm có tác dụng phụ và gửi kết quả lại để model trả lời cuối."
+level: beginner
+tags: [llm, functions, dicts, agents]
+prerequisites: [p7-02-structured-output]
+duration_min: 15
+outcomes:
+  en:
+    - "Describe Python functions as tool schemas"
+    - "Route tool calls from the fake LLM client to code"
+    - "Feed tool results back to produce a final answer"
+  vi:
+    - "Mô tả hàm Python thành tool schema"
+    - "Điều phối tool call từ fake LLM client tới hàm xử lý"
+    - "Đưa kết quả tool trở lại model để tạo câu trả lời cuối"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "OpenAI API: Function Calling Guide", vi: "OpenAI API: Hướng dẫn Function Calling (EN)" }
+    url: "https://developers.openai.com/api/docs/guides/function-calling"
+  - title: { en: "JSON Schema: Getting Started Step-By-Step", vi: "JSON Schema: Getting Started Step-By-Step (EN)" }
+    url: "https://json-schema.org/learn/getting-started-step-by-step"

@@ -2643,3 +2643,59 @@ terms:
       en: "Calling model.eval() before validation or inference disables dropout so predictions are deterministic and repeatable."
       vi: "Luôn gọi model.eval() trước khi kiểm thử hoặc dự đoán để tắt dropout, giúp kết quả ổn định và lặp lại được."
     related: [overfitting, fine-tuning]
+
+  # ---------------------------------------------------------- Tool use & agents
+  - term: tool schema
+    vi_term: tool schema (lược đồ mô tả công cụ)
+    tags: [llm, agents, json]
+    en: "A dictionary with name, description, and a JSON Schema parameters block that tells the model when and how to request a function."
+    vi: "Một dictionary gồm name, description và khối parameters theo JSON Schema để báo cho model biết khi nào và cần truyền gì khi gọi hàm."
+    example: "schema = {\"name\": \"get_weather\", \"description\": \"Current weather by city\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}}, \"required\": [\"city\"]}}"
+    in_practice:
+      en: "Real LLM providers read every word of your tool schema's description and parameter specs to choose the right tool and fill valid arguments."
+      vi: "Các API LLM thật đọc từng chữ trong description và mô tả tham số của tool schema để chọn đúng công cụ và điền tham số hợp lệ."
+    related: [JSON schema, tool call, function calling]
+
+  - term: tool call
+    vi_term: tool call (yêu cầu gọi công cụ)
+    tags: [llm, agents]
+    en: "A structured request returned by the model containing an id, a tool name, and an arguments dictionary for your code to execute."
+    vi: "Yêu cầu có cấu trúc do model trả về, gồm id, tên công cụ và dictionary arguments để code của bạn thực thi."
+    example: "ToolCall(id=\"call_1\", name=\"get_weather\", arguments={\"city\": \"Hanoi\"})"
+    in_practice:
+      en: "When a response has finish_reason == \"tool_calls\", content is usually None because the model is pausing to ask your code for data before writing its final reply."
+      vi: "Khi response có finish_reason == \"tool_calls\", content thường là None vì model đang tạm dừng để nhờ code của bạn lấy dữ liệu trước khi viết câu trả lời cuối."
+    related: [tool use, tool schema, dispatch]
+
+  - term: dispatch
+    vi_term: dispatch (điều phối gọi hàm)
+    tags: [llm, functions, dicts]
+    en: "Looking up a requested tool name in a registry dictionary, validating its arguments, running the matching Python function safely, and returning a string result."
+    vi: "Tra tên công cụ được yêu cầu trong dictionary registry, kiểm tra tham số, gọi hàm Python tương ứng một cách an toàn và trả về kết quả dạng chuỗi."
+    example: "func = REGISTRY.get(call.name)\nresult = func(**clean_args) if func else f\"error: unknown tool {call.name}\""
+    in_practice:
+      en: "A good dispatcher catches unknown names, missing fields, and exceptions and returns them as tool error strings so the model can recover instead of crashing your app."
+      vi: "Bộ điều phối tốt sẽ bắt tên tool lạ, thiếu tham số và ngoại lệ rồi trả về dạng chuỗi lỗi cho model tự xử lý tiếp, thay vì làm sập chương trình."
+    related: [tool call, dictionary, try/except]
+
+  - term: side effect
+    vi_term: side effect (tác dụng phụ)
+    tags: [llm, agents, functions]
+    en: "Any action a tool performs that changes external state—such as sending an email, issuing a refund, or deleting a record—rather than merely reading data."
+    vi: "Mọi hành động của tool làm thay đổi trạng thái bên ngoài—như gửi email, hoàn tiền hay xóa bản ghi—thay vì chỉ đọc dữ liệu."
+    example: "# Read-only: lookup_order(order_id)\n# Side effect: issue_refund(order_id, amount)"
+    in_practice:
+      en: "Read-only tools can run automatically, whereas tools with side effects require strict bounds, allowlists, and explicit user confirmation."
+      vi: "Tool chỉ đọc có thể chạy tự động, còn tool có side effect đòi hỏi giới hạn ngưỡng, allowlist và xác nhận rõ ràng từ người dùng."
+    related: [allowlist, tool use, prompt injection]
+
+  - term: allowlist
+    vi_term: allowlist (danh sách cho phép)
+    tags: [llm, agents]
+    en: "An explicit list or set of approved tool names, actions, or destinations that code permits, rejecting everything else by default."
+    vi: "Danh sách hoặc tập hợp liệt kê rõ những tên tool, hành động hay đích đến được phép chạy; mọi thứ nằm ngoài danh sách đều bị từ chối mặc định."
+    example: "ALLOWED_TOOLS = {\"get_weather\", \"lookup_order\"}\nif call.name not in ALLOWED_TOOLS:\n    return \"error: tool not allowed\""
+    in_practice:
+      en: "An allowlist protects your system if prompt injection tricks the model into requesting a destructive or unregistered function."
+      vi: "Allowlist bảo vệ hệ thống nếu prompt injection lừa model đề nghị gọi một hàm nguy hiểm hoặc không nằm trong danh sách được cấp phép."
+    related: [side effect, dispatch, prompt injection]

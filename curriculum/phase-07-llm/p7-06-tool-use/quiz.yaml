@@ -1,0 +1,405 @@
+questions:
+  - id: p7-06-q01
+    type: mcq
+    tags: [llm, agents]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "When an LLM decides a tool is needed, what does it actually do?"
+      options:
+        - "It imports the Python module and runs the function"
+        - "It writes the output directly into your database"
+        - "It returns a tool name and arguments for your code"
+        - "It bypasses your registry and executes a shell command"
+      explanation: "LLMs only generate text and structured requests; your Python code inspects the proposed tool name and arguments and decides whether to execute the function."
+    vi:
+      prompt: "Khi LLM thấy cần dùng một tool, thực chất nó làm gì?"
+      options:
+        - "Nó tự import module Python rồi chạy hàm đó"
+        - "Nó ghi thẳng kết quả vào cơ sở dữ liệu của bạn"
+        - "Nó trả về tên tool và tham số cho code của bạn"
+        - "Nó bỏ qua registry và chạy thẳng lệnh shell"
+      explanation: "LLM chỉ sinh văn bản và yêu cầu có cấu trúc; code Python của bạn mới là nơi kiểm tra tên tool cùng tham số rồi quyết định có chạy hàm hay không."
+
+  - id: p7-06-q02
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why is `resp.content` equal to `None` when `resp.finish_reason == \"tool_calls\"`?"
+      options:
+        - "The model paused to request tool data first"
+        - "The client ran out of tokens mid-sentence"
+        - "The tool call already failed with a syntax error"
+        - "The user forgot to include a system instruction"
+      explanation: "With `finish_reason == \"tool_calls\"`, the model has not written a user-facing answer yet because it needs the tool result from your code first."
+    vi:
+      prompt: "Vì sao `resp.content` bằng `None` khi `resp.finish_reason == \"tool_calls\"`?"
+      options:
+        - "Model tạm dừng để yêu cầu dữ liệu tool trước"
+        - "Client đã hết token ngay giữa câu trả lời"
+        - "Tool call vừa gặp lỗi cú pháp nên bị hủy"
+        - "Người dùng quên gửi kèm tin nhắn system ban đầu"
+      explanation: "Khi `finish_reason == \"tool_calls\"`, model chưa viết câu trả lời cho người dùng mà đang chờ code bạn chạy tool và gửi kết quả lại."
+
+  - id: p7-06-q03
+    type: mcq
+    tags: [llm, agents]
+    difficulty: 1
+    answer: 3
+    en:
+      prompt: "Why should a tool schema `description` be concise and free of filler words?"
+      options:
+        - "Python raises a SyntaxError on long strings in dicts"
+        - "JSON Schema rejects any sentence longer than five words"
+        - "Tool functions can only accept one string parameter"
+        - "Models rely on description text to pick the right tool"
+      explanation: "Both real LLMs and `FakeLLM` match user intent against tool descriptions; vague filler words can steal matches and route questions to the wrong tool."
+    vi:
+      prompt: "Vì sao `description` trong tool schema nên ngắn gọn và tránh từ đệm dư thừa?"
+      options:
+        - "Python báo SyntaxError nếu chuỗi trong dict quá dài"
+        - "JSON Schema từ chối mọi câu dài hơn năm từ"
+        - "Hàm tool chỉ nhận được duy nhất một tham số chuỗi"
+        - "Model dựa vào description để chọn đúng công cụ"
+      explanation: "Cả LLM thật lẫn `FakeLLM` đều dựa vào phần mô tả để chọn tool; các từ đệm chung chung dễ làm câu hỏi bị định tuyến nhầm sang tool khác."
+
+  - id: p7-06-q04
+    type: output
+    tags: [llm, json]
+    difficulty: 1
+    code: |
+      from pyai_llm import FakeLLM
+
+      tool = {
+          "name": "get_weather",
+          "description": "weather city",
+          "parameters": {
+              "type": "object",
+              "properties": {"city": {"type": "string"}},
+              "required": ["city"],
+          },
+      }
+      resp = FakeLLM().chat(
+          [{"role": "user", "content": "What is the weather in Hanoi?"}],
+          tools=[tool],
+      )
+      print(f"{resp.finish_reason}|{resp.content}|{resp.tool_calls[0].name}")
+    answer: "tool_calls|None|get_weather"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The user prompt shares \"weather\" with the tool, so `FakeLLM` proposes `get_weather` with `finish_reason=\"tool_calls\"` and `content=None`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Câu hỏi có từ \"weather\" trùng với mô tả tool, nên `FakeLLM` đề nghị `get_weather` với `finish_reason=\"tool_calls\"` và `content=None`."
+
+  - id: p7-06-q05
+    type: fill
+    tags: [functions, dicts]
+    difficulty: 1
+    code: |
+      def convert_currency(amount: float, to: str) -> str:
+          return f"{amount} {to}"
+
+      args = {"amount": 50.0, "to": "EUR"}
+      print(convert_currency(___args))
+    answer: ["**"]
+    en:
+      prompt: "Fill in the operator needed to unpack the `args` dictionary into keyword arguments."
+      explanation: "Using `**args` unpacks keys as keyword arguments (`amount=50.0, to=\"EUR\"`), whereas `convert_currency(args)` would pass the dict into `amount` and raise `TypeError`."
+    vi:
+      prompt: "Điền toán tử để bung dictionary `args` thành các đối số có tên khi gọi hàm."
+      explanation: "Dùng `**args` sẽ truyền từng key thành đối số có tên (`amount=50.0, to=\"EUR\"`), còn gọi `convert_currency(args)` sẽ nhét cả dict vào `amount` và gây `TypeError`."
+
+  - id: p7-06-q06
+    type: parsons
+    tags: [llm, dicts]
+    difficulty: 2
+    lines:
+      - 'messages = [{"role": "user", "content": "Weather in Hanoi?"}]'
+      - 'messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": "call_1", "name": "get_weather", "arguments": {"city": "Hanoi"}}]})'
+      - 'messages.append({"role": "tool", "tool_call_id": "call_1", "content": "31C"})'
+      - 'print([m["role"] for m in messages])'
+    en:
+      prompt: "Arrange these lines to build a valid tool-loop message history and print the role order."
+      explanation: "Initialize `messages` with the `user` prompt first, append the `assistant` message containing `tool_calls`, then append the `tool` result message, and finally print the roles."
+    vi:
+      prompt: "Sắp xếp các dòng sau để dựng lịch sử hội thoại đúng thứ tự trong vòng tool rồi in danh sách role."
+      explanation: "Khởi tạo `messages` với câu hỏi `user` trước, nối tiếp message `assistant` có `tool_calls`, rồi mới nối message `tool` và cuối cùng in danh sách role."
+
+  - id: p7-06-q07
+    type: mcq
+    tags: [llm, dicts]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What is the role of `\"tool_call_id\"` in a `tool` message?"
+      options:
+        - "It caches the function output on disk for reuse"
+        - "It links each tool result to its call"
+        - "It sets the random seed for the next chat call"
+        - "It bypasses schema validation in the client"
+      explanation: "Every `ToolCall` has an `id` (such as `\"call_1\"`); putting that same id in `tool_call_id` tells the model which proposed call the result belongs to."
+    vi:
+      prompt: "Trường `\"tool_call_id\"` trong message có `role: \"tool\"` dùng để làm gì?"
+      options:
+        - "Nó lưu kết quả hàm xuống đĩa để dùng lại sau"
+        - "Nó gắn kết quả với đúng yêu cầu gọi"
+        - "Nó đặt random seed cho lần gọi chat tiếp theo"
+        - "Nó bỏ qua bước kiểm tra schema ở phía client"
+      explanation: "Mỗi `ToolCall` có một `id` (như `\"call_1\"`); gán đúng mã này vào `tool_call_id` giúp model biết kết quả đang trả lời cho yêu cầu nào."
+
+  - id: p7-06-q08
+    type: mcq
+    tags: [llm, exceptions]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why should `dispatch()` return `\"error: unknown tool ...\"` instead of crashing?"
+      options:
+        - "So the model sees the error and replies gracefully"
+        - "Because Python dictionaries forbid raising KeyError"
+        - "So the model runs eval on the raw string instead"
+        - "Because tool messages cannot contain plain text"
+      explanation: "Returning the error as a `tool` result string lets the conversation continue: the model can apologize, explain what failed, or try another valid tool."
+    vi:
+      prompt: "Vì sao `dispatch()` nên trả về chuỗi `\"error: unknown tool ...\"` thay vì làm chương trình sập?"
+      options:
+        - "Để model thấy lỗi và trả lời người dùng tử tế"
+        - "Vì dictionary trong Python không cho phép ném KeyError"
+        - "Để model tự chạy eval trên chuỗi lỗi đó"
+        - "Vì message tool không được phép chứa văn bản thường"
+      explanation: "Trả lỗi như một kết quả tool giúp cuộc hội thoại không bị sập giữa chừng: model biết lý do lỗi để xin lỗi người dùng hoặc thử tool hợp lệ khác."
+
+  - id: p7-06-q09
+    type: output
+    tags: [llm, json, dicts]
+    difficulty: 2
+    code: |
+      import json
+
+      def get_weather(city: str, unit: str = "C") -> dict:
+          return {"city": city, "unit": unit}
+
+      raw_args = {"city": "Hanoi", "unit": ""}
+      clean = {k: v for k, v in raw_args.items() if v != ""}
+      print(json.dumps(get_weather(**clean)))
+    answer: '{"city": "Hanoi", "unit": "C"}'
+    en:
+      prompt: "What does this code print?"
+      explanation: "Filtering out `unit=\"\"` lets the default `unit=\"C\"` take effect, and `json.dumps()` serializes the returned dictionary into a JSON string."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Lọc bỏ `unit=\"\"` giúp giá trị mặc định `unit=\"C\"` được giữ nguyên, và `json.dumps()` đổi dictionary kết quả thành chuỗi JSON."
+
+  - id: p7-06-q10
+    type: fill
+    tags: [llm, json]
+    difficulty: 2
+    code: |
+      import json
+
+      raw = {"status": "shipped"}
+      msg = {"role": "tool", "___": "call_1", "content": json.___(raw)}
+      print(msg["tool_call_id"], msg["content"])
+    answer: ["tool_call_id", "dumps"]
+    en:
+      prompt: "Fill in the missing key name and `json` function to build a valid `tool` message."
+      explanation: "A `tool` message links back to the model's call via `\"tool_call_id\"` and serializes dictionary outputs into a string with `json.dumps()`."
+    vi:
+      prompt: "Điền tên khóa và tên hàm trong `json` để tạo message `tool` hợp lệ."
+      explanation: "Message `tool` gắn với yêu cầu của model bằng khóa `\"tool_call_id\"` và chuyển kết quả dict thành chuỗi bằng `json.dumps()`."
+
+  - id: p7-06-q11
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "After the model returns a tool call, what message order do real LLM APIs require?"
+      options:
+        - "User message, tool result, then assistant tool call"
+        - "User message followed directly by tool result"
+        - "User message, assistant tool call, then tool result"
+        - "Tool result alone without prior user history"
+      explanation: "Real APIs require the `assistant` message containing `tool_calls` to appear right before its matching `tool` result message, even though `FakeLLM` omits that check."
+    vi:
+      prompt: "Sau khi model trả về một tool call, các API LLM thật yêu cầu thứ tự message nào?"
+      options:
+        - "Message user, kết quả tool, rồi tới assistant tool call"
+        - "Message user rồi đến thẳng kết quả tool"
+        - "Message user, assistant tool call, rồi kết quả tool"
+        - "Chỉ gửi kết quả tool mà không cần lịch sử trước"
+      explanation: "Các API thật bắt buộc message `assistant` chứa `tool_calls` phải đứng ngay trước message `tool` tương ứng, dù `FakeLLM` không kiểm tra chặt điều này."
+
+  - id: p7-06-q12
+    type: output
+    tags: [llm, agents]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(script=[{"tool_calls": [{"name": "ping", "arguments": {}}]}] * 4)
+      rounds = 0
+      status = "done"
+      for _ in range(2):
+          resp = client.chat([{"role": "user", "content": "go"}])
+          rounds += 1
+          if not resp.tool_calls:
+              break
+      else:
+          status = "stopped"
+      print(f"{rounds}|{status}")
+    answer: "2|stopped"
+    en:
+      prompt: "What does this code print?"
+      explanation: "All 4 scripted replies contain `tool_calls`, so the loop completes both iterations (`rounds == 2`) without hitting `break` and runs the `else:` branch (`status = \"stopped\"`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Cả 4 phản hồi theo kịch bản đều chứa `tool_calls`, nên vòng lặp chạy hết 2 lượt (`rounds == 2`) mà không `break`, đi vào nhánh `else:` (`status = \"stopped\"`)."
+
+  - id: p7-06-q13
+    type: parsons
+    tags: [functions, dicts]
+    difficulty: 2
+    lines:
+      - 'REGISTRY = {"double": lambda x: x * 2}'
+      - 'fn = REGISTRY.get("double")'
+      - 'out = str(fn(**{"x": 5})) if fn else "error: unknown tool"'
+      - 'print(out)'
+    en:
+      prompt: "Arrange these lines to look up a tool in `REGISTRY`, unpack its arguments safely, and print the string result."
+      explanation: "Define `REGISTRY` before calling `REGISTRY.get(\"double\")`, then unpack `{\"x\": 5}` into `fn` to build `out`, and finally print `out`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tra tool trong `REGISTRY`, bung tham số an toàn và in chuỗi kết quả."
+      explanation: "Khai báo `REGISTRY` trước khi gọi `REGISTRY.get(\"double\")`, sau đó bung `{\"x\": 5}` vào `fn` để tạo `out`, rồi mới in `out`."
+
+  - id: p7-06-q14
+    type: mcq
+    tags: [llm, agents]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "Which rule best protects a side-effect tool such as `issue_refund`?"
+      options:
+        - "Let the model set confirmed=True inside arguments"
+        - "Enforce allowlist, amount cap, and user confirmation"
+        - "Pass model argument strings straight into SQL queries"
+        - "Remove max_rounds so refunds always finish retrying"
+      explanation: "Code must treat model arguments as untrusted: check the tool against an allowlist, enforce numeric caps, and verify human confirmation from app state—never from the model."
+    vi:
+      prompt: "Quy tắc nào bảo vệ tốt nhất cho tool có tác dụng phụ như `issue_refund`?"
+      options:
+        - "Cho model tự điền confirmed=True trong tham số"
+        - "Dùng allowlist, trần tiền và xác nhận người dùng"
+        - "Ghép thẳng chuỗi tham số từ model vào câu lệnh SQL"
+        - "Bỏ max_rounds để việc hoàn tiền tự thử lại tới cùng"
+      explanation: "Code phải coi tham số từ model là input không tin cậy: kiểm tra tool theo allowlist, đặt giới hạn số tiền và lấy xác nhận từ trạng thái người dùng chứ không phải từ model."
+
+  - id: p7-06-q15
+    type: fill
+    tags: [agents, functions]
+    difficulty: 3
+    code: |
+      ALLOWED = {"issue_refund"}
+
+      def guard(name: str, amount: float, confirmed: bool) -> str:
+          if name not in ___:
+              return "blocked: not allowed"
+          if not ___ or amount > 100:
+              return "blocked: approval needed"
+          return "approved"
+
+      print(guard("issue_refund", 40.0, False))
+    answer: ["ALLOWED", "confirmed"]
+    en:
+      prompt: "Fill in the allowlist constant and confirmation flag to guard this side-effect call."
+      explanation: "First check `name not in ALLOWED` to enforce the allowlist, then require `confirmed` to be `True` (and `amount <= 100`) before approving."
+    vi:
+      prompt: "Điền tên hằng danh sách cho phép và cờ xác nhận để bảo vệ lời gọi có tác dụng phụ này."
+      explanation: "Trước hết kiểm tra `name not in ALLOWED` để áp dụng allowlist, sau đó bắt buộc `confirmed` là `True` (và `amount <= 100`) mới cho phép chạy."
+
+  - id: p7-06-q16
+    type: parsons
+    tags: [llm, agents]
+    difficulty: 3
+    lines:
+      - 'from pyai_llm import FakeLLM'
+      - 'client = FakeLLM(script=[{"tool_calls": [{"name": "ping", "arguments": {}}]}] * 3)'
+      - 'for _ in range(2):'
+      - '    if not client.chat([{"role": "user", "content": "hi"}]).tool_calls:'
+      - '        break'
+      - 'else:'
+      - '    print("stopped: too many tool calls")'
+    en:
+      prompt: "Arrange these lines to run a 2-round tool limit loop and print the stop message when exhausted."
+      explanation: "Import `FakeLLM` and initialize `client`, loop twice checking `tool_calls`, and use `for ... else:` to print the stop message when all rounds keep requesting tools."
+    vi:
+      prompt: "Sắp xếp các dòng sau để chạy vòng giới hạn 2 lượt và in thông báo dừng khi hết lượt."
+      explanation: "Import `FakeLLM` và tạo `client`, lặp 2 lần kiểm tra `tool_calls`, rồi dùng `for ... else:` để in thông báo dừng khi mọi vòng đều tiếp tục gọi tool."
+
+flashcards:
+  - id: p7-06-f01
+    tags: [llm, agents]
+    en:
+      front: "Who executes a tool call: the LLM or your Python code?"
+      back: "Your Python code. The LLM only returns a structured request (name + arguments) with `finish_reason=\"tool_calls\"` and `content=None`."
+    vi:
+      front: "Ai thực thi tool call: LLM hay code Python của bạn?"
+      back: "Code Python của bạn. LLM chỉ trả về yêu cầu có cấu trúc (tên hàm + tham số) với `finish_reason=\"tool_calls\"` và `content=None`."
+
+  - id: p7-06-f02
+    tags: [llm, json]
+    code: |
+      tool = {
+          "name": "get_weather",
+          "description": "weather city temperature",
+          "parameters": {
+              "type": "object",
+              "properties": {"city": {"type": "string"}},
+              "required": ["city"],
+          },
+      }
+    en:
+      front: "What three top-level keys define a tool schema?"
+      back: "`name`, `description` (short, keyword-focused text guiding model selection), and `parameters` (a JSON Schema `object`)."
+    vi:
+      front: "Ba khóa cấp cao nhất nào tạo nên một tool schema?"
+      back: "`name`, `description` (mô tả ngắn gọn, đúng từ khóa giúp model chọn đúng tool) và `parameters` (đối tượng JSON Schema)."
+
+  - id: p7-06-f03
+    tags: [llm, dicts]
+    en:
+      front: "What two messages must be appended after running a tool call?"
+      back: "1) `{\"role\": \"assistant\", \"content\": None, \"tool_calls\": [...]}` followed immediately by 2) `{\"role\": \"tool\", \"tool_call_id\": tc.id, \"content\": str_result}`."
+    vi:
+      front: "Hai message nào cần nối vào lịch sử sau khi chạy một tool call?"
+      back: "1) `{\"role\": \"assistant\", \"content\": None, \"tool_calls\": [...]}` và ngay sau đó là 2) `{\"role\": \"tool\", \"tool_call_id\": tc.id, \"content\": str_result}`."
+
+  - id: p7-06-f04
+    tags: [functions, dicts]
+    en:
+      front: "Why strip `\"\"` from optional arguments before `func(**args)`?"
+      back: "`FakeLLM` fills missing optional string parameters with `\"\"`, which would overwrite Python default values unless stripped first."
+    vi:
+      front: "Vì sao cần lọc `\"\"` ở tham số tùy chọn trước khi gọi `func(**args)`?"
+      back: "`FakeLLM` điền `\"\"` cho tham số chuỗi tùy chọn bị thiếu, dễ ghi đè giá trị mặc định của hàm Python nếu không lọc bỏ trước."
+
+  - id: p7-06-f05
+    tags: [llm, exceptions]
+    en:
+      front: "How should `dispatch()` handle an unknown tool or raised exception?"
+      back: "Return an error string like `\"error: ...\"` as the `tool` message content (and serialize `dict` outputs with `json.dumps()`) so the model can respond gracefully."
+    vi:
+      front: "`dispatch()` nên xử lý thế nào khi gặp tool lạ hoặc ngoại lệ?"
+      back: "Trả về chuỗi lỗi dạng `\"error: ...\"` làm `content` của message `tool` (và dùng `json.dumps()` cho `dict`) để model tự xử lý tiếp thay vì sập."
+
+  - id: p7-06-f06
+    tags: [agents]
+    en:
+      front: "What guards are needed for tools with side effects (refunds, emails, deletes)?"
+      back: "An allowlist of permitted tools, hard limits (such as max amount), explicit human confirmation from app state, and a `max_rounds` loop cap."
+    vi:
+      front: "Tool có tác dụng phụ (hoàn tiền, gửi email, xóa dữ liệu) cần những lớp bảo vệ nào?"
+      back: "Allowlist các tool được phép, giới hạn ngưỡng (như trần tiền), xác nhận thật từ người dùng trong trạng thái ứng dụng và giới hạn vòng `max_rounds`."

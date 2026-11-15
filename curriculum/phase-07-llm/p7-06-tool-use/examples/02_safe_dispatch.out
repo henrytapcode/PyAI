@@ -1,0 +1,5 @@
+call_1 (get_weather) -> {"city": "Hanoi", "unit": "C", "forecast": "31C and sunny"}
+call_2 (drop_table) -> error: unknown tool drop_table
+call_3 (get_weather) -> error: missing required argument city
+call_4 (add_tax) -> error: TypeError: price must be a number
+call_5 (get_weather) -> error: ValueError: city not found: Atlantis

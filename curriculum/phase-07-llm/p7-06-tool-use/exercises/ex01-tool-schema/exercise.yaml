@@ -1,0 +1,66 @@
+id: p7-06-ex01
+kind: fill
+title:
+  en: "Fill: build and validate a tool schema"
+  vi: "Điền chỗ trống: dựng và kiểm tra tool schema"
+difficulty: 1
+tags: [llm, dicts, json]
+hints:
+  en:
+    - |
+      This builds the tool schema dictionary from §2. For `tool_schema("get_weather", "weather city", {"city": "string"}, ["city"])`, it must return `{"name": "get_weather", "description": "weather city", "parameters": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}}`.
+    - |
+      The plan:
+      1. Define the set of four basic JSON parameter types supported for tool parameters.
+      2. Check every type in the parameter mapping and raise a value error if any type is outside that allowed set.
+      3. Check every name in the required list and raise a value error if any required name is missing from the parameter mapping.
+      4. Build and return the outer dictionary with name, description, and an object parameters block containing properties and a fresh copy of the required list.
+    - |
+      Function skeleton:
+      ```python
+      ALLOWED_TYPES = {"string", "number", "integer", "boolean"}
+
+
+      def tool_schema(
+          name: str,
+          description: str,
+          params: dict[str, str],
+          required: list[str],
+      ) -> dict:
+          for param_type in params.values():
+              if param_type not in ALLOWED_TYPES:
+                  raise ValueError(f"unsupported type: {param_type}")
+          for req in required:
+              if req not in params:
+                  raise ValueError(f"unknown required parameter: {req}")
+          return ...
+      ```
+  vi:
+    - |
+      Bài này dựng dictionary tool schema ở §2. Với `tool_schema("get_weather", "weather city", {"city": "string"}, ["city"])`, hàm phải trả về `{"name": "get_weather", "description": "weather city", "parameters": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}}`.
+    - |
+      Kế hoạch:
+      1. Khai báo tập bốn kiểu JSON cơ bản được phép dùng cho tham số của tool.
+      2. Duyệt các kiểu trong bảng tham số và ném lỗi giá trị nếu gặp kiểu nằm ngoài tập cho phép.
+      3. Duyệt từng tên trong danh sách bắt buộc và ném lỗi giá trị nếu tên đó không tồn tại trong bảng tham số.
+      4. Dựng rồi trả về dictionary gồm tên, mô tả và khối đối tượng parameters chứa properties cùng bản sao giữ nguyên thứ tự của danh sách bắt buộc.
+    - |
+      Khung hàm:
+      ```python
+      ALLOWED_TYPES = {"string", "number", "integer", "boolean"}
+
+
+      def tool_schema(
+          name: str,
+          description: str,
+          params: dict[str, str],
+          required: list[str],
+      ) -> dict:
+          for param_type in params.values():
+              if param_type not in ALLOWED_TYPES:
+                  raise ValueError(f"unsupported type: {param_type}")
+          for req in required:
+              if req not in params:
+                  raise ValueError(f"unknown required parameter: {req}")
+          return ...
+      ```

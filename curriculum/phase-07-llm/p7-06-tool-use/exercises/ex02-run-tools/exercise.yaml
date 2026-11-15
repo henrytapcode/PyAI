@@ -1,0 +1,100 @@
+id: p7-06-ex02
+kind: code
+title:
+  en: "Code: run a bounded tool-calling loop"
+  vi: "Viết code: chạy vòng lặp gọi tool có giới hạn bước"
+difficulty: 2
+tags: [llm, functions, dicts]
+hints:
+  en:
+    - |
+      This combines the tool loop from §3, safe dispatch from §4, and the `max_rounds` guard from §5. For a weather question using `get_weather`, it returns `("Based on the tool result: 31C and sunny", ["get_weather"])`.
+    - |
+      The plan:
+      1. Start the message history with a single user message containing the question and initialize an empty list for executed tool names.
+      2. Loop up to the round limit and ask the client for a chat reply with the provided tools.
+      3. When the reply has no tool calls, return the reply text (or an empty string if missing) paired with the list of called tool names.
+      4. Otherwise append one assistant message carrying the proposed tool calls, then dispatch every tool call in order (returning an error string for unknown names or raised exceptions, and serializing dictionary results as JSON strings) and append each tool result message linked by its call id.
+      5. If the loop finishes every round without a final text reply, return the stopped message paired with the called tool names.
+    - |
+      Function skeleton:
+      ```python
+      import json
+
+
+      def run_with_tools(
+          client,
+          question: str,
+          tools: list[dict],
+          registry: dict,
+          max_rounds: int = 3,
+      ) -> tuple[str, list[str]]:
+          required_map = {
+              t["name"]: set(t.get("parameters", {}).get("required", []))
+              for t in tools
+          }
+          messages = [{"role": "user", "content": question}]
+          called: list[str] = []
+          for _ in range(max_rounds):
+              resp = client.chat(messages, tools=tools)
+              if not resp.tool_calls:
+                  return resp.content or "", called
+              messages.append({
+                  "role": "assistant",
+                  "content": None,
+                  "tool_calls": [
+                      {"id": tc.id, "name": tc.name, "arguments": dict(tc.arguments)}
+                      for tc in resp.tool_calls
+                  ],
+              })
+              for tc in resp.tool_calls:
+                  result = ...
+                  messages.append({"role": "tool", "tool_call_id": tc.id, "content": result})
+          return "stopped: too many tool calls", called
+      ```
+  vi:
+    - |
+      Bài này kết hợp vòng tool ở §3, điều phối an toàn ở §4 và giới hạn `max_rounds` ở §5. Với câu hỏi thời tiết dùng `get_weather`, hàm trả về `("Based on the tool result: 31C and sunny", ["get_weather"])`.
+    - |
+      Kế hoạch:
+      1. Khởi tạo lịch sử hội thoại với một tin nhắn người dùng chứa câu hỏi và một danh sách rỗng để ghi tên các tool đã chạy.
+      2. Lặp tối đa bằng số vòng cho phép, gọi chat trên client kèm danh sách tools.
+      3. Nếu phản hồi không chứa yêu cầu gọi tool, trả về ngay nội dung trả lời (hoặc chuỗi rỗng nếu thiếu) cùng danh sách tên tool đã gọi.
+      4. Ngược lại, nối một tin nhắn assistant mang danh sách tool call vào lịch sử, rồi lần lượt điều phối từng tool call (trả chuỗi lỗi khi tên lạ hoặc hàm ném ngoại lệ, và đổi kết quả dạng dictionary sang chuỗi JSON) và nối từng tin nhắn tool gắn đúng mã cuộc gọi.
+      5. Nếu chạy hết số vòng tối đa mà vẫn chưa có câu trả lời cuối, trả về thông báo dừng kèm danh sách tên tool đã gọi.
+    - |
+      Khung hàm:
+      ```python
+      import json
+
+
+      def run_with_tools(
+          client,
+          question: str,
+          tools: list[dict],
+          registry: dict,
+          max_rounds: int = 3,
+      ) -> tuple[str, list[str]]:
+          required_map = {
+              t["name"]: set(t.get("parameters", {}).get("required", []))
+              for t in tools
+          }
+          messages = [{"role": "user", "content": question}]
+          called: list[str] = []
+          for _ in range(max_rounds):
+              resp = client.chat(messages, tools=tools)
+              if not resp.tool_calls:
+                  return resp.content or "", called
+              messages.append({
+                  "role": "assistant",
+                  "content": None,
+                  "tool_calls": [
+                      {"id": tc.id, "name": tc.name, "arguments": dict(tc.arguments)}
+                      for tc in resp.tool_calls
+                  ],
+              })
+              for tc in resp.tool_calls:
+                  result = ...
+                  messages.append({"role": "tool", "tool_call_id": tc.id, "content": result})
+          return "stopped: too many tool calls", called
+      ```
