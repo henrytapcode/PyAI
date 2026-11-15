@@ -1,0 +1,391 @@
+questions:
+  - id: p7-09-q01
+    type: mcq
+    tags: [rag, llm]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which sequence orders the RAG bot pipeline from raw documents to quality numbers?"
+      options:
+        - "Retrieve -> chunk -> embed -> prompt -> eval -> answer"
+        - "Chunk -> embed index -> retrieve -> prompt -> answer -> eval"
+        - "Prompt -> answer -> chunk -> retrieve -> eval -> embed"
+        - "Eval -> embed index -> chunk -> retrieve -> answer -> prompt"
+      explanation: "A RAG bot ingests and chunks documents first, embeds the chunks once into an index, retrieves top-k hits per question, builds a grounded prompt to answer with sources, and runs evals at the end."
+    vi:
+      prompt: "Thứ tự nào đúng cho quy trình bot RAG từ tài liệu thô tới con số đánh giá?"
+      options:
+        - "Truy xuất -> chia chunk -> embed -> prompt -> eval -> trả lời"
+        - "Chia chunk -> đánh chỉ mục embed -> truy xuất -> prompt -> trả lời -> eval"
+        - "Prompt -> trả lời -> chia chunk -> truy xuất -> eval -> embed"
+        - "Eval -> đánh chỉ mục embed -> chia chunk -> truy xuất -> trả lời -> prompt"
+      explanation: "Bot RAG cần chia chunk và embed tài liệu một lần thành chỉ mục trước, rồi mới truy xuất top-k cho từng câu hỏi, dựng prompt có ngữ cảnh để trả lời kèm nguồn, và chấm eval ở cuối."
+
+  - id: p7-09-q02
+    type: mcq
+    tags: [rag, performance]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Why should `build_index` embed all FAQ chunks once instead of embedding them inside every user query?"
+      options:
+        - "Because `FakeLLM.embed` raises an error on the second call"
+        - "Because NumPy arrays cannot store more than one query vector"
+        - "To skip repeating slow embedding calls on every query"
+        - "To force cosine scores to equal one for every document"
+      explanation: "Document embeddings stay fixed until the docs change, so embedding them once at ingestion avoids `N_queries * N_chunks` redundant embedding calls."
+    vi:
+      prompt: "Vì sao `build_index` nên embed toàn bộ chunk FAQ một lần thay vì embed lại ở mỗi câu hỏi?"
+      options:
+        - "Vì `FakeLLM.embed` sẽ báo lỗi ngay ở lần gọi thứ hai"
+        - "Vì mảng NumPy không thể lưu nhiều hơn một vector câu hỏi"
+        - "Để tránh embed lặp lại tốn thời gian trên mỗi câu hỏi"
+        - "Để ép điểm cosine của mọi tài liệu luôn bằng một"
+      explanation: "Embedding của tài liệu không đổi chừng nào kho FAQ chưa đổi, nên embed một lần khi nạp dữ liệu giúp tránh lặp lại `N_câu_hỏi * N_chunk` lần gọi thừa."
+
+  - id: p7-09-q03
+    type: mcq
+    tags: [rag, evaluation]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "How should `dev_set` and `test_set` be used when tuning a RAG bot?"
+      options:
+        - "Pick config on `dev_set`, then score `test_set` once"
+        - "Tune `k` on `test_set`, then confirm on `dev_set`"
+        - "Combine dev and test and report the highest score"
+        - "Adjust `min_score` on `test_set` until facts reach 100%"
+      explanation: "Comparing candidate settings on `dev_set` and running `test_set` only once at the end prevents overfitting and keeps the final benchmark unbiased."
+    vi:
+      prompt: "Nên sử dụng `dev_set` và `test_set` thế nào khi tinh chỉnh bot RAG?"
+      options:
+        - "Chọn cấu hình trên `dev_set`, rồi chấm `test_set` một lần"
+        - "Chỉnh `k` trên `test_set`, rồi kiểm tra lại trên `dev_set`"
+        - "Gộp dev và test lại rồi báo cáo điểm cao nhất"
+        - "Chỉnh `min_score` trên `test_set` cho tới khi đạt 100%"
+      explanation: "So sánh mọi ứng viên trên `dev_set` rồi chỉ chạy `test_set` một lần ở cuối giúp tránh học vẹt theo tập test và giữ phép đo cuối khách quan."
+
+  - id: p7-09-q04
+    type: output
+    tags: [rag, strings]
+    difficulty: 1
+    code: |
+      import re
+
+      text = "Refunds take 30 days. Keep your receipt! Opened apps fail."
+      chunks = [
+          f"refunds.md#{i}"
+          for i, s in enumerate(re.split(r"(?<=[.!?])\s+", text.strip()))
+          if s.strip()
+      ]
+      print(len(chunks), chunks[-1])
+    answer: "3 refunds.md#2"
+    en:
+      prompt: "What does this sentence-chunking snippet print?"
+      explanation: "Splitting on sentence punctuation produces 3 chunks indexed `0`, `1`, and `2`, so `len(chunks)` is `3` and `chunks[-1]` is `'refunds.md#2'`."
+    vi:
+      prompt: "Đoạn code chia chunk theo câu này in ra gì?"
+      explanation: "Tách theo dấu kết thúc câu tạo ra 3 chunk đánh số `0`, `1`, `2`, nên `len(chunks)` là `3` và `chunks[-1]` là `'refunds.md#2'`."
+
+  - id: p7-09-q05
+    type: fill
+    tags: [rag, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      scores = np.array([0.15, 0.62, 0.41], dtype=float)
+      order = np.argsort(-scores, kind="___")[:2]
+      hits = [int(i) for i in order if float(scores[int(i)]) >= ___]
+      print(hits)
+    answer: ["stable", "0.2"]
+    en:
+      prompt: "Fill in the blanks to rank scores descending deterministically and filter by `min_score=0.2`."
+      explanation: "`kind=\"stable\"` breaks score ties deterministically by index order, and `>= 0.2` keeps indices `1` (`0.62`) and `2` (`0.41`), printing `[1, 2]`."
+    vi:
+      prompt: "Điền vào chỗ trống để xếp hạng giảm dần ổn định và lọc theo ngưỡng `min_score=0.2`."
+      explanation: "`kind=\"stable\"` giữ thứ tự chỉ số khi bằng điểm, còn `>= 0.2` giữ lại chỉ số `1` (`0.62`) và `2` (`0.41`), in ra `[1, 2]`."
+
+  - id: p7-09-q06
+    type: mcq
+    tags: [rag, strings]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Why did fixed 8-word chunking score lower `facts` (`3/6`) than sentence chunking (`5/6`) in this project?"
+      options:
+        - "Because `FakeLLM.embed` rejects chunks shorter than ten words"
+        - "Because word windows remove all numeric digits from the text"
+        - "Because `retrieve` ignores `words` chunks below index two"
+        - "Because mid-sentence slices lose facts in the first sentence"
+      explanation: "`FakeLLM` in RAG mode returns only the first sentence of the matched chunk, so a word window starting mid-sentence can omit the key number or condition."
+    vi:
+      prompt: "Vì sao chia chunk cửa sổ 8 từ đạt điểm `facts` (`3/6`) thấp hơn chia theo câu (`5/6`) trong dự án này?"
+      options:
+        - "Vì `FakeLLM.embed` từ chối các chunk ngắn hơn mười từ"
+        - "Vì cửa sổ từ xóa sạch mọi chữ số ra khỏi văn bản"
+        - "Vì `retrieve` bỏ qua các chunk `words` có chỉ số dưới hai"
+        - "Vì cắt ngang giữa câu làm câu đầu chunk bị thiếu thông tin"
+      explanation: "Ở chế độ RAG, `FakeLLM` chỉ trả về câu đầu tiên của chunk khớp nhất, nên cửa sổ từ cắt ngang giữa câu dễ làm rơi mất con số hoặc điều kiện quan trọng."
+
+  - id: p7-09-q07
+    type: mcq
+    tags: [evaluation, rag]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "A question expects `discounts.md` and `[\"15 percent\"]`. The retriever returns `[\"discounts.md\", \"support.md\"]`, and the bot says `\"I don't know based on the provided context.\"`. How is this failure labeled?"
+      options:
+        - "retrieval_miss"
+        - "answer_miss"
+        - "no_refusal"
+        - "citation_error"
+      explanation: "`discounts.md` was inside `retrieved`, so retrieval succeeded; the failure happened when the generator failed to produce the expected fact (`answer_miss`)."
+    vi:
+      prompt: "Một câu hỏi kỳ vọng `discounts.md` và `[\"15 percent\"]`. Bộ truy xuất trả về `[\"discounts.md\", \"support.md\"]`, còn bot đáp `\"I don't know based on the provided context.\"`. Ca lỗi này được gán nhãn gì?"
+      options:
+        - "retrieval_miss"
+        - "answer_miss"
+        - "no_refusal"
+        - "citation_error"
+      explanation: "`discounts.md` đã nằm trong `retrieved` nên bước truy xuất thành công; lỗi xảy ra ở bước sinh câu trả lời không chứa fact kỳ vọng (`answer_miss`)."
+
+  - id: p7-09-q08
+    type: mcq
+    tags: [evaluation, rag]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "An unanswerable query (`expected_source=None`) gets `\"I don't know based on the provided context.\"` with `sources=[\"payment.md\"]`. How does `evaluate_bot` score it?"
+      options:
+        - "Passes `idk_ok` because the refusal text is present"
+        - "Counts a `retrieval_miss` because `expected_source` is `None`"
+        - "Logs `no_refusal` because `sources` is not empty"
+        - "Skips the row from both `n` and `failures`"
+      explanation: "A clean refusal requires both `'i don't know'` in the lowercase answer and an empty `sources` list; returning a cited source counts as `no_refusal`."
+    vi:
+      prompt: "Một câu không trả lời được (`expected_source=None`) nhận phản hồi `\"I don't know based on the provided context.\"` kèm `sources=[\"payment.md\"]`. `evaluate_bot` chấm thế nào?"
+      options:
+        - "Tính đạt `idk_ok` vì câu trả lời có cụm từ từ chối"
+        - "Ghi nhận `retrieval_miss` vì `expected_source` là `None`"
+        - "Ghi nhận `no_refusal` vì danh sách `sources` không rỗng"
+        - "Bỏ qua dòng này khỏi cả `n` lẫn `failures`"
+      explanation: "Từ chối sạch đòi hỏi đồng thời có `'i don't know'` trong câu trả lời và `sources` rỗng; nếu vẫn trả kèm nguồn trích dẫn thì bị tính là `no_refusal`."
+
+  - id: p7-09-q09
+    type: mcq
+    tags: [rag, strings]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Only 2 chunks were sent in `Context:`, yet the model replies `\"Refunds take 30 days. [4]\"`. What should citation extraction return for `sources`?"
+      options:
+        - "`[]`, because `[4]` is outside `1..2`"
+        - "`['refunds.md']`, clamping `[4]` to the first chunk"
+        - "Raise `IndexError` so the caller retries immediately"
+        - "`['[4]']`, storing the raw tag as a source string"
+      explanation: "Only citation numbers inside `1..len(hits)` map to valid `hits[num - 1][\"source\"]` entries; out-of-range markers like `[4]` are invalid and must be ignored."
+    vi:
+      prompt: "Chỉ có 2 chunk được gửi trong `Context:`, nhưng model trả lời `\"Refunds take 30 days. [4]\"`. Hàm trích nguồn nên trả về `sources` là gì?"
+      options:
+        - "`[]`, vì `[4]` nằm ngoài khoảng `1..2`"
+        - "`['refunds.md']`, ép `[4]` về chunk đầu tiên"
+        - "Raise `IndexError` để hàm gọi thử lại ngay"
+        - "`['[4]']`, lưu thẳng nhãn thô làm tên nguồn"
+      explanation: "Chỉ các số trích dẫn nằm trong `1..len(hits)` mới ánh xạ sang `hits[num - 1][\"source\"]` hợp lệ; các số vượt biên như `[4]` bị loại bỏ."
+
+  - id: p7-09-q10
+    type: output
+    tags: [evaluation, rag]
+    difficulty: 2
+    code: |
+      hits = [{"source": "refunds.md"}, {"source": "shipping.md"}]
+      answer = "Express costs 12 dollars [2]. Also see [5] and [2]."
+      sources = []
+      for tag in ["2", "5", "2"]:
+          num = int(tag)
+          if 1 <= num <= len(hits):
+              src = hits[num - 1]["source"]
+              if src not in sources:
+                  sources.append(src)
+      print(sources)
+    answer: "['shipping.md']"
+    en:
+      prompt: "What does this citation-validation snippet print?"
+      explanation: "`[2]` maps to `'shipping.md'`, `[5]` is out of range (`5 > 2`) and skipped, and the duplicate `[2]` is ignored, leaving `['shipping.md']`."
+    vi:
+      prompt: "Đoạn code kiểm tra trích dẫn này in ra gì?"
+      explanation: "`[2]` ánh xạ sang `'shipping.md'`, `[5]` vượt biên (`5 > 2`) nên bị bỏ qua, và `[2]` lặp lại không được thêm lần nữa, cho kết quả `['shipping.md']`."
+
+  - id: p7-09-q11
+    type: fill
+    tags: [evaluation, strings]
+    difficulty: 2
+    code: |
+      def fmt_metric(num: int, den: int) -> str:
+          if den == ___:
+              return "n/a"
+          return f"{num}/{den} ({round(num / den * ___)}%)"
+
+
+      print(fmt_metric(2, 3), fmt_metric(0, 0))
+    answer: ["0", "100"]
+    en:
+      prompt: "Fill in the blanks so zero denominators return `'n/a'` and non-zero ratios format as `num/den (pct%)`."
+      explanation: "Checking `den == 0` avoids `ZeroDivisionError` by returning `'n/a'`, and multiplying by `100` before `round(...)` prints `'2/3 (67%) n/a'`."
+    vi:
+      prompt: "Điền vào chỗ trống để mẫu số bằng không trả về `'n/a'` và tỉ lệ khác không có dạng `num/den (pct%)`."
+      explanation: "Kiểm tra `den == 0` tránh lỗi chia cho 0 bằng cách trả về `'n/a'`, còn nhân `100` trước `round(...)` sẽ in ra `'2/3 (67%) n/a'`."
+
+  - id: p7-09-q12
+    type: parsons
+    tags: [rag, numpy]
+    difficulty: 2
+    lines:
+      - "import numpy as np"
+      - "scores = np.array([0.1, 0.6])"
+      - 'order = np.argsort(-scores, kind="stable")'
+      - "top = order[:2]"
+      - "hits = [int(idx) for idx in top]"
+      - "print(hits)"
+    en:
+      prompt: "Arrange these lines to stably rank `[0.1, 0.6]` descending, slice the top 2 indices, and print them."
+      explanation: "Import NumPy, build `scores`, compute `order` with `np.argsort(..., kind='stable')`, slice `top = order[:2]`, convert to ints, and print `[1, 0]`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để xếp hạng giảm dần ổn định `[0.1, 0.6]`, cắt 2 chỉ số đầu rồi in ra."
+      explanation: "Import NumPy, tạo `scores`, tính `order` bằng `np.argsort(..., kind='stable')`, cắt `top = order[:2]`, chuyển sang `int` rồi in `[1, 0]`."
+
+  - id: p7-09-q13
+    type: mcq
+    tags: [evaluation, model-evaluation]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Your chosen bot scores `5/6 (83%)` facts on `dev_set` and `2/3 (67%)` facts on `test_set`. What is the right reaction?"
+      options:
+        - "Lower `min_score` on `test_set` until facts match `dev_set`"
+        - "Drop the missed test question as an unfair outlier"
+        - "Re-chunk `test_set` phrases into synonyms before scoring"
+        - "Report `2/3 (67%)` with the missed ID and small-set context"
+      explanation: "A `16%` drop between `5/6` and `2/3` is just one missed question on a 3-question answerable test slice; report both counts and the failure honestly instead of re-tuning on `test_set`."
+    vi:
+      prompt: "Bot đã chọn đạt `5/6 (83%)` facts trên `dev_set` và `2/3 (67%)` facts trên `test_set`. Phản ứng nào là đúng?"
+      options:
+        - "Giảm `min_score` trên `test_set` tới khi điểm bằng `dev_set`"
+        - "Loại câu test bị trượt vì coi đó là ngoại lệ thiếu công bằng"
+        - "Đổi từ khóa trong `test_set` thành từ đồng nghĩa trước khi chấm"
+        - "Báo cáo đúng `2/3 (67%)`, nêu rõ mã câu sai và cỡ mẫu nhỏ"
+      explanation: "Mức chênh `16%` giữa `5/6` và `2/3` chỉ là một câu trượt trên tập test có 3 câu trả lời được; cần báo cáo trung thực kèm mã câu sai thay vì sửa cấu hình theo `test_set`."
+
+  - id: p7-09-q14
+    type: output
+    tags: [evaluation, rag]
+    difficulty: 3
+    code: |
+      eval_row = {"id": "q9", "expected_source": "refunds.md", "expected_facts": ["30 days"]}
+      out = {"answer": "Refunds take 30 days.", "sources": ["other.md"], "retrieved": ["other.md"]}
+      hit = eval_row["expected_source"] in out["retrieved"]
+      facts = all(f.lower() in out["answer"].lower() for f in eval_row["expected_facts"])
+      reason = "retrieval_miss" if not hit else ("answer_miss" if not facts else "ok")
+      print(eval_row["id"], hit, facts, reason)
+    answer: "q9 False True retrieval_miss"
+    en:
+      prompt: "What does this failure-classification snippet print when the answer contains the fact yet retrieval missed?"
+      explanation: "`'refunds.md'` is absent from `out['retrieved']` (`hit=False`), and even though `'30 days'` appears (`facts=True`), checking `not hit` first assigns `'retrieval_miss'`."
+    vi:
+      prompt: "Đoạn code phân loại lỗi này in ra gì khi câu trả lời chứa đúng fact nhưng retrieval bị trượt?"
+      explanation: "`'refunds.md'` không có trong `out['retrieved']` (`hit=False`), nên dù `'30 days'` có mặt (`facts=True`), nhánh `if not hit` chạy trước và gán `'retrieval_miss'`."
+
+  - id: p7-09-q15
+    type: mcq
+    tags: [evaluation, rag]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "Why does `FakeLLM` retrieve `discounts.md` for `\"How much off do students get on notebooks?\"` (`hit=True`) yet still reply `\"I don't know based on the provided context.\"` (`answer_miss`)?"
+      options:
+        - "Because `FakeLLM.chat` skips chunks with numbers like `15`"
+        - "Because `embed` uses synonyms, while `chat` matches raw words"
+        - "Because `FakeLLM` always refuses questions that end with a mark"
+        - "Because `discounts.md` has fewer than three sentences in total"
+      explanation: "`FakeLLM.embed` normalizes `'notebooks'` to `'computer'` (matching `'laptops'`), whereas `FakeLLM.chat` RAG mode checks exact raw words of length `>= 3` and finds fewer than 2 shared words."
+    vi:
+      prompt: "Vì sao `FakeLLM` tìm trúng `discounts.md` cho câu `\"How much off do students get on notebooks?\"` (`hit=True`) nhưng vẫn đáp `\"I don't know based on the provided context.\"` (`answer_miss`)?"
+      options:
+        - "Vì `FakeLLM.chat` luôn bỏ qua các chunk có chứa chữ số như `15`"
+        - "Vì `embed` hiểu từ đồng nghĩa, còn `chat` khớp từ thô"
+        - "Vì `FakeLLM` luôn từ chối mọi câu hỏi kết thúc bằng dấu chấm hỏi"
+        - "Vì trang `discounts.md` có ít hơn ba câu trong toàn bộ tài liệu"
+      explanation: "`FakeLLM.embed` quy đổi `'notebooks'` về `'computer'` (khớp `'laptops'`), trong khi chế độ RAG của `FakeLLM.chat` chỉ đếm từ thô dài `>= 3` giống hệt nhau nên không đủ 2 từ trùng."
+
+  - id: p7-09-q16
+    type: parsons
+    tags: [evaluation, rag]
+    difficulty: 3
+    lines:
+      - "def check_refusal(answer, sources):"
+      - '    ok = "i don''t know" in answer.lower()'
+      - "    ok = ok and len(sources) == 0"
+      - "    return ok"
+      - 'print(check_refusal("I don''t know.", ["a.md"]))'
+    en:
+      prompt: "Arrange these lines to build a strict unanswerable-refusal checker and print its result."
+      explanation: "Define `check_refusal`, assign `ok` from the phrase check first, narrow `ok` with `len(sources) == 0`, return `ok`, and call `print(check_refusal(...))` (printing `False`)."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tạo hàm kiểm tra từ chối chặt chẽ cho câu ngoài tài liệu và in kết quả."
+      explanation: "Định nghĩa `check_refusal`, gán `ok` từ kiểm tra cụm từ trước, kết hợp thêm điều kiện `len(sources) == 0`, trả về `ok` rồi gọi `print(check_refusal(...))` (in ra `False`)."
+
+flashcards:
+  - id: p7-09-f01
+    tags: [rag, data-prep]
+    en:
+      front: "Ingestion"
+      back: "The offline stage that cleans documents, splits them into chunks with <source>#<n> IDs, and embeds all chunks once into a searchable index."
+    vi:
+      front: "Ingestion (nạp và chuẩn bị dữ liệu)"
+      back: "Pha chạy trước gồm làm sạch tài liệu, chia thành các chunk mang ID <source>#<n> và embed tất cả một lần vào chỉ mục tìm kiếm."
+
+  - id: p7-09-f02
+    tags: [rag, strings]
+    en:
+      front: "Sentence vs. word-window chunking"
+      back: "Sentence chunking keeps complete facts at the start of every chunk; fixed word windows can slice mid-sentence and lose key details."
+    vi:
+      front: "Chia chunk theo câu vs cửa sổ từ"
+      back: "Tách theo câu giữ trọn sự thật ở đầu mỗi chunk; cửa sổ từ cố định dễ cắt ngang câu làm rơi mất thông tin chính."
+
+  - id: p7-09-f03
+    tags: [evaluation, model-evaluation]
+    en:
+      front: "Dev set vs. held-out test set"
+      back: "Compare configs and thresholds on the dev set; lock the winner and run the held-out test set exactly once at the end."
+    vi:
+      front: "Dev set vs Held-out test set"
+      back: "So sánh cấu hình và ngưỡng trên dev set; chốt phương án thắng cuộc và chỉ chấm tập held-out test đúng một lần ở cuối."
+
+  - id: p7-09-f04
+    tags: [evaluation, rag]
+    en:
+      front: "RAG failure taxonomy"
+      back: "retrieval_miss (expected source not in retrieved), answer_miss (retrieved hit, expected fact missing), no_refusal (unanswerable lacked 'i don't know' or cited sources)."
+    vi:
+      front: "Phân loại lỗi RAG"
+      back: "retrieval_miss (thiếu nguồn kỳ vọng trong retrieved), answer_miss (truy xuất trúng nhưng thiếu fact), no_refusal (câu ngoài tài liệu không từ chối hoặc vẫn kèm nguồn)."
+
+  - id: p7-09-f05
+    tags: [rag, strings]
+    en:
+      front: "Citation validation"
+      back: "Parse [n] markers from the answer, keep only 1 <= n <= len(hits), map to unique sources, and clear sources on 'I don't know' replies."
+    vi:
+      front: "Kiểm tra trích dẫn [n]"
+      back: "Đọc các nhãn [n] trong câu trả lời, chỉ giữ 1 <= n <= len(hits), ánh xạ sang danh sách source không trùng, và xóa sources nếu bot từ chối."
+
+  - id: p7-09-f06
+    tags: [evaluation]
+    en:
+      front: "Honest reporting on small test sets"
+      back: "Always report raw counts alongside percentages and name failing IDs; on 3-6 questions, one flipped answer swings the rate by 17-33%."
+    vi:
+      front: "Báo cáo trung thực trên tập test nhỏ"
+      back: "Luôn nêu số đếm gốc kèm phần trăm và gọi tên mã câu sai; với 3-6 câu, chỉ một câu đổi kết quả làm tỉ lệ lệch 17-33%."

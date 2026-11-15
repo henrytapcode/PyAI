@@ -1,0 +1,94 @@
+id: p7-09-ex02
+kind: project
+title:
+  en: "Evaluate the RAG bot and format the report"
+  vi: "Đánh giá bot RAG và định dạng báo cáo"
+difficulty: 3
+tags: [evaluation, rag, strings]
+hints:
+  en:
+    - |
+      Combine the per-case scoring from Part 4 with the line report format from Part 5. For 5 answerable questions (4 hits, 3 facts) and 2 unanswerables (1 clean refusal), `report_lines` returns `["hit@k: 4/5 (80%)", "facts: 3/5 (60%)", "refusals: 1/2 (50%)", ..., "failures: 2"]`.
+    - |
+      Step-by-step plan:
+      1. Initialize counters for total cases, answerable cases, retrieval hits, fact passes, unanswerable cases, clean refusals, and an ordered failure list.
+      2. For each row in the eval set, call `answer_fn` with the question without modifying the eval set.
+      3. When `expected_source` is `None`, increment the unanswerable count and verify both the `"i don't know"` phrase and an empty sources list; otherwise append `"no_refusal"` to failures.
+      4. When `expected_source` is present, increment the answerable count, check whether `expected_source` is in `retrieved` and whether every expected fact appears case-insensitively in the answer, and record `"retrieval_miss"` before `"answer_miss"` whenever retrieval failed.
+      5. In `report_lines`, format each ratio as `"n/a"` when the denominator is zero or `"num/den (pct%)"` otherwise, list each failure line, and end with the total failure count.
+    - |
+      Function skeleton:
+      ```python
+      def evaluate_bot(answer_fn, eval_set: list[dict]) -> dict:
+          hits = n_answerable = facts_ok = idk_ok = n_unanswerable = 0
+          failures: list[tuple[str, str]] = []
+          for row in eval_set:
+              out = answer_fn(row["question"])
+              ...
+          return {
+              "n": len(eval_set),
+              "hits": hits,
+              "n_answerable": n_answerable,
+              "facts_ok": facts_ok,
+              "idk_ok": idk_ok,
+              "n_unanswerable": n_unanswerable,
+              "failures": failures,
+          }
+
+
+      def report_lines(summary: dict) -> list[str]:
+          def fmt(num: int, den: int) -> str:
+              return "n/a" if den == 0 else f"{num}/{den} ({round(num / den * 100)}%)"
+
+          lines = [
+              f"hit@k: {fmt(summary['hits'], summary['n_answerable'])}",
+              f"facts: {fmt(summary['facts_ok'], summary['n_answerable'])}",
+              f"refusals: {fmt(summary['idk_ok'], summary['n_unanswerable'])}",
+          ]
+          ...
+          lines.append(f"failures: {len(summary['failures'])}")
+          return lines
+      ```
+  vi:
+    - |
+      Ghép cách chấm từng câu ở Phần 4 với định dạng báo cáo dạng dòng ở Phần 5. Với 5 câu trả lời được (4 hit, 3 đủ fact) và 2 câu không trả lời được (1 từ chối đúng), `report_lines` trả về `["hit@k: 4/5 (80%)", "facts: 3/5 (60%)", "refusals: 1/2 (50%)", ..., "failures: 2"]`.
+    - |
+      Kế hoạch từng bước:
+      1. Khởi tạo các biến đếm tổng số câu, số câu trả lời được, số lần truy xuất trúng, số câu đủ fact, số câu không trả lời được, số lần từ chối đúng và danh sách lỗi theo thứ tự.
+      2. Với từng dòng trong tập eval, gọi `answer_fn` truyền câu hỏi vào mà không làm thay đổi tập eval gốc.
+      3. Khi `expected_source` là `None`, tăng biến đếm câu không trả lời được và kiểm tra cả cụm `"i don't know"` lẫn danh sách nguồn rỗng; nếu không đạt thì ghi `"no_refusal"` vào danh sách lỗi.
+      4. Khi có `expected_source`, tăng biến đếm câu trả lời được, kiểm tra nguồn kỳ vọng có nằm trong `retrieved` và mọi fact có xuất hiện không phân biệt hoa thường trong câu trả lời hay không, và ưu tiên ghi `"retrieval_miss"` trước `"answer_miss"` nếu truy xuất trượt.
+      5. Trong `report_lines`, định dạng từng tỉ lệ thành `"n/a"` nếu mẫu số bằng không hoặc `"num/den (pct%)"` nếu khác không, thêm từng dòng lỗi, rồi kết thúc bằng tổng số lỗi.
+    - |
+      Khung hàm:
+      ```python
+      def evaluate_bot(answer_fn, eval_set: list[dict]) -> dict:
+          hits = n_answerable = facts_ok = idk_ok = n_unanswerable = 0
+          failures: list[tuple[str, str]] = []
+          for row in eval_set:
+              out = answer_fn(row["question"])
+              ...
+          return {
+              "n": len(eval_set),
+              "hits": hits,
+              "n_answerable": n_answerable,
+              "facts_ok": facts_ok,
+              "idk_ok": idk_ok,
+              "n_unanswerable": n_unanswerable,
+              "failures": failures,
+          }
+
+
+      def report_lines(summary: dict) -> list[str]:
+          def fmt(num: int, den: int) -> str:
+              return "n/a" if den == 0 else f"{num}/{den} ({round(num / den * 100)}%)"
+
+          lines = [
+              f"hit@k: {fmt(summary['hits'], summary['n_answerable'])}",
+              f"facts: {fmt(summary['facts_ok'], summary['n_answerable'])}",
+              f"refusals: {fmt(summary['idk_ok'], summary['n_unanswerable'])}",
+          ]
+          ...
+          lines.append(f"failures: {len(summary['failures'])}")
+          return lines
+      ```

@@ -1,0 +1,108 @@
+id: p7-09-ex01
+kind: project
+title:
+  en: "Build the FAQ chunk index and top-k retriever"
+  vi: "Xây dựng chỉ mục chunk FAQ và bộ truy xuất top-k"
+difficulty: 3
+tags: [rag, numpy, llm]
+hints:
+  en:
+    - |
+      Combine Part 1 (chunking with `<source>#<n>` IDs) and Part 2 (one-time embedding and cosine ranking). For `docs = [{"source": "a.md", "text": "Refunds take 30 days. Keep receipt."}]` with `mode="sentence"`, `build_index` creates two chunks (`"a.md#0"`, `"a.md#1"`) in a single `client.embed(...)` call, and `retrieve` returns matching dicts with `"id"`, `"source"`, `"text"`, and `"score"` rounded to 3 decimals.
+    - |
+      Step-by-step plan:
+      1. Validate `mode` first so any value other than `"sentence"` or `"words"` raises `ValueError`; for `"words"`, also validate `size` and `overlap`.
+      2. Loop over each document, split its text into non-empty pieces according to `mode`, and assign per-source IDs starting at zero while keeping the original `docs` list untouched.
+      3. Embed all collected chunk texts in one batch call (or store an empty vector list if zero chunks were produced) and return the chunks and vectors dictionary.
+      4. In `retrieve`, return an empty list right away if the index has no chunks or `k <= 0`; otherwise embed the question, compute similarity scores against the stored vectors, sort descending with stable tie-breaking, take up to `k`, and keep only hits meeting `min_score` with rounded scores.
+    - |
+      Function skeleton:
+      ```python
+      import re
+      import numpy as np
+
+
+      def build_index(
+          docs: list[dict],
+          client,
+          mode: str = "sentence",
+          size: int = 8,
+          overlap: int = 2,
+      ) -> dict:
+          if mode not in ("sentence", "words"):
+              raise ValueError(f"unsupported mode: {mode}")
+          chunks: list[dict] = []
+          for doc in docs:
+              ...
+          vectors = (
+              np.array(client.embed([c["text"] for c in chunks]), dtype=float)
+              if chunks
+              else np.empty((0, 0), dtype=float)
+          )
+          return {"chunks": chunks, "vectors": vectors}
+
+
+      def retrieve(
+          index: dict,
+          question: str,
+          client,
+          k: int = 2,
+          min_score: float = 0.2,
+      ) -> list[dict]:
+          if not index["chunks"] or k <= 0:
+              return []
+          q_vec = np.array(client.embed([question])[0], dtype=float)
+          scores = index["vectors"] @ q_vec
+          ...
+          return hits
+      ```
+  vi:
+    - |
+      Ghép Phần 1 (chia chunk kèm ID `<source>#<n>`) và Phần 2 (embed một lần và xếp hạng cosine). Với `docs = [{"source": "a.md", "text": "Refunds take 30 days. Keep receipt."}]` và `mode="sentence"`, `build_index` tạo hai chunk (`"a.md#0"`, `"a.md#1"`) trong đúng một lần gọi `client.embed(...)`, còn `retrieve` trả về các dict chứa `"id"`, `"source"`, `"text"` và `"score"` làm tròn 3 chữ số thập phân.
+    - |
+      Kế hoạch từng bước:
+      1. Kiểm tra `mode` ngay từ đầu để mọi giá trị khác `"sentence"` hoặc `"words"` đều báo `ValueError`; với `"words"`, kiểm tra thêm `size` và `overlap`.
+      2. Duyệt từng tài liệu, tách văn bản thành các đoạn không rỗng theo `mode` và đánh số ID theo từng nguồn bắt đầu từ không mà không làm thay đổi `docs` gốc.
+      3. Embed toàn bộ văn bản chunk trong một lần gọi duy nhất (hoặc lưu mảng vector rỗng nếu không có chunk nào) rồi trả về dictionary gồm danh sách chunk và vector.
+      4. Trong `retrieve`, trả về danh sách rỗng ngay nếu chỉ mục không có chunk hoặc `k <= 0`; ngược lại embed câu hỏi, tính điểm tương đồng với các vector đã lưu, sắp xếp giảm dần ổn định, lấy tối đa `k` phần tử và chỉ giữ các kết quả đạt `min_score` kèm điểm đã làm tròn.
+    - |
+      Khung hàm:
+      ```python
+      import re
+      import numpy as np
+
+
+      def build_index(
+          docs: list[dict],
+          client,
+          mode: str = "sentence",
+          size: int = 8,
+          overlap: int = 2,
+      ) -> dict:
+          if mode not in ("sentence", "words"):
+              raise ValueError(f"unsupported mode: {mode}")
+          chunks: list[dict] = []
+          for doc in docs:
+              ...
+          vectors = (
+              np.array(client.embed([c["text"] for c in chunks]), dtype=float)
+              if chunks
+              else np.empty((0, 0), dtype=float)
+          )
+          return {"chunks": chunks, "vectors": vectors}
+
+
+      def retrieve(
+          index: dict,
+          question: str,
+          client,
+          k: int = 2,
+          min_score: float = 0.2,
+      ) -> list[dict]:
+          if not index["chunks"] or k <= 0:
+              return []
+          q_vec = np.array(client.embed([question])[0], dtype=float)
+          scores = index["vectors"] @ q_vec
+          ...
+          return hits
+      ```

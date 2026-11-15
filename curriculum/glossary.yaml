@@ -2843,3 +2843,36 @@ terms:
       en: "LLM-as-judge scales beyond brittle string matching, yet the judge itself can prefer verbose or confident replies and must be calibrated against human labels."
       vi: "LLM-as-judge mở rộng tốt hơn so khớp chuỗi cứng nhắc, nhưng chính model giám khảo cũng có thể thiên vị câu trả lời dài hoặc tự tin nên cần đối chiếu với mẫu do người chấm."
     related: [eval, faithfulness, prompt]
+
+  - term: ingestion
+    vi_term: ingestion (nạp và chuẩn bị dữ liệu)
+    tags: [rag, data-prep]
+    en: "The offline stage of a RAG pipeline that reads raw documents, cleans and splits them into chunks with metadata, and embeds them into a searchable index."
+    vi: "Giai đoạn chạy trước của pipeline RAG gồm đọc tài liệu thô, làm sạch, chia thành các chunk kèm metadata và tạo embedding đưa vào chỉ mục tìm kiếm."
+    example: "chunks = chunk_docs(docs)\nvecs = client.embed([c[\"text\"] for c in chunks])"
+    in_practice:
+      en: "Running ingestion once when documents change—instead of re-embedding on every user question—keeps RAG latency low and API bills predictable."
+      vi: "Chạy ingestion một lần mỗi khi tài liệu cập nhật—thay vì embed lại ở mỗi câu hỏi—giúp độ trễ của RAG thấp và chi phí API ổn định."
+    related: [RAG, chunking, embedding, index]
+
+  - term: dev set
+    vi_term: dev set (tập tinh chỉnh)
+    tags: [evaluation, model-evaluation]
+    en: "A fixed split of labeled examples or eval questions used to compare configurations, chunk sizes, prompts, or thresholds and pick the winner before touching the test set."
+    vi: "Tập dữ liệu hoặc câu hỏi đánh giá cố định dùng để so sánh các cấu hình, kích thước chunk, prompt hay ngưỡng và chọn phương án tốt nhất trước khi chạm vào tập test."
+    example: "# Compare candidate configs on dev_set, pick one, then evaluate test_set once."
+    in_practice:
+      en: "Tuning retrieval top-k or prompts on a dev set keeps your held-out test set unbiased for a final measurement."
+      vi: "Tinh chỉnh top-k hay prompt trên dev set giúp giữ tập held-out test khách quan cho phép đo cuối cùng."
+    related: [eval set, held-out test set, train/test split]
+
+  - term: held-out test set
+    vi_term: held-out test set (tập test giữ kín)
+    tags: [evaluation, model-evaluation]
+    en: "A separate evaluation split locked away during tuning and scored only once at the end to measure how well the chosen configuration generalizes."
+    vi: "Phần dữ liệu đánh giá tách riêng, giữ kín suốt quá trình tinh chỉnh và chỉ chấm đúng một lần ở cuối để đo khả năng tổng quát hóa của cấu hình đã chọn."
+    example: "test_summary = evaluate_bot(chosen_bot, test_set)  # run once"
+    in_practice:
+      en: "Going back to tweak a threshold or chunk size after seeing low held-out test scores leaks test information and invalidates the benchmark."
+      vi: "Quay lại sửa ngưỡng hay kích thước chunk sau khi nhìn thấy điểm thấp trên held-out test sẽ gây rò rỉ dữ liệu và làm mất giá trị phép đo."
+    related: [dev set, eval set, overfitting]

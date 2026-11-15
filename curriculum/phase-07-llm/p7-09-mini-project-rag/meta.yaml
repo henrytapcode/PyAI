@@ -1,0 +1,35 @@
+id: p7-09-mini-project-rag
+phase: p7
+order: 9
+kind: project
+title:
+  en: "Mini-project: RAG"
+  vi: "Mini-project: RAG"
+summary:
+  en: "Build a shop FAQ help-desk RAG bot end to end: ingest and chunk documents, index embeddings once, retrieve top-k chunks, answer with verified citations and refusals, compare configs on a dev set, score the held-out test set once, and write an honest report."
+  vi: "Xây dựng bot hỏi đáp FAQ cửa hàng bằng RAG từ đầu đến cuối: nạp và chia chunk tài liệu, đánh chỉ mục embedding một lần, truy xuất top-k, trả lời có trích nguồn kèm từ chối khi thiếu thông tin, so sánh cấu hình trên dev set, chấm tập held-out test một lần và viết báo cáo trung thực."
+level: beginner
+tags: [llm, rag, evaluation]
+prerequisites: [p7-08-evals]
+duration_min: 45
+outcomes:
+  en:
+    - "Build an end-to-end RAG pipeline using the fake client"
+    - "Evaluate retrieval and grounded answers on a test set"
+    - "Compare chunking and threshold configs on a dev set without peeking at test"
+    - "Write an honest error report naming retrieval, answer, and refusal failures"
+  vi:
+    - "Xây pipeline RAG hoàn chỉnh với fake client"
+    - "Đánh giá khả năng truy xuất và câu trả lời bám nguồn trên tập test"
+    - "So sánh cấu hình chia chunk và ngưỡng trên dev set mà không nhìn trước tập test"
+    - "Viết báo cáo lỗi trung thực, gọi tên rõ lỗi truy xuất, trả lời và từ chối"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (arXiv:2005.11401)"
+      vi: "Bài báo RAG gốc (arXiv:2005.11401) (EN)"
+    url: "https://arxiv.org/abs/2005.11401"
+  - title:
+      en: "Anthropic: Introducing Contextual Retrieval"
+      vi: "Anthropic: Introducing Contextual Retrieval (EN)"
+    url: "https://www.anthropic.com/news/contextual-retrieval"

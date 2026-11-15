@@ -1,0 +1,8 @@
+dev words(8,2) m=0.2: hit=6/6 (100%) facts=3/6 (50%) idk=2/2 (100%)
+dev sent k=2 m=0.2  : hit=6/6 (100%) facts=5/6 (83%) idk=1/2 (50%)
+dev sent k=2 m=0.35 : hit=4/6 (67%) facts=4/6 (67%) idk=2/2 (100%)
+chosen: sent k=2 m=0.2
+test sent k=2 m=0.2 : hit=3/3 (100%) facts=2/3 (67%) idk=1/1 (100%)
+dev  FAIL d6: answer_miss
+dev  FAIL d8: no_refusal
+test FAIL t3: answer_miss
