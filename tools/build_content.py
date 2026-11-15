@@ -8,6 +8,7 @@ Output (gitignored):
   apps/web/src/generated/glossary.json, interview.json, portfolio.json
   apps/web/public/pyrunner/runner.py         browser test runner (same file the validator uses)
   apps/web/public/pyrunner/tracer.py         step-through tracer for the "Visualize" view
+  apps/web/public/pyrunner/llm.py            deterministic fake LLM client (`pyai_llm`)
 """
 
 from __future__ import annotations
@@ -217,6 +218,7 @@ def main() -> int:
     runner_dir.mkdir(parents=True, exist_ok=True)
     for name in ("runner.py", "tracer.py"):
         shutil.copyfile(ROOT / "tools" / "pyrunner" / name, runner_dir / name)
+    shutil.copyfile(ROOT / "packages" / "pyai_llm" / "pyai_llm.py", runner_dir / "llm.py")
 
     print(f"Built {lesson_count} lessons, {len(exams)} exams, "
           f"{len(review['flashcards'])} flashcards, {len(review['questions'])} questions -> {OUT.relative_to(ROOT)}")

@@ -1140,6 +1140,11 @@ wheels = [
 ]
 
 [[package]]
+name = "pyai-llm"
+version = "0.1.0"
+source = { editable = "packages/pyai_llm" }
+
+[[package]]
 name = "pydantic"
 version = "2.12.5"
 source = { registry = "https://pypi.org/simple" }
@@ -1296,6 +1301,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "pyai-llm" },
     { name = "pydantic" },
     { name = "pytest" },
     { name = "pyyaml" },
@@ -1316,6 +1322,7 @@ requires-dist = [
     { name = "matplotlib", specifier = "==3.9.2" },
     { name = "numpy", specifier = "==2.2.5" },
     { name = "pandas", specifier = "==2.3.3" },
+    { name = "pyai-llm", editable = "packages/pyai_llm" },
     { name = "pydantic", specifier = "==2.12.5" },
     { name = "pytest", specifier = ">=8.2" },
     { name = "pyyaml", specifier = ">=6.0" },
