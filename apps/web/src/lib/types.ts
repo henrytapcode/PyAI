@@ -24,6 +24,7 @@ export interface Question {
   answer?: number | string | (string | string[])[];
   /** false: keep mcq options in their written order. */
   shuffle_options?: boolean;
+  runner?: "local";
   en: QuestionText;
   vi?: QuestionText;
   lessonId?: string;

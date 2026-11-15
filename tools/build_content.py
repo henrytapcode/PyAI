@@ -13,6 +13,7 @@ Output (gitignored):
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -23,6 +24,26 @@ ROOT = Path(__file__).resolve().parent.parent
 CURRICULUM = ROOT / "curriculum"
 WEB = ROOT / "apps" / "web"
 OUT = WEB / "src" / "generated"
+
+LOCAL_ONLY_MODULES = ("torch", "transformers", "fastapi", "uvicorn")
+_LOCAL_IMPORT_RE = re.compile(
+    rf"^\s*(?:import|from)\s+(?:{'|'.join(LOCAL_ONLY_MODULES)})\b",
+    re.MULTILINE,
+)
+
+
+def question_runner(q: dict) -> str | None:
+    """Return 'local' when a question imports a local-only module, else None."""
+    text = f"{q.get('code') or ''}\n" + "\n".join(q.get("lines") or [])
+    return "local" if _LOCAL_IMPORT_RE.search(text) else None
+
+
+def attach_question_runners(questions: list[dict]) -> list[dict]:
+    """Attach runner='local' in place on questions that need the local runner."""
+    for q in questions:
+        if runner := question_runner(q):
+            q["runner"] = runner
+    return questions
 
 
 def load_yaml(path: Path):
@@ -92,6 +113,7 @@ def build_lesson(lesson_dir: Path) -> dict:
     ex_root = lesson_dir / "exercises"
     exercises = [build_exercise(d) for d in sorted(ex_root.iterdir()) if (d / "exercise.yaml").exists()] if ex_root.exists() else []
     quiz = load_yaml(lesson_dir / "quiz.yaml") if (lesson_dir / "quiz.yaml").exists() else {"questions": [], "flashcards": []}
+    attach_question_runners(quiz.get("questions", []))
     examples = [build_example(p) for p in sorted((lesson_dir / "examples").glob("*.py"))]
     return {
         "meta": {"kind": "lesson", "prerequisites": [], **meta},
@@ -164,6 +186,7 @@ def main() -> int:
         + sorted((CURRICULUM / "exams").glob("*.yaml"))
     for path in exam_files:
         exam = load_yaml(path)
+        attach_question_runners(exam.get("questions", []))
         write_json(OUT / "exams" / f"{exam['id']}.json", exam)
         exams.append({
             "id": exam["id"], "kind": exam["kind"], "phase": exam.get("phase"), "title": exam["title"],

@@ -6,6 +6,7 @@ import { useEffect, useMemo } from "react";
 import { Markdown, StaticCode } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { UntranslatedBadge, useLoc } from "@/lib/i18n";
+import { RunnerContext, useRunner } from "@/lib/local-runner";
 import { correctAnswerText, grade, type UserAnswer } from "@/lib/quiz";
 import type { Question } from "@/lib/types";
 import { cn, shuffle } from "@/lib/utils";
@@ -17,8 +18,8 @@ function seedOf(id: string) {
 }
 
 /** Inline markdown for short strings (prompts, options) without paragraph spacing. */
-function Inline({ text }: { text: string }) {
-  return <Markdown text={text} className="[&_p]:m-0 leading-relaxed" />;
+function Inline({ text, canVisualize = true }: { text: string; canVisualize?: boolean }) {
+  return <Markdown text={text} canVisualize={canVisualize} className="[&_p]:m-0 leading-relaxed" />;
 }
 
 export function QuestionView({
@@ -36,6 +37,7 @@ export function QuestionView({
 }) {
   const t = useTranslations("quiz");
   const loc = useLoc();
+  const inherited = useRunner();
   const text = loc.pick(question);
   const qt = text.value!;
   const correct = revealed ? grade(question, answer) : null;
@@ -61,20 +63,21 @@ export function QuestionView({
   }, [question.type, revealed, order, onChange]);
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        {showType && (
-          <Badge variant="muted">
-            {t(`type.${question.type}`)}
-            {text.fallback && <UntranslatedBadge />}
-          </Badge>
-        )}
-        <div className="text-[1.05rem] font-medium">
-          <Inline text={qt.prompt} />
+    <RunnerContext.Provider value={question.runner ?? inherited}>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          {showType && (
+            <Badge variant="muted">
+              {t(`type.${question.type}`)}
+              {text.fallback && <UntranslatedBadge />}
+            </Badge>
+          )}
+          <div className="text-[1.05rem] font-medium">
+            <Inline text={qt.prompt} canVisualize={revealed} />
+          </div>
         </div>
-      </div>
 
-      {question.code && question.type !== "fill" && <StaticCode code={question.code} />}
+        {question.code && question.type !== "fill" && <StaticCode code={question.code} canVisualize={revealed} />}
 
       {question.type === "mcq" && answer.type === "mcq" && (
         <div className="grid gap-2">
@@ -111,7 +114,7 @@ export function QuestionView({
                   {String.fromCharCode(65 + pos)}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <Inline text={opt} />
+                  <Inline text={opt} canVisualize={revealed} />
                 </span>
                 {revealed && isRight && <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden="true" />}
                 {revealed && chosen && !isRight && <XCircle className="size-4 shrink-0 text-danger" aria-hidden="true" />}
@@ -156,12 +159,13 @@ export function QuestionView({
           )}
           {qt.explanation && (
             <div className="mt-2 text-sm text-foreground">
-              <Inline text={qt.explanation} />
+              <Inline text={qt.explanation} canVisualize={revealed} />
             </div>
           )}
         </div>
       )}
-    </div>
+      </div>
+    </RunnerContext.Provider>
   );
 }
 

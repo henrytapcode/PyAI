@@ -194,7 +194,17 @@ function MermaidDiagram({ chart }: { chart: string }) {
   );
 }
 
-export function Markdown({ text, onTryCode, className }: { text: string; onTryCode?: (code: string) => void; className?: string }) {
+export function Markdown({
+  text,
+  onTryCode,
+  canVisualize = true,
+  className,
+}: {
+  text: string;
+  onTryCode?: (code: string) => void;
+  canVisualize?: boolean;
+  className?: string;
+}) {
   const components: Components = {
     pre: ({ node, children }) => {
       const codeEl = (node as unknown as HastNode)?.children?.find((c) => c.tagName === "code");
@@ -205,7 +215,7 @@ export function Markdown({ text, onTryCode, className }: { text: string; onTryCo
       const isPython = !lang || lang === "python" || lang === "py";
       if (lang === "mermaid") return <MermaidDiagram chart={raw} />;
       return (
-        <CodeBlock code={raw} language={lang} onTry={isPython ? onTryCode : undefined} canVisualize={isPython}>
+        <CodeBlock code={raw} language={lang} onTry={isPython ? onTryCode : undefined} canVisualize={isPython && canVisualize}>
           {inner}
         </CodeBlock>
       );
@@ -237,10 +247,10 @@ export function Markdown({ text, onTryCode, className }: { text: string; onTryCo
 }
 
 /** Highlighted, non-editable code (quiz questions, flashcards). */
-export function StaticCode({ code, className }: { code: string; className?: string }) {
+export function StaticCode({ code, canVisualize = true, className }: { code: string; canVisualize?: boolean; className?: string }) {
   return (
     <div className={className}>
-      <Markdown text={"```python\n" + code.replace(/\n$/, "") + "\n```"} />
+      <Markdown text={"```python\n" + code.replace(/\n$/, "") + "\n```"} canVisualize={canVisualize} />
     </div>
   );
 }
