@@ -1,0 +1,3 @@
+# Split into `_retrieve` and `_build_messages` helpers with single-batch embedding
+
+Instead of writing the entire pipeline inside one function, this version separates `_retrieve()` and `_build_messages()`, embeds all chunks plus the question in a single `client.embed(...)` call, and deduplicates cited sources with `dict.fromkeys(...)`. Keeping retrieval and prompt formatting in separate helpers makes each step easy to unit-test or swap independently, while batching the query with the chunks saves one round-trip when indexing and querying together (though in production you normally pre-embed chunks once and embed only the query at request time).

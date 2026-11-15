@@ -1,0 +1,60 @@
+id: p7-05-ex01
+kind: fill
+title:
+  en: "Fill: split text into overlapping word chunks"
+  vi: "Điền chỗ trống: chia văn bản thành các chunk từ có phần gối"
+difficulty: 1
+tags: [rag, strings]
+hints:
+  en:
+    - |
+      This implements the sliding-window `chunking` helper from §2. For `chunk_words("a b c d e", size=3, overlap=1)`, your function must return `["a b c", "c d e"]`.
+    - |
+      The plan:
+      1. First reject invalid window settings by checking that chunk size is positive and overlap stays non-negative yet strictly smaller than chunk size.
+      2. Split the input on whitespace and return an empty list right away when no words exist.
+      3. Compute the advance stride as the difference between window size and overlap.
+      4. Walk through the word list from index zero, join each slice with single spaces, and stop as soon as the current slice already reaches or passes the end of the word list.
+    - |
+      Function skeleton:
+      ```python
+      def chunk_words(text: str, size: int, overlap: int) -> list[str]:
+          if size <= 0 or overlap < 0 or overlap >= size:
+              raise ValueError("invalid size or overlap")
+          words = text.split()
+          if not words:
+              return []
+          step = size - overlap
+          chunks: list[str] = []
+          i = 0
+          while i < len(words):
+              ...
+              i += step
+          return chunks
+      ```
+  vi:
+    - |
+      Bài này cài đặt hàm `chunking` theo cửa sổ trượt ở §2. Với `chunk_words("a b c d e", size=3, overlap=1)`, hàm phải trả về `["a b c", "c d e"]`.
+    - |
+      Kế hoạch:
+      1. Kiểm tra tham số ngay từ đầu: kích thước chunk phải dương, còn độ gối phải không âm và nhỏ hơn hẳn kích thước chunk.
+      2. Tách chuỗi đầu vào theo khoảng trắng và trả về danh sách rỗng ngay nếu không có từ nào.
+      3. Tính bước nhảy của cửa sổ bằng hiệu giữa kích thước chunk và phần gối.
+      4. Duyệt từ vị trí đầu danh sách từ, ghép từng cửa sổ bằng một dấu cách và dừng ngay khi cửa sổ hiện tại đã chạm hoặc vượt qua cuối danh sách từ.
+    - |
+      Khung hàm:
+      ```python
+      def chunk_words(text: str, size: int, overlap: int) -> list[str]:
+          if size <= 0 or overlap < 0 or overlap >= size:
+              raise ValueError("invalid size or overlap")
+          words = text.split()
+          if not words:
+              return []
+          step = size - overlap
+          chunks: list[str] = []
+          i = 0
+          while i < len(words):
+              ...
+              i += step
+          return chunks
+      ```

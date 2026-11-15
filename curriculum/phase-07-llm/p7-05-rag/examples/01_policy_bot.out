@@ -1,0 +1,7 @@
+Q: How many days do refunds take?
+A: Refunds are issued within 30 days of purchase. [1] | sources=['refunds.md'] | LLM called
+Q: What does hardware warranty cover?
+A: Hardware warranty covers factory defects for 12 months from delivery. [1] | sources=['warranty.md'] | LLM called
+Q: Do you offer student discounts?
+A: I don't know. | sources=[] | LLM not called
+Total chat calls: 2

@@ -1891,6 +1891,50 @@ terms:
       vi: "Đó là cách xây chatbot trả lời từ tài liệu riêng của công ty và trích được nguồn, mà không phải huấn luyện lại model."
     related: [chunking, vector database, hallucination]
 
+  - term: retrieval
+    vi_term: retrieval (truy xuất)
+    tags: [rag]
+    en: "Searching a knowledge base (often using embeddings and cosine similarity) to fetch the top-k chunks relevant to a question."
+    vi: "Tìm kiếm trong kho tri thức (thường bằng embedding và cosine similarity) để lấy ra top-k chunk liên quan tới câu hỏi."
+    example: "scores = doc_matrix @ query_vec\ntop_idx = np.argsort(-scores, kind=\"stable\")[:k]"
+    in_practice:
+      en: "If retrieval misses the right chunk, the LLM cannot answer accurately even with a great prompt—fix retrieval before blaming generation."
+      vi: "Nếu bước retrieval lấy trượt chunk chứa đáp án, LLM không thể trả lời đúng dù prompt hay đến mấy—hãy sửa truy xuất trước khi đổ lỗi cho bước sinh."
+    related: [RAG, semantic search, top-k]
+
+  - term: chunk overlap
+    vi_term: chunk overlap (phần gối giữa các chunk)
+    tags: [rag]
+    en: "Repeating the last N words (or tokens) of one chunk at the start of the next chunk so sentences crossing a boundary stay intact."
+    vi: "Lặp lại N từ (hoặc token) cuối của chunk trước ở đầu chunk sau để câu nằm vắt qua ranh giới không bị cắt đứt ngữ cảnh."
+    example: "step = size - overlap\nchunks = [words[i:i + size] for i in range(0, len(words), step)]"
+    in_practice:
+      en: "An overlap of 10-20% of chunk size keeps facts split across boundaries retrievable, while setting overlap >= size freezes the loop."
+      vi: "Độ gối 10-20% kích thước chunk giúp các ý nằm sát ranh giới vẫn truy xuất được, nhưng đặt overlap >= size sẽ làm vòng lặp đứng yên."
+    related: [chunking, chunk, RAG]
+
+  - term: grounding
+    vi_term: grounding (neo câu trả lời vào nguồn)
+    tags: [rag, llm]
+    en: "Restricting an LLM to answer strictly from retrieved context rather than guessing from pre-training memory."
+    vi: "Ràng buộc LLM chỉ trả lời dựa trên ngữ cảnh đã truy xuất thay vì đoán mò từ trí nhớ lúc huấn luyện."
+    example: "system = \"Answer using only the provided context. If missing, say you don't know.\""
+    in_practice:
+      en: "Grounded prompts paired with a retrieval score threshold and an \"I don't know\" fallback dramatically cut hallucinations in customer-facing bots."
+      vi: "Prompt có căn cứ kết hợp ngưỡng điểm truy xuất và nhánh \"I don't know\" giúp giảm mạnh ảo giác ở chatbot phục vụ khách hàng."
+    related: [RAG, hallucination, citation]
+
+  - term: citation
+    vi_term: citation (trích dẫn nguồn)
+    tags: [rag]
+    en: "A marker such as [1] in a model's answer linking a claim back to a specific retrieved chunk and its source document."
+    vi: "Ký hiệu như [1] trong câu trả lời của model giúp liên kết nhận định với đúng chunk đã truy xuất và tài liệu nguồn của nó."
+    example: "refs = [int(n) for n in re.findall(r\"\\[(\\d+)\\]\", answer)]\nvalid = [r for r in refs if 1 <= r <= len(hits)]"
+    in_practice:
+      en: "Always validate that cited numbers actually exist in your context; a model citing [7] when only 2 chunks were sent is fabricating."
+      vi: "Luôn kiểm tra xem số trích dẫn có thật sự tồn tại trong context không; model trích [7] khi chỉ có 2 chunk là dấu hiệu đang bịa."
+    related: [grounding, RAG, hallucination]
+
   - term: hallucination
     vi_term: hallucination (ảo giác)
     tags: [llm]

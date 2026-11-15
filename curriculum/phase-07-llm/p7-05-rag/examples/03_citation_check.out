@@ -1,0 +1,6 @@
+grounded -> Refunds take 30 days. [1]
+  check: {'valid': [1], 'invalid': [], 'missing': False}
+hallucinated_ref -> Refunds take 30 days and warranty is 2 years. [3]
+  check: {'valid': [], 'invalid': [3], 'missing': False}
+uncited -> Refunds are usually processed quickly.
+  check: {'valid': [], 'invalid': [], 'missing': True}

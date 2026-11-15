@@ -1,0 +1,29 @@
+id: p7-05-rag
+phase: p7
+order: 5
+kind: lesson
+title:
+  en: "RAG"
+  vi: "RAG"
+summary:
+  en: "Split documents into overlapping chunks, retrieve top-k matches with NumPy embeddings, ground LLM prompts with numbered citations, and refuse to guess when context is missing."
+  vi: "Chia tài liệu thành các chunk có phần gối nhau, truy xuất top-k bằng embedding với NumPy, neo prompt theo ngữ cảnh có đánh số trích dẫn và từ chối bịa khi thiếu thông tin."
+level: beginner
+tags: [llm, rag, numpy, strings]
+prerequisites: [p7-04-vector-db]
+duration_min: 15
+outcomes:
+  en:
+    - "Split documents into overlapping chunks"
+    - "Combine retrieval with grounded prompts via the fake client"
+    - "Cite source chunks and avoid unsupported claims"
+  vi:
+    - "Chia tài liệu thành các chunk có phần gối nhau"
+    - "Kết hợp truy xuất ngữ cảnh với prompt qua fake client"
+    - "Trích dẫn nguồn và hạn chế suy diễn ngoài tài liệu"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (arXiv:2005.11401)", vi: "Bài báo RAG gốc (arXiv:2005.11401) (EN)" }
+    url: "https://arxiv.org/abs/2005.11401"
+  - title: { en: "LangChain Text Splitters Documentation", vi: "Tài liệu Text Splitters của LangChain (EN)" }
+    url: "https://docs.langchain.com/oss/python/integrations/splitters"
