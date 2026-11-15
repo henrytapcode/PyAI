@@ -33,7 +33,7 @@ print("tool:", resp.tool_calls[0].name, resp.tool_calls[0].arguments)
 # tool: get_weather {'city': 'Hanoi', 'unit': ''}
 ```
 
-Notice that `content` is `None`: the model has not answered the user yet—it is asking your code to run `get_weather` first. Notice also that `unit` came back as `''` because `FakeLLM` fills missing optional string fields with a blank placeholder, which our dispatch code will clean up shortly.
+Notice that `content` is `None`: the model has not answered the user yet—it is asking your code to run `get_weather` first. Notice also that `unit` came back as `''` because `FakeLLM` fills missing `string` fields (both required and optional) with extracted prompt text or a blank placeholder `''` when none matches, which our dispatch code will clean up shortly.
 
 ```text
 you                         model                        your code
@@ -56,7 +56,7 @@ Just like structured outputs (`p7-02-structured-output`), a **tool schema** is a
 | `description` | Plain-text guide telling the model when to pick this tool | One clear sentence: what it does and when to use it; make tools easy to tell apart |
 | `parameters` | JSON Schema `object` with `properties` and `required` | List every argument type (`string`, `number`, `integer`, `boolean`) |
 
-Both real LLMs and `FakeLLM` choose tools based on the `description` field. Because `FakeLLM` picks the tool with the most overlapping words (length ≥ 3, including common words like `"the"` or `"for"`), packing a vague description with filler words steals matches away from the right tool—and in real systems, vague descriptions confuse real models the same way.
+Both real LLMs and `FakeLLM` choose tools based on tool metadata. Because `FakeLLM` scores each tool by overlapping words (length ≥ 3, including common words like `"the"` or `"for"`) across both `name` and `description`, packing a vague description with filler words steals matches away from the right tool—and in real systems, vague descriptions confuse real models the same way.
 
 ```python
 from pyai_llm import FakeLLM
@@ -307,44 +307,53 @@ In `p7-07-agents`, you will extend this exact bounded loop so a model can chain 
 
 ## 6. Safety: tools with side effects
 
-Read-only tools like `get_weather` or `lookup_order` only inspect data, so running them automatically is low risk. Tools with a **side effect**—sending an email, issuing a refund, or deleting a record—change real state and need three guards in your Python code: an **allowlist** of permitted tools, explicit human confirmation (`confirmed=True`), and hard numeric caps (`max_amount`).
+Read-only tools like `get_weather` or `lookup_order` only inspect data, so running them automatically is low risk. Tools with a **side effect**—sending an email, issuing a refund, or deleting a record—change real state and need three guards in your Python code: an **allowlist** of permitted tools, explicit human confirmation from application state (`user_confirmed=True`), and a hard server-side constant cap (`MAX_AUTO_REFUND`). Crucially, never pass `**args` raw or read `confirmed`/`max_amount` from the model's `args`: pick only the expected keys (`order_id`, `amount`) so spoofed model fields are ignored.
 
 ```python
 import json
 
 ORDERS = {"1042": {"total": 45.0, "status": "delivered"}, "1043": {"total": 250.0, "status": "delivered"}}
 ALLOWED_TOOLS = {"lookup_order", "issue_refund"}
+MAX_AUTO_REFUND = 100.0
 
 
-def issue_refund(order_id: str, amount: float, confirmed: bool = False, max_amount: float = 100.0) -> str:
+def issue_refund(order_id: str, amount: float) -> str:
     if order_id not in ORDERS:
         return f"blocked: unknown order {order_id}"
-    if amount <= 0 or amount > max_amount:
-        return f"blocked: amount {amount} exceeds limit {max_amount}"
-    if not confirmed:
-        return f"blocked: confirmation required for {order_id}"
+    if amount <= 0 or amount > MAX_AUTO_REFUND:
+        return f"blocked: amount {amount} exceeds limit {MAX_AUTO_REFUND}"
     return json.dumps({"refunded": order_id, "amount": amount})
 
 
-def run_guarded(tool_name: str, args: dict) -> str:
+def run_guarded(tool_name: str, args: dict, user_confirmed: bool) -> str:
     if tool_name not in ALLOWED_TOOLS:
         return f"blocked: {tool_name} is not in allowlist"
     if tool_name == "issue_refund":
-        return issue_refund(**args)
+        order_id = str(args["order_id"])
+        amount = float(args["amount"])
+        if amount <= 0 or amount > MAX_AUTO_REFUND:
+            return f"blocked: amount {amount} exceeds limit {MAX_AUTO_REFUND}"
+        if not user_confirmed:
+            return f"blocked: confirmation required for {order_id}"
+        return issue_refund(order_id=order_id, amount=amount)
     return "ok"
 
 
-print("not allowed:", run_guarded("delete_order", {"order_id": "1042"}))
+print("not allowed:", run_guarded("delete_order", {"order_id": "1042"}, user_confirmed=True))
 # not allowed: blocked: delete_order is not in allowlist
-print("too high   :", run_guarded("issue_refund", {"order_id": "1043", "amount": 250.0, "confirmed": True}))
+print("too high   :", run_guarded("issue_refund", {"order_id": "1043", "amount": 250.0}, user_confirmed=True))
 # too high   : blocked: amount 250.0 exceeds limit 100.0
-print("unconfirmed:", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0, "confirmed": False}))
+print("unconfirmed:", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0}, user_confirmed=False))
 # unconfirmed: blocked: confirmation required for 1042
-print("approved   :", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0, "confirmed": True}))
+print("spoofed    :", run_guarded("issue_refund", {"order_id": "1043", "amount": 45.0, "confirmed": True}, user_confirmed=False))
+# spoofed    : blocked: confirmation required for 1043
+print("spoofed cap:", run_guarded("issue_refund", {"order_id": "1043", "amount": 250.0, "max_amount": 1000.0}, user_confirmed=True))
+# spoofed cap: blocked: amount 250.0 exceeds limit 100.0
+print("approved   :", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0}, user_confirmed=True))
 # approved   : {"refunded": "1042", "amount": 45.0}
 ```
 
-Notice that `confirmed=True` must come from your own application state after a real user clicks "Confirm"—never let the model set `confirmed=True` inside its own prompt arguments!
+Notice that `user_confirmed` comes from your own application state after a real user clicks "Confirm", and `MAX_AUTO_REFUND` lives in server code—even if the model injects `{"confirmed": True, "max_amount": 1000.0}` into `args`, `run_guarded()` ignores those extra keys completely!
 
 > [!WARNING]
 > Treat every tool name and argument dictionary from the model as **untrusted input**. Just as prompt injection (`p7-05-rag`) can hijack text inside retrieved documents, a malicious email or web page can trick an LLM into proposing dangerous arguments. Never pass model arguments straight into shell commands, string-concatenated SQL queries, or `eval`.

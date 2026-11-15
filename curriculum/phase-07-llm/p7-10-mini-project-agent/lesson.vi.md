@@ -22,7 +22,7 @@ Từng phần của dự án nối trực tiếp tới các bài học trước:
 |---|---|---|
 | Phần 1: Toolbox an toàn | Allowlist tool, kiểm tra tham số bắt buộc, lọc tham số lạ, đầu ra JSON | `p7-06-tool-use` |
 | Phần 2: Vòng lặp có giới hạn | Vòng observe–think–act với `final`, `max_steps`, `repeat`, `budget` | `p7-07-agents` |
-| Phần 3: Cổng duyệt | Hàm `approve(name, args)` do code giữ, `needs_approval`, nhật ký duyệt | `p7-06-tool-use`, `p7-07-agents` |
+| Phần 3: Cổng duyệt | Hàm `approve(name, args)` do code giữ, `needs_approval` / `rejected`, nhật ký duyệt | `p7-06-tool-use`, `p7-07-agents` |
 | Phần 4: Bộ kiểm thử kịch bản | Kịch bản có quỹ đạo chuẩn bắt được lỗi vòng lặp thật | `p7-07-agents`, `p7-08-evals` |
 | Phần 5: Báo cáo tổng kết | Số ca đạt/trượt, phân theo `stopped_reason` và tổng token | `p7-08-evals` |
 
@@ -211,9 +211,27 @@ print("reply :", final.content)
 # reply : Based on the tool result: {"status": "delayed", "carrier": "FastShip", "total": 50.0, "late": 4}
 ```
 
+Một chi tiết phòng thủ quan trọng khi viết `ToolBox.schemas()` ở Bài tập 1: `[dict(s) for s in schemas]` chỉ tạo **shallow copy** (bản sao nông), nên các cấu trúc lồng bên trong như `s["parameters"]["required"]` vẫn trỏ chung về schema gốc! Trả về `[copy.deepcopy(s) for s in schemas]` sẽ tách biệt hoàn toàn mọi dict và list lồng nhau khỏi thay đổi từ bên ngoài:
+
+```python
+import copy
+
+schemas = [{"name": "lookup", "parameters": {"required": ["order_id"]}}]
+shallow = [dict(s) for s in schemas]
+shallow[0]["parameters"]["required"].clear()
+print("shallow mutated orig:", schemas[0]["parameters"]["required"])
+# shallow mutated orig: []
+
+schemas = [{"name": "lookup", "parameters": {"required": ["order_id"]}}]
+deep = [copy.deepcopy(s) for s in schemas]
+deep[0]["parameters"]["required"].clear()
+print("deep kept orig      :", schemas[0]["parameters"]["required"])
+# deep kept orig      : ['order_id']
+```
+
 ## 4. Phần 2: vòng agent có giới hạn
 
-Mở rộng vòng một bước thành vòng lặp có giới hạn như ở `p7-07-agents`, kiểm tra điều kiện dừng theo thứ tự mỗi lượt: `budget` (`tokens > token_budget`), `final` (`not resp.tool_calls`), `repeat` (gọi lại đúng tool và tham số như bước trước), và `max_steps` (hết số bước). Chạy kịch bản 3 bước bằng `script` (tra đơn → tra chính sách → trả lời cuối) rồi in **trace** (nhật ký từng bước):
+Mở rộng vòng một bước thành vòng lặp có giới hạn như ở `p7-07-agents`, kiểm tra điều kiện dừng theo thứ tự mỗi lượt: `budget` (`tokens > token_budget`), `final` (`not resp.tool_calls`), `repeat` (gọi lại đúng tool và tham số như bước trước), và `max_steps` (hết số bước). Ta kiểm tra `budget` ngay sau `client.chat(...)` vì lượng token của lượt gọi đó đã tiêu tốn rồi (kiểm tra `final` trước là lựa chọn hợp lệ khác nếu muốn ưu tiên trả về câu trả lời cuối đã trả tiền xong trước khi dừng vì vượt ngân sách). Chạy kịch bản 3 bước bằng `script` (tra đơn → tra chính sách → trả lời cuối) rồi in **trace** (nhật ký từng bước):
 
 ```python
 import json
@@ -300,9 +318,12 @@ Bảng trace từ lượt chạy 3 bước vừa rồi:
 | 1 | `lookup_order` | `{'order_id': '1042'}` | `{"status": "delayed", "total": 50.0, "late": 4}` |
 | 2 | `check_refund_policy` | `{'days_late': 4}` | `eligible: max 20% refund` |
 
+> [!NOTE]
+> API LLM thật có thể trả về nhiều `tool_calls` trong cùng một lượt phản hồi. Để code gọn, vòng lặp agent trong dự án này chỉ đọc `resp.tool_calls[0]` ở mỗi bước—khi cần chạy nhiều tool song song trong một lượt, bạn chỉ việc lặp qua toàn bộ `resp.tool_calls` như đã thực hành ở `p7-06` `ex02`.
+
 ## 5. Phần 3: cổng duyệt cho side effect
 
-Mỗi khi model gọi tool có `side_effect=True` (`issue_refund`), code của bạn phải chặn lại ở **approval gate** (cổng duyệt) và gọi hàm `approve(name, args) -> bool` được truyền vào. Nếu trả `True`, ghi rõ người duyệt vào nhật ký `audit`, chạy tool rồi lặp tiếp; nếu trả `False` hoặc không có `approve`, dừng ngay với `stopped_reason == "needs_approval"`, trả `pending = {"tool": ..., "args": ...}` và **không** chạy tool:
+Mỗi khi model gọi tool có `side_effect=True` (`issue_refund`), code của bạn phải chặn lại ở **approval gate** (cổng duyệt) và gọi hàm `approve(name, args) -> bool` được truyền vào. Nếu không truyền `approve` (`approve is None`), dừng ngay với `stopped_reason == "needs_approval"`; nếu có `approve` và trả `True`, ghi rõ người duyệt vào nhật ký `audit`, chạy tool rồi lặp tiếp; nếu `approve` trả `False`, dừng ngay với `stopped_reason == "rejected"`. Trong cả hai trường hợp bị chặn đều trả `pending = {"tool": ..., "args": ...}` và **không** chạy tool:
 
 ```python
 import json
@@ -364,10 +385,13 @@ def run_with_gate(
         if trace and trace[-1]["tool"] == tc.name and trace[-1]["args"] == args:
             return {"stopped_reason": "repeat", "answer": "", "pending": None, "tokens": tokens, "trace": trace, "audit": audit}
         if SIDE_EFFECTS.get(tc.name, False):
-            ok = bool(approve(tc.name, dict(args))) if approve is not None else False
+            if approve is None:
+                audit.append({"step": step, "tool": tc.name, "args": args, "approved": False, "by": approver})
+                return {"stopped_reason": "needs_approval", "answer": "", "pending": {"tool": tc.name, "args": args}, "tokens": tokens, "trace": trace, "audit": audit}
+            ok = bool(approve(tc.name, dict(args)))
             audit.append({"step": step, "tool": tc.name, "args": args, "approved": ok, "by": approver})
             if not ok:
-                return {"stopped_reason": "needs_approval", "answer": "", "pending": {"tool": tc.name, "args": args}, "tokens": tokens, "trace": trace, "audit": audit}
+                return {"stopped_reason": "rejected", "answer": "", "pending": {"tool": tc.name, "args": args}, "tokens": tokens, "trace": trace, "audit": audit}
         obs = call_tool(tc.name, args)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})
         messages.append({"role": "tool", "tool_call_id": tc.id, "content": obs})
@@ -411,10 +435,10 @@ REFUNDS.clear()
 r_pol = run_with_gate(FakeLLM(script=over_script), "Refund 1044", approve=policy_approve, approver="policy_gate")
 e_pol = r_pol["audit"][0]
 print("policy  :", r_pol["stopped_reason"], f"| ok={e_pol['approved']} by={e_pol['by']} | refunds:", REFUNDS)
-# policy  : needs_approval | ok=False by=policy_gate | refunds: {}
+# policy  : rejected | ok=False by=policy_gate | refunds: {}
 ```
 
-Hãy nhìn lượt chạy thứ ba: đơn `1044` có tổng `$120.00`, nên mức hoàn tối đa 20% là `$24.00`. Khi model đề nghị `$50.00`, `policy_approve` tự động trả `False`, nhật ký `audit` ghi `ok=False by=policy_gate`, và `REFUNDS` vẫn trống rỗng (`{}`).
+Hãy nhìn lượt chạy thứ ba: đơn `1044` có tổng `$120.00`, nên mức hoàn tối đa 20% là `$24.00`. Khi model đề nghị `$50.00`, `policy_approve` tự động trả `False`, vòng lặp dừng với `stopped_reason == "rejected"`, nhật ký `audit` ghi `ok=False by=policy_gate`, và `REFUNDS` vẫn trống rỗng (`{}`).
 
 > [!WARNING]
 > Luôn giữ nguyên tắc **quyền tối thiểu** (chỉ đăng ký đúng các tool cần thiết), tuyệt đối không bao giờ để model tự duyệt chính mình qua tham số prompt, và phải log mọi hành động không thể đảo ngược được (ai duyệt hoặc từ chối, tên tool, tham số).
@@ -509,8 +533,11 @@ def run_agent_v1(client, task: str, approve=None, max_steps: int = 6, token_budg
         tc = resp.tool_calls[0]
         args = dict(tc.arguments)
         # Lỗi ở v1: quên kiểm tra lặp repeat!
-        if SIDE_EFFECTS.get(tc.name, False) and not (approve and approve(tc.name, args)):
-            return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+        if SIDE_EFFECTS.get(tc.name, False):
+            if approve is None:
+                return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+            if not approve(tc.name, dict(args)):
+                return {"stopped_reason": "rejected", "answer": "", "tokens": tokens, "trace": trace}
         obs = call_tool(tc.name, args)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})
         messages.append({"role": "tool", "tool_call_id": tc.id, "content": obs})
@@ -533,8 +560,11 @@ def run_agent_v2(client, task: str, approve=None, max_steps: int = 6, token_budg
         args = dict(tc.arguments)
         if trace and trace[-1]["tool"] == tc.name and trace[-1]["args"] == args:
             return {"stopped_reason": "repeat", "answer": "", "tokens": tokens, "trace": trace}
-        if SIDE_EFFECTS.get(tc.name, False) and not (approve and approve(tc.name, args)):
-            return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+        if SIDE_EFFECTS.get(tc.name, False):
+            if approve is None:
+                return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+            if not approve(tc.name, dict(args)):
+                return {"stopped_reason": "rejected", "answer": "", "tokens": tokens, "trace": trace}
         obs = call_tool(tc.name, args)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})
         messages.append({"role": "tool", "tool_call_id": tc.id, "content": obs})
@@ -608,7 +638,7 @@ SCENARIOS = [
             {"tool_calls": [{"name": "issue_refund", "arguments": {"order_id": "1044", "amount": 50.0}}]},
         ],
         "approve": policy_approve,
-        "expect": {"stopped_reason": "needs_approval", "tools": ["lookup_order"], "answer_contains": ""},
+        "expect": {"stopped_reason": "rejected", "tools": ["lookup_order"], "answer_contains": ""},
     },
     {
         "name": "budget_stop",
@@ -663,7 +693,7 @@ for label, fn in [("v1 (no repeat guard)", run_agent_v1), ("v2 (fixed)", run_age
 # repeat_guard     | repeat(1)         | max_steps(3)      | FAIL
 # max_steps_cap    | max_steps(2)      | max_steps(2)      | PASS
 # refund_approved  | final(3)          | final(3)          | PASS
-# refund_rejected  | needs_approval(1) | needs_approval(1) | PASS
+# refund_rejected  | rejected(1)       | rejected(1)       | PASS
 # budget_stop      | budget(0)         | budget(0)         | PASS
 # passed: 6 / 7
 # -- v2 (fixed) --
@@ -672,7 +702,7 @@ for label, fn in [("v1 (no repeat guard)", run_agent_v1), ("v2 (fixed)", run_age
 # repeat_guard     | repeat(1)         | repeat(1)         | PASS
 # max_steps_cap    | max_steps(2)      | max_steps(2)      | PASS
 # refund_approved  | final(3)          | final(3)          | PASS
-# refund_rejected  | needs_approval(1) | needs_approval(1) | PASS
+# refund_rejected  | rejected(1)       | rejected(1)       | PASS
 # budget_stop      | budget(0)         | budget(0)         | PASS
 # passed: 7 / 7
 ```
@@ -686,7 +716,7 @@ Trong kết quả in ở trên, số trong ngoặc (ví dụ `final(2)`) là s�
 | `repeat_guard` | `repeat` `['lookup_order']` | `repeat` `['lookup_order']` | PASS |
 | `max_steps_cap` | `max_steps` `['lookup_order', 'track_shipment']` | `max_steps` `['lookup_order', 'track_shipment']` | PASS |
 | `refund_approved` | `final` `['lookup_order', 'check_refund_policy', 'issue_refund']` | `final` `['lookup_order', 'check_refund_policy', 'issue_refund']` | PASS |
-| `refund_rejected` | `needs_approval` `['lookup_order']` | `needs_approval` `['lookup_order']` | PASS |
+| `refund_rejected` | `rejected` `['lookup_order']` | `rejected` `['lookup_order']` | PASS |
 | `budget_stop` | `budget` `[]` | `budget` `[]` | PASS |
 
 Để theo dõi bộ kịch bản chạy từng bước mà không dính code của `FakeLLM`, ta dùng một bộ kịch bản đồ chơi với danh sách quyết định viết tay. Bấm **Visualize** ở khối code này để xem `tools`, `reason` và `passed` tăng dần qua từng ca:
@@ -763,7 +793,7 @@ v1_results = [
     {"name": "repeat_guard", "passed": False, "stopped_reason": "max_steps", "tokens": 171, "reasons": ["stopped_reason", "tools"]},
     {"name": "max_steps_cap", "passed": True, "stopped_reason": "max_steps", "tokens": 85, "reasons": []},
     {"name": "refund_approved", "passed": True, "stopped_reason": "final", "tokens": 239, "reasons": []},
-    {"name": "refund_rejected", "passed": True, "stopped_reason": "needs_approval", "tokens": 89, "reasons": []},
+    {"name": "refund_rejected", "passed": True, "stopped_reason": "rejected", "tokens": 89, "reasons": []},
     {"name": "budget_stop", "passed": True, "stopped_reason": "budget", "tokens": 18, "reasons": []},
 ]
 for line in build_report_rows(v1_results):
@@ -773,7 +803,7 @@ for line in build_report_rows(v1_results):
 #   budget: 1
 #   final: 3
 #   max_steps: 2
-#   needs_approval: 1
+#   rejected: 1
 #   FAIL repeat_guard: stopped_reason, tools
 
 v2_results = [
@@ -807,25 +837,25 @@ def issue_refund_side_effect(order_id: str, amount: float) -> str:
 def buggy_step(tc_name, tc_args, approve):
     obs = issue_refund_side_effect(**tc_args)  # Lỗi: chạy trước khi kiểm tra approve!
     if not approve(tc_name, tc_args):
-        return {"stopped_reason": "needs_approval", "issued": list(issued)}
+        return {"stopped_reason": "rejected", "issued": list(issued)}
     return {"stopped_reason": "final", "obs": obs}
 
 
 print("buggy:", buggy_step("issue_refund", {"order_id": "1042", "amount": 50.0}, lambda n, a: False))
-# buggy: {'stopped_reason': 'needs_approval', 'issued': [('1042', 50.0)]}
+# buggy: {'stopped_reason': 'rejected', 'issued': [('1042', 50.0)]}
 
 issued.clear()
 
 
 def fixed_step(tc_name, tc_args, approve):
     if not approve(tc_name, tc_args):
-        return {"stopped_reason": "needs_approval", "issued": list(issued)}
+        return {"stopped_reason": "rejected", "issued": list(issued)}
     obs = issue_refund_side_effect(**tc_args)
     return {"stopped_reason": "final", "obs": obs}
 
 
 print("fixed:", fixed_step("issue_refund", {"order_id": "1042", "amount": 50.0}, lambda n, a: False))
-# fixed: {'stopped_reason': 'needs_approval', 'issued': []}
+# fixed: {'stopped_reason': 'rejected', 'issued': []}
 ```
 
 Cách sửa: luôn gọi `approve(tc.name, args)` **trước** khi thực thi hàm có side effect.
@@ -895,7 +925,7 @@ Cách sửa: kiểm đồng thời `stopped_reason`, `tools` (theo thứ tự) *
 
 - Một **toolbox** an toàn giữ allowlist, kiểm tra tham số bắt buộc, bỏ tham số thừa, bắt ngoại lệ thành `"error: ..."` và chuyển `dict` bằng `json.dumps()`.
 - Vòng lặp agent có giới hạn kiểm tra theo thứ tự `budget` → `final` → `repeat` → `approval` → `max_steps` và luôn ghi `trace`.
-- Chặn mọi **side effect** bằng hàm `approve(name, args)` do code kiểm soát (`needs_approval`), không bao giờ để model tự duyệt và luôn ghi log quyết định.
+- Chặn mọi **side effect** bằng hàm `approve(name, args)` do code kiểm soát (`needs_approval` nếu không truyền hàm duyệt, `rejected` nếu hàm trả `False`), không bao giờ để model tự duyệt và luôn ghi log quyết định.
 - Dùng **scenario test** tất định để kiểm đồng thời `stopped_reason`, **golden trajectory** (`list` có thứ tự) và `answer_contains`, với client mới cho từng kịch bản.
 - Tổng hợp báo cáo theo số ca đạt/tổng, thống kê `stopped_reason`, tổng token và lý do lỗi, đồng thời kết hợp thêm eval với model thật (`p7-08-evals`).
 

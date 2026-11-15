@@ -14,7 +14,7 @@ hints:
       1. Validate `mode` first so any value other than `"sentence"` or `"words"` raises `ValueError`; for `"words"`, also validate `size` and `overlap`.
       2. Loop over each document, split its text into non-empty pieces according to `mode`, and assign per-source IDs starting at zero while keeping the original `docs` list untouched.
       3. Embed all collected chunk texts in one batch call (or store an empty vector list if zero chunks were produced) and return the chunks and vectors dictionary.
-      4. In `retrieve`, return an empty list right away if the index has no chunks or `k <= 0`; otherwise embed the question, compute similarity scores against the stored vectors, sort descending with stable tie-breaking, take up to `k`, and keep only hits meeting `min_score` with rounded scores.
+      4. In `retrieve`, return an empty list right away if the index has no chunks or the cutoff is not positive; otherwise embed the question, compute similarity scores against the stored vectors, sort descending with stable tie-breaking, take up to `k`, and keep only hits meeting `min_score` with rounded scores.
     - |
       Function skeleton:
       ```python
@@ -64,7 +64,7 @@ hints:
       1. Kiểm tra `mode` ngay từ đầu để mọi giá trị khác `"sentence"` hoặc `"words"` đều báo `ValueError`; với `"words"`, kiểm tra thêm `size` và `overlap`.
       2. Duyệt từng tài liệu, tách văn bản thành các đoạn không rỗng theo `mode` và đánh số ID theo từng nguồn bắt đầu từ không mà không làm thay đổi `docs` gốc.
       3. Embed toàn bộ văn bản chunk trong một lần gọi duy nhất (hoặc lưu mảng vector rỗng nếu không có chunk nào) rồi trả về dictionary gồm danh sách chunk và vector.
-      4. Trong `retrieve`, trả về danh sách rỗng ngay nếu chỉ mục không có chunk hoặc `k <= 0`; ngược lại embed câu hỏi, tính điểm tương đồng với các vector đã lưu, sắp xếp giảm dần ổn định, lấy tối đa `k` phần tử và chỉ giữ các kết quả đạt `min_score` kèm điểm đã làm tròn.
+      4. Trong `retrieve`, trả về danh sách rỗng ngay nếu chỉ mục không có chunk hoặc mức cắt `k` không dương; ngược lại embed câu hỏi, tính điểm tương đồng với các vector đã lưu, sắp xếp giảm dần ổn định, lấy tối đa `k` phần tử và chỉ giữ các kết quả đạt `min_score` kèm điểm đã làm tròn.
     - |
       Khung hàm:
       ```python

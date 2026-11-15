@@ -1,3 +1,4 @@
+import copy
 import pytest
 from exercise import run_scenario, summarize
 from pyai_llm import FakeLLM
@@ -125,14 +126,14 @@ def test_rejected_approval_stops_without_executing_side_effect():
         ],
         "approve": lambda name, args: False,
         "expect": {
-            "stopped_reason": "needs_approval",
+            "stopped_reason": "rejected",
             "tools": ["lookup_order"],
             "answer_contains": "",
         },
     }
     res = run_scenario(scenario, MiniToolbox(counter), _make_client)
     assert res["passed"] is True
-    assert res["stopped_reason"] == "needs_approval"
+    assert res["stopped_reason"] == "rejected"
     assert res["tools"] == ["lookup_order"]
     assert counter["refunds"] == 0, "side-effect tool must NOT run when approve returns False"
 
@@ -153,6 +154,7 @@ def test_missing_approve_callback_also_blocks_side_effect():
     }
     res = run_scenario(scenario, MiniToolbox(counter), _make_client)
     assert res["passed"] is True
+    assert res["stopped_reason"] == "needs_approval"
     assert counter["refunds"] == 0
 
 
@@ -313,3 +315,52 @@ def test_fresh_client_per_scenario_and_no_input_mutation():
 )
 def test_summarize_formats_passing_and_failing_runs(results, expected):
     assert summarize(results) == expected
+
+
+class _SpyClient:
+    def __init__(self, inner) -> None:
+        self._inner = inner
+        self.calls: list[list[dict]] = []
+
+    def chat(self, messages, tools=None):
+        self.calls.append(copy.deepcopy(messages))
+        return self._inner.chat(messages, tools=tools)
+
+
+def test_appends_assistant_and_tool_messages_to_history():
+    spy_holder: list[_SpyClient] = []
+
+    def make_spy(script):
+        client = _SpyClient(FakeLLM(script=script))
+        spy_holder.append(client)
+        return client
+
+    scenario = {
+        "name": "history_check",
+        "task": "Check order 1042",
+        "script": [
+            {"tool_calls": [{"name": "lookup_order", "arguments": {"order_id": "1042"}}]},
+            {"tool_calls": [{"name": "check_policy", "arguments": {"days": 4}}]},
+            "Order 1042 is eligible for 20% refund.",
+        ],
+        "approve": None,
+        "expect": {
+            "stopped_reason": "final",
+            "tools": ["lookup_order", "check_policy"],
+            "answer_contains": "20%",
+        },
+    }
+    res = run_scenario(scenario, MiniToolbox(), make_spy)
+    assert res["passed"] is True
+    assert len(spy_holder) == 1
+    calls = spy_holder[0].calls
+    assert len(calls) == 3
+
+    second_msgs = calls[1]
+    assert len(second_msgs) == 3
+    assert second_msgs[1]["role"] == "assistant"
+    assert second_msgs[1]["tool_calls"][0]["name"] == "lookup_order"
+    tc_id = second_msgs[1]["tool_calls"][0]["id"]
+    assert second_msgs[2]["role"] == "tool"
+    assert second_msgs[2]["tool_call_id"] == tc_id
+    assert second_msgs[2]["content"] == "order 1042 delayed 4d"

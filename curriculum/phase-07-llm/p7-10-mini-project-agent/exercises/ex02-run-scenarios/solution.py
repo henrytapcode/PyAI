@@ -45,8 +45,11 @@ def run_scenario(scenario: dict, toolbox, make_client) -> dict:
             stopped_reason = "repeat"
             break
         if toolbox.is_side_effect(tc.name):
-            if approve_fn is None or not approve_fn(tc.name, dict(call_args)):
+            if approve_fn is None:
                 stopped_reason = "needs_approval"
+                break
+            if not approve_fn(tc.name, dict(call_args)):
+                stopped_reason = "rejected"
                 break
         observation = toolbox.call(tc.name, dict(call_args))
         history.append(

@@ -359,7 +359,7 @@ Hãy đọc kỹ từng câu đổi trạng thái—đây chính là lý do ta k
 - **`q6` tệ đi**: với `k=1`, chỉ có `pickup.md` trong context và không trùng từ nào (`idk=1/1`); sang `k=3`, `payment.md` lọt vào hạng 2 và vô tình trùng hai từ `"for"`, `"orders"` với `"Can I pay with crypto for online orders?"`, khiến model trả lời sang Visa/Mastercard (`idk=0/1`).
 
 > [!WARNING]
-> Trên tập eval chỉ có 5–6 câu, một câu đã chiếm tới 17–20% tổng điểm nên chênh lệch 1 câu mang rất nhiều nhiễu. Tập eval thực tế cần vài chục tới vài trăm câu đại diện trước khi kết luận thay đổi nào là thắng.
+> Trên tập eval chỉ có 5–6 câu, một câu đã chiếm tới 17–20% tổng điểm nên chênh lệch 1 câu mang rất nhiều nhiễu. Tập eval thực tế cần vài chục tới vài trăm câu đại diện trước khi kết luận thay đổi nào là thắng. Ngoài ra, khi bạn dùng tập eval này để chọn `k`, nó đóng vai trò **dev set** (tập phát triển)—trước khi đưa vào sử dụng thật, bạn phải chấm lại lựa chọn `k` cuối cùng trên một tập test tách riêng hoàn toàn (như cách làm ở `p7-09`).
 
 ## 6. Eval như regression test
 

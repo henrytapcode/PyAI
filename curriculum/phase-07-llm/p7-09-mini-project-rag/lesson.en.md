@@ -24,7 +24,7 @@ Each part of the project connects directly to one earlier lesson:
 | Part 4: Dev eval | Score `hit@k`, `facts`, `grounded`, and `idk` on `dev_set` to pick one config | `p7-08-evals` |
 | Part 5: Test & report | Run the chosen config on `test_set` once and report all scores and failures | `p5-05-mini-project`, `p7-08-evals` |
 
-Follow the same discipline as `p5-05-mini-project`: tune and compare configurations strictly on `dev_set`, run the locked `test_set` **once** at the end, and name every failure honestly instead of hiding weak spots.
+Follow the same discipline as `p5-05-mini-project`: tune and compare configurations strictly on `dev_set`, run the locked `test_set` **once** at the end, and name every failure honestly instead of hiding weak spots. Notice the metric names align with `p7-08-evals`: `grounded` here extends `p7-08`'s `faithful` by requiring both supported content and valid `[n]` citations (just like `score_grounded` in `p7-08 ex02`), while `idk` and `refusals` measure the same clean `"I don't know"` rate on unanswerable questions.
 
 ## 2. The data: FAQ corpus and eval split
 
@@ -82,7 +82,7 @@ Notice that `d6` uses `"money back"` instead of `"refund"` and `t3` uses `"noteb
 
 ## 3. Part 1: ingest and chunk
 
-**Ingestion** reads raw documents and splits them into chunk dicts of the form `{"id": "<source>#<n>", "source": ..., "text": ...}` before any embedding happens. Press **Visualize** on this short block and watch `idx` and `chunks` build three chunks from one document:
+**Ingestion** reads raw documents and splits them into chunk dicts of the form `{"id": "<source>#<n>", "source": ..., "text": ...}` before any embedding happens. Here `r"(?<=[.!?])\s+"` uses a regex lookbehind to split on whitespace right after `.`, `!`, or `?` while keeping that punctuation attached to each sentence. Press **Visualize** on this short block and watch `idx` and `chunks` build three chunks from one document:
 
 ```python
 import re
@@ -410,12 +410,13 @@ def eval_config(mode: str, k: int, min_score: float) -> tuple[dict, list[tuple[s
         order = np.argsort(-scores, kind="stable")[:k]
         top_hits = [chunks[int(i)] for i in order if float(scores[int(i)]) >= min_score]
         ctx = "\n".join(f"[{n}] {h['text']}" for n, h in enumerate(top_hits, 1))
-        ans = (
-            client.chat([{"role": "system", "content": "Context:\n" + ctx}, {"role": "user", "content": row["question"]}]).content
-            or ""
-            if top_hits
-            else "I don't know based on the provided context."
-        )
+        if top_hits:
+            ans = client.chat([
+                {"role": "system", "content": "Context:\n" + ctx},
+                {"role": "user", "content": row["question"]},
+            ]).content or ""
+        else:
+            ans = "I don't know based on the provided context."
         grounded += int(is_grounded(ans, top_hits))
         exp = row["expected_source"]
         if exp is None:
@@ -450,7 +451,7 @@ configs = [
     ("sent k=2 m=0.2", "sentence", 2, 0.2),
     ("sent k=2 m=0.35", "sentence", 2, 0.35),
 ]
-print(f"{'config':<17} {'hit@2':<10} {'facts':<10} {'ground':<10} {'idk':<9}")
+print(f"{'config':<17} {'hit@2':<10} {'facts':<10} {'grounded':<10} {'idk':<9}")
 for label, mode, k, ms in configs:
     s, fails = eval_config(mode, k, ms)
     print(
@@ -461,7 +462,7 @@ for label, mode, k, ms in configs:
     if label == "sent k=2 m=0.2":
         chosen_fails = fails
 print("chosen failures:", chosen_fails)
-# config            hit@2      facts      ground     idk      
+# config            hit@2      facts      grounded   idk      
 # words(8,2) m=0.2  6/6 (100%) 3/6 (50%)  8/8 (100%) 2/2 (100%)
 # sent k=2 m=0.2    6/6 (100%) 5/6 (83%)  8/8 (100%) 1/2 (50%)
 # sent k=2 m=0.35   4/6 (67%)  4/6 (67%)  8/8 (100%) 2/2 (100%)
@@ -538,12 +539,13 @@ def score_split(split: list[dict]) -> tuple[dict, list[tuple[str, str]]]:
         order = np.argsort(-scores, kind="stable")[:2]
         top_hits = [chunks[int(i)] for i in order if float(scores[int(i)]) >= 0.2]
         ctx = "\n".join(f"[{n}] {h['text']}" for n, h in enumerate(top_hits, 1))
-        ans = (
-            client.chat([{"role": "system", "content": "Context:\n" + ctx}, {"role": "user", "content": row["question"]}]).content
-            or ""
-            if top_hits
-            else "I don't know based on the provided context."
-        )
+        if top_hits:
+            ans = client.chat([
+                {"role": "system", "content": "Context:\n" + ctx},
+                {"role": "user", "content": row["question"]},
+            ]).content or ""
+        else:
+            ans = "I don't know based on the provided context."
         exp = row["expected_source"]
         if exp is None:
             n_idk += 1

@@ -29,12 +29,7 @@ hints:
 
       def score_grounded(answer: str, expected_facts: list[str], context: str) -> dict:
           ans_low = answer.lower()
-          if not expected_facts:
-              facts = 1.0 if "i don't know" in ans_low else 0.0
-          else:
-              matched = sum(1 for f in expected_facts if f.lower() in ans_low)
-              facts = matched / len(expected_facts)
-          citations, bad_citations = ...
+          ...  # compute facts, citations, and bad_citations
           if "i don't know" in ans_low:
               return {
                   "facts": facts,
@@ -43,12 +38,7 @@ hints:
                   "citations": citations,
                   "bad_citations": bad_citations,
               }
-          ctx_words = set(_content_words(context))
-          unsupported: list[str] = []
-          for word in _content_words(answer):
-              if word not in ctx_words and word not in unsupported:
-                  unsupported.append(word)
-          faithful = len(unsupported) == 0 and len(citations) > 0 and len(bad_citations) == 0
+          ...  # compute unsupported words and faithful
           return {
               "facts": facts,
               "faithful": faithful,
@@ -80,12 +70,7 @@ hints:
 
       def score_grounded(answer: str, expected_facts: list[str], context: str) -> dict:
           ans_low = answer.lower()
-          if not expected_facts:
-              facts = 1.0 if "i don't know" in ans_low else 0.0
-          else:
-              matched = sum(1 for f in expected_facts if f.lower() in ans_low)
-              facts = matched / len(expected_facts)
-          citations, bad_citations = ...
+          ...  # compute facts, citations, and bad_citations
           if "i don't know" in ans_low:
               return {
                   "facts": facts,
@@ -94,12 +79,7 @@ hints:
                   "citations": citations,
                   "bad_citations": bad_citations,
               }
-          ctx_words = set(_content_words(context))
-          unsupported: list[str] = []
-          for word in _content_words(answer):
-              if word not in ctx_words and word not in unsupported:
-                  unsupported.append(word)
-          faithful = len(unsupported) == 0 and len(citations) > 0 and len(bad_citations) == 0
+          ...  # compute unsupported words and faithful
           return {
               "facts": facts,
               "faithful": faithful,

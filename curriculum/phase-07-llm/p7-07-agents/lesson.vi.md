@@ -135,6 +135,9 @@ print("answer:", res["answer"])
 # answer: Order 1042 shipped via FastPost (2 business days).
 ```
 
+> [!NOTE]
+> Các API gọi tool ngoài thực tế có thể trả về nhiều `tool_calls` trong cùng một lượt. Bài này chỉ lấy `resp.tool_calls[0]` cho gọn, còn bài tập `ex02` của `p7-06` minh họa cách duyệt hết toàn bộ `resp.tool_calls` trước khi sang lượt gọi model tiếp theo.
+
 Để ý vòng lặp có đúng hai lối thoát rõ ràng—hoặc model đưa ra câu trả lời cuối, hoặc chạm giới hạn `max_steps`:
 
 ```mermaid
@@ -176,7 +179,7 @@ Khi agent làm sai, trace là thứ đầu tiên bạn đọc—và ngoài đờ
 
 ## 4. Điều kiện dừng: phanh của agent
 
-Một agent an toàn cần bốn **stop condition** (điều kiện dừng) ghi vào `stopped_reason`: `final` (đã có câu trả lời), `max_steps` (chạm trần số bước), `repeat` (gọi lại **đúng** tool và tham số như bước ngay trước vì đang bị kẹt), và `budget` (tổng `resp.usage.total_tokens` vượt `token_budget`). Kiểm tra theo thứ tự `budget` -> `final` -> `repeat` ở mỗi lượt lặp giúp ngắt ngay trước khi tốn thêm chi phí:
+Một agent an toàn cần bốn **stop condition** (điều kiện dừng) ghi vào `stopped_reason`: `final` (đã có câu trả lời), `max_steps` (chạm trần số bước), `repeat` (gọi lại **đúng** tool và tham số như bước ngay trước vì đang bị kẹt), và `budget` (tổng `resp.usage.total_tokens` vượt `token_budget`). Kiểm tra `budget` ngay sau `client.chat(...)` khóa chặt trần chi phí vì lượng token của lượt gọi đó đã phát sinh rồi (nếu hệ thống muốn tận dụng câu trả lời cuối đã trả tiền xong trước khi dừng, có thể kiểm tra `final` trước rồi mới tới `budget`). Kiểm tra theo thứ tự `budget` -> `final` -> `repeat` ở mỗi lượt lặp giúp ngắt ngay trước khi tốn thêm chi phí:
 
 ```python
 from pyai_llm import FakeLLM

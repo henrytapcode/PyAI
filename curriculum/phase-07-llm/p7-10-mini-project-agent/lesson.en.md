@@ -22,7 +22,7 @@ Each part of the project builds directly on an earlier lesson:
 |---|---|---|
 | Part 1: Safe toolbox | Tool allowlist, required-arg validation, extra-arg filtering, JSON output | `p7-06-tool-use` |
 | Part 2: Bounded loop | Observe–think–act loop with `final`, `max_steps`, `repeat`, and `budget` | `p7-07-agents` |
-| Part 3: Approval gate | Code-owned `approve(name, args)` callback, `needs_approval`, audit log | `p7-06-tool-use`, `p7-07-agents` |
+| Part 3: Approval gate | Code-owned `approve(name, args)` callback, `needs_approval` / `rejected`, audit log | `p7-06-tool-use`, `p7-07-agents` |
 | Part 4: Scenario suite | Scripted scenarios with golden trajectories catching a real loop bug | `p7-07-agents`, `p7-08-evals` |
 | Part 5: Summary report | Pass/fail totals, breakdown by `stopped_reason`, and token count | `p7-08-evals` |
 
@@ -211,9 +211,27 @@ print("reply :", final.content)
 # reply : Based on the tool result: {"status": "delayed", "carrier": "FastShip", "total": 50.0, "late": 4}
 ```
 
+One defensive detail when building `ToolBox.schemas()` in Exercise 1: `[dict(s) for s in schemas]` makes only a **shallow copy**, so nested objects like `s["parameters"]["required"]` still point back to the original schema! Returning `[copy.deepcopy(s) for s in schemas]` isolates every nested dict and list from caller mutations:
+
+```python
+import copy
+
+schemas = [{"name": "lookup", "parameters": {"required": ["order_id"]}}]
+shallow = [dict(s) for s in schemas]
+shallow[0]["parameters"]["required"].clear()
+print("shallow mutated orig:", schemas[0]["parameters"]["required"])
+# shallow mutated orig: []
+
+schemas = [{"name": "lookup", "parameters": {"required": ["order_id"]}}]
+deep = [copy.deepcopy(s) for s in schemas]
+deep[0]["parameters"]["required"].clear()
+print("deep kept orig      :", schemas[0]["parameters"]["required"])
+# deep kept orig      : ['order_id']
+```
+
 ## 4. Part 2: bounded agent loop
 
-Extend that single round into the bounded loop from `p7-07-agents`, checking stop conditions in order on every pass: `budget` (`tokens > token_budget`), `final` (`not resp.tool_calls`), `repeat` (same tool and args as previous step), and `max_steps` (loop cap reached). Run a 3-step scripted scenario (lookup order → check policy → final answer) and print the compact trace:
+Extend that single round into the bounded loop from `p7-07-agents`, checking stop conditions in order on every pass: `budget` (`tokens > token_budget`), `final` (`not resp.tool_calls`), `repeat` (same tool and args as previous step), and `max_steps` (loop cap reached). We check `budget` right after `client.chat(...)` because those tokens have already been spent (checking `final` first is a valid alternative when you prefer returning a finished reply before stopping on budget). Run a 3-step scripted scenario (lookup order → check policy → final answer) and print the compact trace:
 
 ```python
 import json
@@ -300,9 +318,12 @@ Here is the trace table from that 3-step run:
 | 1 | `lookup_order` | `{'order_id': '1042'}` | `{"status": "delayed", "total": 50.0, "late": 4}` |
 | 2 | `check_refund_policy` | `{'days_late': 4}` | `eligible: max 20% refund` |
 
+> [!NOTE]
+> Real LLM APIs can return multiple `tool_calls` in a single response. For brevity, the agent loop in this project reads `resp.tool_calls[0]` per step—when you need parallel tool calls in one turn, loop over every item in `resp.tool_calls` as practiced in `p7-06` `ex02`.
+
 ## 5. Part 3: approval gate for side effects
 
-Whenever the model requests a tool marked `side_effect=True` (`issue_refund`), pause and call `approve(name, args) -> bool` supplied by **your application code**. If `approve` returns `True`, record who approved it in `audit`, run the tool, and continue; if `approve` returns `False` or is `None`, stop with `stopped_reason == "needs_approval"`, return `pending = {"tool": ..., "args": ...}`, and **never** run the tool:
+Whenever the model requests a tool marked `side_effect=True` (`issue_refund`), pause and call `approve(name, args) -> bool` supplied by **your application code**. If `approve` is `None` (no approval gate wired), stop with `stopped_reason == "needs_approval"`; if `approve` is provided and returns `True`, record who approved it in `audit`, run the tool, and continue; if `approve` returns `False`, stop with `stopped_reason == "rejected"`. In both blocked cases, return `pending = {"tool": ..., "args": ...}` and **never** run the tool:
 
 ```python
 import json
@@ -364,10 +385,13 @@ def run_with_gate(
         if trace and trace[-1]["tool"] == tc.name and trace[-1]["args"] == args:
             return {"stopped_reason": "repeat", "answer": "", "pending": None, "tokens": tokens, "trace": trace, "audit": audit}
         if SIDE_EFFECTS.get(tc.name, False):
-            ok = bool(approve(tc.name, dict(args))) if approve is not None else False
+            if approve is None:
+                audit.append({"step": step, "tool": tc.name, "args": args, "approved": False, "by": approver})
+                return {"stopped_reason": "needs_approval", "answer": "", "pending": {"tool": tc.name, "args": args}, "tokens": tokens, "trace": trace, "audit": audit}
+            ok = bool(approve(tc.name, dict(args)))
             audit.append({"step": step, "tool": tc.name, "args": args, "approved": ok, "by": approver})
             if not ok:
-                return {"stopped_reason": "needs_approval", "answer": "", "pending": {"tool": tc.name, "args": args}, "tokens": tokens, "trace": trace, "audit": audit}
+                return {"stopped_reason": "rejected", "answer": "", "pending": {"tool": tc.name, "args": args}, "tokens": tokens, "trace": trace, "audit": audit}
         obs = call_tool(tc.name, args)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})
         messages.append({"role": "tool", "tool_call_id": tc.id, "content": obs})
@@ -411,10 +435,10 @@ REFUNDS.clear()
 r_pol = run_with_gate(FakeLLM(script=over_script), "Refund 1044", approve=policy_approve, approver="policy_gate")
 e_pol = r_pol["audit"][0]
 print("policy  :", r_pol["stopped_reason"], f"| ok={e_pol['approved']} by={e_pol['by']} | refunds:", REFUNDS)
-# policy  : needs_approval | ok=False by=policy_gate | refunds: {}
+# policy  : rejected | ok=False by=policy_gate | refunds: {}
 ```
 
-Notice the third run: order `1044` totals `$120.00`, so the 20% cap is `$24.00`. When the model proposes `$50.00`, `policy_approve` automatically returns `False`, `audit` logs `ok=False by=policy_gate`, and `REFUNDS` stays empty (`{}`).
+Notice the third run: order `1044` totals `$120.00`, so the 20% cap is `$24.00`. When the model proposes `$50.00`, `policy_approve` automatically returns `False`, the loop stops with `stopped_reason == "rejected"`, `audit` logs `ok=False by=policy_gate`, and `REFUNDS` stays empty (`{}`).
 
 > [!WARNING]
 > Enforce **least privilege** (register only the tools the agent truly needs), never let the model approve its own actions via prompt arguments, and log every irreversible action (who approved or rejected it, tool name, and arguments).
@@ -509,8 +533,11 @@ def run_agent_v1(client, task: str, approve=None, max_steps: int = 6, token_budg
         tc = resp.tool_calls[0]
         args = dict(tc.arguments)
         # Bug in v1: missing repeat guard!
-        if SIDE_EFFECTS.get(tc.name, False) and not (approve and approve(tc.name, args)):
-            return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+        if SIDE_EFFECTS.get(tc.name, False):
+            if approve is None:
+                return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+            if not approve(tc.name, dict(args)):
+                return {"stopped_reason": "rejected", "answer": "", "tokens": tokens, "trace": trace}
         obs = call_tool(tc.name, args)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})
         messages.append({"role": "tool", "tool_call_id": tc.id, "content": obs})
@@ -533,8 +560,11 @@ def run_agent_v2(client, task: str, approve=None, max_steps: int = 6, token_budg
         args = dict(tc.arguments)
         if trace and trace[-1]["tool"] == tc.name and trace[-1]["args"] == args:
             return {"stopped_reason": "repeat", "answer": "", "tokens": tokens, "trace": trace}
-        if SIDE_EFFECTS.get(tc.name, False) and not (approve and approve(tc.name, args)):
-            return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+        if SIDE_EFFECTS.get(tc.name, False):
+            if approve is None:
+                return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+            if not approve(tc.name, dict(args)):
+                return {"stopped_reason": "rejected", "answer": "", "tokens": tokens, "trace": trace}
         obs = call_tool(tc.name, args)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})
         messages.append({"role": "tool", "tool_call_id": tc.id, "content": obs})
@@ -608,7 +638,7 @@ SCENARIOS = [
             {"tool_calls": [{"name": "issue_refund", "arguments": {"order_id": "1044", "amount": 50.0}}]},
         ],
         "approve": policy_approve,
-        "expect": {"stopped_reason": "needs_approval", "tools": ["lookup_order"], "answer_contains": ""},
+        "expect": {"stopped_reason": "rejected", "tools": ["lookup_order"], "answer_contains": ""},
     },
     {
         "name": "budget_stop",
@@ -663,7 +693,7 @@ for label, fn in [("v1 (no repeat guard)", run_agent_v1), ("v2 (fixed)", run_age
 # repeat_guard     | repeat(1)         | max_steps(3)      | FAIL
 # max_steps_cap    | max_steps(2)      | max_steps(2)      | PASS
 # refund_approved  | final(3)          | final(3)          | PASS
-# refund_rejected  | needs_approval(1) | needs_approval(1) | PASS
+# refund_rejected  | rejected(1)       | rejected(1)       | PASS
 # budget_stop      | budget(0)         | budget(0)         | PASS
 # passed: 6 / 7
 # -- v2 (fixed) --
@@ -672,7 +702,7 @@ for label, fn in [("v1 (no repeat guard)", run_agent_v1), ("v2 (fixed)", run_age
 # repeat_guard     | repeat(1)         | repeat(1)         | PASS
 # max_steps_cap    | max_steps(2)      | max_steps(2)      | PASS
 # refund_approved  | final(3)          | final(3)          | PASS
-# refund_rejected  | needs_approval(1) | needs_approval(1) | PASS
+# refund_rejected  | rejected(1)       | rejected(1)       | PASS
 # budget_stop      | budget(0)         | budget(0)         | PASS
 # passed: 7 / 7
 ```
@@ -686,7 +716,7 @@ In the printed output above, the number in parentheses (for example, `final(2)`)
 | `repeat_guard` | `repeat` `['lookup_order']` | `repeat` `['lookup_order']` | PASS |
 | `max_steps_cap` | `max_steps` `['lookup_order', 'track_shipment']` | `max_steps` `['lookup_order', 'track_shipment']` | PASS |
 | `refund_approved` | `final` `['lookup_order', 'check_refund_policy', 'issue_refund']` | `final` `['lookup_order', 'check_refund_policy', 'issue_refund']` | PASS |
-| `refund_rejected` | `needs_approval` `['lookup_order']` | `needs_approval` `['lookup_order']` | PASS |
+| `refund_rejected` | `rejected` `['lookup_order']` | `rejected` `['lookup_order']` | PASS |
 | `budget_stop` | `budget` `[]` | `budget` `[]` | PASS |
 
 To watch a scenario suite step through decisions without `FakeLLM` in the call stack, here is a toy scenario suite driven by hand-written decision lists. Press **Visualize** on this block and watch `tools`, `reason`, and `passed` update one scenario at a time:
@@ -763,7 +793,7 @@ v1_results = [
     {"name": "repeat_guard", "passed": False, "stopped_reason": "max_steps", "tokens": 171, "reasons": ["stopped_reason", "tools"]},
     {"name": "max_steps_cap", "passed": True, "stopped_reason": "max_steps", "tokens": 85, "reasons": []},
     {"name": "refund_approved", "passed": True, "stopped_reason": "final", "tokens": 239, "reasons": []},
-    {"name": "refund_rejected", "passed": True, "stopped_reason": "needs_approval", "tokens": 89, "reasons": []},
+    {"name": "refund_rejected", "passed": True, "stopped_reason": "rejected", "tokens": 89, "reasons": []},
     {"name": "budget_stop", "passed": True, "stopped_reason": "budget", "tokens": 18, "reasons": []},
 ]
 for line in build_report_rows(v1_results):
@@ -773,7 +803,7 @@ for line in build_report_rows(v1_results):
 #   budget: 1
 #   final: 3
 #   max_steps: 2
-#   needs_approval: 1
+#   rejected: 1
 #   FAIL repeat_guard: stopped_reason, tools
 
 v2_results = [
@@ -807,25 +837,25 @@ def issue_refund_side_effect(order_id: str, amount: float) -> str:
 def buggy_step(tc_name, tc_args, approve):
     obs = issue_refund_side_effect(**tc_args)  # Bug: ran before checking approve!
     if not approve(tc_name, tc_args):
-        return {"stopped_reason": "needs_approval", "issued": list(issued)}
+        return {"stopped_reason": "rejected", "issued": list(issued)}
     return {"stopped_reason": "final", "obs": obs}
 
 
 print("buggy:", buggy_step("issue_refund", {"order_id": "1042", "amount": 50.0}, lambda n, a: False))
-# buggy: {'stopped_reason': 'needs_approval', 'issued': [('1042', 50.0)]}
+# buggy: {'stopped_reason': 'rejected', 'issued': [('1042', 50.0)]}
 
 issued.clear()
 
 
 def fixed_step(tc_name, tc_args, approve):
     if not approve(tc_name, tc_args):
-        return {"stopped_reason": "needs_approval", "issued": list(issued)}
+        return {"stopped_reason": "rejected", "issued": list(issued)}
     obs = issue_refund_side_effect(**tc_args)
     return {"stopped_reason": "final", "obs": obs}
 
 
 print("fixed:", fixed_step("issue_refund", {"order_id": "1042", "amount": 50.0}, lambda n, a: False))
-# fixed: {'stopped_reason': 'needs_approval', 'issued': []}
+# fixed: {'stopped_reason': 'rejected', 'issued': []}
 ```
 
 Fix: check `approve(tc.name, args)` **before** executing the side-effect function.
@@ -895,7 +925,7 @@ Fix: require `stopped_reason`, the ordered `tools` trajectory, **and** `answer_c
 
 - A safe **toolbox** enforces an allowlist, validates required arguments, drops unknown parameters, catches exceptions as `"error: ..."`, and serializes `dict` results with `json.dumps()`.
 - A bounded agent loop checks `budget` → `final` → `repeat` → `approval` → `max_steps` on every pass and records a step-by-step `trace`.
-- Gate every **side effect** behind a code-owned `approve(name, args)` callback (`needs_approval`), never trusting the model to approve itself, and log every decision.
+- Gate every **side effect** behind a code-owned `approve(name, args)` callback (`needs_approval` if no callback is provided, `rejected` if it returns `False`), never trusting the model to approve itself, and log every decision.
 - Test multi-step behavior deterministically with **scenario tests** comparing `stopped_reason`, the ordered **golden trajectory** (`list`), and `answer_contains` using a fresh client per scenario.
 - Summarize results by pass count, `stopped_reason` breakdown, total tokens, and specific failure reasons, and pair scripted tests with live-model evals (`p7-08-evals`).
 

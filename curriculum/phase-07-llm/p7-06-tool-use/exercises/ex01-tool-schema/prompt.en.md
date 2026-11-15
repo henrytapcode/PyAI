@@ -27,4 +27,4 @@ tool_schema(
 - Allowed JSON parameter types are the four basic types: `"string"`, `"number"`, `"integer"`, and `"boolean"`.
 - Raise `ValueError` if any value in `params` is not one of the four allowed types.
 - Raise `ValueError` if any name in `required` is not a key in `params`.
-- Keep the exact order of `required` (as a new list copy) and map each `p: t` in `params` to `p: {"type": t}` inside `parameters["properties"]`.
+- Keep the first-seen order of `required` while removing any duplicate names (as a new list copy); `parameters["properties"]` is already built from `params`.

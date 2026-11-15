@@ -125,3 +125,22 @@ def test_retrieve_handles_empty_index_and_zero_k(sample_docs):
     assert retrieve(empty_index, "refunds?", client, k=2) == []
     non_empty = build_index(sample_docs, client, mode="sentence")
     assert retrieve(non_empty, "refunds?", client, k=0) == []
+
+
+@pytest.mark.parametrize(
+    ("size", "overlap"),
+    [(0, 0), (-3, 0), (5, -1), (4, 4), (4, 6)],
+)
+def test_build_index_invalid_word_window_raises_value_error(sample_docs, size, overlap):
+    client = FakeLLM(embed_dim=256)
+    with pytest.raises(ValueError):
+        build_index(sample_docs, client, mode="words", size=size, overlap=overlap)
+
+
+def test_build_index_zero_chunks_skips_embed_call():
+    spy = SpyClient(embed_dim=256)
+    idx_empty = build_index([], spy, mode="sentence")
+    idx_blank = build_index([{"source": "blank.md", "text": "   \n  "}], spy, mode="sentence")
+    assert idx_empty["chunks"] == []
+    assert idx_blank["chunks"] == []
+    assert spy.embed_calls == 0

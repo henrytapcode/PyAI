@@ -24,7 +24,7 @@ print(summarize([res]))
     1. `budget`: if `token_budget is not None` and cumulative tokens `> token_budget`, stop with `"budget"`.
     2. `final`: if `not resp.tool_calls`, capture `resp.content or ""` as the final answer and stop with `"final"`.
     3. `repeat`: take `tc = resp.tool_calls[0]` and `args = dict(tc.arguments)`; if the previous executed step had the exact same `(tool, args)`, stop with `"repeat"`.
-    4. `needs_approval`: if `toolbox.is_side_effect(tc.name)` is `True` and (`approve is None` or `not approve(tc.name, dict(args))`), stop immediately with `"needs_approval"` without calling `toolbox.call(...)` and without adding `tc.name` to `tools`.
+    4. `needs_approval` / `rejected`: if `toolbox.is_side_effect(tc.name)` is `True`: when `approve is None`, stop immediately with `"needs_approval"`; otherwise call `approve(tc.name, dict(args))` and if it returns `False` (falsy), stop immediately with `"rejected"`. In both blocked cases, return without calling `toolbox.call(...)` and without adding `tc.name` to `tools`.
   - Otherwise execute `obs = toolbox.call(tc.name, dict(args))`, append the `assistant` (`content=None`, `tool_calls=[{"id": tc.id, "name": tc.name, "arguments": args}]`) and `tool` (`tool_call_id=tc.id`, `content=obs`) messages, and record `tc.name` in `tools`.
   - If all `max_steps` finish without stopping, set `stopped_reason = "max_steps"`.
   - Build `reasons: list[str]` in the fixed order `["stopped_reason", "tools", "answer"]`:

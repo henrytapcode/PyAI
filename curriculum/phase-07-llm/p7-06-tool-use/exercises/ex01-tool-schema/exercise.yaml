@@ -14,7 +14,7 @@ hints:
       1. Define the set of four basic JSON parameter types supported for tool parameters.
       2. Check every type in the parameter mapping and raise a value error if any type is outside that allowed set.
       3. Check every name in the required list and raise a value error if any required name is missing from the parameter mapping.
-      4. Build and return the outer dictionary with name, description, and an object parameters block containing properties and a fresh copy of the required list.
+      4. Build a deduplicated copy of the required list preserving first-seen order and place it into the returned schema.
     - |
       Function skeleton:
       ```python
@@ -28,12 +28,21 @@ hints:
           required: list[str],
       ) -> dict:
           for param_type in params.values():
-              if param_type not in ALLOWED_TYPES:
+              if ___:
                   raise ValueError(f"unsupported type: {param_type}")
           for req in required:
-              if req not in params:
+              if ___:
                   raise ValueError(f"unknown required parameter: {req}")
-          return ...
+          deduped_required = list(dict.fromkeys(required))
+          return {
+              "name": name,
+              "description": description,
+              "parameters": {
+                  "type": "object",
+                  "properties": {p: {"type": t} for p, t in params.items()},
+                  "required": deduped_required,
+              },
+          }
       ```
   vi:
     - |
@@ -43,7 +52,7 @@ hints:
       1. Khai báo tập bốn kiểu JSON cơ bản được phép dùng cho tham số của tool.
       2. Duyệt các kiểu trong bảng tham số và ném lỗi giá trị nếu gặp kiểu nằm ngoài tập cho phép.
       3. Duyệt từng tên trong danh sách bắt buộc và ném lỗi giá trị nếu tên đó không tồn tại trong bảng tham số.
-      4. Dựng rồi trả về dictionary gồm tên, mô tả và khối đối tượng parameters chứa properties cùng bản sao giữ nguyên thứ tự của danh sách bắt buộc.
+      4. Tạo bản sao loại bỏ trùng lặp nhưng giữ nguyên thứ tự của danh sách bắt buộc rồi đưa vào schema trả về.
     - |
       Khung hàm:
       ```python
@@ -57,10 +66,19 @@ hints:
           required: list[str],
       ) -> dict:
           for param_type in params.values():
-              if param_type not in ALLOWED_TYPES:
+              if ___:
                   raise ValueError(f"unsupported type: {param_type}")
           for req in required:
-              if req not in params:
+              if ___:
                   raise ValueError(f"unknown required parameter: {req}")
-          return ...
+          deduped_required = list(dict.fromkeys(required))
+          return {
+              "name": name,
+              "description": description,
+              "parameters": {
+                  "type": "object",
+                  "properties": {p: {"type": t} for p, t in params.items()},
+                  "required": deduped_required,
+              },
+          }
       ```

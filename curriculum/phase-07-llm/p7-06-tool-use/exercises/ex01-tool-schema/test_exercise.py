@@ -41,6 +41,16 @@ def test_preserves_required_order_and_copies_list():
     assert schema["parameters"]["required"] == ["to", "amount"]
 
 
+def test_deduplicates_required_preserving_order():
+    schema = tool_schema(
+        "convert_currency",
+        "convert currency",
+        {"amount": "number", "to": "string"},
+        ["to", "amount", "to"],
+    )
+    assert schema["parameters"]["required"] == ["to", "amount"]
+
+
 def test_raises_value_error_for_unknown_required_field():
     with pytest.raises(ValueError):
         tool_schema("get_weather", "weather city", {"city": "string"}, ["city", "country"])

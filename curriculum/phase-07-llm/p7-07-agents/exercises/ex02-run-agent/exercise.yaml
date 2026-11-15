@@ -39,13 +39,6 @@ hints:
           total_tokens = 0
 
           for step in range(1, max_steps + 1):
-              resp = client.chat(messages, tools=tools)
-              total_tokens += resp.usage.total_tokens
-              if token_budget is not None and total_tokens > token_budget:
-                  return {"answer": "", "stopped_reason": "budget", "steps": step, "trace": trace}
-              if not resp.tool_calls:
-                  return {"answer": resp.content or "", "stopped_reason": "final", "steps": step, "trace": trace}
-              tc = resp.tool_calls[0]
               ...
 
           return {"answer": "", "stopped_reason": "max_steps", "steps": max_steps, "trace": trace}
@@ -83,13 +76,6 @@ hints:
           total_tokens = 0
 
           for step in range(1, max_steps + 1):
-              resp = client.chat(messages, tools=tools)
-              total_tokens += resp.usage.total_tokens
-              if token_budget is not None and total_tokens > token_budget:
-                  return {"answer": "", "stopped_reason": "budget", "steps": step, "trace": trace}
-              if not resp.tool_calls:
-                  return {"answer": resp.content or "", "stopped_reason": "final", "steps": step, "trace": trace}
-              tc = resp.tool_calls[0]
               ...
 
           return {"answer": "", "stopped_reason": "max_steps", "steps": max_steps, "trace": trace}

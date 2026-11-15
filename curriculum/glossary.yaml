@@ -2921,3 +2921,14 @@ terms:
       en: "After unpacking an LLM JSON reply into a dataclass, __post_init__ rejects fake empty defaults like \"\" or 0 before bad data enters your database."
       vi: "Sau khi giải nén JSON từ LLM vào dataclass, __post_init__ giúp chặn các giá trị rỗng giả như \"\" hay 0 trước khi dữ liệu hỏng lọt vào database."
     related: [dataclass, validation]
+
+  - term: deep copy
+    vi_term: sao chép sâu (deep copy)
+    tags: [agents, dicts]
+    en: "A recursive copy created by copy.deepcopy(obj) that duplicates every nested dictionary and list inside obj, so mutating the returned copy never changes the original."
+    vi: "Bản sao đệ quy tạo bởi copy.deepcopy(obj), nhân bản toàn bộ dictionary và list lồng bên trong obj để việc sửa bản sao không bao giờ làm thay đổi dữ liệu gốc."
+    example: "import copy\nsafe_schemas = [copy.deepcopy(s) for s in self._schemas]"
+    in_practice:
+      en: "A ToolBox returns deep copies of its tool schemas so caller code cannot mutate nested required lists and bypass argument validation."
+      vi: "ToolBox trả về deep copy của các tool schema để code bên ngoài không thể sửa list required lồng bên trong và vô hiệu hóa bước kiểm tra tham số."
+    related: [schema, allowlist, dataclass]

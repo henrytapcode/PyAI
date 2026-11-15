@@ -8,6 +8,6 @@
 3. Lines 37–42 configure a scripted `FakeLLM` proposing a `$45` refund (approved) and a `$250` refund (blocked).
 4. Lines 49–65 run both requests through `guarded_dispatch()`, feed the tool outputs back into `scripted.chat()`, and print the full `ACTION_LOG`.
 
-**Notice:** Even though the model proposed `amount=250.0` with `user_confirmed=True`, the Python guard in `guarded_dispatch()` stopped the refund before `issue_refund()` ran and recorded the block in `ACTION_LOG`.
+**Notice:** Even though the model proposed `amount=250.0` while application state had `user_confirmed=True`, the Python guard in `guarded_dispatch()` stopped the refund before `issue_refund()` ran and recorded the block in `ACTION_LOG`.
 
-**Try it yourself:** Change `user_confirmed` to `False` on line 45 and observe that even the `$45` refund is blocked and logged.
+**Try it yourself:** Change `user_confirmed` to `False` on line 45 and observe that `ACTION_LOG` records `blocked: user confirmation required` even for the `$45` refund (while the scripted final reply stays fixed because this example uses a fixed reply script).

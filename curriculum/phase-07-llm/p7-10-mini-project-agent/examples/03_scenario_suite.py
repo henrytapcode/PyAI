@@ -59,8 +59,11 @@ def run_agent(client, task: str, approve=None, max_steps: int = 6, token_budget:
         if trace and trace[-1]["tool"] == tc.name and trace[-1]["args"] == args:
             return {"stopped_reason": "repeat", "answer": "", "tokens": tokens, "trace": trace}
         fn, side_effect = TOOL_MAP[tc.name]
-        if side_effect and not (approve and approve(tc.name, dict(args))):
-            return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+        if side_effect:
+            if approve is None:
+                return {"stopped_reason": "needs_approval", "answer": "", "tokens": tokens, "trace": trace}
+            if not approve(tc.name, dict(args)):
+                return {"stopped_reason": "rejected", "answer": "", "tokens": tokens, "trace": trace}
         raw = fn(**args)
         obs = json.dumps(raw) if isinstance(raw, dict) else str(raw)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})
@@ -139,7 +142,7 @@ SCENARIOS = [
             {"tool_calls": [{"name": "issue_refund", "arguments": {"order_id": "1044", "amount": 50.0}}]},
         ],
         "approve": policy_approve,
-        "expect": {"stopped_reason": "needs_approval", "tools": ["lookup_order"], "answer_contains": ""},
+        "expect": {"stopped_reason": "rejected", "tools": ["lookup_order"], "answer_contains": ""},
     },
     {
         "name": "budget_stop",

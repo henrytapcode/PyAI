@@ -8,6 +8,6 @@
 3. Dòng 37–42 dùng `FakeLLM(script=...)` mô phỏng model đề nghị hoàn `$45` (được duyệt) rồi hoàn `$250` (bị chặn).
 4. Dòng 49–65 đưa cả hai lượt qua `guarded_dispatch()`, gửi kết quả tool lại cho `scripted.chat()` và in toàn bộ `ACTION_LOG`.
 
-**Lưu ý:** Dù model đề nghị `amount=250.0` và `user_confirmed=True`, lớp kiểm tra trong `guarded_dispatch()` đã chặn giao dịch trước khi `issue_refund()` chạy và ghi lại vào `ACTION_LOG`.
+**Lưu ý:** Dù model đề nghị `amount=250.0` trong khi trạng thái ứng dụng có `user_confirmed=True`, lớp kiểm tra trong `guarded_dispatch()` đã chặn giao dịch trước khi `issue_refund()` chạy và ghi lại vào `ACTION_LOG`.
 
-**Tự thử:** Đổi `user_confirmed` ở dòng 45 thành `False` để thấy ngay cả khoản hoàn `$45` cũng bị chặn và ghi log.
+**Tự thử:** Đổi `user_confirmed` ở dòng 45 thành `False` để thấy `ACTION_LOG` ghi nhận `blocked: user confirmation required` ngay cả với khoản hoàn `$45` (câu trả lời cuối vẫn giữ nguyên vì ví dụ này dùng kịch bản cố định).

@@ -11,9 +11,9 @@ hints:
       This combines the guarded approval loop from §5 (Part 3), the scenario runner from §6 (Part 4), and the report formatter from §7 (Part 5). Given a passing scenario `"happy"` expecting `stopped_reason="final"`, `tools=["lookup_order"]`, and `answer_contains="delayed"`, `run_scenario` returns `{"name": "happy", "passed": True, "stopped_reason": "final", "tools": ["lookup_order"], "reasons": []}`, and `summarize([res])` returns `["passed: 1/1", "all passed"]`.
     - |
       Step-by-step plan:
-      1. In `run_scenario`, create a fresh client via `make_client(list(scenario["script"]))`, initialize `messages` with the user task, and read optional `max_steps` (default `6`), `token_budget`, and `approve`.
-      2. Loop from step `1` to `max_steps`, calling `client.chat(messages, tools=toolbox.schemas())`, accumulating `resp.usage.total_tokens`, and checking stop conditions in order: `budget`, then `final` (no `tool_calls`), then `repeat` (same tool name and args as the immediately preceding executed step), then side-effect approval via `toolbox.is_side_effect` and `approve`.
-      3. Only when approved (or read-only), call `toolbox.call(tc.name, dict(tc.arguments))`, append the `assistant` and `tool` messages, and record the tool name and trace entry.
+      1. In `run_scenario`, ask the factory for a fresh client using a copy of the scenario's script so the input dictionary stays untouched, initialize `messages` with the user task, and read optional `max_steps` (default `6`), `token_budget`, and `approve`.
+      2. Loop from step `1` to `max_steps`, asking the client for the next chat response with the toolbox schemas, accumulating token usage, and checking stop conditions in order: `budget`, then `final` (no `tool_calls`), then `repeat` (same tool name and args as the immediately preceding executed step), then side-effect gating (`needs_approval` if `approve` is `None`, or `rejected` if `approve` returns `False`).
+      3. Only when approved (or read-only), invoke the tool through the toolbox, append both the `assistant` tool-call message and the matching `tool` message, and record the tool name and trace entry.
       4. Compare the run outcome against `scenario["expect"]`, collecting any mismatches into `reasons` in the order `"stopped_reason"`, `"tools"`, `"answer"`.
       5. In `summarize`, emit `"passed: <ok>/<total>"`, append `"FAIL <name>: <reasons>"` for each failed result, and append `"all passed"` only when zero scenarios failed.
     - |
@@ -61,9 +61,9 @@ hints:
       Bài này ghép vòng lặp có cổng duyệt ở §5 (Phần 3), bộ chạy kịch bản ở §6 (Phần 4) và hàm tóm tắt báo cáo ở §7 (Phần 5). Với kịch bản đạt `"happy"` kỳ vọng `stopped_reason="final"`, `tools=["lookup_order"]` và `answer_contains="delayed"`, `run_scenario` trả `{"name": "happy", "passed": True, "stopped_reason": "final", "tools": ["lookup_order"], "reasons": []}`, còn `summarize([res])` trả `["passed: 1/1", "all passed"]`.
     - |
       Kế hoạch từng bước:
-      1. Trong `run_scenario`, tạo client mới bằng `make_client(list(scenario["script"]))`, khởi tạo `messages` với yêu cầu của người dùng, và đọc các khóa tùy chọn `max_steps` (mặc định `6`), `token_budget` và `approve`.
-      2. Lặp từ bước `1` tới `max_steps`, gọi `client.chat(messages, tools=toolbox.schemas())`, cộng dồn `resp.usage.total_tokens`, và kiểm tra điều kiện dừng theo thứ tự: `budget`, `final` (không có `tool_calls`), `repeat` (trùng tên tool và args với bước vừa chạy ngay trước đó), rồi mới kiểm quyền duyệt side effect qua `toolbox.is_side_effect` và `approve`.
-      3. Chỉ khi được duyệt (hoặc tool chỉ đọc), mới gọi `toolbox.call(tc.name, dict(tc.arguments))`, nối message `assistant` cùng `tool`, và ghi nhận tên tool vào lịch sử.
+      1. Trong `run_scenario`, gọi hàm tạo client kèm bản sao của kịch bản để không làm thay đổi đầu vào gốc, khởi tạo `messages` với yêu cầu của người dùng, và đọc các khóa tùy chọn `max_steps` (mặc định `6`), `token_budget` và `approve`.
+      2. Lặp từ bước `1` tới `max_steps`, gọi client lấy phản hồi chat kèm danh sách schema của toolbox, cộng dồn số token đã dùng, và kiểm tra điều kiện dừng theo thứ tự: `budget`, `final` (không có `tool_calls`), `repeat` (trùng tên tool và tham số với bước vừa chạy ngay trước đó), rồi mới kiểm cổng duyệt side effect (`needs_approval` nếu `approve` là `None`, hoặc `rejected` nếu `approve` trả `False`).
+      3. Chỉ khi được duyệt (hoặc tool chỉ đọc), mới chạy tool qua toolbox, nối message `assistant` kèm `tool`, và ghi nhận tên tool vào lịch sử.
       4. Đối chiếu kết quả với `scenario["expect"]`, gom các mục sai vào `reasons` đúng thứ tự `"stopped_reason"`, `"tools"`, `"answer"`.
       5. Trong `summarize`, tạo dòng `"passed: <đạt>/<tổng>"`, thêm dòng `"FAIL <name>: <reasons>"` cho mỗi ca trượt, và chỉ thêm `"all passed"` ở cuối khi không có ca nào trượt.
     - |

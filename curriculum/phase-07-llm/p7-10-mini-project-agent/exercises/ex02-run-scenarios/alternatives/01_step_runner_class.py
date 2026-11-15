@@ -25,8 +25,10 @@ class _AgentSession:
         if self.last_call == (tc.name, args):
             return "repeat"
         if self.toolbox.is_side_effect(tc.name):
-            if self.approve is None or not self.approve(tc.name, dict(args)):
+            if self.approve is None:
                 return "needs_approval"
+            if not self.approve(tc.name, dict(args)):
+                return "rejected"
         obs = self.toolbox.call(tc.name, dict(args))
         self.messages.append(
             {

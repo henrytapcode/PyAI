@@ -359,7 +359,7 @@ Look closely at the per-question diff—this is why you never read summary perce
 - **`q6` got worse**: at `k=1`, only `pickup.md` entered the prompt and had zero word overlap (`idk=1/1`); at `k=3`, `payment.md` slipped into rank 2 and happened to share `"for"` and `"orders"` with `"Can I pay with crypto for online orders?"`, tricking the model into answering about Visa and Mastercard (`idk=0/1`).
 
 > [!WARNING]
-> On a 5–6 question eval set, a single question equals 17–20% of the score, so a one-question swing is very noisy. Real production eval sets need tens to hundreds of representative questions before you can trust small percentage gains.
+> On a 5–6 question eval set, a single question equals 17–20% of the score, so a one-question swing is very noisy. Real production eval sets need tens to hundreds of representative questions before you can trust small percentage gains. Notice also that tuning `k` on this eval set turns it into a **dev set**—before shipping, score your chosen `k` on a separate held-out test set (which you will practice in `p7-09`) to make sure the win generalizes.
 
 ## 6. Evals as regression tests
 

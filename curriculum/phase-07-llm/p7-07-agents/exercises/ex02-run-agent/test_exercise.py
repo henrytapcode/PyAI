@@ -62,6 +62,7 @@ def test_three_step_scripted_task_reaches_final():
     assert res["trace"][0]["tool"] == "lookup_order"
     assert res["trace"][0]["args"] == {"order_id": "1042", "note": ""}
     assert json.loads(res["trace"][0]["observation"])["status"] == "shipped"
+    assert json.loads(res["trace"][0]["observation"])["note"] == "ok"
     assert res["trace"][1]["step"] == 2
     assert res["trace"][1]["tool"] == "estimate_delivery"
     assert res["trace"][1]["observation"] == "2 business days via FastPost"

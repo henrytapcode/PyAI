@@ -1,62 +1,66 @@
 id: p7-08-ex01
 kind: fill
 title:
-  en: "Fill: compute retrieval hit@k"
-  vi: "Điền chỗ trống: tính tỉ lệ truy xuất trúng hit@k"
+  en: "Fill: compute retrieval hit@k across multiple cutoffs"
+  vi: "Điền chỗ trống: tính tỉ lệ truy xuất trúng hit@k theo nhiều mức cắt"
 difficulty: 1
-tags: [evaluation, rag, lists]
+tags: [evaluation, rag, lists, dicts]
 hints:
   en:
     - |
-      This implements `hit@k` from §3. For `[{"expected_source": "a.md", "retrieved": ["b.md", "a.md"]}]`, `hit_rate(..., k=2)` must return `1.0`, while `hit_rate(..., k=1)` returns `0.0`.
+      This extends `hit@k` from §3 to evaluate a list of cutoffs at once. For `[{"expected_source": "a.md", "retrieved": ["b.md", "a.md"]}]`, calling `hit_rates(..., ks=[1, 2])` returns `{1: 0.0, 2: 1.0}`.
     - |
       The plan:
-      1. Initialize counters for hits and answerable rows.
-      2. Loop through every result row and read its expected source.
-      3. Skip any row whose expected source is missing so unanswerable questions stay out of the denominator.
-      4. Increment the answerable counter, and increment the hit counter whenever the expected source appears within the first `k` retrieved items.
-      5. Divide hits by the answerable count, returning zero when no answerable rows exist.
+      1. Initialize an empty output dictionary mapping each cutoff to its score.
+      2. Loop through every cutoff in the list and raise a value error when a cutoff is zero or negative.
+      3. Count answerable hits within the top slice for that cutoff just like in single-cutoff evaluation.
+      4. Store the hit ratio rounded to three decimal places (or zero if no rows are answerable) under that cutoff key, then return the dictionary.
     - |
       Function skeleton:
       ```python
-      def hit_rate(results: list[dict], k: int) -> float:
-          if k <= 0:
-              return 0.0
-          hits = 0
-          total = 0
-          for row in results:
-              expected = row["expected_source"]
-              if expected is None:
-                  continue
-              total += 1
-              if ...:
-                  hits += 1
-          return hits / total if total else 0.0
+      def hit_rates(results: list[dict], ks: list[int]) -> dict[int, float]:
+          rates: dict[int, float] = ___
+          for k in ks:
+              if ___:
+                  raise ValueError(f"k must be positive, got {k}")
+              hits = 0
+              total = 0
+              for row in results:
+                  expected = row["expected_source"]
+                  if expected is None:
+                      continue
+                  total += 1
+                  if expected in row["retrieved"][:k]:
+                      hits += 1
+              rates[k] = round(hits / total, 3) if total else 0.0
+          return rates
       ```
   vi:
     - |
-      Bài này cài đặt `hit@k` ở §3. Với `[{"expected_source": "a.md", "retrieved": ["b.md", "a.md"]}]`, `hit_rate(..., k=2)` phải trả về `1.0`, còn `hit_rate(..., k=1)` trả về `0.0`.
+      Bài này mở rộng `hit@k` ở §3 để chấm nhiều mức cắt cùng lúc. Với `[{"expected_source": "a.md", "retrieved": ["b.md", "a.md"]}]`, gọi `hit_rates(..., ks=[1, 2])` trả về `{1: 0.0, 2: 1.0}`.
     - |
       Kế hoạch:
-      1. Khởi tạo hai biến đếm cho số câu trúng và tổng số câu có nguồn kỳ vọng.
-      2. Duyệt từng dòng kết quả và đọc tên nguồn kỳ vọng.
-      3. Bỏ qua những dòng có nguồn kỳ vọng bằng rỗng để câu không trả lời được không nằm trong mẫu số.
-      4. Tăng biến đếm tổng, và tăng biến đếm trúng nếu nguồn kỳ vọng nằm trong `k` kết quả truy xuất đầu tiên.
-      5. Chia số câu trúng cho tổng số câu có nguồn, trả về không nếu không còn câu nào hợp lệ.
+      1. Khởi tạo dictionary kết quả rỗng để lưu điểm theo từng mức cắt.
+      2. Duyệt từng mức cắt trong danh sách và ném lỗi giá trị nếu mức cắt bằng không hoặc âm.
+      3. Đếm số câu có nguồn kỳ vọng và số câu trúng trong lát cắt đầu tương ứng giống như hàm một mức.
+      4. Lưu tỉ lệ trúng làm tròn ba chữ số thập phân (hoặc không nếu không có câu hợp lệ) vào khóa mức cắt đó rồi trả về dictionary.
     - |
       Khung hàm:
       ```python
-      def hit_rate(results: list[dict], k: int) -> float:
-          if k <= 0:
-              return 0.0
-          hits = 0
-          total = 0
-          for row in results:
-              expected = row["expected_source"]
-              if expected is None:
-                  continue
-              total += 1
-              if ...:
-                  hits += 1
-          return hits / total if total else 0.0
+      def hit_rates(results: list[dict], ks: list[int]) -> dict[int, float]:
+          rates: dict[int, float] = ___
+          for k in ks:
+              if ___:
+                  raise ValueError(f"k must be positive, got {k}")
+              hits = 0
+              total = 0
+              for row in results:
+                  expected = row["expected_source"]
+                  if expected is None:
+                      continue
+                  total += 1
+                  if expected in row["retrieved"][:k]:
+                      hits += 1
+              rates[k] = round(hits / total, 3) if total else 0.0
+          return rates
       ```

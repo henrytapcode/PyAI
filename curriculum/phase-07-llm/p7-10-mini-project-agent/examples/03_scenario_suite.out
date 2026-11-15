@@ -3,13 +3,13 @@ missing_order    | final(1)          | final(1)          | PASS
 repeat_guard     | repeat(1)         | repeat(1)         | PASS
 max_steps_cap    | max_steps(2)      | max_steps(2)      | PASS
 refund_approved  | final(3)          | final(3)          | PASS
-refund_rejected  | needs_approval(1) | needs_approval(1) | PASS
+refund_rejected  | rejected(1)       | rejected(1)       | PASS
 budget_stop      | budget(0)         | budget(0)         | PASS
 passed: 7/7
 total_tokens: 644
   budget: 1
   final: 3
   max_steps: 1
-  needs_approval: 1
+  rejected: 1
   repeat: 1
 failures: none

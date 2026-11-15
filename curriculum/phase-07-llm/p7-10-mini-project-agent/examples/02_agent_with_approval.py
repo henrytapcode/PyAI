@@ -49,10 +49,13 @@ def run_support_agent(client, task: str, approve=None, approver: str = "none", m
             return {"stopped_reason": "repeat", "answer": "", "pending": None, "trace": trace, "audit": audit}
         fn, is_side = TOOLS[tc.name]
         if is_side:
-            ok = bool(approve(tc.name, dict(args))) if approve is not None else False
+            if approve is None:
+                audit.append({"tool": tc.name, "approved": False, "by": approver})
+                return {"stopped_reason": "needs_approval", "answer": "", "pending": {"tool": tc.name, "args": args}, "trace": trace, "audit": audit}
+            ok = bool(approve(tc.name, dict(args)))
             audit.append({"tool": tc.name, "approved": ok, "by": approver})
             if not ok:
-                return {"stopped_reason": "needs_approval", "answer": "", "pending": {"tool": tc.name, "args": args}, "trace": trace, "audit": audit}
+                return {"stopped_reason": "rejected", "answer": "", "pending": {"tool": tc.name, "args": args}, "trace": trace, "audit": audit}
         raw = fn(**args)
         obs = json.dumps(raw) if isinstance(raw, dict) else str(raw)
         messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}]})

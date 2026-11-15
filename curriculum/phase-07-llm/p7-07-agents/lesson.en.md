@@ -135,6 +135,9 @@ print("answer:", res["answer"])
 # answer: Order 1042 shipped via FastPost (2 business days).
 ```
 
+> [!NOTE]
+> Real tool-calling APIs can return multiple `tool_calls` in a single turn. We take `resp.tool_calls[0]` in this lesson's loop for brevity, while `p7-06` `ex02` shows the pattern for iterating over all of `resp.tool_calls` before the next model turn.
+
 Notice how the loop exits cleanly in two places—either when the model produces a final answer or when `step` reaches `max_steps`:
 
 ```mermaid
@@ -176,7 +179,7 @@ When an agent fails or gives a wrong answer, the **trace** is the first thing yo
 
 ## 4. Stop conditions: the agent's brakes
 
-A production agent needs four explicit **stop conditions** reported in `stopped_reason`: `final` (no tool calls left), `max_steps` (step cap reached), `repeat` (calling the exact same tool and arguments as the previous step), and `budget` (cumulative `resp.usage.total_tokens` exceeds `token_budget`). Checking `budget` -> `final` -> `repeat` on every iteration stops runaway loops before they waste money:
+A production agent needs four explicit **stop conditions** reported in `stopped_reason`: `final` (no tool calls left), `max_steps` (step cap reached), `repeat` (calling the exact same tool and arguments as the previous step), and `budget` (cumulative `resp.usage.total_tokens` exceeds `token_budget`). Checking `budget` right after `client.chat(...)` enforces the hard spend cap immediately because that call's tokens have already been billed (if your workflow prefers honoring an already-paid final answer before stopping, check `final` first and `budget` second). Checking `budget` -> `final` -> `repeat` on every iteration stops runaway loops before they waste money:
 
 ```python
 from pyai_llm import FakeLLM

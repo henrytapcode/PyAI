@@ -33,7 +33,7 @@ print("tool:", resp.tool_calls[0].name, resp.tool_calls[0].arguments)
 # tool: get_weather {'city': 'Hanoi', 'unit': ''}
 ```
 
-Hãy để ý `content` là `None`: model chưa trả lời người dùng mà đang **hỏi xin** chạy `get_weather` trước. Cũng để ý `unit` mang giá trị `''` vì `FakeLLM` điền giá trị rỗng giả cho tham số chuỗi tùy chọn bị thiếu, phần code điều phối ở mục sau sẽ xử lý điểm này.
+Hãy để ý `content` là `None`: model chưa trả lời người dùng mà đang **hỏi xin** chạy `get_weather` trước. Cũng để ý `unit` mang giá trị `''` vì `FakeLLM` điền vào mọi trường `string` (cả bắt buộc lẫn tùy chọn) bằng cụm từ trích từ prompt hoặc giá trị rỗng giả `''` khi không khớp, phần code điều phối ở mục sau sẽ xử lý điểm này.
 
 ```text
 you                         model                        your code
@@ -56,7 +56,7 @@ Giống như structured output (`p7-02-structured-output`), một **tool schema*
 | `description` | Mô tả ngắn cho model biết khi nào nên chọn tool | Một câu rõ ràng: tool làm gì và khi nào dùng; dễ phân biệt với tool khác |
 | `parameters` | JSON Schema `object` gồm `properties` và `required` | Ghi rõ kiểu từng tham số (`string`, `number`, `integer`, `boolean`) |
 
-Cả LLM thật lẫn `FakeLLM` đều dựa vào `description` để chọn tool. Vì `FakeLLM` chọn tool có nhiều từ chung nhất (từ ≥ 3 ký tự, kể cả từ phổ biến như `"the"` hay `"for"`), một `description` dài dòng chứa nhiều từ đệm có thể khiến tool bị gọi nhầm—và ngoài thực tế, mô tả mơ hồ cũng làm model thật chọn sai hệt như vậy.
+Cả LLM thật lẫn `FakeLLM` đều dựa vào metadata của tool để chọn tool. Vì `FakeLLM` chấm điểm mỗi tool theo số từ trùng khớp (từ ≥ 3 ký tự, kể cả từ phổ biến như `"the"` hay `"for"`) trên cả `name` lẫn `description`, một `description` dài dòng chứa nhiều từ đệm có thể khiến tool bị gọi nhầm—và ngoài thực tế, mô tả mơ hồ cũng làm model thật chọn sai hệt như vậy.
 
 ```python
 from pyai_llm import FakeLLM
@@ -98,7 +98,7 @@ Với mô tả mơ hồ, ba từ `"what"`, `"the"` và `"for"` giúp `search_log
 
 ## 3. Vòng tool hoàn chỉnh
 
-Một vòng gọi tool gồm 5 bước: (1) gọi `client.chat(messages, tools=tools)`; (2) nếu `finish_reason == "tool_calls"`, điều phối chạy hàm tương ứng; (3) nối thêm message `assistant` (có `tool_calls`) **và** message `tool` chứa kết quả; (4) gọi `client.chat(messages, tools=tools)` lần thứ hai; (5) in câu trả lời cuối. Nếu model không cần tool (`finish_reason == "stop"`), ta trả về `resp.content` ngay.
+Một vòng gọi tool gồm 5 bước: (1) gọi `client.chat(messages, tools=tools)`; (2) nếu `finish_reason == "tool_calls"`, điều phối chạy hàm tương ứng; (3) nối thêm message `assistant` (có `tool_calls`) **và** message `tool` chứa kết quả; (4) gọi `client.chat(messages, tools=tools)` lần thứ hai; (5) trả về câu trả lời cuối. Nếu model không cần tool (`finish_reason == "stop"`), ta trả về `resp.content` ngay.
 
 ```mermaid
 flowchart LR
@@ -307,44 +307,53 @@ print("loop guard ->", run_bounded(loopy, "Weather?", max_rounds=2))
 
 ## 6. An toàn: tool có tác dụng phụ
 
-Các tool chỉ đọc như `get_weather` hay `lookup_order` không làm thay đổi dữ liệu nên có thể chạy tự động. Ngược lại, các tool có **side effect** (tác dụng phụ)—như gửi email, hoàn tiền hay xóa bản ghi—làm thay đổi trạng thái thật và bắt buộc phải có ba lớp bảo vệ trong code Python: **allowlist** (danh sách cho phép) các tool được phép chạy, xác nhận từ con người (`confirmed=True`) và giới hạn ngưỡng giá trị (`max_amount`).
+Các tool chỉ đọc như `get_weather` hay `lookup_order` không làm thay đổi dữ liệu nên có thể chạy tự động. Ngược lại, các tool có **side effect** (tác dụng phụ)—như gửi email, hoàn tiền hay xóa bản ghi—làm thay đổi trạng thái thật và bắt buộc phải có ba lớp bảo vệ trong code Python: **allowlist** (danh sách cho phép) các tool được phép chạy, xác nhận từ con người lưu ở trạng thái ứng dụng (`user_confirmed=True`) và hằng số giới hạn ngưỡng ở phía server (`MAX_AUTO_REFUND`). Quan trọng nhất là không bao giờ bung `**args` thô hay đọc `confirmed`/`max_amount` từ `args` của model: chỉ lấy đúng các khóa cần thiết (`order_id`, `amount`) để mọi khóa giả mạo từ model đều bị bỏ qua.
 
 ```python
 import json
 
 ORDERS = {"1042": {"total": 45.0, "status": "delivered"}, "1043": {"total": 250.0, "status": "delivered"}}
 ALLOWED_TOOLS = {"lookup_order", "issue_refund"}
+MAX_AUTO_REFUND = 100.0
 
 
-def issue_refund(order_id: str, amount: float, confirmed: bool = False, max_amount: float = 100.0) -> str:
+def issue_refund(order_id: str, amount: float) -> str:
     if order_id not in ORDERS:
         return f"blocked: unknown order {order_id}"
-    if amount <= 0 or amount > max_amount:
-        return f"blocked: amount {amount} exceeds limit {max_amount}"
-    if not confirmed:
-        return f"blocked: confirmation required for {order_id}"
+    if amount <= 0 or amount > MAX_AUTO_REFUND:
+        return f"blocked: amount {amount} exceeds limit {MAX_AUTO_REFUND}"
     return json.dumps({"refunded": order_id, "amount": amount})
 
 
-def run_guarded(tool_name: str, args: dict) -> str:
+def run_guarded(tool_name: str, args: dict, user_confirmed: bool) -> str:
     if tool_name not in ALLOWED_TOOLS:
         return f"blocked: {tool_name} is not in allowlist"
     if tool_name == "issue_refund":
-        return issue_refund(**args)
+        order_id = str(args["order_id"])
+        amount = float(args["amount"])
+        if amount <= 0 or amount > MAX_AUTO_REFUND:
+            return f"blocked: amount {amount} exceeds limit {MAX_AUTO_REFUND}"
+        if not user_confirmed:
+            return f"blocked: confirmation required for {order_id}"
+        return issue_refund(order_id=order_id, amount=amount)
     return "ok"
 
 
-print("not allowed:", run_guarded("delete_order", {"order_id": "1042"}))
+print("not allowed:", run_guarded("delete_order", {"order_id": "1042"}, user_confirmed=True))
 # not allowed: blocked: delete_order is not in allowlist
-print("too high   :", run_guarded("issue_refund", {"order_id": "1043", "amount": 250.0, "confirmed": True}))
+print("too high   :", run_guarded("issue_refund", {"order_id": "1043", "amount": 250.0}, user_confirmed=True))
 # too high   : blocked: amount 250.0 exceeds limit 100.0
-print("unconfirmed:", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0, "confirmed": False}))
+print("unconfirmed:", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0}, user_confirmed=False))
 # unconfirmed: blocked: confirmation required for 1042
-print("approved   :", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0, "confirmed": True}))
+print("spoofed    :", run_guarded("issue_refund", {"order_id": "1043", "amount": 45.0, "confirmed": True}, user_confirmed=False))
+# spoofed    : blocked: confirmation required for 1043
+print("spoofed cap:", run_guarded("issue_refund", {"order_id": "1043", "amount": 250.0, "max_amount": 1000.0}, user_confirmed=True))
+# spoofed cap: blocked: amount 250.0 exceeds limit 100.0
+print("approved   :", run_guarded("issue_refund", {"order_id": "1042", "amount": 45.0}, user_confirmed=True))
 # approved   : {"refunded": "1042", "amount": 45.0}
 ```
 
-Hãy nhớ `confirmed=True` phải lấy từ trạng thái ứng dụng sau khi người dùng thật bấm xác nhận—không bao giờ để model tự điền `confirmed=True` trong tham số đề nghị!
+Hãy nhớ `user_confirmed` đến từ trạng thái ứng dụng sau khi người dùng thật bấm xác nhận, còn `MAX_AUTO_REFUND` nằm cố định trong code server—kể cả khi model nhét thêm `{"confirmed": True, "max_amount": 1000.0}` vào `args`, `run_guarded()` vẫn bỏ qua hoàn toàn các khóa lạ đó!
 
 > [!WARNING]
 > Luôn coi tên tool và dictionary tham số từ model là **input không tin cậy**. Giống như rủi ro **prompt injection** ở bài `p7-05-rag`, nội dung độc hại từ email hoặc trang web có thể đánh lừa model đề nghị tham số nguy hiểm. Tuyệt đối không đưa tham số từ model thẳng vào lệnh shell, câu SQL ghép chuỗi hay `eval`.

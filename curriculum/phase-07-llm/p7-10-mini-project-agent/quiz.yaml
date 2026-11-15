@@ -395,10 +395,10 @@ flashcards:
     tags: [agents, system-design]
     en:
       front: "Approval gate (human/policy in the loop)"
-      back: "Before any side_effect=True tool runs, call code-owned approve(name, args); False or None stops immediately with stopped_reason='needs_approval' without executing the tool."
+      back: "Before any side_effect=True tool runs, check code-owned approve: if approve is None stop with stopped_reason='needs_approval'; if approve(name, args) returns False stop with stopped_reason='rejected' without executing the tool."
     vi:
       front: "Cổng duyệt (approval gate)"
-      back: "Trước khi chạy tool có side_effect=True, gọi hàm approve(name, args) của code; nếu False hoặc None thì dừng ngay với stopped_reason='needs_approval' mà không chạy tool."
+      back: "Trước khi chạy tool có side_effect=True, kiểm tra hàm approve của code: nếu approve là None thì dừng với stopped_reason='needs_approval'; nếu approve(name, args) trả False thì dừng với stopped_reason='rejected' mà không chạy tool."
 
   - id: p7-10-f04
     tags: [agents, testing]

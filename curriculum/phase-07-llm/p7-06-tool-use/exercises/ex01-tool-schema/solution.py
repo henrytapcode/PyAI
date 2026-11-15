@@ -17,12 +17,13 @@ def tool_schema(
     for req in required:
         if req not in params:
             raise ValueError(f"unknown required parameter: {req}")
+    deduped_required = list(dict.fromkeys(required))
     return {
         "name": name,
         "description": description,
         "parameters": {
             "type": "object",
             "properties": {p: {"type": t} for p, t in params.items()},
-            "required": list(required),
+            "required": deduped_required,
         },
     }

@@ -27,4 +27,4 @@ tool_schema(
 - Chỉ chấp nhận bốn kiểu JSON cơ bản: `"string"`, `"number"`, `"integer"` và `"boolean"`.
 - Raise `ValueError` nếu có giá trị nào trong `params` không thuộc bốn kiểu trên.
 - Raise `ValueError` nếu có tên nào trong `required` không nằm trong các key của `params`.
-- Giữ nguyên thứ tự của `required` (tạo bản sao list mới) và ánh xạ từng cặp `p: t` trong `params` thành `p: {"type": t}` bên trong `parameters["properties"]`.
+- Giữ nguyên thứ tự xuất hiện đầu tiên của `required` đồng thời loại bỏ tên trùng lặp (tạo thành một list mới); phần `parameters["properties"]` đã được dựng sẵn từ `params`.

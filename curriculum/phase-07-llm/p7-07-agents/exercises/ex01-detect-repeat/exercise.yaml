@@ -18,10 +18,10 @@ hints:
       Function skeleton:
       ```python
       def is_repeat(history: list[tuple[str, dict]], name: str, args: dict) -> bool:
-          if not history:
+          if ___:
               return False
-          last_name, last_args = history[-1]
-          return ...
+          last_name, last_args = ___
+          return last_name == name and last_args == args
       ```
   vi:
     - |
@@ -35,8 +35,8 @@ hints:
       Khung hàm:
       ```python
       def is_repeat(history: list[tuple[str, dict]], name: str, args: dict) -> bool:
-          if not history:
+          if ___:
               return False
-          last_name, last_args = history[-1]
-          return ...
+          last_name, last_args = ___
+          return last_name == name and last_args == args
       ```
