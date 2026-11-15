@@ -8,14 +8,13 @@ tags: [huggingface, pytorch, dl]
 hints:
   en:
     - |
-      Use `torch.randperm(len(texts), generator=torch.Generator().manual_seed(seed)).tolist()` from §2 to shuffle indices reproducibly, then tokenize batches with `padding=True, truncation=True, max_length=max_length, return_tensors="pt"`.
-      For `class_counts([0, 1, 0])`, return `{0: 2, 1: 1}`.
+      This follows §2: shuffle indices reproducibly with `torch.randperm` and a seeded `torch.Generator`, then tokenize batches with `padding`, `truncation`, `max_length`, and PyTorch tensors. For `class_counts([0, 1, 0])`, return `{0: 2, 1: 1}`.
     - |
       Step-by-step plan:
-      1. In `split_data`, compute `n_val = int(len(texts) * val_frac)`, `n_test = int(len(texts) * test_frac)`, and `n_train = len(texts) - n_val - n_test`.
-      2. Generate a seeded permutation `idx` with `torch.randperm`, slice `idx[:n_train]`, `idx[n_train:n_train + n_val]`, and `idx[n_train + n_val:]`, and gather matching `(texts[i], labels[i])` lists.
-      3. In `encode`, call the module-level `tokenizer` with `padding=True`, `truncation=True`, `max_length=max_length`, and `return_tensors="pt"`, then return `{"input_ids": batch["input_ids"], "attention_mask": batch["attention_mask"]}`.
-      4. In `class_counts`, count occurrences of each integer label into a `dict[int, int]`.
+      1. In `split_data`, compute integer counts for validation and test from their fractions, and assign the remaining count to train so every item is kept.
+      2. Shuffle indices reproducibly using `torch.randperm` with a seeded `torch.Generator`, slice the index list into three disjoint ranges, and gather the matching text and label lists.
+      3. In `encode`, tokenize `texts` into padded, truncated PyTorch tensors capped at `max_length`, and return a dictionary containing only `input_ids` and `attention_mask`.
+      4. In `class_counts`, count occurrences of each integer label into a dictionary and return it.
     - |
       Skeleton:
       ```python
@@ -29,33 +28,32 @@ hints:
           tr, va, te = ...
           return (
               [texts[i] for i in tr], [labels[i] for i in tr],
-              ...,
+              [texts[i] for i in va], [labels[i] for i in va],
+              [texts[i] for i in te], [labels[i] for i in te],
           )
 
 
       def encode(texts, max_length):
-          batch = tokenizer(
-              texts, padding=..., truncation=..., max_length=max_length, return_tensors="pt"
-          )
+          batch = tokenizer(texts, ...)
           return {"input_ids": batch["input_ids"], "attention_mask": batch["attention_mask"]}
 
 
       def class_counts(labels):
           counts: dict[int, int] = {}
           for label in labels:
-              ...
+              counts[label] = counts.get(label, 0) + 1
           return counts
       ```
+      Make sure your three slices cover `idx` from start to finish without gaps or overlaps, and pass the padding/truncation/`max_length`/`return_tensors` keyword arguments to `tokenizer`.
   vi:
     - |
-      Dùng `torch.randperm(len(texts), generator=torch.Generator().manual_seed(seed)).tolist()` ở §2 để xáo chỉ số tái lập được, rồi gọi `tokenizer` với `padding=True, truncation=True, max_length=max_length, return_tensors="pt"`.
-      Với `class_counts([0, 1, 0])`, hàm phải trả về `{0: 2, 1: 1}`.
+      Bài này đi theo §2: xáo chỉ số tái lập được bằng `torch.randperm` với `torch.Generator` đặt seed, rồi tokenize theo batch có `padding`, `truncation`, `max_length` và tensor PyTorch. Với `class_counts([0, 1, 0])`, hàm phải trả về `{0: 2, 1: 1}`.
     - |
       Kế hoạch từng bước:
-      1. Trong `split_data`, tính `n_val = int(len(texts) * val_frac)`, `n_test = int(len(texts) * test_frac)` và `n_train = len(texts) - n_val - n_test`.
-      2. Sinh hoán vị chỉ số `idx` bằng `torch.randperm` có generator đặt seed, cắt ba đoạn `idx[:n_train]`, `idx[n_train:n_train + n_val]` và `idx[n_train + n_val:]` rồi lấy các cặp `(texts[i], labels[i])` tương ứng.
-      3. Trong `encode`, gọi `tokenizer` có sẵn ở mức module với `padding=True`, `truncation=True`, `max_length=max_length`, `return_tensors="pt"`, sau đó trả về `{"input_ids": batch["input_ids"], "attention_mask": batch["attention_mask"]}`.
-      4. Trong `class_counts`, đếm số lần xuất hiện của từng nhãn số nguyên vào một `dict[int, int]`.
+      1. Trong `split_data`, tính số lượng phần tử nguyên cho tập validation và test từ tỉ lệ tương ứng, rồi phần còn lại dành cho tập train để không bị rơi mất mẫu do làm tròn.
+      2. Xáo hoán vị chỉ số bằng `torch.randperm` kèm `torch.Generator` đã đặt seed, cắt thành ba đoạn rời nhau rồi gom các danh sách văn bản và nhãn tương ứng.
+      3. Trong `encode`, gọi `tokenizer` có padding, cắt bớt theo `max_length` và trả về tensor PyTorch, sau đó trả dictionary chỉ gồm `input_ids` và `attention_mask`.
+      4. Trong `class_counts`, đếm số lần xuất hiện của từng nhãn số nguyên vào một dictionary và trả về.
     - |
       Khung lời giải:
       ```python
@@ -69,20 +67,20 @@ hints:
           tr, va, te = ...
           return (
               [texts[i] for i in tr], [labels[i] for i in tr],
-              ...,
+              [texts[i] for i in va], [labels[i] for i in va],
+              [texts[i] for i in te], [labels[i] for i in te],
           )
 
 
       def encode(texts, max_length):
-          batch = tokenizer(
-              texts, padding=..., truncation=..., max_length=max_length, return_tensors="pt"
-          )
+          batch = tokenizer(texts, ...)
           return {"input_ids": batch["input_ids"], "attention_mask": batch["attention_mask"]}
 
 
       def class_counts(labels):
           counts: dict[int, int] = {}
           for label in labels:
-              ...
+              counts[label] = counts.get(label, 0) + 1
           return counts
       ```
+      Đảm bảo ba lát cắt phủ kín `idx` không hở cũng không trùng, và truyền đủ các tham số padding/truncation/`max_length`/`return_tensors` cho `tokenizer`.

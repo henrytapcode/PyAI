@@ -2478,3 +2478,14 @@ terms:
       en: "Fine-tuning uses AdamW with a small learning rate (such as 5e-4 or 5e-5) so the new head learns quickly without overwriting the pretrained language knowledge."
       vi: "Khi fine-tune, bạn dùng AdamW với learning rate nhỏ (như 5e-4 hoặc 5e-5) để đầu phân loại học nhanh mà không phá hỏng kiến thức ngôn ngữ có sẵn."
     related: [optimizer, fine-tuning, classification head]
+
+  - term: dropout
+    vi_term: dropout (tắt ngẫu nhiên nơ-ron)
+    tags: [pytorch, dl]
+    en: "A regularization technique (nn.Dropout) that randomly zeroes a fraction of activations during training to prevent overfitting, and is turned off automatically in model.eval() mode."
+    vi: "Kỹ thuật điều chuẩn (nn.Dropout) tắt ngẫu nhiên một tỉ lệ activation trong lúc train để chống overfitting, và tự động tắt khi chuyển sang chế độ model.eval()."
+    example: "self.drop = nn.Dropout(p=0.1)  # active in train(), off in eval()"
+    in_practice:
+      en: "Calling model.eval() before validation or inference disables dropout so predictions are deterministic and repeatable."
+      vi: "Luôn gọi model.eval() trước khi kiểm thử hoặc dự đoán để tắt dropout, giúp kết quả ổn định và lặp lại được."
+    related: [overfitting, fine-tuning]

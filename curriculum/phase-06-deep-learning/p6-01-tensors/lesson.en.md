@@ -132,7 +132,7 @@ num_slope = round((loss_at(1.0 + h) - loss_at(1.0 - h)) / (2 * h), 3)
 print(f"autograd={auto_slope}, numeric={num_slope}")  # autograd=-15.0, numeric=-15.0
 ```
 
-Both methods produce `-15.0`, except autograd computes the exact slope in one backward pass even when a model has millions of weights.
+Both methods produce `-15.0`, but autograd computes the exact slope in one backward pass even when a model has millions of weights.
 
 ## 5. Gradient descent with autograd
 

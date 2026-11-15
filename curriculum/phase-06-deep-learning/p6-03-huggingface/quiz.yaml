@@ -7,17 +7,17 @@ questions:
     en:
       prompt: "What do the special tokens `[CLS]` and `[SEP]` represent when a BERT/DistilBERT tokenizer encodes a single sentence?"
       options:
-        - "Padding tokens added at the end to match the longest sentence in the batch"
-        - "Boundary markers added automatically at the start (`[CLS]`) and end (`[SEP]`) of the sequence"
-        - "Two class labels meaning `NEGATIVE` and `POSITIVE`"
+        - "Padding tokens added at the end to match the longest batch row"
+        - "Start (`[CLS]`) and end (`[SEP]`) sequence boundary markers"
+        - "Two output class labels representing `NEGATIVE` and `POSITIVE`"
         - "Uppercase letters that the uncased tokenizer could not convert"
       explanation: "`tokenizer(text)` wraps each encoded sentence with `[CLS]` at the beginning and `[SEP]` at the end, adding two tokens beyond `tokenizer.tokenize(text)`."
     vi:
       prompt: "Hai token đặc biệt `[CLS]` và `[SEP]` có vai trò gì khi tokenizer của BERT/DistilBERT mã hóa một câu đơn?"
       options:
-        - "Các token đệm (padding) thêm vào cuối để bằng câu dài nhất trong batch"
-        - "Các dấu mốc ranh giới được tự động thêm vào đầu (`[CLS]`) và cuối (`[SEP]`) chuỗi"
-        - "Hai nhãn lớp đại diện cho `NEGATIVE` và `POSITIVE`"
+        - "Các token đệm thêm vào cuối để khớp chiều dài câu dài nhất"
+        - "Dấu mốc ranh giới đầu (`[CLS]`) và cuối (`[SEP]`) chuỗi"
+        - "Hai nhãn lớp đầu ra đại diện cho `NEGATIVE` và `POSITIVE`"
         - "Các chữ cái viết hoa mà tokenizer uncased không chuyển được"
       explanation: "`tokenizer(text)` bọc mỗi câu bằng `[CLS]` ở đầu và `[SEP]` ở cuối, nên tạo ra nhiều hơn `tokenizer.tokenize(text)` đúng 2 token."
 
@@ -48,21 +48,21 @@ questions:
     difficulty: 1
     answer: 2
     en:
-      prompt: "Why should you pin `revision` to a specific commit hash when calling `from_pretrained()`?"
+      prompt: "What does pinning `revision` to a specific commit hash in `from_pretrained()` guarantee?"
       options:
-        - "To double the number of CPU threads used during inference"
-        - "To turn an uncased tokenizer into a case-sensitive tokenizer"
-        - "To prevent future updates on the Hub from silently changing the weights, tokenizer, or outputs of your code"
-        - "To automatically fine-tune the model on your local dataset"
-      explanation: "A repository on Hugging Face Hub can receive new commits at any time; pinning `revision` ensures your code always loads the exact same snapshot."
+        - "Doubles the number of CPU threads allocated during model inference"
+        - "Converts an uncased tokenizer into a case-sensitive tokenizer"
+        - "Loads the exact same snapshot of weights, tokenizer, and outputs"
+        - "Automatically fine-tunes the checkpoint on your local dataset"
+      explanation: "A repository on Hugging Face Hub can receive new commits at any time; pinning `revision` ensures your code always loads the exact same snapshot and prevents future updates from silently changing outputs."
     vi:
-      prompt: "Vì sao bạn nên ghim `revision` vào một mã commit cụ thể khi gọi `from_pretrained()`?"
+      prompt: "Việc ghim `revision` vào một mã commit cụ thể khi gọi `from_pretrained()` đảm bảo điều gì?"
       options:
-        - "Để tăng gấp đôi số luồng CPU dùng khi suy đoán"
-        - "Để biến tokenizer uncased thành tokenizer phân biệt chữ hoa và thường"
-        - "Để tránh việc các cập nhật sau này trên Hub âm thầm làm thay đổi trọng số, tokenizer hay đầu ra của code"
-        - "Để tự động fine-tune model trên dữ liệu cục bộ của bạn"
-      explanation: "Một repo trên Hugging Face Hub có thể được cập nhật bất cứ lúc nào; ghim `revision` giúp code luôn nạp đúng cùng một bản chụp cố định."
+        - "Tăng gấp đôi số luồng CPU được cấp phát trong lúc suy đoán"
+        - "Biến tokenizer uncased thành tokenizer phân biệt chữ hoa thường"
+        - "Luôn nạp đúng cùng một bản chụp trọng số, tokenizer và đầu ra"
+        - "Tự động fine-tune lại checkpoint trên dữ liệu cục bộ của bạn"
+      explanation: "Một repo trên Hugging Face Hub có thể được cập nhật bất cứ lúc nào; ghim `revision` giúp code luôn nạp đúng cùng một bản chụp cố định và tránh việc thay đổi âm thầm ở đầu ra."
 
   - id: p6-03-q04
     type: output
@@ -107,18 +107,18 @@ questions:
     en:
       prompt: "In a padded batch returned by `tokenizer(texts, padding=True, return_tensors=\"pt\")`, what do `1` and `0` in `attention_mask` mean?"
       options:
-        - "`1` marks a real token that the model should attend to, and `0` marks padding added to match the longest sentence"
-        - "`1` marks `POSITIVE` words and `0` marks `NEGATIVE` words"
+        - "`1` marks a real token and `0` marks padding added to match width"
+        - "`1` marks `POSITIVE` tokens and `0` marks `NEGATIVE` tokens in text"
         - "`1` marks `[CLS]` and `[SEP]`, while `0` marks all regular words"
         - "`1` enables gradient tracking and `0` turns on `torch.no_grad()`"
       explanation: "Because shorter sentences are padded to match the longest sentence in the batch, `attention_mask` tells the model which positions contain real tokens (`1`) versus padding (`0`)."
     vi:
       prompt: "Trong một batch có padding từ `tokenizer(texts, padding=True, return_tensors=\"pt\")`, giá trị `1` và `0` trong `attention_mask` có nghĩa là gì?"
       options:
-        - "`1` đánh dấu token thật mà model cần chú ý, còn `0` đánh dấu phần padding thêm vào cho bằng câu dài nhất"
-        - "`1` đánh dấu từ `POSITIVE` và `0` đánh dấu từ `NEGATIVE`"
+        - "`1` là token thật và `0` là phần đệm padding cho bằng chiều dài"
+        - "`1` đánh dấu từ mang nghĩa `POSITIVE` và `0` đánh dấu từ `NEGATIVE`"
         - "`1` đánh dấu `[CLS]` và `[SEP]`, còn `0` đánh dấu mọi từ thường"
-        - "`1` bật theo dõi gradient và `0` bật `torch.no_grad()`"
+        - "`1` bật theo dõi gradient và `0` kích hoạt ngữ cảnh `torch.no_grad()`"
       explanation: "Vì các câu ngắn được đệm thêm cho bằng độ dài câu dài nhất trong batch, `attention_mask` báo cho model biết vị trí nào là token thật (`1`) và vị trí nào là phần đệm (`0`)."
 
   - id: p6-03-q07
@@ -191,18 +191,18 @@ questions:
     en:
       prompt: "What happens if you pass `model(batch)` instead of `model(**batch)` where `batch` is the `BatchEncoding` returned by `tokenizer(..., return_tensors=\"pt\")`?"
       options:
-        - "PyTorch automatically unpacks `input_ids` and `attention_mask` for you"
-        - "The model converts logits into probabilities automatically"
-        - "The tokenizer re-runs with `padding=True`"
-        - "The model receives the mapping object itself as the first positional argument (`input_ids`) and raises a `TypeError`"
+        - "PyTorch unpacks `input_ids` and `attention_mask` automatically for you"
+        - "The model automatically applies softmax and returns probabilities"
+        - "The tokenizer re-runs with `padding=True` and `truncation=True`"
+        - "Passes the mapping as `input_ids` and raises a `TypeError`"
       explanation: "`batch` is a dict-like mapping, so `**batch` is required to unpack `input_ids=...` and `attention_mask=...` as keyword arguments."
     vi:
       prompt: "Điều gì xảy ra nếu bạn gọi `model(batch)` thay vì `model(**batch)` với `batch` là `BatchEncoding` do `tokenizer(..., return_tensors=\"pt\")` trả về?"
       options:
-        - "PyTorch tự động tách `input_ids` và `attention_mask` giúp bạn"
-        - "Model tự động đổi logits sang xác suất"
-        - "Tokenizer tự chạy lại với `padding=True`"
-        - "Model nhận cả object dạng dict làm đối số vị trí đầu tiên (`input_ids`) và báo lỗi `TypeError`"
+        - "PyTorch tự động bung `input_ids` và `attention_mask` giúp bạn"
+        - "Model tự động áp dụng hàm softmax và trả về xác suất từng lớp"
+        - "Tokenizer tự chạy lại câu với `padding=True` và `truncation=True`"
+        - "Truyền cả dict vào tham số `input_ids` và gây `TypeError`"
       explanation: "`batch` là một mapping giống dict, nên phải viết `**batch` để bung thành các tham số có tên `input_ids=...` và `attention_mask=...`."
 
   - id: p6-03-q11
@@ -250,18 +250,18 @@ questions:
     en:
       prompt: "When should you write the step-by-step `tokenizer` + `model` code instead of calling `pipeline()`?"
       options:
-        - "Whenever you want `pipeline()` to download a different model from the internet mid-request"
-        - "When you need raw `logits`, custom `padding`/`max_length` control, or want to fine-tune the model weights"
-        - "Whenever your input contains fewer than five English sentences"
-        - "Only when you do not have an `AutoTokenizer` for the model"
+        - "Whenever you want `pipeline()` to download another model mid-request"
+        - "When you need raw `logits`, custom padding, or weight fine-tuning"
+        - "Whenever your input batch contains fewer than five English texts"
+        - "Only when the repository has no matching `AutoTokenizer` class"
       explanation: "`pipeline()` is great for quick inference, while explicit `tokenizer` + `model` code gives access to raw logits, custom batching, and training loops (`p6-04-fine-tune`)."
     vi:
       prompt: "Khi nào bạn nên tự viết từng bước `tokenizer` + `model` thay vì gọi `pipeline()`?"
       options:
-        - "Mỗi khi muốn `pipeline()` tải thêm model khác từ internet ngay giữa lúc xử lý request"
-        - "Khi bạn cần **logits** thô, muốn tự kiểm soát `padding`/`max_length`, hoặc muốn fine-tune trọng số model"
-        - "Mỗi khi đầu vào có ít hơn năm câu tiếng Anh"
-        - "Chỉ khi model không có `AutoTokenizer` đi kèm"
+        - "Mỗi khi muốn `pipeline()` tải thêm model khác giữa lúc xử lý"
+        - "Khi cần `logits` thô, chỉnh padding hoặc fine-tune trọng số"
+        - "Mỗi khi danh sách đầu vào có ít hơn năm câu tiếng Anh ngắn"
+        - "Chỉ khi kho lưu trữ không có sẵn lớp `AutoTokenizer` đi kèm"
       explanation: "`pipeline()` rất tiện để chạy thử nhanh, còn tự viết `tokenizer` + `model` giúp bạn lấy được logits thô, kiểm soát batch và viết vòng lặp fine-tune (`p6-04-fine-tune`)."
 
   - id: p6-03-q14
@@ -281,13 +281,13 @@ questions:
 
       out = predict_labels(torch.tensor([[-2.0, 2.0]]), {0: "NEGATIVE", 1: "POSITIVE"})
       print(out)
-    answer: ["1", "1"]
+    answer: [["1", "-1"], ["1", "-1"]]
     en:
       prompt: "Fill in the `dim` argument for both `torch.softmax` and `argmax` so each sentence row is scored across classes."
-      explanation: "For a 2D tensor of shape `(N, num_classes)`, `dim=1` runs across the class columns for each sentence row."
+      explanation: "For a 2D tensor of shape `(N, num_classes)`, `dim=1` (or `dim=-1`) runs across the class columns for each sentence row."
     vi:
       prompt: "Điền giá trị `dim` cho cả `torch.softmax` và `argmax` để tính xác suất và chọn lớp theo từng hàng câu."
-      explanation: "Với tensor 2D có shape `(N, số_lớp)`, `dim=1` tính dọc theo các cột lớp của từng hàng câu."
+      explanation: "Với tensor 2D có shape `(N, số_lớp)`, `dim=1` (hoặc `dim=-1`) tính dọc theo các cột lớp của từng hàng câu."
 
   - id: p6-03-q15
     type: mcq
@@ -297,18 +297,18 @@ questions:
     en:
       prompt: "The SST-2 sentiment pipeline returns `{'label': 'POSITIVE', 'score': 0.996}` on `\"Oh wonderful, another crash right before the demo.\"`. Why does that happen, and what should you do before deploying it?"
       options:
-        - "The tokenizer forgot to add `[CLS]` and `[SEP]`; pass `add_special_tokens=True` to fix sarcasm"
-        - "Softmax guarantees that any score above `0.95` is always accurate, so the sentence must be positive"
-        - "A 2-class model forces every input into `NEGATIVE` or `POSITIVE` and can be overconfident on sarcasm or domain shifts; always evaluate on a labelled sample of your own data first"
-        - "You should call `model.train()` during inference so the score drops below `0.5`"
+        - "Tokenizer skipped `[CLS]`/`[SEP]`; pass `add_special_tokens=True` to fix sarcasm"
+        - "Softmax guarantees any score above `0.95` is accurate, so the sentence is positive"
+        - "A 2-class model forces one bucket on sarcasm; test on your own labelled sample"
+        - "Calling `model.train()` during inference lowers the confidence score below `0.5`"
       explanation: "A high softmax score only reflects the gap between the two raw logits, not real-world correctness. Measure precision and recall on your own domain examples before trusting or fine-tuning the model."
     vi:
       prompt: "Pipeline cảm xúc SST-2 trả về `{'label': 'POSITIVE', 'score': 0.996}` cho câu `\"Oh wonderful, another crash right before the demo.\"`. Vì sao lại thế và bạn cần làm gì trước khi đưa vào dùng?"
       options:
-        - "Tokenizer quên thêm `[CLS]` và `[SEP]`; hãy truyền `add_special_tokens=True` để sửa lỗi mỉa mai"
-        - "Hàm softmax đảm bảo mọi điểm trên `0.95` luôn chính xác, nên câu đó chắc chắn là tích cực"
-        - "Model 2 lớp buộc phải chọn `NEGATIVE` hoặc `POSITIVE` và dễ tự tin thái quá với câu mỉa mai hoặc khác lĩnh vực; luôn đánh giá trên mẫu dữ liệu có nhãn của chính bạn trước"
-        - "Hãy gọi `model.train()` khi suy đoán để score giảm xuống dưới `0.5`"
+        - "Tokenizer quên `[CLS]`/`[SEP]`; hãy truyền `add_special_tokens=True` để sửa mỉa mai"
+        - "Softmax đảm bảo mọi điểm trên `0.95` luôn đúng, nên câu này chắc chắn là tích cực"
+        - "Model 2 lớp ép chọn một nhãn với câu mỉa mai; cần đo trên mẫu có nhãn của bạn"
+        - "Gọi `model.train()` khi suy luận (inference) sẽ kéo điểm xác suất giảm xuống dưới mức `0.5`"
       explanation: "Điểm softmax cao chỉ phản ánh độ chênh giữa hai logit thô chứ không chứng minh dự đoán đúng thực tế. Hãy đo precision và recall trên dữ liệu của bạn trước khi tin dùng hoặc fine-tune."
 
   - id: p6-03-q16

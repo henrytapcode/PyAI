@@ -56,7 +56,7 @@ Với bài toán phân loại, `nn.CrossEntropyLoss()` nhận **logits** (điể
 | Tự viết công thức MSE | `nn.MSELoss()` hoặc `nn.CrossEntropyLoss()` |
 | `w * x + b` | `model(x)` |
 
-PyTorch cũng cung cấp `torch.optim.Adam`, một optimizer thích nghi thường hội tụ nhanh hơn trên bài toán thực tế và sẽ được bạn dùng khi fine-tune ở bài `p6-04-fine-tune`.
+PyTorch cũng cung cấp `torch.optim.Adam`, một optimizer thích nghi thường hội tụ nhanh hơn trên bài toán thực tế — và biến thể tách rời weight decay của nó là `AdamW` sẽ được bạn dùng khi fine-tune ở bài `p6-04-fine-tune`.
 
 ```python
 import torch
@@ -233,9 +233,9 @@ for xb, yb in loader:
 
 ## 5. Đánh giá: `model.eval()` và `torch.no_grad()`
 
-Giống như ở phase 5, bạn chia dữ liệu từ đầu thành ba phần **train**, **validation** và **test** (ví dụ tỉ lệ 60/20/20 bằng `torch.randperm` có seed). Hãy dùng độ chính xác trên validation trong lúc train để chọn learning rate hay số epoch, và chỉ dùng tập **test** **đúng một lần** ở cuối.
+Giống như ở phase 5, bạn chia dữ liệu từ đầu thành ba phần **train**, **validation** và **test** (ví dụ tỉ lệ 60/20/20 bằng `torch.randperm` có seed). Hãy dùng tỉ lệ đoán đúng (accuracy) trên validation trong lúc train để chọn learning rate hay số epoch, và chỉ dùng tập **test** **đúng một lần** ở cuối.
 
-Khi đo độ chính xác trên validation hay test, hãy bật `model.eval()` và bọc trong `with torch.no_grad():`. `torch.no_grad()` tắt việc dựng computation graph nên đánh giá nhanh và nhẹ bộ nhớ hơn, còn `model.eval()` báo cho các tầng như dropout biết đang ở chế độ đánh giá (mạng nhỏ này chưa có dropout nhưng bạn nên tập thói quen ngay từ đầu). Nhớ gọi `model.train()` trước khi quay lại train tiếp.
+Khi đo tỉ lệ đoán đúng (accuracy) trên validation hay test, hãy bật `model.eval()` và bọc trong `with torch.no_grad():`. `torch.no_grad()` tắt việc dựng computation graph nên đánh giá nhanh và nhẹ bộ nhớ hơn, còn `model.eval()` chuyển các tầng điều chuẩn như dropout sang chế độ đánh giá. Dropout tắt ngẫu nhiên một tỉ lệ activation trong lúc train để chống overfitting, và tự tắt khi bật `eval()` (mạng nhỏ này chưa có dropout nhưng bạn nên tập thói quen ngay từ đầu). Nhớ gọi `model.train()` trước khi quay lại train tiếp.
 
 ```python
 import torch
@@ -288,27 +288,27 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
 
 for epoch in range(1, 21):
     model.train()
-    last_loss = 0.0
+    total_loss = 0.0
     for xb, yb in loader:
         loss = loss_fn(model(xb), yb)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        last_loss = loss.item()
+        total_loss += loss.item()
     if epoch in (1, 5, 10, 15, 20):
         val_acc = eval_accuracy(model, X_val, y_val)
-        print(f"epoch={epoch:2d}  train_loss={round(last_loss, 3)}  val_acc={val_acc}")
+        print(f"epoch={epoch:2d}  train_loss={round(total_loss / len(loader), 3)}  val_acc={val_acc}")
 
 print("test_acc:", eval_accuracy(model, X_test, y_test))
-# epoch= 1  train_loss=0.806  val_acc=0.1
-# epoch= 5  train_loss=0.676  val_acc=0.825
-# epoch=10  train_loss=0.627  val_acc=0.9
-# epoch=15  train_loss=0.573  val_acc=0.925
-# epoch=20  train_loss=0.432  val_acc=0.925
+# epoch= 1  train_loss=0.8  val_acc=0.1
+# epoch= 5  train_loss=0.68  val_acc=0.825
+# epoch=10  train_loss=0.586  val_acc=0.9
+# epoch=15  train_loss=0.519  val_acc=0.925
+# epoch=20  train_loss=0.465  val_acc=0.925
 # test_acc: 0.975
 ```
 
-Để ý rằng tỉ lệ đoán đúng trên validation chững lại ở `0.925` từ epoch 15, và ta chỉ đo `X_test` đúng một lần ở cuối cùng (`0.975`).
+Ở epoch 1, `val_acc` mới là `0.1` (thấp hơn cả đoán bừa 50/50) vì trọng số khởi tạo ngẫu nhiên và SGD mới đi được vài bước mini-batch trước khi xoay được ranh giới phân loại. Từ epoch 15, tỉ lệ đoán đúng trên validation chững lại ở `0.925`, và ta chỉ đo `X_test` đúng một lần ở cuối cùng (`0.975`).
 
 ## 6. Lưu và nạp model
 
@@ -407,7 +407,7 @@ Cách sửa: luôn gọi `optimizer.zero_grad()` trước `loss.backward()` ở 
 
 **2. Truyền nhãn sai kiểu hoặc sai shape cho `CrossEntropyLoss`**
 
-`nn.CrossEntropyLoss()` đòi hỏi tensor 1D `(N,)` kiểu `int64` (`Long`); truyền nhãn `float32` hoặc tensor 2D `(N, 1)` đều gây `RuntimeError`.
+`nn.CrossEntropyLoss()` đòi hỏi tensor 1D `(N,)` kiểu `int64` (`Long`); truyền nhãn `float32` có shape `(N,)` hoặc tensor 2D `(N, 1)` đều gây `RuntimeError`.
 
 ```python
 import torch

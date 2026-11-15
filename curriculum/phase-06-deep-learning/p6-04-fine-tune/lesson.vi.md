@@ -86,7 +86,7 @@ ids:      101  8833   2378  3931   19119   2007  3156  102
 
 Ở đây bạn nạp `google/bert_uncased_L-2_H-128_A-2` (`BERT-Tiny`), một model đã học tiếng Anh từ tác vụ đoán từ bị che, chưa hề biết phân loại ticket. Khi truyền `num_labels=2`, `transformers` gắn thêm một **classification head** (đầu phân loại tuyến tính mới gồm `classifier.weight` và `classifier.bias`), đồng thời `id2label` và `label2id` quy ước lớp `0` là `"bug"` và lớp `1` là `"billing"`.
 
-Lúc nạp model nền kèm `num_labels=2`, `transformers` mặc định in ra stderr một bảng LOAD REPORT báo các tầng cũ không dùng tới (`UNEXPECTED`) và tầng `classifier` mới tạo (`MISSING`):
+Lúc nạp model nền kèm `num_labels=2`, `transformers` mặc định in ra stderr một bảng LOAD REPORT (rút gọn bên dưới) báo các tầng cũ không dùng tới (`UNEXPECTED`) và tầng `classifier` mới tạo (`MISSING`):
 
 ```text
 BertForSequenceClassification LOAD REPORT from: google/bert_uncased_L-2_H-128_A-2
@@ -106,6 +106,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # ẩn bảng LOAD REPORT mặc định trên stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -150,7 +151,7 @@ model.eval()
 val_batch = tokenizer(val_x, padding=True, truncation=True, return_tensors="pt")
 with torch.no_grad():
     preds = model(**val_batch).logits.argmax(dim=1)
-val_acc = round(float((preds == val_y).float().mean().item()), 3)
+val_acc = round((preds == val_y).to(torch.float32).mean().item(), 3)
 print("val accuracy before:", val_acc)
 # val accuracy before: 0.5
 ```
@@ -163,12 +164,15 @@ Vòng lặp training giữ nguyên khung của `p6-02`, chỉ khác ở hai đi�
 1. Truyền `labels=train_y` thẳng vào `model(**train_batch, labels=train_y)`: model tự tính cross-entropy loss và trả sẵn trong `out.loss`.
 2. Dùng `torch.optim.AdamW` với learning rate nhỏ (`lr=5e-4`), để đầu phân loại học nhanh mà không phá hỏng kiến thức tiếng Anh sẵn có trong phần thân model.
 
+`AdamW` = Adam + weight decay (tách rời), lựa chọn mặc định phổ biến khi fine-tune các model transformer. Ở đây ta quét từ epoch `1–10` và ghi lại cả validation accuracy lẫn validation loss ở từng mốc:
+
 ```python
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # ẩn bảng LOAD REPORT mặc định trên stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -222,53 +226,55 @@ for epoch in range(1, 11):
 
     model.eval()
     with torch.no_grad():
-        val_preds = model(**val_batch).logits.argmax(dim=1)
-    val_acc = round(float((val_preds == val_y).float().mean().item()), 3)
+        val_out = model(**val_batch, labels=val_y)
+        val_preds = val_out.logits.argmax(dim=1)
+        val_loss = round(val_out.loss.item(), 3)
+    val_acc = round((val_preds == val_y).to(torch.float32).mean().item(), 3)
     if epoch == 1 or epoch % 2 == 0:
-        print(f"epoch {epoch:2d}: loss={round(float(out.loss.item()), 3)}  val_acc={val_acc}")
-# epoch  1: loss=0.712  val_acc=0.5
-# epoch  2: loss=0.665  val_acc=0.438
-# epoch  4: loss=0.584  val_acc=0.938
-# epoch  6: loss=0.477  val_acc=1.0
-# epoch  8: loss=0.366  val_acc=1.0
-# epoch 10: loss=0.254  val_acc=1.0
+        print(f"epoch {epoch:2d}: loss={round(out.loss.item(), 3)}  val_loss={val_loss}  val_acc={val_acc}")
+# epoch  1: loss=0.712  val_loss=0.667  val_acc=0.5
+# epoch  2: loss=0.665  val_loss=0.654  val_acc=0.438
+# epoch  4: loss=0.584  val_loss=0.537  val_acc=0.938
+# epoch  6: loss=0.477  val_loss=0.387  val_acc=1.0
+# epoch  8: loss=0.366  val_loss=0.28  val_acc=1.0
+# epoch 10: loss=0.254  val_loss=0.211  val_acc=1.0
 ```
 
-Theo dõi train loss giảm đều trong khi validation accuracy vọt từ `0.5` lên `1.0`:
+Theo dõi train loss và validation loss giảm đều trong khoảng epoch `1–10`, còn validation accuracy vọt từ `0.5` lên `1.0`:
 
-| epoch | train loss | val accuracy |
-|---|---|---|
-| `1` | `0.712` | `0.500` |
-| `2` | `0.665` | `0.438` |
-| `4` | `0.584` | `0.938` |
-| `6` | `0.477` | `1.000` |
-| `8` | `0.366` | `1.000` |
-| `10` | `0.254` | `1.000` |
+| epoch | train loss | val loss | val accuracy |
+|---|---|---|---|
+| `1` | `0.712` | `0.667` | `0.500` |
+| `2` | `0.665` | `0.654` | `0.438` |
+| `4` | `0.584` | `0.537` | `0.938` |
+| `6` | `0.477` | `0.387` | `1.000` |
+| `8` | `0.366` | `0.280` | `1.000` |
+| `10` | `0.254` | `0.211` | `1.000` |
 
-Bấm **Visualize** ở khối code ngắn này để xem `best_epoch`, `best_val` và `best_loss` cập nhật từng bước khi chọn số epoch tốt nhất dựa hoàn toàn trên tập validation (ưu tiên train loss thấp hơn khi `val_acc` hòa):
+Bấm **Visualize** ở khối code ngắn này để xem `best_epoch`, `best_val` và `best_loss` cập nhật từng bước khi chọn số epoch tốt nhất hoàn toàn từ các bộ `(epoch, val_acc, val_loss)` trên tập validation (`val_acc` cao nhất, hòa thì chọn `val_loss` thấp hơn):
 
 ```python
 history = [
-    (1, 0.712, 0.500),
-    (2, 0.665, 0.438),
-    (4, 0.584, 0.938),
-    (6, 0.477, 1.000),
-    (8, 0.366, 1.000),
-    (10, 0.254, 1.000),
+    (1, 0.500, 0.667),
+    (2, 0.438, 0.654),
+    (4, 0.938, 0.537),
+    (6, 1.000, 0.387),
+    (8, 1.000, 0.280),
+    (10, 1.000, 0.211),
 ]
 best_epoch, best_val, best_loss = 0, -1.0, 999.0
-for epoch, loss, val_acc in history:
-    if val_acc > best_val or (val_acc == best_val and loss < best_loss):
-        best_epoch, best_val, best_loss = epoch, val_acc, loss
-print(f"best epoch: {best_epoch} (val={best_val}, loss={best_loss})")
-# best epoch: 10 (val=1.0, loss=0.254)
+for epoch, val_acc, val_loss in history:
+    if val_acc > best_val or (val_acc == best_val and val_loss < best_loss):
+        best_epoch, best_val, best_loss = epoch, val_acc, val_loss
+print(f"best epoch: {best_epoch} (val_acc={best_val}, val_loss={best_loss})")
+# best epoch: 10 (val_acc=1.0, val_loss=0.211)
 ```
 
-Lưu ý `val_acc` đạt `1.000` từ epoch 6 và giữ nguyên `1.000` trong khi loss tiếp tục giảm xuống `0.254` ở epoch `10`, nên ta chốt `10` epoch trước khi chạm vào tập test.
+Lưu ý `val_acc` đạt `1.000` từ epoch `6` và giữ vững trong khi `val_loss` tiếp tục giảm xuống `0.211` ở epoch `10`. Vì ở đây chỉ quét khoảng `1–10` epoch, ta chốt `10` epoch dựa hoàn toàn trên validation trước khi đụng vào tập test.
 
-## 5. Đánh giá một lần trên test
+## 5. Đánh giá cuối cùng trên tập test
 
-Bây giờ bạn mới chấm trên `16` ticket test giữ kín **đúng một lần** — so sánh trước khi fine-tune (`0.562`) với sau `10` epoch (`0.938`), đồng thời in ra những ticket bị đoán sai để xem model vấp ở đâu:
+Khi đã chốt `10` epoch trên tập validation xong xuôi, ta mới dùng `16` ticket test giữ kín chỉ cho báo cáo kết quả cuối cùng — so sánh mốc trước khi fine-tune (`0.562`, chỉ dùng để tham khảo chứ không dùng ra bất kỳ quyết định nào) với kết quả sau khi fine-tune (`0.938`), đồng thời in ra những ticket bị đoán sai để xem model vấp ở đâu:
 
 ```python
 import torch
@@ -276,6 +282,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # ẩn bảng LOAD REPORT mặc định trên stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -301,7 +308,7 @@ def accuracy(model, batch, y_t):
     model.eval()
     with torch.no_grad():
         preds = model(**batch).logits.argmax(dim=1)
-    return round(float((preds == y_t).float().mean().item()), 3), preds
+    return round((preds == y_t).to(torch.float32).mean().item(), 3), preds
 
 
 texts, labels = make_tickets()
@@ -369,6 +376,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipe
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # ẩn bảng LOAD REPORT mặc định trên stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -450,6 +458,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # ẩn bảng LOAD REPORT mặc định trên stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -473,7 +482,7 @@ for seed in (0, 1):
     model.eval()
     with torch.no_grad():
         preds = model(**batch).logits.argmax(dim=1)
-    acc = round(float((preds == val_y).float().mean().item()), 3)
+    acc = round((preds == val_y).to(torch.float32).mean().item(), 3)
     print(f"seed={seed}: val_acc={acc}")
 # seed=0: val_acc=0.333
 # seed=1: val_acc=0.5
@@ -491,6 +500,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # ẩn bảng LOAD REPORT mặc định trên stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -518,7 +528,7 @@ for epoch in range(1, 5):
     model.eval()
     with torch.no_grad():
         preds = model(**batch).logits.argmax(dim=1).tolist()
-    print(f"epoch {epoch}: loss={round(float(out.loss.item()), 3)}  preds={preds}")
+    print(f"epoch {epoch}: loss={round(out.loss.item(), 3)}  preds={preds}")
 # epoch 1: loss=0.682  preds=[1, 1, 1, 1]
 # epoch 2: loss=3.288  preds=[0, 0, 0, 0]
 # epoch 3: loss=6.721  preds=[0, 0, 0, 0]
@@ -562,8 +572,9 @@ Python không báo lỗi nếu bạn nhìn điểm test để chọn `epochs`, n
 
 ## 8. Đi xa hơn
 
+- Để ý `val_loss` vẫn đang giảm ở epoch `10` (`0.211`), nên bạn có thể quét dài hơn khoảng `1–10` epoch để xem validation loss chạm đáy ở đâu.
 - Thêm lớp thứ ba như `"feature request"` bằng cách đặt `num_labels=3` và cập nhật `id2label` / `label2id`.
-- Thu thập thêm vài trăm ticket thật và đo **precision** / **recall** cho từng lớp (bài `p5-04`) thay vì chỉ nhìn mỗi accuracy.
+- Thu thập thêm vài trăm ticket thật và đo **precision** (độ chuẩn khi báo dương) cùng **recall** (độ nhạy, tức tỉ lệ bắt được) cho từng lớp (bài `p5-04`) thay vì chỉ nhìn mỗi accuracy (tỉ lệ đoán đúng).
 - Thử model nền lớn hơn hoặc chuyển sang GPU khi tập dữ liệu vượt quá vài trăm câu.
 - Tìm hiểu kỹ thuật **LoRA** (Low-Rank Adaptation) khi fine-tune các model lớn hơn nhiều để chỉ phải cập nhật một phần nhỏ trọng số (xem mục Đọc thêm).
 

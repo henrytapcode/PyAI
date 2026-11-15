@@ -1,4 +1,4 @@
-Cài đặt vòng lặp huấn luyện, đánh giá và dự đoán cho BERT-Tiny: `accuracy`, `fine_tune` và `predict`. `tokenizer` đã ghim và hàm `load_model()` đã được cung cấp sẵn ở đầu file; hãy viết code bên trong từng hàm và `return` kết quả.
+Cài đặt các hàm huấn luyện, đánh giá, dự đoán và chọn epoch cho BERT-Tiny: `accuracy`, `fine_tune`, `predict` và `pick_epoch`. `tokenizer` đã ghim và hàm `load_model()` đã được cung cấp sẵn ở đầu file; hãy viết code bên trong từng hàm và `return` kết quả.
 
 **Ví dụ**
 
@@ -7,6 +7,7 @@ model = load_model()
 losses = fine_tune(model, train_texts, train_labels, lr=5e-4, epochs=10)
 acc = accuracy(model, val_texts, val_labels)   # vd 1.0
 labels = predict(model, ["App crashed", "Charged twice"])  # ["bug", "billing"]
+best_epoch = pick_epoch([(1, 0.5, 0.7), (2, 0.9, 0.4), (3, 0.9, 0.3)])  # 3
 ```
 
 **Quy tắc**
@@ -22,3 +23,6 @@ labels = predict(model, ["App crashed", "Charged twice"])  # ["bug", "billing"]
 - `predict(model, texts)`:
   - Bật `model.eval()` và chạy trong `with torch.no_grad():`.
   - Đổi chỉ số lớp dự đoán sang nhãn chữ (`"bug"` / `"billing"`) qua `model.config.id2label`.
+- `pick_epoch(history)`:
+  - Nhận một `list[tuple[int, float, float]]` không rỗng gồm các bộ `(epoch, val_acc, val_loss)`.
+  - Trả về số nguyên `epoch` có `val_acc` cao nhất; nếu hòa `val_acc` thì chọn `val_loss` thấp hơn, và nếu hòa cả hai thì chọn `epoch` sớm nhất.

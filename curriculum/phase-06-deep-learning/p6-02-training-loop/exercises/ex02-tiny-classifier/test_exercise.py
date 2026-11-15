@@ -45,17 +45,30 @@ def test_accuracy_returns_python_float_in_unit_interval():
     assert 0.0 <= acc <= 1.0
 
 
-def test_accuracy_sets_eval_mode_and_creates_no_gradients():
-    torch.manual_seed(0)
-    model = nn.Linear(2, 2)
-    model.train()
+class _GradProbe(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.grad_states: list[bool] = []
+        self.eval_states: list[bool] = []
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        self.grad_states.append(torch.is_grad_enabled())
+        self.eval_states.append(not self.training)
+        return torch.tensor([[1.0, 0.0]] * len(x))
+
+
+def test_accuracy_sets_eval_mode_and_disables_grad():
+    probe = _GradProbe()
+    probe.train()
     xs = torch.randn(6, 2)
     ys = torch.zeros(6, dtype=torch.int64)
-    acc = accuracy(model, xs, ys)
+    acc = accuracy(probe, xs, ys)
     assert acc is not None, "accuracy returned None: did you forget to return the value?"
-    assert not model.training, "accuracy must call model.eval()"
-    assert all(p.grad is None for p in model.parameters()), (
-        "accuracy must not populate parameter gradients"
+    assert not probe.training and probe.eval_states and all(probe.eval_states), (
+        "accuracy must call model.eval()"
+    )
+    assert probe.grad_states and all(not enabled for enabled in probe.grad_states), (
+        "wrap the forward pass in `torch.no_grad()`"
     )
 
 

@@ -4,6 +4,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -28,7 +29,7 @@ def accuracy(model, texts: list[str], labels: list[int]) -> float:
     with torch.no_grad():
         preds = model(**batch).logits.argmax(dim=1)
     y = torch.tensor(labels, dtype=torch.int64)
-    return round(float((preds == y).float().mean().item()), 3)
+    return round((preds == y).to(torch.float32).mean().item(), 3)
 
 
 def fine_tune(model, texts: list[str], labels: list[int], lr: float, epochs: int) -> list[float]:
@@ -50,7 +51,7 @@ def fine_tune(model, texts: list[str], labels: list[int], lr: float, epochs: int
             out = model(input_ids=input_ids, attention_mask=attention_mask, labels=yb)
             out.loss.backward()
             optimizer.step()
-            total_loss += float(out.loss.item())
+            total_loss += out.loss.item()
         losses.append(round(total_loss / len(loader), 4))
     return losses
 
@@ -61,3 +62,11 @@ def predict(model, texts: list[str]) -> list[str]:
     with torch.no_grad():
         pred_ids = model(**batch).logits.argmax(dim=1)
     return [model.config.id2label[idx] for idx in pred_ids.tolist()]
+
+
+def pick_epoch(history: list[tuple[int, float, float]]) -> int:
+    best_epoch, best_acc, best_loss = history[0]
+    for epoch, val_acc, val_loss in history[1:]:
+        if (val_acc, -val_loss, -epoch) > (best_acc, -best_loss, -best_epoch):
+            best_epoch, best_acc, best_loss = epoch, val_acc, val_loss
+    return best_epoch

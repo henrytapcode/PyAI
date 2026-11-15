@@ -5,20 +5,20 @@ questions:
     difficulty: 1
     answer: 2
     en:
-      prompt: "Why does BERT-Tiny get roughly `0.5` accuracy on ticket classification right after loading with `num_labels=2`?"
+      prompt: "What causes BERT-Tiny to get roughly `0.5` accuracy on ticket classification right after loading with `num_labels=2`?"
       options:
-        - "Because `local_files_only=True` loads only half of the model layers"
-        - "Because the tokenizer skips half of the words until fine-tuning finishes"
-        - "Because the new 2-class `classifier` head is initialised with random weights"
-        - "Because `AdamW` freezes the encoder weights before training begins"
+        - "`local_files_only=True` loads only half of the model's encoder layers"
+        - "The tokenizer skips half of the tokens until fine-tuning finishes"
+        - "The newly attached 2-class `classifier` head has random weights"
+        - "`AdamW` freezes the encoder weights before training begins"
       explanation: "The pretrained BERT-Tiny body understands English, but the 2-class `classifier` head was newly created with random weights, so before fine-tuning its predictions are essentially random guesses (~0.5 on two balanced classes)."
     vi:
-      prompt: "Vì sao BERT-Tiny chỉ đạt accuracy khoảng `0.5` trên bài toán phân loại ticket ngay sau khi nạp với `num_labels=2`?"
+      prompt: "Điều gì khiến BERT-Tiny chỉ đạt accuracy khoảng `0.5` ngay sau khi nạp với `num_labels=2`?"
       options:
-        - "Vì `local_files_only=True` chỉ nạp một nửa số tầng của model"
-        - "Vì tokenizer bỏ qua một nửa số từ cho tới khi fine-tune xong"
-        - "Vì lớp `classifier` 2 lớp mới gắn thêm được khởi tạo với trọng số ngẫu nhiên"
-        - "Vì `AdamW` đóng băng phần encoder trước khi bắt đầu huấn luyện"
+        - "`local_files_only=True` chỉ nạp đúng một nửa số tầng encoder"
+        - "Tokenizer bỏ qua một nửa số token cho tới khi fine-tune xong"
+        - "Đầu `classifier` 2 lớp mới gắn vào mang trọng số ngẫu nhiên"
+        - "`AdamW` tự động đóng băng phần encoder trước khi bước train chạy"
       explanation: "Phần thân BERT-Tiny đã biết tiếng Anh, nhưng lớp đầu phân loại `classifier` vừa được tạo mới với trọng số ngẫu nhiên, nên trước khi fine-tune nó đoán gần như ngẫu nhiên (~0.5 với hai lớp cân bằng)."
 
   - id: p6-04-q02
@@ -49,18 +49,18 @@ questions:
     en:
       prompt: "When loading BERT-Tiny with `num_labels=2`, what do `UNEXPECTED` (`cls.*`) and `MISSING` (`classifier.*`) in the `LOAD REPORT` mean?"
       options:
-        - "The checkpoint file is corrupted and must be downloaded again"
-        - "The unused pretraining heads (`cls.*`) were skipped and a fresh `classifier` head was randomly initialised"
-        - "The tokenizer vocabulary is missing two special tokens `[CLS]` and `[SEP]`"
-        - "Only CPU weights were loaded and GPU weights were left uninitialised"
+        - "The local checkpoint file is corrupted and must be fetched again"
+        - "Pretraining head `cls.*` was skipped; new `classifier` is random"
+        - "The tokenizer vocabulary lacks `[CLS]` and `[SEP]` token entries"
+        - "Only CPU weights loaded while GPU weights stayed uninitialised"
       explanation: "BERT-Tiny was pretrained to predict masked words (`cls.*`), so those task-specific weights are `UNEXPECTED` for classification and ignored, while `classifier.*` is `MISSING` from the checkpoint and newly created with random weights."
     vi:
       prompt: "Khi nạp BERT-Tiny với `num_labels=2`, hai trạng thái `UNEXPECTED` (`cls.*`) và `MISSING` (`classifier.*`) trong `LOAD REPORT` có nghĩa là gì?"
       options:
-        - "File checkpoint bị hỏng và phải tải lại từ đầu"
-        - "Các tầng đầu của tác vụ pretrain cũ (`cls.*`) được bỏ qua và một đầu `classifier` mới được khởi tạo ngẫu nhiên"
-        - "Bảng từ vựng của tokenizer bị thiếu hai token đặc biệt `[CLS]` và `[SEP]`"
-        - "Chỉ trọng số CPU được nạp còn trọng số GPU bị bỏ trống"
+        - "File checkpoint cục bộ bị hỏng nên bắt buộc phải tải lại từ đầu"
+        - "Đầu `cls.*` cũ bị bỏ qua; đầu `classifier` mới tạo ngẫu nhiên"
+        - "Bộ từ vựng của tokenizer thiếu hai token đặc biệt `[CLS]` và `[SEP]`"
+        - "Chỉ trọng số trên CPU được nạp còn phần GPU bị bỏ trống"
       explanation: "BERT-Tiny vốn được pretrain để đoán từ bị che (`cls.*`), nên các trọng số đó thừa (`UNEXPECTED`) với bài toán phân loại và bị bỏ qua, còn `classifier.*` chưa có trong checkpoint (`MISSING`) nên được tạo mới ngẫu nhiên."
 
   - id: p6-04-q04
@@ -75,7 +75,7 @@ questions:
       head = nn.Linear(4, 2)
       optimizer = torch.optim.___(head.parameters(), lr=___)
       print(type(optimizer).__name__, optimizer.defaults["lr"])
-    answer: ["AdamW", "0.0005"]
+    answer: ["AdamW", ["0.0005", "5e-4"]]
     en:
       prompt: "Fill in the optimizer class name used for fine-tuning and a small learning rate of `0.0005`."
       explanation: "Fine-tuning transformers commonly uses `torch.optim.AdamW` with a small learning rate such as `0.0005` (`5e-4`)."
@@ -107,20 +107,20 @@ questions:
     difficulty: 2
     answer: 0
     en:
-      prompt: "Why do we use a small learning rate (like `5e-4`) when fine-tuning a pretrained transformer instead of a large one (like `1e-1`)?"
+      prompt: "What does using a small learning rate (like `5e-4`) protect when fine-tuning a pretrained transformer?"
       options:
-        - "To avoid overwriting the pretrained English weights in the base encoder and collapsing predictions"
-        - "Because `AdamW` raises a `ValueError` if `lr` is greater than `0.01`"
-        - "Because smaller learning rates reduce the number of parameters in `model.parameters()`"
-        - "To keep `tokenizer(..., truncation=True)` from cutting long tickets"
+        - "The pretrained English weights in the base encoder from collapsing"
+        - "The optimizer from raising a `ValueError` whenever `lr` exceeds `0.01`"
+        - "The parameter count in `model.parameters()` from growing each step"
+        - "The tokenizer from cutting off long tickets when `truncation=True`"
       explanation: "A huge step like `1e-1` wrecks the pretrained representations learned by the base model, causing loss to spike and predictions to collapse onto one class."
     vi:
-      prompt: "Vì sao ta dùng learning rate nhỏ (như `5e-4`) khi fine-tune model transformer đã train sẵn thay vì giá trị lớn (như `1e-1`)?"
+      prompt: "Dùng learning rate nhỏ (như `5e-4`) khi fine-tune transformer giúp bảo vệ điều gì?"
       options:
-        - "Để tránh phá hỏng kiến thức tiếng Anh đã học sẵn ở phần thân model và làm dự đoán sụp đổ về một lớp"
-        - "Vì `AdamW` sẽ ném `ValueError` nếu `lr` lớn hơn `0.01`"
-        - "Vì learning rate nhỏ làm giảm số tham số trong `model.parameters()`"
-        - "Để ngăn `tokenizer(..., truncation=True)` cắt bớt các ticket dài"
+        - "Kiến thức tiếng Anh sẵn có trong phần thân model không bị phá hỏng"
+        - "Optimizer không bị ném lỗi `ValueError` khi `lr` vượt quá `0.01`"
+        - "Tổng số tham số trong `model.parameters()` không bị phình to thêm"
+        - "Tokenizer không tự cắt ngắn các ticket dài khi bật `truncation=True`"
       explanation: "Bước nhảy quá lớn như `1e-1` phá hủy các biểu diễn ngôn ngữ có sẵn trong model nền, khiến loss vọt lên và model đoán kẹt toàn một lớp."
 
   - id: p6-04-q07
@@ -171,18 +171,18 @@ questions:
     en:
       prompt: "What happens when you call `out = model(**batch, labels=train_y)` on `AutoModelForSequenceClassification`?"
       options:
-        - "The model updates its weights automatically without calling `optimizer.step()`"
-        - "The model saves the checkpoint to disk using `save_pretrained()`"
-        - "The model turns off dropout just like `model.eval()`"
-        - "The model computes cross-entropy loss internally against `train_y` and exposes it as `out.loss`"
+        - "Updates all model weights automatically without `optimizer.step()`"
+        - "Saves the updated model checkpoint via `save_pretrained()`"
+        - "Disables all dropout layers identically to calling `model.eval()`"
+        - "Computes cross-entropy loss internally and returns `out.loss`"
       explanation: "Passing `labels=...` asks the classification model to compute cross-entropy loss between its `logits` and `labels`, returning `out.loss` ready for `out.loss.backward()`."
     vi:
       prompt: "Điều gì xảy ra khi bạn gọi `out = model(**batch, labels=train_y)` trên `AutoModelForSequenceClassification`?"
       options:
-        - "Model tự động cập nhật trọng số mà không cần gọi `optimizer.step()`"
-        - "Model tự lưu checkpoint xuống đĩa bằng `save_pretrained()`"
-        - "Model tự tắt dropout giống như khi gọi `model.eval()`"
-        - "Model tự tính cross-entropy loss so với `train_y` và trả về trong `out.loss`"
+        - "Tự động cập nhật mọi trọng số mà không cần gọi `optimizer.step()`"
+        - "Tự lưu checkpoint của model xuống đĩa bằng `save_pretrained()`"
+        - "Tự tắt các tầng dropout giống hệt như khi gọi `model.eval()`"
+        - "Tự tính cross-entropy loss và trả về giá trị trong `out.loss`"
       explanation: "Truyền thêm `labels=...` khiến model phân loại tự tính cross-entropy loss giữa `logits` và `labels`, trả sẵn `out.loss` để bạn gọi `out.loss.backward()`."
 
   - id: p6-04-q10
@@ -211,18 +211,18 @@ questions:
     en:
       prompt: "How should you decide how many epochs to fine-tune your classifier?"
       options:
-        - "Train for several epoch counts and pick the one with the highest accuracy on the test split"
-        - "Watch accuracy and loss on the validation split, pick the epoch count there, and touch the test split only once at the end"
-        - "Always stop after 1 epoch so the pretrained weights never change"
-        - "Keep training until training loss hits `0.000` regardless of validation accuracy"
+        - "Train multiple epoch counts and pick whichever scores highest on test"
+        - "Pick epochs via validation metrics, then touch test once at the end"
+        - "Always stop after 1 epoch so the pretrained base weights never move"
+        - "Keep training until training loss reaches `0.000` regardless of val"
       explanation: "Selecting epochs on the test split leaks test information into your design choice; use validation to choose hyperparameters and evaluate test once at the end."
     vi:
       prompt: "Bạn nên chọn số epoch khi fine-tune bộ phân loại như thế nào?"
       options:
         - "Thử nhiều số epoch rồi chọn mức cho accuracy cao nhất trên tập test"
-        - "Theo dõi accuracy và loss trên tập validation để chốt số epoch, và chỉ chạm tập test đúng một lần ở cuối"
-        - "Luôn dừng sau đúng 1 epoch để trọng số nền không thay đổi"
-        - "Train tiếp cho tới khi train loss chạm `0.000` bất kể điểm validation"
+        - "Chọn epoch qua điểm validation, rồi chỉ chấm test một lần cuối"
+        - "Luôn dừng sau đúng 1 epoch để các trọng số nền không bị dịch chuyển"
+        - "Train tiếp cho tới khi train loss đạt `0.000` bất chấp validation"
       explanation: "Nhìn tập test để chọn số epoch làm rò rỉ thông tin tập test vào thiết kế; hãy dùng tập validation để chọn siêu tham số và chỉ chấm test một lần cuối cùng."
 
   - id: p6-04-q12
@@ -275,20 +275,20 @@ questions:
     difficulty: 3
     answer: 2
     en:
-      prompt: "Suppose your test split has 16 tickets and your fine-tuned model scores `100%` (16/16) vs. `93.8%` (15/16). Why should you report the split size and avoid bragging about `100%`?"
+      prompt: "Suppose your test split has 16 tickets and your fine-tuned model scores `100%` (16/16) vs. `93.8%` (15/16). What makes reporting `100%` without the split size misleading?"
       options:
-        - "Because `accuracy` cannot reach `1.0` unless the model runs on a GPU"
-        - "Because `save_pretrained()` drops accuracy by 5% when reloading from disk"
-        - "Because with 16 test tickets, a single borderline ticket swings accuracy by 6.25 percentage points"
-        - "Because `id2label` rounds every confidence score up to `1.0` on small batches"
+        - "Accuracy can never truly reach `1.0` unless training runs on a GPU"
+        - "`save_pretrained()` drops accuracy by 5% when reloading from disk"
+        - "A single borderline ticket swings accuracy by 6.25 percentage points"
+        - "`id2label` rounds every confidence score up to `1.0` on small batches"
       explanation: "With only 15–20 test samples, one single prediction flip changes accuracy by 5–7 percentage points, so `100%` on 16 synthetic tickets is noisy and does not guarantee perfection on real user traffic."
     vi:
-      prompt: "Giả sử tập test có 16 ticket và model sau fine-tune đạt `100%` (16/16) so với `93.8%` (15/16). Vì sao bạn nên báo rõ kích thước tập test và tránh khoe `100%`?"
+      prompt: "Giả sử tập test có 16 ticket và model sau fine-tune đạt `100%` (16/16) so với `93.8%` (15/16). Điều gì khiến việc khoe `100%` mà thiếu kích thước tập test trở nên dễ gây hiểu nhầm?"
       options:
-        - "Vì `accuracy` không thể đạt `1.0` nếu model không chạy trên GPU"
-        - "Vì `save_pretrained()` làm giảm 5% accuracy sau khi nạp lại từ đĩa"
-        - "Vì với 16 câu test, chỉ một câu lật nhãn đã làm accuracy dao động tới 6,25 điểm phần trăm"
-        - "Vì `id2label` làm tròn mọi điểm xác suất lên `1.0` trên batch nhỏ"
+        - "Chỉ số accuracy không thể đạt `1.0` trừ khi model được chạy trên GPU"
+        - "`save_pretrained()` làm tụt 5% accuracy mỗi khi nạp lại từ ổ đĩa"
+        - "Chỉ một câu lật nhãn đã làm accuracy nhảy 6,25 điểm phần trăm"
+        - "`id2label` luôn làm tròn mọi điểm xác suất lên `1.0` với batch nhỏ"
       explanation: "Khi tập test chỉ có 15–20 mẫu, mỗi câu đoán sai kéo tỉ lệ đúng đi 5–7 điểm phần trăm, nên `100%` trên 16 câu nhỏ dao động rất mạnh và không bảo chứng cho dữ liệu thật."
 
   - id: p6-04-q15

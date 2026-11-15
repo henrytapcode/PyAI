@@ -19,6 +19,9 @@ def test_returns_one_python_float_loss_per_epoch():
     assert isinstance(losses, list), "train must return a Python list"
     assert len(losses) == 30, "losses must contain one entry per epoch"
     assert all(type(v) is float for v in losses), "each loss must be a Python float, not a tensor"
+    assert losses == [round(v, 4) for v in losses], (
+        "each loss must be rounded to 4 decimal places"
+    )
 
 
 def test_final_loss_is_smaller_than_initial_loss():

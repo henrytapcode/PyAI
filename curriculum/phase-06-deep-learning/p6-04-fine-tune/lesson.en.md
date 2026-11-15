@@ -86,7 +86,7 @@ ids:      101  8833   2378  3931   19119   2007  3156  102
 
 Here we load `google/bert_uncased_L-2_H-128_A-2` (`BERT-Tiny`), which was pretrained on English text to predict masked words — not support tickets. Passing `num_labels=2` replaces its pretraining head with a brand-new linear **classification head** (`classifier.weight` and `classifier.bias`), while `id2label` and `label2id` tell the config that class `0` is `"bug"` and class `1` is `"billing"`.
 
-When you load a pretrained base model with `num_labels=2`, `transformers` normally prints a LOAD REPORT showing the unused pretraining layers (`UNEXPECTED`) and the freshly created `classifier` layer (`MISSING`):
+When you load a pretrained base model with `num_labels=2`, `transformers` normally prints a LOAD REPORT (abridged below) showing the unused pretraining layers (`UNEXPECTED`) and the freshly created `classifier` layer (`MISSING`):
 
 ```text
 BertForSequenceClassification LOAD REPORT from: google/bert_uncased_L-2_H-128_A-2
@@ -106,6 +106,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -150,7 +151,7 @@ model.eval()
 val_batch = tokenizer(val_x, padding=True, truncation=True, return_tensors="pt")
 with torch.no_grad():
     preds = model(**val_batch).logits.argmax(dim=1)
-val_acc = round(float((preds == val_y).float().mean().item()), 3)
+val_acc = round((preds == val_y).to(torch.float32).mean().item(), 3)
 print("val accuracy before:", val_acc)
 # val accuracy before: 0.5
 ```
@@ -163,12 +164,15 @@ Our training loop matches `p6-02`, with two small updates for Hugging Face model
 1. Pass `labels=train_y` directly into `model(**train_batch, labels=train_y)` — the model computes cross-entropy internally and returns `out.loss`.
 2. Use `torch.optim.AdamW` with a small learning rate (`lr=5e-4`), because large steps would overwrite the pretrained English weights instead of gently steering them toward tickets.
 
+`AdamW` = Adam + weight decay (decoupled), the common default for fine-tuning transformers. Here we sweep epochs `1–10` and record both validation accuracy and validation loss at each checkpoint:
+
 ```python
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -222,53 +226,55 @@ for epoch in range(1, 11):
 
     model.eval()
     with torch.no_grad():
-        val_preds = model(**val_batch).logits.argmax(dim=1)
-    val_acc = round(float((val_preds == val_y).float().mean().item()), 3)
+        val_out = model(**val_batch, labels=val_y)
+        val_preds = val_out.logits.argmax(dim=1)
+        val_loss = round(val_out.loss.item(), 3)
+    val_acc = round((val_preds == val_y).to(torch.float32).mean().item(), 3)
     if epoch == 1 or epoch % 2 == 0:
-        print(f"epoch {epoch:2d}: loss={round(float(out.loss.item()), 3)}  val_acc={val_acc}")
-# epoch  1: loss=0.712  val_acc=0.5
-# epoch  2: loss=0.665  val_acc=0.438
-# epoch  4: loss=0.584  val_acc=0.938
-# epoch  6: loss=0.477  val_acc=1.0
-# epoch  8: loss=0.366  val_acc=1.0
-# epoch 10: loss=0.254  val_acc=1.0
+        print(f"epoch {epoch:2d}: loss={round(out.loss.item(), 3)}  val_loss={val_loss}  val_acc={val_acc}")
+# epoch  1: loss=0.712  val_loss=0.667  val_acc=0.5
+# epoch  2: loss=0.665  val_loss=0.654  val_acc=0.438
+# epoch  4: loss=0.584  val_loss=0.537  val_acc=0.938
+# epoch  6: loss=0.477  val_loss=0.387  val_acc=1.0
+# epoch  8: loss=0.366  val_loss=0.28  val_acc=1.0
+# epoch 10: loss=0.254  val_loss=0.211  val_acc=1.0
 ```
 
-Watch how training loss falls steadily while validation accuracy climbs from `0.5` to `1.0`:
+Watch how training loss and validation loss fall steadily over epochs `1–10` while validation accuracy climbs from `0.5` to `1.0`:
 
-| epoch | train loss | val accuracy |
-|---|---|---|
-| `1` | `0.712` | `0.500` |
-| `2` | `0.665` | `0.438` |
-| `4` | `0.584` | `0.938` |
-| `6` | `0.477` | `1.000` |
-| `8` | `0.366` | `1.000` |
-| `10` | `0.254` | `1.000` |
+| epoch | train loss | val loss | val accuracy |
+|---|---|---|---|
+| `1` | `0.712` | `0.667` | `0.500` |
+| `2` | `0.665` | `0.654` | `0.438` |
+| `4` | `0.584` | `0.537` | `0.938` |
+| `6` | `0.477` | `0.387` | `1.000` |
+| `8` | `0.366` | `0.280` | `1.000` |
+| `10` | `0.254` | `0.211` | `1.000` |
 
-Press **Visualize** on this short block to watch `best_epoch`, `best_val`, and `best_loss` update as you pick the best checkpoint strictly from validation scores (breaking ties by lower training loss):
+Press **Visualize** on this short block to watch `best_epoch`, `best_val`, and `best_loss` update as you pick the best checkpoint strictly from `(epoch, val_acc, val_loss)` validation tuples (highest `val_acc`, breaking ties by lower `val_loss`):
 
 ```python
 history = [
-    (1, 0.712, 0.500),
-    (2, 0.665, 0.438),
-    (4, 0.584, 0.938),
-    (6, 0.477, 1.000),
-    (8, 0.366, 1.000),
-    (10, 0.254, 1.000),
+    (1, 0.500, 0.667),
+    (2, 0.438, 0.654),
+    (4, 0.938, 0.537),
+    (6, 1.000, 0.387),
+    (8, 1.000, 0.280),
+    (10, 1.000, 0.211),
 ]
 best_epoch, best_val, best_loss = 0, -1.0, 999.0
-for epoch, loss, val_acc in history:
-    if val_acc > best_val or (val_acc == best_val and loss < best_loss):
-        best_epoch, best_val, best_loss = epoch, val_acc, loss
-print(f"best epoch: {best_epoch} (val={best_val}, loss={best_loss})")
-# best epoch: 10 (val=1.0, loss=0.254)
+for epoch, val_acc, val_loss in history:
+    if val_acc > best_val or (val_acc == best_val and val_loss < best_loss):
+        best_epoch, best_val, best_loss = epoch, val_acc, val_loss
+print(f"best epoch: {best_epoch} (val_acc={best_val}, val_loss={best_loss})")
+# best epoch: 10 (val_acc=1.0, val_loss=0.211)
 ```
 
-Notice that `val_acc` reaches `1.000` by epoch 6 and stays at `1.000` while training loss continues dropping cleanly to `0.254` at epoch `10`, so we lock in `10` epochs before ever touching the test set.
+Notice that `val_acc` reaches `1.000` by epoch `6` and holds steady while `val_loss` continues dropping to `0.211` at epoch `10`. Because we only swept epochs `1–10`, we lock in `10` epochs on validation alone before touching the test set.
 
-## 5. One-time evaluation on test
+## 5. Final evaluation on test
 
-Now evaluate on the 16 held-out test tickets **once** — comparing before fine-tuning (`0.562`) against after `10` epochs (`0.938`), and printing any misclassified ticket to see where the model still struggled:
+With the `10`-epoch choice already locked in by validation, we use the 16 held-out test tickets strictly for our final report — comparing the untuned baseline (`0.562`, recorded for reference only and never used to pick hyperparameters) against the fine-tuned model (`0.938`), and printing any misclassified ticket to see where it still struggled:
 
 ```python
 import torch
@@ -276,6 +282,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -301,7 +308,7 @@ def accuracy(model, batch, y_t):
     model.eval()
     with torch.no_grad():
         preds = model(**batch).logits.argmax(dim=1)
-    return round(float((preds == y_t).float().mean().item()), 3), preds
+    return round((preds == y_t).to(torch.float32).mean().item(), 3), preds
 
 
 texts, labels = make_tickets()
@@ -369,6 +376,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipe
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -450,6 +458,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -473,7 +482,7 @@ for seed in (0, 1):
     model.eval()
     with torch.no_grad():
         preds = model(**batch).logits.argmax(dim=1)
-    acc = round(float((preds == val_y).float().mean().item()), 3)
+    acc = round((preds == val_y).to(torch.float32).mean().item(), 3)
     print(f"seed={seed}: val_acc={acc}")
 # seed=0: val_acc=0.333
 # seed=1: val_acc=0.5
@@ -491,6 +500,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 
@@ -518,7 +528,7 @@ for epoch in range(1, 5):
     model.eval()
     with torch.no_grad():
         preds = model(**batch).logits.argmax(dim=1).tolist()
-    print(f"epoch {epoch}: loss={round(float(out.loss.item()), 3)}  preds={preds}")
+    print(f"epoch {epoch}: loss={round(out.loss.item(), 3)}  preds={preds}")
 # epoch 1: loss=0.682  preds=[1, 1, 1, 1]
 # epoch 2: loss=3.288  preds=[0, 0, 0, 0]
 # epoch 3: loss=6.721  preds=[0, 0, 0, 0]
@@ -562,6 +572,7 @@ Python prints no error if you choose `epochs` by peeking at test accuracy, yet d
 
 ## 8. Going further
 
+- Notice `val_loss` is still decreasing at epoch `10` (`0.211`), so you could sweep longer than `1–10` epochs to see where validation loss bottoms out.
 - Add a third category such as `"feature request"` by setting `num_labels=3` and updating `id2label` / `label2id`.
 - Collect several hundred real tickets and evaluate per-class **precision** and **recall** (from `p5-04`) instead of relying on accuracy alone.
 - Scale up to a larger pretrained model or move training onto a GPU when your dataset grows beyond a few hundred sentences.

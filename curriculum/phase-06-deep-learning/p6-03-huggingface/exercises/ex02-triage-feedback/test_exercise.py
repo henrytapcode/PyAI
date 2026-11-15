@@ -1,5 +1,6 @@
 from transformers import pipeline
 
+import exercise
 from exercise import classify, model, negatives, tokenizer
 
 
@@ -61,3 +62,15 @@ def test_empty_list_returns_empty_for_both_functions():
     neg_res = negatives([], threshold=0.5)
     assert neg_res is not None, "negatives([]) returned None instead of []"
     assert neg_res == []
+
+
+def test_negatives_keeps_exact_threshold_match(monkeypatch):
+    samples = ["exact match", "just below", "positive exact"]
+    monkeypatch.setattr(
+        exercise,
+        "classify",
+        lambda texts: [("NEGATIVE", 0.9), ("NEGATIVE", 0.899), ("POSITIVE", 0.9)],
+    )
+    result = negatives(samples, threshold=0.9)
+    assert result is not None, "negatives returned None: did you forget to return the list?"
+    assert result == ["exact match"]

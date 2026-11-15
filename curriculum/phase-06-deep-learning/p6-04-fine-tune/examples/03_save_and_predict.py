@@ -6,6 +6,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipe
 from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
+hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
 

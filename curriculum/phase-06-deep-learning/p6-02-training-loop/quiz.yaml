@@ -5,20 +5,20 @@ questions:
     difficulty: 1
     answer: 2
     en:
-      prompt: "Why must `__init__` call `super().__init__()` when defining a class that subclasses `nn.Module`?"
+      prompt: "What does `super().__init__()` accomplish in a subclass of `nn.Module`?"
       options:
-        - "To automatically train the model for one epoch on creation"
-        - "To convert all weights from `float32` into `float64`"
-        - "To initialise `nn.Module`'s internal tracking so PyTorch registers every layer and parameter"
-        - "To freeze all parameters so `requires_grad` becomes `False`"
+        - "Automatically trains the model for one full epoch right at creation"
+        - "Converts every parameter weight tensor from `float32` into `float64`"
+        - "Initialises `nn.Module` tracking to register layers and weights"
+        - "Freezes every parameter tensor so `requires_grad` becomes `False`"
       explanation: "`super().__init__()` sets up `nn.Module`'s internal dictionaries so attributes like `nn.Linear` layers appear in `model.parameters()` and `model.state_dict()`."
     vi:
-      prompt: "Vì sao `__init__` phải gọi `super().__init__()` khi viết class kế thừa `nn.Module`?"
+      prompt: "Lệnh `super().__init__()` làm gì trong class kế thừa `nn.Module`?"
       options:
-        - "Để tự động train model một epoch ngay lúc khởi tạo"
-        - "Để đổi toàn bộ trọng số từ `float32` sang `float64`"
-        - "Để khởi tạo bộ theo dõi nội bộ của `nn.Module` giúp PyTorch ghi nhận mọi tầng và tham số"
-        - "Để đóng băng mọi tham số khiến `requires_grad` chuyển thành `False`"
+        - "Tự động huấn luyện model hết một epoch ngay khi vừa khởi tạo"
+        - "Chuyển đổi toàn bộ tensor trọng số từ `float32` sang `float64`"
+        - "Khởi tạo bộ theo dõi của `nn.Module` để ghi nhận các tầng"
+        - "Đóng băng mọi tensor tham số khiến `requires_grad` thành `False`"
       explanation: "`super().__init__()` thiết lập các cấu trúc bên trong của `nn.Module` để những tầng như `nn.Linear` được ghi nhận vào `model.parameters()` và `model.state_dict()`."
 
   - id: p6-02-q02
@@ -77,18 +77,18 @@ questions:
     en:
       prompt: "What does `nn.ReLU()` do between two `nn.Linear` layers?"
       options:
-        - "Keeps positive numbers unchanged and replaces negative numbers with `0`, letting the model learn curved boundaries"
-        - "Converts raw logits into probabilities that sum to `1.0`"
-        - "Resets every parameter's `.grad` tensor back to zero"
-        - "Splits a dataset into shuffled mini-batches"
+        - "Keeps positive values unchanged and zeroes out negative values"
+        - "Converts raw logits into probabilities whose row sum equals `1.0`"
+        - "Resets every parameter's accumulated `.grad` tensor back to zero"
+        - "Splits a `TensorDataset` into shuffled training mini-batches"
       explanation: "ReLU (`max(0, x)`) introduces non-linearity by keeping positive values and zeroing negatives, so stacked linear layers do not collapse into a single line."
     vi:
       prompt: "`nn.ReLU()` làm gì khi đặt giữa hai tầng `nn.Linear`?"
       options:
-        - "Giữ nguyên số dương và đổi số âm thành `0`, giúp mô hình học được đường ranh giới cong"
-        - "Chuyển logits thô thành xác suất có tổng bằng `1.0`"
-        - "Đặt lại tensor `.grad` của mọi tham số về `0`"
-        - "Chia tập dữ liệu thành các mini-batch đã xáo trộn"
+        - "Giữ nguyên các số dương và đổi mọi số âm thành `0`"
+        - "Chuyển các logits thô thành xác suất có tổng bằng `1.0`"
+        - "Đặt lại toàn bộ tensor `.grad` của các tham số về `0`"
+        - "Chia tập `TensorDataset` thành các mini-batch đã xáo trộn"
       explanation: "ReLU (`max(0, x)`) tạo tính phi tuyến bằng cách giữ số dương và đặt số âm về `0`, giúp nhiều tầng tuyến tính xếp chồng không bị gộp thành một đường thẳng duy nhất."
 
   - id: p6-02-q05
@@ -138,18 +138,18 @@ questions:
     en:
       prompt: "What does `nn.CrossEntropyLoss()` expect as its first argument, and how do you extract predicted class labels from a model?"
       options:
-        - "Probabilities after softmax, and `probs.sum(dim=1)`"
+        - "Softmax probabilities `(N, C)`, and `probs.sum(dim=1)`"
         - "Integer class labels `(N,)`, and `labels.round()`"
-        - "One-hot vectors `(N, C)`, and `logits.mean(dim=1)`"
-        - "Raw unnormalised **logits** `(N, C)`, and `logits.argmax(dim=1)`"
+        - "One-hot encoded vectors `(N, C)`, and `logits.mean(dim=1)`"
+        - "Raw **logits** `(N, C)`, and `logits.argmax(dim=1)`"
       explanation: "`nn.CrossEntropyLoss()` applies log-softmax internally so it takes raw logits `(N, C)`, and the highest-scoring class index per row is `logits.argmax(dim=1)`."
     vi:
       prompt: "`nn.CrossEntropyLoss()` nhận gì ở đối số đầu tiên, và bạn lấy nhãn dự đoán từ model bằng cách nào?"
       options:
-        - "Xác suất sau softmax, và `probs.sum(dim=1)`"
+        - "Xác suất sau softmax `(N, C)`, và `probs.sum(dim=1)`"
         - "Nhãn lớp kiểu số nguyên `(N,)`, và `labels.round()`"
-        - "Vector one-hot `(N, C)`, và `logits.mean(dim=1)`"
-        - "**Logits** thô chưa chuẩn hóa `(N, C)`, và `logits.argmax(dim=1)`"
+        - "Các vector one-hot `(N, C)`, và `logits.mean(dim=1)`"
+        - "**Logits** thô `(N, C)`, và `logits.argmax(dim=1)`"
       explanation: "`nn.CrossEntropyLoss()` tự áp dụng log-softmax bên trong nên nhận thẳng logits thô `(N, C)`, còn chỉ số lớp có điểm cao nhất mỗi hàng là `logits.argmax(dim=1)`."
 
   - id: p6-02-q08
@@ -223,18 +223,18 @@ questions:
     en:
       prompt: "How do an **epoch** and a **batch** differ when training with `DataLoader`?"
       options:
-        - "An **epoch** is one full pass over the training dataset; a **batch** is one small group of samples used for a single update step"
-        - "A **batch** is one full pass over the dataset; an **epoch** is a single sample"
-        - "An **epoch** runs only on validation data; a **batch** runs only on test data"
-        - "They are identical whenever `shuffle=True` is passed to `DataLoader`"
+        - "An **epoch** is one full dataset pass; a **batch** is one slice of samples"
+        - "A **batch** is one full dataset pass; an **epoch** is just one single sample"
+        - "An **epoch** iterates over validation data; a **batch** uses only test data"
+        - "An **epoch** and a **batch** are identical whenever `shuffle=True` is set"
       explanation: "A `DataLoader` splits the dataset into mini-batches; iterating over all batches once completes one epoch."
     vi:
       prompt: "**Epoch** và **batch** khác nhau như thế nào khi train bằng `DataLoader`?"
       options:
-        - "**Epoch** là một lượt đi qua toàn bộ tập huấn luyện; **batch** là một nhóm nhỏ mẫu dùng cho một bước cập nhật trọng số"
-        - "**Batch** là một lượt đi qua toàn bộ dữ liệu; **epoch** là một mẫu đơn lẻ"
-        - "**Epoch** chỉ chạy trên dữ liệu validation; **batch** chỉ chạy trên dữ liệu test"
-        - "Hai khái niệm giống hệt nhau mỗi khi truyền `shuffle=True` cho `DataLoader`"
+        - "**Epoch** là một lượt qua hết tập train; **batch** là một nhóm nhỏ mẫu"
+        - "**Batch** là một lượt qua toàn bộ dữ liệu; **epoch** là một mẫu đơn lẻ"
+        - "**Epoch** chỉ duyệt trên dữ liệu validation; **batch** chỉ dùng dữ liệu test"
+        - "Hai khái niệm trùng nhau hoàn toàn mỗi khi bật `shuffle=True` trong loader"
       explanation: "`DataLoader` chia tập dữ liệu thành nhiều mini-batch; duyệt hết toàn bộ các batch đó một lần chính là xong một epoch."
 
   - id: p6-02-q12
@@ -265,21 +265,21 @@ questions:
     difficulty: 2
     answer: 2
     en:
-      prompt: "Why do you combine `model.eval()` and `with torch.no_grad():` when measuring validation accuracy?"
+      prompt: "What do `model.eval()` and `with torch.no_grad():` do when measuring validation accuracy?"
       options:
-        - "`model.eval()` saves the `state_dict` to disk while `torch.no_grad()` runs `optimizer.step()`"
-        - "They raise a `RuntimeError` if any label has type `float32`"
-        - "`model.eval()` switches layers like dropout into evaluation mode, while `torch.no_grad()` skips building the computation graph to save memory and time"
-        - "`torch.no_grad()` resets weights to zero and `model.eval()` shuffles the validation batches"
-      explanation: "`model.eval()` controls layer behaviour during inference and `torch.no_grad()` disables autograd tracking. Remember to call `model.train()` before resuming training."
+        - "`model.eval()` writes `state_dict` to disk while `torch.no_grad()` runs `optimizer.step()`"
+        - "`model.eval()` casts labels to `int64` while `torch.no_grad()` catches `float32` label errors"
+        - "`model.eval()` switches layers like dropout to eval mode; `torch.no_grad()` skips graph tracking"
+        - "`torch.no_grad()` resets layer weights to zero and `model.eval()` shuffles validation batches"
+      explanation: "`model.eval()` controls layer behaviour during inference and `torch.no_grad()` disables autograd tracking to save memory and time. Remember to call `model.train()` before resuming training."
     vi:
-      prompt: "Vì sao bạn kết hợp cả `model.eval()` lẫn `with torch.no_grad():` khi đo validation accuracy?"
+      prompt: "Hai lệnh `model.eval()` và `with torch.no_grad():` làm gì khi đo validation accuracy?"
       options:
-        - "`model.eval()` lưu `state_dict` ra đĩa còn `torch.no_grad()` chạy `optimizer.step()`"
-        - "Chúng giúp báo `RuntimeError` ngay nếu nhãn có kiểu `float32`"
-        - "`model.eval()` chuyển các tầng như dropout sang chế độ đánh giá, còn `torch.no_grad()` bỏ qua việc dựng computation graph để tiết kiệm bộ nhớ và thời gian"
+        - "`model.eval()` lưu `state_dict` xuống đĩa còn `torch.no_grad()` gọi `optimizer.step()`"
+        - "`model.eval()` ép kiểu nhãn về `int64` còn `torch.no_grad()` bắt lỗi nhãn `float32`"
+        - "`model.eval()` đặt dropout về chế độ đánh giá; `torch.no_grad()` tắt dựng đồ thị"
         - "`torch.no_grad()` đặt lại trọng số về 0 và `model.eval()` xáo trộn các batch validation"
-      explanation: "`model.eval()` điều chỉnh hành vi của các tầng khi suy đoán và `torch.no_grad()` tắt theo dõi autograd. Nhớ gọi `model.train()` trước khi quay lại train tiếp."
+      explanation: "`model.eval()` điều chỉnh hành vi của các tầng khi suy đoán và `torch.no_grad()` tắt theo dõi autograd để tiết kiệm bộ nhớ và thời gian. Nhớ gọi `model.train()` trước khi quay lại train tiếp."
 
   - id: p6-02-q14
     type: fill
@@ -316,18 +316,18 @@ questions:
     en:
       prompt: "You want to compare `lr=0.05` vs `lr=0.2` and choose between 20 or 40 epochs. How should you use the test set?"
       options:
-        - "Evaluate test accuracy after every epoch and stop when test accuracy is highest"
-        - "Choose `lr` and epoch count using validation accuracy, and evaluate the test set **only once** at the very end"
-        - "Merge the test set into the `DataLoader` during the last 5 epochs"
-        - "Compare test accuracy across learning rates and pick whichever scores higher on test"
+        - "Evaluate test accuracy after every epoch and stop when test accuracy peaks"
+        - "Pick `lr` and epochs on validation, then score test **once** at the end"
+        - "Merge the test split into the training `DataLoader` for the final epochs"
+        - "Compare test accuracy across learning rates and keep the highest score"
       explanation: "Using the test set to pick hyperparameters or stopping epochs leaks test information into your decisions; tune on validation and evaluate test once at the end."
     vi:
       prompt: "Bạn muốn so sánh `lr=0.05` với `lr=0.2` và chọn giữa 20 hoặc 40 epoch. Bạn nên dùng tập test như thế nào?"
       options:
-        - "Tính test accuracy sau mỗi epoch và dừng tại epoch có điểm test cao nhất"
-        - "Chọn `lr` và số epoch dựa trên validation accuracy, và chỉ đánh giá trên tập test **đúng một lần** ở cuối cùng"
-        - "Gộp tập test vào `DataLoader` trong 5 epoch cuối"
-        - "Chấm điểm test cho từng mức learning rate rồi chọn mức nào cho điểm test cao hơn"
+        - "Tính test accuracy sau mỗi epoch và dừng ngay khi điểm test lên đỉnh"
+        - "Chọn `lr` và số epoch bằng validation, rồi chấm test **một lần** cuối"
+        - "Gộp toàn bộ tập test vào `DataLoader` huấn luyện trong vài epoch cuối"
+        - "Chấm điểm test cho từng mức learning rate rồi chọn mức có điểm test cao"
       explanation: "Dùng tập test để chọn siêu tham số hay số epoch sẽ làm rò rỉ thông tin từ test vào quyết định của bạn; luôn chỉnh bằng validation và chấm test đúng một lần ở cuối."
 
   - id: p6-02-q16

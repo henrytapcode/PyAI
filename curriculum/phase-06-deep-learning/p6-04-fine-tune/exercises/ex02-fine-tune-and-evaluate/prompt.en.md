@@ -1,4 +1,4 @@
-Implement the training, evaluation, and prediction loop for BERT-Tiny: `accuracy`, `fine_tune`, and `predict`. The pinned `tokenizer` and helper `load_model()` are already provided at the top of the file; write your code inside each function and `return` the result.
+Implement the training, evaluation, prediction, and epoch-selection helpers for BERT-Tiny: `accuracy`, `fine_tune`, `predict`, and `pick_epoch`. The pinned `tokenizer` and helper `load_model()` are already provided at the top of the file; write your code inside each function and `return` the result.
 
 **Example**
 
@@ -7,6 +7,7 @@ model = load_model()
 losses = fine_tune(model, train_texts, train_labels, lr=5e-4, epochs=10)
 acc = accuracy(model, val_texts, val_labels)   # e.g. 1.0
 labels = predict(model, ["App crashed", "Charged twice"])  # ["bug", "billing"]
+best_epoch = pick_epoch([(1, 0.5, 0.7), (2, 0.9, 0.4), (3, 0.9, 0.3)])  # 3
 ```
 
 **Rules**
@@ -22,3 +23,6 @@ labels = predict(model, ["App crashed", "Charged twice"])  # ["bug", "billing"]
 - `predict(model, texts)`:
   - Switch `model.eval()` and run inside `with torch.no_grad():`.
   - Map predicted class indices to text labels (`"bug"` / `"billing"`) via `model.config.id2label`.
+- `pick_epoch(history)`:
+  - Takes a non-empty `list[tuple[int, float, float]]` of `(epoch, val_acc, val_loss)` entries.
+  - Return the `epoch` integer with the highest `val_acc`; break `val_acc` ties by lowest `val_loss`, and keep the earliest `epoch` if both tie.

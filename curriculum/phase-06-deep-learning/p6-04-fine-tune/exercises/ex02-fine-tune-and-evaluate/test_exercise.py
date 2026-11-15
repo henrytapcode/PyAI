@@ -1,6 +1,9 @@
-import torch
+import types
 
-from exercise import accuracy, fine_tune, load_model, predict
+import torch
+import torch.nn as nn
+
+from exercise import accuracy, fine_tune, load_model, pick_epoch, predict
 
 TRAIN_TEXTS = [
     "Login page crashes with 500 error",
@@ -71,13 +74,30 @@ def test_accuracy_returns_python_float_in_unit_interval():
     assert 0.0 <= acc <= 1.0
 
 
-def test_accuracy_matches_seeded_baseline_and_creates_no_gradients():
+class _GradProbe(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.grad_states: list[bool] = []
+
+    def forward(self, **batch) -> types.SimpleNamespace:
+        self.grad_states.append(torch.is_grad_enabled())
+        n = batch["input_ids"].shape[0]
+        return types.SimpleNamespace(logits=torch.tensor([[1.0, 0.0]] * n))
+
+
+def test_accuracy_matches_seeded_baseline():
     model = load_model()
     acc = accuracy(model, EVAL_TEXTS, EVAL_LABELS)
     assert acc is not None, "accuracy returned None: did you forget to return the score?"
     assert acc == 0.5
-    assert all(p.grad is None for p in model.parameters()), (
-        "accuracy must run inside torch.no_grad() without creating gradients"
+
+
+def test_accuracy_wraps_forward_pass_in_no_grad():
+    probe = _GradProbe()
+    acc = accuracy(probe, EVAL_TEXTS[:2], EVAL_LABELS[:2])
+    assert acc is not None, "accuracy returned None: did you forget to return the score?"
+    assert probe.grad_states and all(not enabled for enabled in probe.grad_states), (
+        "wrap the forward pass in `torch.no_grad()`"
     )
 
 
@@ -110,3 +130,33 @@ def test_fine_tune_zero_epochs_returns_empty_and_keeps_weights():
     assert losses is not None, "fine_tune(..., epochs=0) returned None instead of []"
     assert losses == []
     assert torch.equal(model.classifier.weight, before), "epochs=0 must not modify model weights"
+
+
+def test_fine_tune_switches_to_train_mode_before_steps():
+    model = load_model()
+    model.eval()
+    losses = fine_tune(model, TRAIN_TEXTS[:4], TRAIN_LABELS[:4], lr=5e-4, epochs=1)
+    assert losses is not None, "fine_tune returned None: did you forget to return losses?"
+    assert model.training, "call `model.train()` before training steps"
+
+
+def test_pick_epoch_selects_highest_val_acc():
+    history = [(1, 0.500, 0.667), (2, 0.875, 0.500), (3, 0.750, 0.400)]
+    best = pick_epoch(history)
+    assert best is not None, "pick_epoch returned None: did you forget to return the epoch?"
+    assert type(best) is int
+    assert best == 2
+
+
+def test_pick_epoch_breaks_val_acc_tie_with_lower_val_loss():
+    history = [(1, 0.900, 0.450), (2, 0.900, 0.310), (3, 0.900, 0.390)]
+    best = pick_epoch(history)
+    assert best is not None, "pick_epoch returned None: did you forget to return the epoch?"
+    assert best == 2
+
+
+def test_pick_epoch_keeps_earliest_epoch_when_both_metrics_tie():
+    history = [(2, 0.900, 0.310), (4, 0.900, 0.310), (6, 0.900, 0.310)]
+    best = pick_epoch(history)
+    assert best is not None, "pick_epoch returned None: did you forget to return the epoch?"
+    assert best == 2

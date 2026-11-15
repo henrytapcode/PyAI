@@ -8,31 +8,37 @@ tags: [huggingface, strings]
 hints:
   en:
     - |
-      This uses `tokenizer.tokenize(text)` from §2, which splits a string into subword tokens without adding `[CLS]` or `[SEP]`. For `["Great!", "Chatbot logs!"]` you must return `[2, 4]`.
+      This follows §2, which contrasts calling the tokenizer directly (adds `[CLS]` and `[SEP]`) against splitting raw subword pieces. For `["Great!", "Chatbot logs!"]` you must return `[2, 4]`.
     - |
       The plan:
-      1. Loop over every `text` in `texts`.
-      2. Call `tokenizer.tokenize(text)` to get the list of subword pieces without `[CLS]` or `[SEP]`.
-      3. Take `len(...)` of that list (already a Python `int`), collect into `counts`, and return `counts`.
+      1. Loop over every string in `texts`.
+      2. Call the tokenizer method that returns subword pieces without `[CLS]` or `[SEP]`, count how many pieces are returned as a Python `int`, and collect the counts in a list.
+      3. Return the list of integer counts.
     - |
-      The shape of the solution:
+      Equivalent loop structure (can also be written as a one-line comprehension for the starter):
       ```python
-      counts = [len(tokenizer.___(text)) for text in texts]
-      return ...
+      counts = []
+      for text in texts:
+          pieces = ...  # call the tokenizer's subword-splitting method on text
+          counts.append(len(pieces))
+      return counts
       ```
-      Remember that `tokenizer.tokenize(text)` excludes `[CLS]` and `[SEP]`, while `tokenizer(text)["input_ids"]` includes both special tokens.
+      Use the method on `tokenizer` introduced in §2 that returns string token pieces rather than padded ID tensors.
   vi:
     - |
-      Bài này dùng `tokenizer.tokenize(text)` ở §2 để tách chuỗi thành các token con mà không thêm `[CLS]` hay `[SEP]`. Với `["Great!", "Chatbot logs!"]` hàm phải trả về `[2, 4]`.
+      Bài này đi theo §2, nơi phân biệt việc gọi trực tiếp tokenizer (tự thêm `[CLS]` và `[SEP]`) với việc tách mảnh subword thuần túy. Với `["Great!", "Chatbot logs!"]` hàm phải trả về `[2, 4]`.
     - |
       Kế hoạch:
-      1. Duyệt qua từng chuỗi `text` trong `texts`.
-      2. Gọi `tokenizer.tokenize(text)` để lấy danh sách mảnh token chưa có `[CLS]` và `[SEP]`.
-      3. Lấy `len(...)` của danh sách đó (đã là `int` Python), gom vào `counts`, rồi `return counts`.
+      1. Duyệt qua từng chuỗi trong `texts`.
+      2. Gọi method của `tokenizer` trả về danh sách mảnh subword mà không thêm `[CLS]` hay `[SEP]`, đếm số phần tử dạng `int` Python và gom vào một danh sách.
+      3. Trả về danh sách các số nguyên vừa đếm được.
     - |
-      Hình dạng của lời giải:
+      Cấu trúc vòng lặp tương đương (cũng có thể điền thành list comprehension ở starter):
       ```python
-      counts = [len(tokenizer.___(text)) for text in texts]
-      return ...
+      counts = []
+      for text in texts:
+          pieces = ...  # gọi method tách mảnh subword của tokenizer trên text
+          counts.append(len(pieces))
+      return counts
       ```
-      Nhớ rằng `tokenizer.tokenize(text)` không gồm `[CLS]` và `[SEP]`, còn `tokenizer(text)["input_ids"]` có thêm cả hai token đặc biệt đó.
+      Hãy dùng method của `tokenizer` đã học ở §2 để nhận danh sách chuỗi token thay vì tensor ID có token đặc biệt.

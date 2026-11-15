@@ -8,12 +8,12 @@ tags: [pytorch, dl]
 hints:
   en:
     - |
-      This combines `nn.Module` from §1 with `model.eval()` and `torch.no_grad()` from §5. For `in_features=2, hidden=8, classes=3`, `TinyClassifier` creates `Linear(2, 8)`, `ReLU()`, and `Linear(8, 3)` — 51 parameters in total.
+      This combines `nn.Module` from §1 with `model.eval()` and `torch.no_grad()` from §5. For `in_features=2, hidden=8, classes=3`, `TinyClassifier` creates 51 parameters and maps an input batch of shape `(4, 2)` to logits of shape `(4, 3)`.
     - |
       The plan:
-      1. In `TinyClassifier.__init__`, call `super().__init__()`, then store `nn.Linear(in_features, hidden)`, `nn.ReLU()`, and `nn.Linear(hidden, classes)` as attributes on `self`.
-      2. In `TinyClassifier.forward(self, x)`, pass `x` through the hidden linear layer, then `relu`, then the output linear layer, and return the logits.
-      3. In `accuracy(model, xs, ys)`, call `model.eval()`, open `with torch.no_grad():`, compute `preds = model(xs).argmax(dim=1)`, and return `round((preds == ys).to(torch.float32).mean().item(), 3)`.
+      1. In `TinyClassifier.__init__`, initialize the base `nn.Module` and store a hidden `nn.Linear` layer, a `nn.ReLU` activation, and an output `nn.Linear` layer on `self`.
+      2. In `TinyClassifier.forward`, pass the input tensor sequentially through the hidden layer, ReLU, and output layer.
+      3. In `accuracy`, switch the model with `model.eval()`, evaluate inside `torch.no_grad()`, pick one predicted class per row, compare with `ys`, and return the mean accuracy as a Python float rounded to 3 decimals.
     - |
       The shape of the solution:
       ```python
@@ -21,7 +21,7 @@ hints:
           def __init__(self, in_features: int, hidden: int, classes: int) -> None:
               super().__init__()
               self.hidden = nn.Linear(in_features, hidden)
-              self.relu = ...
+              self.relu = nn.ReLU()
               self.out = ...
 
           def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -34,15 +34,15 @@ hints:
               preds = ...
               return round((preds == ys).to(torch.float32).mean().item(), 3)
       ```
-      Remember to pass `dim=1` to `.argmax(dim=1)` so you get one predicted class index per row.
+      Remember that `self.out` maps `hidden` features to `classes` logits, and `preds` picks the top class across rows.
   vi:
     - |
-      Bài này kết hợp `nn.Module` ở §1 với `model.eval()` và `torch.no_grad()` ở §5. Với `in_features=2, hidden=8, classes=3`, `TinyClassifier` tạo `Linear(2, 8)`, `ReLU()` và `Linear(8, 3)` — tổng cộng 51 tham số.
+      Bài này kết hợp `nn.Module` ở §1 với `model.eval()` và `torch.no_grad()` ở §5. Với `in_features=2, hidden=8, classes=3`, `TinyClassifier` có 51 tham số và biến batch đầu vào shape `(4, 2)` thành logits shape `(4, 3)`.
     - |
       Kế hoạch:
-      1. Trong `TinyClassifier.__init__`, gọi `super().__init__()`, rồi lưu `nn.Linear(in_features, hidden)`, `nn.ReLU()` và `nn.Linear(hidden, classes)` làm thuộc tính trên `self`.
-      2. Trong `TinyClassifier.forward(self, x)`, cho `x` đi qua tầng tuyến tính ẩn, rồi `relu`, rồi tầng tuyến tính đầu ra, và trả về logits.
-      3. Trong `accuracy(model, xs, ys)`, gọi `model.eval()`, mở `with torch.no_grad():`, tính `preds = model(xs).argmax(dim=1)` rồi trả về `round((preds == ys).to(torch.float32).mean().item(), 3)`.
+      1. Trong `TinyClassifier.__init__`, khởi tạo lớp cha `nn.Module` và lưu một tầng ẩn `nn.Linear`, hàm kích hoạt `nn.ReLU` cùng một tầng đầu ra `nn.Linear` trên `self`.
+      2. Trong `TinyClassifier.forward`, cho tensor đầu vào đi lần lượt qua tầng ẩn, ReLU rồi tầng đầu ra.
+      3. Trong `accuracy`, chuyển sang chế độ đánh giá bằng `model.eval()`, chạy dự đoán trong `torch.no_grad()`, chọn một nhãn dự đoán cho mỗi hàng, so với `ys` rồi trả về trung bình dạng `float` Python làm tròn 3 chữ số.
     - |
       Hình dạng của lời giải:
       ```python
@@ -50,7 +50,7 @@ hints:
           def __init__(self, in_features: int, hidden: int, classes: int) -> None:
               super().__init__()
               self.hidden = nn.Linear(in_features, hidden)
-              self.relu = ...
+              self.relu = nn.ReLU()
               self.out = ...
 
           def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -63,4 +63,4 @@ hints:
               preds = ...
               return round((preds == ys).to(torch.float32).mean().item(), 3)
       ```
-      Nhớ truyền `dim=1` vào `.argmax(dim=1)` để lấy một nhãn dự đoán cho mỗi hàng.
+      Nhớ rằng `self.out` ánh xạ từ `hidden` chiều sang `classes` logit, còn `preds` lấy chỉ số lớp cao nhất theo từng hàng.

@@ -7,7 +7,7 @@ train_x, train_y, val_x, val_y, test_x, test_y = split_data(
     texts, labels, val_frac=0.2, test_frac=0.2, seed=27
 )
 batch = encode(["App crashes", "Card charged twice"], max_length=16)
-# {"input_ids": <shape (2, 6)>, "attention_mask": <shape (2, 6)>}
+# {"input_ids": <shape (2, 5)>, "attention_mask": <shape (2, 5)>}
 class_counts([0, 1, 0])  # {0: 2, 1: 1}
 ```
 

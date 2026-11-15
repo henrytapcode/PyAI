@@ -8,13 +8,12 @@ tags: [huggingface, pytorch, dl]
 hints:
   en:
     - |
-      Follow §4 and §5: `accuracy` and `predict` must switch `model.eval()` and wrap inference in `with torch.no_grad():`, while `fine_tune` uses `model.train()`, `torch.optim.AdamW(model.parameters(), lr=lr)`, and `out = model(**batch, labels=y)`.
-      For `epochs=0`, `fine_tune` returns `[]` without touching weights.
+      Follow §4 and §5: `accuracy` and `predict` run inside `model.eval()` and `torch.no_grad()`, `fine_tune` uses `model.train()` with `AdamW`, and `pick_epoch` ranks `(epoch, val_acc, val_loss)` tuples. For `epochs=0`, `fine_tune` returns `[]` without touching weights, and `pick_epoch([(1, 0.9, 0.5), (2, 0.9, 0.3)])` returns `2`.
     - |
       Step-by-step plan:
-      1. In `accuracy`, call `model.eval()`, tokenize `texts` (`padding=True, truncation=True, return_tensors="pt"`), compute `logits = model(**batch).logits` inside `torch.no_grad()`, compare `logits.argmax(dim=1)` with `torch.tensor(labels, dtype=torch.int64)`, and return `round(float(...mean().item()), 3)`.
-      2. In `fine_tune`, return `[]` right away if `epochs <= 0`. Otherwise tokenize `texts` once, build `y = torch.tensor(labels, dtype=torch.int64)`, create `AdamW(model.parameters(), lr=lr)`, and loop `epochs` times (`model.train()`, `zero_grad()`, `out = model(**batch, labels=y)`, `out.loss.backward()`, `step()`, append `round(float(out.loss.item()), 4)`).
-      3. In `predict`, call `model.eval()`, run `with torch.no_grad(): pred_ids = model(**batch).logits.argmax(dim=1)`, and map each ID through `model.config.id2label`.
+      1. In `accuracy` and `predict`, call `model.eval()`, tokenize `texts` with padding, truncation, and PyTorch tensors, and run inference inside `torch.no_grad()`; `accuracy` compares argmax IDs with integer labels and rounds to 3 decimals, while `predict` maps IDs via `model.config.id2label`.
+      2. In `fine_tune`, return an empty list immediately when `epochs <= 0`; otherwise tokenize once, build integer labels, create `torch.optim.AdamW`, and on each epoch switch to `model.train()`, clear gradients, compute loss with `labels=y`, backpropagate, step, and record the loss rounded to 4 decimals.
+      3. In `pick_epoch`, scan the `(epoch, val_acc, val_loss)` entries to choose the highest `val_acc`, breaking ties by lowest `val_loss` and keeping earlier epochs on full ties.
     - |
       Skeleton:
       ```python
@@ -24,7 +23,7 @@ hints:
           with torch.no_grad():
               preds = ...
           y = torch.tensor(labels, dtype=torch.int64)
-          return round(float((preds == y).float().mean().item()), 3)
+          return round((preds == y).to(torch.float32).mean().item(), 3)
 
 
       def fine_tune(model, texts: list[str], labels: list[int], lr: float, epochs: int) -> list[float]:
@@ -37,7 +36,7 @@ hints:
           for _ in range(epochs):
               model.train()
               ...
-              losses.append(round(float(out.loss.item()), 4))
+              losses.append(round(out.loss.item(), 4))
           return losses
 
 
@@ -45,18 +44,26 @@ hints:
           model.eval()
           batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
           with torch.no_grad():
-              pred_ids = ...
-          return [model.config.id2label[idx] for idx in pred_ids.tolist()]
+              pred_ids = model(**batch).logits.argmax(dim=1)
+          return ...
+
+
+      def pick_epoch(history: list[tuple[int, float, float]]) -> int:
+          best_epoch, best_acc, best_loss = history[0]
+          for epoch, val_acc, val_loss in history[1:]:
+              if ...:
+                  best_epoch, best_acc, best_loss = epoch, val_acc, val_loss
+          return best_epoch
       ```
+      Complete the four `...` parts: compute `preds` from the model logits, run the `AdamW` training step producing `out`, map `pred_ids` via `id2label`, and write the tie-breaking comparison.
   vi:
     - |
-      Làm theo §4 và §5: `accuracy` và `predict` phải bật `model.eval()` và bọc trong `with torch.no_grad():`, còn `fine_tune` dùng `model.train()`, `torch.optim.AdamW(model.parameters(), lr=lr)` và `out = model(**batch, labels=y)`.
-      Với `epochs=0`, `fine_tune` trả về `[]` và không sửa trọng số.
+      Làm theo §4 và §5: `accuracy` và `predict` chạy trong `model.eval()` và `torch.no_grad()`, `fine_tune` dùng `model.train()` cùng `AdamW`, còn `pick_epoch` chọn theo bộ `(epoch, val_acc, val_loss)`. Với `epochs=0`, `fine_tune` trả về `[]` không đổi trọng số, và `pick_epoch([(1, 0.9, 0.5), (2, 0.9, 0.3)])` trả về `2`.
     - |
       Kế hoạch từng bước:
-      1. Trong `accuracy`, gọi `model.eval()`, tokenize `texts` (`padding=True, truncation=True, return_tensors="pt"`), tính `logits = model(**batch).logits` trong `torch.no_grad()`, so `logits.argmax(dim=1)` với `torch.tensor(labels, dtype=torch.int64)` rồi trả về `round(float(...mean().item()), 3)`.
-      2. Trong `fine_tune`, trả ngay `[]` nếu `epochs <= 0`. Ngược lại tokenize `texts` một lần, tạo `y = torch.tensor(labels, dtype=torch.int64)`, khởi tạo `AdamW(model.parameters(), lr=lr)`, và lặp `epochs` lần (`model.train()`, `zero_grad()`, `out = model(**batch, labels=y)`, `out.loss.backward()`, `step()`, thêm `round(float(out.loss.item()), 4)`).
-      3. Trong `predict`, bật `model.eval()`, chạy `with torch.no_grad(): pred_ids = model(**batch).logits.argmax(dim=1)`, rồi ánh xạ từng ID qua `model.config.id2label`.
+      1. Trong `accuracy` và `predict`, gọi `model.eval()`, tokenize `texts` có padding, truncation và tensor PyTorch, rồi chạy suy luận trong `torch.no_grad()`; `accuracy` so ID argmax với nhãn số nguyên và làm tròn 3 chữ số, còn `predict` tra nhãn qua `model.config.id2label`.
+      2. Trong `fine_tune`, trả ngay danh sách rỗng khi `epochs <= 0`; ngược lại tokenize một lần, tạo tensor nhãn nguyên, khởi tạo `torch.optim.AdamW`, và ở mỗi epoch bật `model.train()`, xóa gradient, tính loss với `labels=y`, lan truyền ngược, cập nhật trọng số và lưu loss làm tròn 4 chữ số.
+      3. Trong `pick_epoch`, duyệt qua các bộ `(epoch, val_acc, val_loss)` để lấy `val_acc` cao nhất, hòa thì chọn `val_loss` thấp hơn và nếu hòa cả hai thì giữ epoch sớm hơn.
     - |
       Khung lời giải:
       ```python
@@ -66,7 +73,7 @@ hints:
           with torch.no_grad():
               preds = ...
           y = torch.tensor(labels, dtype=torch.int64)
-          return round(float((preds == y).float().mean().item()), 3)
+          return round((preds == y).to(torch.float32).mean().item(), 3)
 
 
       def fine_tune(model, texts: list[str], labels: list[int], lr: float, epochs: int) -> list[float]:
@@ -79,7 +86,7 @@ hints:
           for _ in range(epochs):
               model.train()
               ...
-              losses.append(round(float(out.loss.item()), 4))
+              losses.append(round(out.loss.item(), 4))
           return losses
 
 
@@ -87,6 +94,15 @@ hints:
           model.eval()
           batch = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
           with torch.no_grad():
-              pred_ids = ...
-          return [model.config.id2label[idx] for idx in pred_ids.tolist()]
+              pred_ids = model(**batch).logits.argmax(dim=1)
+          return ...
+
+
+      def pick_epoch(history: list[tuple[int, float, float]]) -> int:
+          best_epoch, best_acc, best_loss = history[0]
+          for epoch, val_acc, val_loss in history[1:]:
+              if ...:
+                  best_epoch, best_acc, best_loss = epoch, val_acc, val_loss
+          return best_epoch
       ```
+      Hoàn thiện bốn chỗ `...`: tính `preds` từ logits của model, viết bước train `AdamW` tạo ra `out`, ánh xạ `pred_ids` qua `id2label`, và viết điều kiện so sánh khi hòa.

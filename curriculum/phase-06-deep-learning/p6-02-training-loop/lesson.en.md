@@ -56,7 +56,7 @@ To update weights without writing `with torch.no_grad():` and `.zero_()` by hand
 | Hand-written MSE formula | `nn.MSELoss()` or `nn.CrossEntropyLoss()` |
 | `w * x + b` | `model(x)` |
 
-PyTorch also ships `torch.optim.Adam`, an adaptive optimizer that often converges faster on real tasks and that you will use when fine-tuning in `p6-04-fine-tune`.
+PyTorch also ships `torch.optim.Adam`, an adaptive optimizer that often converges faster on real tasks — and whose decoupled weight-decay variant `AdamW` you will use when fine-tuning in `p6-04-fine-tune`.
 
 ```python
 import torch
@@ -235,7 +235,7 @@ Notice that 50 examples split into batches of `16` gives `4` batches per epoch (
 
 Just as in phase 5, split your data into **train**, **validation**, and **test** sets up front (for example 60/20/20 with `torch.randperm`). Use validation accuracy during training to pick hyperparameters like learning rate or epoch count, and touch the **test** set **only once** at the very end.
 
-When computing validation or test accuracy, wrap the code with `model.eval()` and `with torch.no_grad():`. `torch.no_grad()` skips building the computation graph so evaluation is faster and uses less memory, while `model.eval()` switches layers such as dropout into evaluation mode (this tiny network has no dropout yet, but building the habit now prevents bugs later). Always switch back with `model.train()` before training another epoch.
+When computing validation or test accuracy, wrap the code with `model.eval()` and `with torch.no_grad():`. `torch.no_grad()` skips building the computation graph so evaluation is faster and uses less memory, while `model.eval()` switches regularization layers such as dropout into evaluation mode. Dropout randomly zeroes a fraction of activations during training to prevent overfitting, and turns off in `eval()` mode (this tiny network has no dropout yet, but building the habit now prevents bugs later). Always switch back with `model.train()` before training another epoch.
 
 ```python
 import torch
@@ -288,27 +288,27 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
 
 for epoch in range(1, 21):
     model.train()
-    last_loss = 0.0
+    total_loss = 0.0
     for xb, yb in loader:
         loss = loss_fn(model(xb), yb)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        last_loss = loss.item()
+        total_loss += loss.item()
     if epoch in (1, 5, 10, 15, 20):
         val_acc = eval_accuracy(model, X_val, y_val)
-        print(f"epoch={epoch:2d}  train_loss={round(last_loss, 3)}  val_acc={val_acc}")
+        print(f"epoch={epoch:2d}  train_loss={round(total_loss / len(loader), 3)}  val_acc={val_acc}")
 
 print("test_acc:", eval_accuracy(model, X_test, y_test))
-# epoch= 1  train_loss=0.806  val_acc=0.1
-# epoch= 5  train_loss=0.676  val_acc=0.825
-# epoch=10  train_loss=0.627  val_acc=0.9
-# epoch=15  train_loss=0.573  val_acc=0.925
-# epoch=20  train_loss=0.432  val_acc=0.925
+# epoch= 1  train_loss=0.8  val_acc=0.1
+# epoch= 5  train_loss=0.68  val_acc=0.825
+# epoch=10  train_loss=0.586  val_acc=0.9
+# epoch=15  train_loss=0.519  val_acc=0.925
+# epoch=20  train_loss=0.465  val_acc=0.925
 # test_acc: 0.975
 ```
 
-Notice that validation accuracy plateaus at `0.925` by epoch 15, and we only evaluate `X_test` once at the very end (`0.975`).
+At epoch 1, `val_acc` is `0.1` (below a 50/50 random guess) because weights start random and SGD has only taken a handful of mini-batch steps before steering the decision boundary. By epoch 15 validation accuracy plateaus at `0.925`, and we only evaluate `X_test` once at the very end (`0.975`).
 
 ## 6. Saving and loading a model
 
@@ -407,7 +407,7 @@ Fix: always call `optimizer.zero_grad()` before `loss.backward()` on every batch
 
 **2. Passing wrong label dtype or shape to `CrossEntropyLoss`**
 
-`nn.CrossEntropyLoss()` requires a 1D `(N,)` tensor of `int64` (`Long`) class indices; passing `float32` labels or a 2D `(N, 1)` column raises a `RuntimeError`.
+`nn.CrossEntropyLoss()` requires a 1D `(N,)` tensor of `int64` (`Long`) class indices; passing `float32` labels with shape `(N,)` or a 2D `(N, 1)` column raises a `RuntimeError`.
 
 ```python
 import torch

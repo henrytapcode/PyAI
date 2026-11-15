@@ -10,7 +10,7 @@ row 0  [ [  1.0,    2.0,    3.0 ],
 row 1    [  4.0,    5.0,    6.0 ] ]   shape: (2, 3)
 ```
 
-Khác với NumPy mặc định dùng số thực `float64`, PyTorch mặc định chọn `float32` vì mô hình deep learning chạy nhanh hơn và tốn ít bộ nhớ hơn một nửa ở độ chính xác 32-bit. Bạn cũng có `torch.zeros`, `torch.ones`, `torch.arange`, `torch.rand` (luôn gọi `torch.manual_seed(0)` ở đầu khối có ngẫu nhiên để kết quả lặp lại được), cùng `torch.from_numpy(a)` và `t.numpy()` để chuyển qua lại với NumPy.
+Khác với NumPy mặc định dùng số thực `float64`, PyTorch mặc định chọn `float32` vì mô hình deep learning chạy nhanh hơn và chỉ tốn một nửa bộ nhớ ở độ chính xác 32-bit. Bạn cũng có `torch.zeros`, `torch.ones`, `torch.arange`, `torch.rand` (luôn gọi `torch.manual_seed(0)` ở đầu khối có ngẫu nhiên để kết quả lặp lại được), cùng `torch.from_numpy(a)` và `t.numpy()` để chuyển qua lại với NumPy.
 
 ```python
 import numpy as np
