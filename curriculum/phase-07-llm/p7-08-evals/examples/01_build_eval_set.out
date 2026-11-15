@@ -1,0 +1,8 @@
+id   top-2 sources                  expected      hit
+q1   refunds.md, shipping.md        refunds.md    True
+q2   loyalty.md, shipping.md        shipping.md   True
+q3   warranty.md, refunds.md        warranty.md   True
+q4   hours.md, refunds.md           hours.md      True
+q5   hours.md, payment.md           refunds.md    False
+q6   pickup.md, payment.md          None          skip
+hit@2: 4/5 (0.8)

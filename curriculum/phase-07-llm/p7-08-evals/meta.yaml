@@ -1,0 +1,33 @@
+id: p7-08-evals
+phase: p7
+order: 8
+kind: lesson
+title:
+  en: "Evals"
+  vi: "Eval"
+summary:
+  en: "Build a small eval set, score retrieval hit rate and answer faithfulness separately, compare two RAG configurations honestly with counts, and turn evals into regression checks."
+  vi: "Xây dựng tập eval nhỏ, chấm tách biệt tỉ lệ truy xuất trúng và độ trung thực câu trả lời, so sánh hai cấu hình RAG bằng số đếm, và biến eval thành bài kiểm tra hồi quy."
+level: beginner
+tags: [llm, rag, evaluation]
+prerequisites: [p7-05-rag, p5-04-evaluation]
+duration_min: 15
+outcomes:
+  en:
+    - "Build small eval datasets with expected facts"
+    - "Score retrieval hit rate and answer faithfulness"
+    - "Compare two RAG configurations on the same eval set"
+  vi:
+    - "Tạo tập eval nhỏ kèm thông tin kỳ vọng"
+    - "Chấm tỉ lệ truy xuất trúng và độ trung thực câu trả lời"
+    - "So sánh hai cấu hình RAG trên cùng một tập eval"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "Ragas: Automated Evaluation of Retrieval Augmented Generation (arXiv:2309.15217)"
+      vi: "Bài báo Ragas: Đánh giá tự động hệ thống RAG (arXiv:2309.15217) (EN)"
+    url: "https://arxiv.org/abs/2309.15217"
+  - title:
+      en: "Define Success Criteria and Build Evaluations — Claude Platform Docs"
+      vi: "Tài liệu xác định tiêu chí và xây dựng bộ eval — Claude Platform Docs (EN)"
+    url: "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"

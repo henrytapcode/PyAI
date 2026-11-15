@@ -1,0 +1,9 @@
+id   facts   faithful   idk
+q1   1.0     True       False
+q2   1.0     True       False
+q3   1.0     True       False
+q4   1.0     True       False
+q5   0.0     True       True
+q6   0.0     True       False
+scripted: facts=1.0 faithful=False
+unsupported: ['with', 'free', 'courier', 'pickup']

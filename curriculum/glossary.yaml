@@ -2776,3 +2776,70 @@ terms:
       en: "Prefer a workflow whenever the task steps are predictable, because fixed pipelines are cheaper, faster, and far easier to test than agents."
       vi: "Hãy ưu tiên workflow mỗi khi các bước có thể đoán trước, vì luồng cố định rẻ hơn, nhanh hơn và dễ kiểm thử hơn agent rất nhiều."
     related: [agent, pipeline, system-design]
+
+  # ---------------------------------------------------------- Evals
+  - term: eval set
+    vi_term: eval set (tập câu hỏi đánh giá)
+    tags: [evaluation, rag]
+    en: "A fixed collection of realistic user questions paired with expected sources, golden facts, or unanswerable flags used to test an AI system consistently after changes."
+    vi: "Tập cố định các câu hỏi thực tế của người dùng kèm nguồn kỳ vọng, thông tin chuẩn hoặc cờ không trả lời được, dùng để kiểm thử nhất quán sau mỗi thay đổi."
+    example: "eval_set = [{\"id\": \"q1\", \"question\": \"How long for refunds?\", \"expected_source\": \"refunds.md\", \"expected_facts\": [\"30 days\"]}]"
+    in_practice:
+      en: "Keep part of your eval set held out and add fresh user queries periodically so tuning prompts never silently overfits a tiny fixed list."
+      vi: "Hãy giữ riêng một phần eval set và bổ sung câu hỏi mới định kỳ để việc tinh chỉnh prompt không bị học vẹt trên một danh sách nhỏ cố định."
+    related: [eval, golden answer, overfitting]
+
+  - term: golden answer
+    vi_term: golden answer (đáp án chuẩn)
+    tags: [evaluation, llm]
+    en: "A human-verified reference answer or list of required facts against which an LLM's output is scored."
+    vi: "Câu trả lời chuẩn hoặc danh sách các thông tin bắt buộc đã được con người kiểm chứng, dùng làm mốc chấm đầu ra của LLM."
+    example: "expected_facts = [\"Monday to Friday\", \"9 AM to 6 PM\"]"
+    in_practice:
+      en: "Storing short atomic facts as your golden answer makes automated checks reliable without demanding word-for-word identical phrasing."
+      vi: "Lưu các ý ngắn gọn làm golden answer giúp bài chấm tự động ổn định hơn mà không ép model phải viết giống từng chữ."
+    related: [eval, eval set, ground truth]
+
+  - term: hit rate
+    vi_term: hit rate (tỉ lệ truy xuất trúng)
+    tags: [evaluation, rag]
+    en: "The fraction of answerable eval questions where the expected document source appears within the top-k retrieved chunks (`hit@k`)."
+    vi: "Tỉ lệ câu hỏi có nguồn kỳ vọng mà tài liệu đúng xuất hiện trong top-k chunk truy xuất được (`hit@k`)."
+    example: "hit_at_2 = hits / len(answerable_rows)  # skip expected_source=None"
+    in_practice:
+      en: "Measuring hit rate separately from answer scores reveals whether a wrong reply came from bad retrieval or from the generator ignoring good context."
+      vi: "Đo hit rate tách riêng khỏi điểm câu trả lời cho thấy lỗi nằm ở bước truy xuất thiếu tài liệu hay bước sinh câu trả lời bỏ qua ngữ cảnh đúng."
+    related: [eval, retrieval, RAG]
+
+  - term: faithfulness
+    vi_term: faithfulness (độ trung thực với nguồn)
+    tags: [evaluation, rag, llm]
+    en: "The degree to which every claim in an LLM's answer is supported by the retrieved context rather than invented from outside it."
+    vi: "Mức độ mọi thông tin trong câu trả lời của LLM đều có căn cứ từ ngữ cảnh đã truy xuất thay vì bịa thêm bên ngoài."
+    example: "score_answer(ans, expected_facts, context)[\"faithful\"]"
+    in_practice:
+      en: "An answer can include the right keyword and still fail faithfulness if it tacks on invented fees, dates, or policies absent from the context."
+      vi: "Một câu trả lời có thể chứa đúng từ khóa cần tìm nhưng vẫn trượt faithfulness nếu tự bịa thêm phụ phí, thời hạn hay quy định không có trong ngữ cảnh."
+    related: [groundedness, grounding, hallucination]
+
+  - term: groundedness
+    vi_term: groundedness (độ bám ngữ cảnh)
+    tags: [evaluation, rag, llm]
+    en: "Another common name for faithfulness: whether an answer's statements stay anchored to the provided source text instead of relying on unverified guesses."
+    vi: "Tên gọi phổ biến khác của faithfulness: kiểm tra xem các phát biểu trong câu trả lời có bám chặt vào văn bản nguồn được cung cấp thay vì đoán mò hay không."
+    example: "# Grounded reply: uses only facts inside Context: [1]..."
+    in_practice:
+      en: "RAG evaluation frameworks pair groundedness with fact coverage so models neither hallucinate extra claims nor skip key details."
+      vi: "Các bộ đánh giá RAG thường ghép groundedness cùng độ đủ ý để model vừa không bịa thêm chi tiết vừa không bỏ sót thông tin chính."
+    related: [faithfulness, grounding, hallucination]
+
+  - term: LLM-as-judge
+    vi_term: LLM-as-judge (dùng LLM làm giám khảo)
+    tags: [evaluation, llm]
+    en: "Using a separate LLM prompted with a clear rubric to score open-ended model outputs for accuracy, tone, or faithfulness."
+    vi: "Dùng một LLM khác kèm thang chấm rubric rõ ràng để chấm điểm các câu trả lời mở về độ chính xác, giọng văn hay độ bám nguồn."
+    example: "# Judge prompt: 'Score faithfulness 1-5 using only the rubric and context.'"
+    in_practice:
+      en: "LLM-as-judge scales beyond brittle string matching, yet the judge itself can prefer verbose or confident replies and must be calibrated against human labels."
+      vi: "LLM-as-judge mở rộng tốt hơn so khớp chuỗi cứng nhắc, nhưng chính model giám khảo cũng có thể thiên vị câu trả lời dài hoặc tự tin nên cần đối chiếu với mẫu do người chấm."
+    related: [eval, faithfulness, prompt]

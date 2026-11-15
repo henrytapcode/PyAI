@@ -1,0 +1,110 @@
+id: p7-08-ex02
+kind: code
+title:
+  en: "Code: score grounded answers with citation checks"
+  vi: "Viết code: chấm câu trả lời bám nguồn và kiểm tra trích dẫn"
+difficulty: 2
+tags: [evaluation, rag, strings]
+hints:
+  en:
+    - |
+      This extends `score_answer()` from §4 by verifying `[n]` citations. For `score_grounded("Refunds take 30 days. [3]", ["30 days"], "[1] Refunds take 30 days.")`, return `{"facts": 1.0, "faithful": False, "unsupported": [], "citations": [3], "bad_citations": [3]}`.
+    - |
+      The plan:
+      1. Compute the lowercase fact score just like in `score_answer`, handling an empty expected-facts list via the refusal phrase.
+      2. Collect unique citation numbers from the answer in order of first appearance, and collect the valid source numbers that start lines in the context.
+      3. Build the bad-citation list from answer citation numbers missing from the valid context source numbers.
+      4. If the refusal phrase appears in the lowercase answer, return right away with faithfulness marked true and an empty unsupported list, keeping the computed citation lists.
+      5. Otherwise collect unique unsupported content words of length at least four in order, and mark faithfulness true only when unsupported and bad citations are both empty and at least one citation is present.
+    - |
+      Function skeleton:
+      ```python
+      import re
+
+
+      def _content_words(text: str) -> list[str]:
+          cleaned = re.sub(r"\[\d+\]", "", text.lower())
+          return [w for w in re.findall(r"[a-z0-9]+", cleaned) if len(w) >= 4]
+
+
+      def score_grounded(answer: str, expected_facts: list[str], context: str) -> dict:
+          ans_low = answer.lower()
+          if not expected_facts:
+              facts = 1.0 if "i don't know" in ans_low else 0.0
+          else:
+              matched = sum(1 for f in expected_facts if f.lower() in ans_low)
+              facts = matched / len(expected_facts)
+          citations, bad_citations = ...
+          if "i don't know" in ans_low:
+              return {
+                  "facts": facts,
+                  "faithful": True,
+                  "unsupported": [],
+                  "citations": citations,
+                  "bad_citations": bad_citations,
+              }
+          ctx_words = set(_content_words(context))
+          unsupported: list[str] = []
+          for word in _content_words(answer):
+              if word not in ctx_words and word not in unsupported:
+                  unsupported.append(word)
+          faithful = len(unsupported) == 0 and len(citations) > 0 and len(bad_citations) == 0
+          return {
+              "facts": facts,
+              "faithful": faithful,
+              "unsupported": unsupported,
+              "citations": citations,
+              "bad_citations": bad_citations,
+          }
+      ```
+  vi:
+    - |
+      Bài này mở rộng hàm `score_answer()` ở §4 bằng cách kiểm tra thêm trích dẫn `[n]`. Với `score_grounded("Refunds take 30 days. [3]", ["30 days"], "[1] Refunds take 30 days.")`, hàm phải trả về `{"facts": 1.0, "faithful": False, "unsupported": [], "citations": [3], "bad_citations": [3]}`.
+    - |
+      Kế hoạch:
+      1. Tính điểm fact theo chữ thường giống như ở `score_answer`, xử lý danh sách fact rỗng bằng cụm từ từ chối.
+      2. Gom các số trích dẫn không trùng từ câu trả lời theo đúng thứ tự xuất hiện, và gom các số nguồn hợp lệ ở đầu các dòng trong ngữ cảnh.
+      3. Tạo danh sách trích dẫn sai gồm các số trích dẫn của câu trả lời không nằm trong tập số nguồn hợp lệ của ngữ cảnh.
+      4. Nếu cụm từ từ chối xuất hiện trong câu trả lời chữ thường, trả về ngay với độ trung thực đúng và danh sách từ thiếu rỗng, vẫn giữ nguyên hai danh sách trích dẫn vừa tính.
+      5. Ngược lại, gom các từ nội dung thiếu không trùng có độ dài từ bốn trở lên theo đúng thứ tự, và chỉ đánh dấu trung thực là đúng khi cả danh sách từ thiếu lẫn trích dẫn sai đều rỗng đồng thời có ít nhất một trích dẫn.
+    - |
+      Khung hàm:
+      ```python
+      import re
+
+
+      def _content_words(text: str) -> list[str]:
+          cleaned = re.sub(r"\[\d+\]", "", text.lower())
+          return [w for w in re.findall(r"[a-z0-9]+", cleaned) if len(w) >= 4]
+
+
+      def score_grounded(answer: str, expected_facts: list[str], context: str) -> dict:
+          ans_low = answer.lower()
+          if not expected_facts:
+              facts = 1.0 if "i don't know" in ans_low else 0.0
+          else:
+              matched = sum(1 for f in expected_facts if f.lower() in ans_low)
+              facts = matched / len(expected_facts)
+          citations, bad_citations = ...
+          if "i don't know" in ans_low:
+              return {
+                  "facts": facts,
+                  "faithful": True,
+                  "unsupported": [],
+                  "citations": citations,
+                  "bad_citations": bad_citations,
+              }
+          ctx_words = set(_content_words(context))
+          unsupported: list[str] = []
+          for word in _content_words(answer):
+              if word not in ctx_words and word not in unsupported:
+                  unsupported.append(word)
+          faithful = len(unsupported) == 0 and len(citations) > 0 and len(bad_citations) == 0
+          return {
+              "facts": facts,
+              "faithful": faithful,
+              "unsupported": unsupported,
+              "citations": citations,
+              "bad_citations": bad_citations,
+          }
+      ```
