@@ -1737,6 +1737,17 @@ terms:
       vi: "Bạn đặt các quy tắc ổn định ở đó (giọng điệu, định dạng đầu ra, điều không được làm) và để văn bản người dùng trong các message riêng."
     related: [prompt, prompt injection, LLM]
 
+  - term: system message
+    vi_term: system message (tin nhắn hệ thống)
+    tags: [llm]
+    en: "A message dictionary with role \"system\" sent at the start of a chat API call to set the assistant's instructions, tone, and rules."
+    vi: "Một dictionary tin nhắn có role \"system\" gửi ở đầu lời gọi API chat để đặt chỉ dẫn, giọng điệu và quy tắc cho trợ lý."
+    example: "messages = [{\"role\": \"system\", \"content\": \"Reply in one sentence.\"}, {\"role\": \"user\", \"content\": \"What is RAG?\"}]"
+    in_practice:
+      en: "In chat APIs, you put your system prompt inside a system message so the model treats those instructions separately from user input."
+      vi: "Trong các API chat, bạn đặt system prompt vào bên trong một system message để model tách biệt chỉ dẫn của hệ thống với đầu vào từ người dùng."
+    related: [system prompt, prompt, LLM]
+
   - term: temperature
     vi_term: temperature (độ ngẫu nhiên)
     tags: [llm]

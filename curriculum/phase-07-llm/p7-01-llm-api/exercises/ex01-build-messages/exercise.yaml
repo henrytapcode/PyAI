@@ -1,0 +1,44 @@
+id: p7-01-ex01
+kind: fill
+title:
+  en: "Fill: build a chat messages list"
+  vi: "Điền chỗ trống: tạo danh sách messages"
+difficulty: 1
+tags: [llm]
+hints:
+  en:
+    - |
+      This uses the message roles from §2 and the history pattern from §3. For `system="Be brief."`, `history=[("Hi", "Hello!")]`, and `user="What is RAG?"`, you must return 4 message dicts whose roles are `["system", "user", "assistant", "user"]`.
+    - |
+      The plan:
+      1. Start the list with one dictionary for the system role and its text.
+      2. Walk through every past pair in the history and append the user dictionary followed by the assistant dictionary.
+      3. Append one final user dictionary for the new question and return the list.
+    - |
+      The shape inside the function:
+      ```python
+      messages = [{"role": "system", "content": system}]
+      for prev_user, prev_assistant in history:
+          ...
+      messages.append({"role": "user", "content": user})
+      return messages
+      ```
+      Remember that each tuple in `history` adds two dictionaries to `messages` in `user` then `assistant` order.
+  vi:
+    - |
+      Bài này dùng các role message ở §2 và mẫu lịch sử ở §3. Với `system="Be brief."`, `history=[("Hi", "Hello!")]` và `user="What is RAG?"`, bạn cần trả về 4 dict có thứ tự role là `["system", "user", "assistant", "user"]`.
+    - |
+      Kế hoạch:
+      1. Khởi tạo danh sách bằng một dictionary mang vai trò hệ thống cùng nội dung tương ứng.
+      2. Duyệt qua từng cặp hội thoại cũ trong lịch sử và thêm lần lượt dictionary của người dùng rồi dictionary của trợ lý.
+      3. Thêm dictionary của người dùng cho câu hỏi mới ở cuối rồi trả về danh sách.
+    - |
+      Hình dạng bên trong hàm:
+      ```python
+      messages = [{"role": "system", "content": system}]
+      for prev_user, prev_assistant in history:
+          ...
+      messages.append({"role": "user", "content": user})
+      return messages
+      ```
+      Nhớ rằng mỗi cặp trong `history` bổ sung hai dictionary vào `messages` theo thứ tự `user` trước rồi tới `assistant`.

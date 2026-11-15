@@ -1,0 +1,31 @@
+id: p7-01-llm-api
+phase: p7
+order: 1
+kind: lesson
+title:
+  en: "Calling an LLM API"
+  vi: "Gọi API LLM"
+summary:
+  en: "Send chat messages and system instructions to a deterministic fake LLM client, track conversation history, tune temperature, count tokens and costs, retry rate limits, and keep real API keys safe in .env."
+  vi: "Gửi tin nhắn chat và system message qua fake LLM client tất định, giữ lịch sử hội thoại, chỉnh temperature, đếm token và chi phí, retry khi gặp rate limit, và bảo vệ API key thật trong file .env."
+level: beginner
+tags: [llm]
+prerequisites: [p2-05-typing, p3-01-pytest]
+duration_min: 14
+outcomes:
+  en:
+    - "Send prompts and system messages with a fake LLM client"
+    - "Control temperature and read token usage"
+    - "Resend conversation history and retry transient rate limits"
+    - "See how real API calls load keys from .env"
+  vi:
+    - "Gửi prompt và system message qua fake LLM client"
+    - "Điều chỉnh temperature và đọc lượng token sử dụng"
+    - "Gửi lại lịch sử hội thoại và retry khi gặp lỗi rate limit tạm thời"
+    - "Hiểu cách gọi API thật khi đọc key từ file .env"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "Hugging Face LLM Course: Tokenizers", vi: "Hugging Face LLM Course: Tokenizers (EN)" }
+    url: "https://huggingface.co/learn/llm-course/chapter2/4"
+  - title: { en: "HTTPX QuickStart", vi: "HTTPX QuickStart (EN)" }
+    url: "https://www.python-httpx.org/quickstart/"

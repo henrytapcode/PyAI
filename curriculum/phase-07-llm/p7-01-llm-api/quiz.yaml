@@ -1,0 +1,410 @@
+questions:
+  - id: p7-01-q01
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which two keys must every standard chat message dictionary contain?"
+      options:
+        - "`\"sender\"` and `\"message\"` as strings"
+        - "`\"role\"` and `\"content\"` as strings"
+        - "`\"prompt\"` and `\"response\"` as strings"
+        - "`\"user\"` and `\"assistant\"` as strings"
+      explanation: "Chat APIs expect each message dict to have a `\"role\"` (`\"system\"`, `\"user\"`, `\"assistant\"`, or `\"tool\"`) and `\"content\"`."
+    vi:
+      prompt: "Mỗi dictionary tin nhắn chat chuẩn phải có hai khóa (key) nào?"
+      options:
+        - "`\"sender\"` và `\"message\"` kiểu chuỗi"
+        - "`\"role\"` và `\"content\"` kiểu chuỗi"
+        - "`\"prompt\"` và `\"response\"` kiểu chuỗi"
+        - "`\"user\"` và `\"assistant\"` kiểu chuỗi"
+      explanation: "Các API chat yêu cầu mỗi dict message có `\"role\"` (`\"system\"`, `\"user\"`, `\"assistant\"` hoặc `\"tool\"`) và `\"content\"`."
+
+  - id: p7-01-q02
+    type: output
+    tags: [llm]
+    difficulty: 1
+    code: |
+      from pyai_llm import FakeLLM
+
+      resp = FakeLLM().chat([{"role": "user", "content": "What is RAG?"}])
+      print(resp.finish_reason, resp.usage.total_tokens)
+    answer: "stop 29"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The full answer fits without `max_tokens`, so `finish_reason` is `\"stop\"`; `8` prompt tokens plus `21` completion tokens gives `29` total tokens."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Câu trả lời hoàn chỉnh không bị cắt nên `finish_reason` là `\"stop\"`; `8` prompt token cộng `21` completion token bằng `29` tổng token."
+
+  - id: p7-01-q03
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "What is a `system` message used for in a chat API call?"
+      options:
+        - "Sets the assistant's persona, tone, and shared rules up front"
+        - "Stores the user's API key safely inside the request body"
+        - "Counts how many completion tokens the model already spent"
+        - "Retries failed HTTP requests automatically with backoff"
+      explanation: "A `system` message goes at the start of `messages` to tell the model how to behave throughout the conversation."
+    vi:
+      prompt: "Tin nhắn có vai trò `system` dùng để làm gì trong lời gọi API chat?"
+      options:
+        - "Đặt vai trò, giọng điệu và luật chung cho trợ lý ngay từ đầu"
+        - "Lưu trữ API key của người dùng một cách an toàn trong request"
+        - "Đếm lại số completion token mà model đã tiêu tốn trước đó"
+        - "Tự động thử lại các yêu cầu HTTP bị lỗi kèm thời gian chờ"
+      explanation: "Tin nhắn `system` nằm ở đầu danh sách `messages` để dặn trước cho model cách hành xử xuyên suốt cuộc hội thoại."
+
+  - id: p7-01-q04
+    type: fill
+    tags: [llm]
+    difficulty: 1
+    code: |
+      from pyai_llm import FakeLLM
+
+      resp = FakeLLM().chat([
+          {"role": "___", "content": "You are a pirate."},
+          {"role": "___", "content": "What is RAG?"},
+      ])
+      print(resp.content[:4])
+    answer: ["system", "user"]
+    en:
+      prompt: "Fill in the two role names so the first message sets the pirate persona and the second asks the question."
+      explanation: "Use `\"system\"` for the instruction message and `\"user\"` for the question, which makes `FakeLLM` start with `\"Arr!\"`."
+    vi:
+      prompt: "Điền tên hai vai trò để tin nhắn đầu đặt giọng cướp biển và tin nhắn thứ hai đặt câu hỏi."
+      explanation: "Dùng `\"system\"` cho chỉ dẫn và `\"user\"` cho câu hỏi, nhờ đó `FakeLLM` mở đầu bằng `\"Arr!\"`."
+
+  - id: p7-01-q05
+    type: parsons
+    tags: [llm]
+    difficulty: 1
+    lines:
+      - "from pyai_llm import FakeLLM"
+      - "client = FakeLLM()"
+      - 'resp = client.chat([{"role": "user", "content": "What is a token?"}])'
+      - 'summary = f"{resp.finish_reason}:{resp.usage.total_tokens}"'
+      - "print(summary)"
+    en:
+      prompt: "Arrange these lines in order to create a `FakeLLM` client, ask a question, build `summary`, and print it."
+      explanation: "Import `FakeLLM`, instantiate `client`, call `client.chat(...)` to get `resp`, format `summary` from `resp`, and print `summary`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tạo `FakeLLM`, gửi câu hỏi, tạo chuỗi `summary` và in ra."
+      explanation: "Import `FakeLLM`, khởi tạo `client`, gọi `client.chat(...)` để lấy `resp`, định dạng `summary` từ `resp` rồi in `summary`."
+
+  - id: p7-01-q06
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why must your application resend the `history` list on every turn of a chat?"
+      options:
+        - "Because `FakeLLM` erases `usage` counts unless `history` is passed"
+        - "Because Python dictionaries clear themselves after one `chat()` call"
+        - "Because LLM APIs have no memory between calls and start fresh"
+        - "Because `max_tokens` resets to zero whenever a list is omitted"
+      explanation: "LLM APIs are stateless: the server does not keep previous turns in memory, so your code must resend the conversation history each time."
+    vi:
+      prompt: "Vì sao chương trình phải tự gửi lại danh sách `history` ở mỗi lượt hội thoại?"
+      options:
+        - "Vì `FakeLLM` xóa thống kê `usage` nếu bạn không truyền lại `history`"
+        - "Vì các dictionary Python tự xóa nội dung sau một lần gọi `chat()`"
+        - "Vì API của LLM không có trí nhớ giữa các lần gọi và luôn bắt đầu mới"
+        - "Vì `max_tokens` tự đặt về 0 mỗi khi thiếu danh sách tin nhắn trước"
+      explanation: "API LLM không lưu trạng thái (stateless): server không nhớ các lượt trước, nên code của bạn phải gửi kèm lại toàn bộ lịch sử mỗi lần gọi."
+
+  - id: p7-01-q07
+    type: output
+    tags: [llm]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM()
+      history = [{"role": "user", "content": "What is RAG?"}]
+      r1 = client.chat(history)
+      history.append({"role": "assistant", "content": r1.content})
+      history.append({"role": "user", "content": "What is a token?"})
+      r2 = client.chat(history)
+      print(len(history), r2.usage.prompt_tokens)
+    answer: "3 42"
+    en:
+      prompt: "What does this two-turn conversation print?"
+      explanation: "After Turn 1's reply and Turn 2's question are appended, `history` has `3` messages (`user`, `assistant`, `user`) totaling `42` prompt tokens on the second call."
+    vi:
+      prompt: "Đoạn hội thoại hai lượt này in ra gì?"
+      explanation: "Sau khi thêm câu trả lời lượt 1 và câu hỏi lượt 2, `history` có `3` tin nhắn (`user`, `assistant`, `user`) với tổng `42` prompt token ở lần gọi thứ hai."
+
+  - id: p7-01-q08
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "In a multi-turn chat that resends `history`, what happens to `prompt_tokens` on each new turn?"
+      options:
+        - "It stays fixed because only the newest user line is tokenized"
+        - "It shrinks slowly as older assistant messages get compressed"
+        - "It resets to zero whenever the assistant starts a new reply"
+        - "It keeps growing because all earlier turns are sent again"
+      explanation: "Every new turn resends the previous user and assistant messages plus the new question, so `prompt_tokens` (and input cost) grows each turn."
+    vi:
+      prompt: "Trong cuộc hội thoại nhiều lượt có gửi lại `history`, `prompt_tokens` thay đổi thế nào qua từng lượt?"
+      options:
+        - "Giữ nguyên vì hệ thống chỉ tokenize câu hỏi mới nhất của người dùng"
+        - "Giảm dần vì các câu trả lời cũ của trợ lý tự động được nén lại"
+        - "Đặt lại về 0 mỗi khi model bắt đầu sinh một câu trả lời mới"
+        - "Tăng dần vì toàn bộ các lượt hội thoại trước đều được gửi lại"
+      explanation: "Mỗi lượt mới đều gửi kèm lại toàn bộ tin nhắn cũ và câu hỏi mới, nên `prompt_tokens` (và chi phí đầu vào) tăng lên theo từng lượt."
+
+  - id: p7-01-q09
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "When testing an LLM application reliably, why do engineers often set `temperature=0` (or use a seeded fake client)?"
+      options:
+        - "To keep replies deterministic instead of varying across runs"
+        - "To make the API skip counting `prompt_tokens` in `usage`"
+        - "To bypass HTTP `429` rate limits on busy provider servers"
+        - "To automatically retry failed requests without a `try` block"
+      explanation: "Higher `temperature` introduces randomness; `temperature=0` (and seeded `FakeLLM` in tests) gives repeatable outputs so assertions pass consistently."
+    vi:
+      prompt: "Khi viết test cho ứng dụng LLM, vì sao kỹ sư thường đặt `temperature=0` (hoặc dùng fake client có `seed`)?"
+      options:
+        - "Để câu trả lời lặp lại ổn định thay vì thay đổi giữa các lần chạy"
+        - "Để API bỏ qua bước đếm `prompt_tokens` trong đối tượng `usage`"
+        - "Để vượt qua giới hạn tốc độ HTTP `429` trên server nhà cung cấp"
+        - "Để tự động thử lại khi gọi lỗi mà không cần viết khối `try`"
+      explanation: "`temperature` cao làm kết quả ngẫu nhiên hơn; `temperature=0` (và `FakeLLM(seed=...)` khi test) giúp kết quả lặp lại ổn định để assertion luôn nhất quán."
+
+  - id: p7-01-q10
+    type: fill
+    tags: [llm]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM
+
+      resp = FakeLLM().chat(
+          [{"role": "user", "content": "What is RAG?"}],
+          ___=5,
+      )
+      print(resp.finish_reason == "___")
+    answer: ["max_tokens", "length"]
+    en:
+      prompt: "Fill in the parameter name that caps output length at 5 tokens and the `finish_reason` string indicating truncation."
+      explanation: "Passing `max_tokens=5` cuts the 21-token RAG answer short at 5 tokens and sets `resp.finish_reason` to `\"length\"`."
+    vi:
+      prompt: "Điền tên tham số giới hạn độ dài trả lời còn 5 token và giá trị `finish_reason` báo hiệu câu trả lời đã bị cắt."
+      explanation: "Truyền `max_tokens=5` cắt câu trả lời RAG xuống còn 5 token và đặt `resp.finish_reason` thành `\"length\"`."
+
+  - id: p7-01-q11
+    type: output
+    tags: [llm]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM
+
+      r = FakeLLM().chat([{"role": "user", "content": "What is RAG?"}], max_tokens=5)
+      print(r.finish_reason, r.usage.completion_tokens)
+    answer: "length 5"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The full RAG answer has 21 tokens, so `max_tokens=5` truncates it to `5` completion tokens and sets `finish_reason` to `\"length\"`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Câu trả lời RAG đầy đủ có 21 token, nên `max_tokens=5` cắt còn `5` completion token và đặt `finish_reason` thành `\"length\"`."
+
+  - id: p7-01-q12
+    type: mcq
+    tags: [llm, exceptions]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Which errors should a retry loop catch and retry when calling an LLM API?"
+      options:
+        - "Every `Exception`, including invalid roles and missing keys"
+        - "Only transient failures such as `RateLimitError` or timeouts"
+        - "Only `ValueError` raised by passing a string instead of a list"
+        - "Only `SyntaxError` and `NameError` from malformed local code"
+      explanation: "Transient failures like rate limits (`429`) or timeouts may succeed if retried after a pause, whereas bad requests (`ValueError`) fail identically every time."
+    vi:
+      prompt: "Vòng lặp retry khi gọi API LLM nên bắt và thử lại những loại lỗi nào?"
+      options:
+        - "Mọi `Exception`, kể cả sai tên role hay thiếu khóa trong dict"
+        - "Chỉ các lỗi tạm thời như `RateLimitError` hoặc timeout mạng"
+        - "Chỉ `ValueError` phát sinh do truyền chuỗi thay vì danh sách"
+        - "Chỉ `SyntaxError` và `NameError` do viết sai cú pháp Python"
+      explanation: "Lỗi tạm thời như quá tải (`429`) hay timeout có thể thành công khi thử lại sau một quãng nghỉ, còn request sai (`ValueError`) sẽ luôn lỗi y hệt nhau."
+
+  - id: p7-01-q13
+    type: parsons
+    tags: [llm]
+    difficulty: 2
+    lines:
+      - "from pyai_llm import FakeLLM"
+      - 'r1 = FakeLLM().chat([{"role": "user", "content": "What is RAG?"}])'
+      - 'history = [{"role": "assistant", "content": r1.content}]'
+      - 'history.append({"role": "user", "content": "What is a token?"})'
+      - "r2 = FakeLLM().chat(history)"
+      - "print(r2.usage.prompt_tokens)"
+    en:
+      prompt: "Arrange these lines in order to get `r1`, start `history` with the assistant reply, append Turn 2's user question, call `chat(history)`, and print `r2.usage.prompt_tokens`."
+      explanation: "Import `FakeLLM`, get `r1`, build `history` from `r1.content`, append Turn 2's user question, call `FakeLLM().chat(history)` for `r2`, and print `r2.usage.prompt_tokens`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để lấy `r1`, khởi tạo `history` với câu trả lời assistant, thêm câu hỏi lượt 2, gọi `chat(history)` và in `r2.usage.prompt_tokens`."
+      explanation: "Import `FakeLLM`, lấy `r1`, tạo `history` từ `r1.content`, thêm câu hỏi người dùng lượt 2, gọi `FakeLLM().chat(history)` để lấy `r2` rồi in `r2.usage.prompt_tokens`."
+
+  - id: p7-01-q14
+    type: mcq
+    tags: [llm, apis]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "What is the safe way to store and read a real LLM API key in a Python project?"
+      options:
+        - "Store it in a `constants.py` file and push it to GitHub"
+        - "Print `os.environ[\"LLM_API_KEY\"]` at startup to verify it"
+        - "Keep it in `.env` ignored by Git and read `os.environ`"
+        - "Pass the raw key string inside the `\"system\"` message dict"
+      explanation: "Keep secrets in `.env`, add `.env` to `.gitignore`, load it into `os.environ`, and never log, print, or commit the key."
+    vi:
+      prompt: "Cách an toàn để lưu trữ và đọc API key thật của LLM trong một project Python là gì?"
+      options:
+        - "Lưu thẳng vào file `constants.py` rồi đẩy lên GitHub"
+        - "In `os.environ[\"LLM_API_KEY\"]` lúc khởi động để kiểm tra"
+        - "Để trong `.env` đã chặn ở `.gitignore` và đọc qua `os.environ`"
+        - "Đặt thẳng chuỗi key vào trong nội dung tin nhắn `\"system\"`"
+      explanation: "Luôn cất bí mật trong `.env`, thêm `.env` vào `.gitignore`, đọc từ `os.environ`, và không bao giờ in hay commit key."
+
+  - id: p7-01-q15
+    type: fill
+    tags: [llm, exceptions]
+    difficulty: 3
+    code: |
+      from pyai_llm import FakeLLM, RateLimitError
+
+      client = FakeLLM(fail_times=2)
+      msgs = [{"role": "user", "content": "What is RAG?"}]
+      for attempt in range(1, 4):
+          try:
+              resp = client.chat(msgs)
+              print("succeeded on attempt", ___)
+              break
+          except ___:
+              if attempt == 3:
+                  raise
+    answer: ["attempt", "RateLimitError"]
+    en:
+      prompt: "Fill in the blanks so the loop prints the winning attempt number and catches only rate-limit failures."
+      explanation: "Print `attempt` inside the `try` block once `client.chat(msgs)` succeeds, and catch `RateLimitError` in the `except` clause."
+    vi:
+      prompt: "Điền vào hai chỗ trống để vòng lặp in số lần thử thành công và chỉ bắt lỗi giới hạn tốc độ."
+      explanation: "In `attempt` trong khối `try` khi `client.chat(msgs)` thành công, và bắt `RateLimitError` ở nhánh `except`."
+
+  - id: p7-01-q16
+    type: parsons
+    tags: [llm, exceptions]
+    difficulty: 3
+    lines:
+      - "from pyai_llm import FakeLLM, RateLimitError"
+      - "client = FakeLLM(fail_times=1)"
+      - "for attempt in (1, 2):"
+      - "    try:"
+      - '        print(attempt, client.chat([{"role": "user", "content": "What is RAG?"}]).finish_reason)'
+      - "        break"
+      - "    except RateLimitError:"
+      - '        print(attempt, "retry")'
+    en:
+      prompt: "Arrange these lines in order to catch one `RateLimitError`, print `1 retry`, and succeed on attempt 2 (`2 stop`)."
+      explanation: "Import `FakeLLM` and `RateLimitError`, create `client`, loop `attempt` over `(1, 2)`, call `client.chat(...)` then `break` inside `try:`, and print `attempt, \"retry\"` in `except RateLimitError:`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để bắt một lỗi `RateLimitError`, in `1 retry`, rồi thành công ở lượt 2 (`2 stop`)."
+      explanation: "Import `FakeLLM` và `RateLimitError`, tạo `client`, lặp `attempt` qua `(1, 2)`, gọi `client.chat(...)` rồi `break` trong `try:`, và in `attempt, \"retry\"` ở `except RateLimitError:`."
+
+flashcards:
+  - id: p7-01-f01
+    tags: [llm]
+    code: |
+      messages = [
+          {"role": "system", "content": "Be concise."},
+          {"role": "user", "content": "What is RAG?"},
+      ]
+    en:
+      front: "What are the three standard chat message roles, and what does each one do?"
+      back: "`system` sets rules and persona up front, `user` carries the person's input, and `assistant` records the model's earlier replies in the history."
+    vi:
+      front: "Ba vai trò chuẩn trong tin nhắn chat là gì và mỗi vai trò làm gì?"
+      back: "`system` đặt luật và vai trò ngay từ đầu, `user` chứa yêu cầu của người dùng, và `assistant` lưu các câu trả lời trước đó của model trong lịch sử."
+
+  - id: p7-01-f02
+    tags: [llm]
+    code: |
+      history.append({"role": "user", "content": question})
+      resp = client.chat(history)
+      history.append({"role": "assistant", "content": resp.content})
+    en:
+      front: "Why do LLM apps have to maintain and resend `history` on every turn?"
+      back: "Chat APIs are stateless (no memory between calls). Each turn starts fresh unless you resend previous `user` and `assistant` messages, which also increases `prompt_tokens`."
+    vi:
+      front: "Vì sao ứng dụng LLM phải tự lưu và gửi lại `history` ở mỗi lượt?"
+      back: "API chat không có trí nhớ giữa các lần gọi (stateless). Mỗi lượt đều bắt đầu lại từ đầu nếu bạn không gửi lại các tin nhắn `user` và `assistant` cũ, điều này cũng làm `prompt_tokens` tăng lên."
+
+  - id: p7-01-f03
+    tags: [llm]
+    code: |
+      resp = FakeLLM(seed=3).chat(messages, temperature=0.8)
+    en:
+      front: "When should you set `temperature=0` vs a higher value like `0.8`?"
+      back: "Use `0` for repeatable outputs (extraction, classification, tests) and higher values (`0.7–1.0`) for variety (brainstorming, creative text). In `FakeLLM`, `seed` makes `temperature > 0` deterministic."
+    vi:
+      front: "Khi nào nên dùng `temperature=0` và khi nào dùng giá trị cao như `0.8`?"
+      back: "Dùng `0` khi cần đầu ra ổn định (trích xuất, phân loại, test) và giá trị cao (`0.7–1.0`) khi cần đa dạng (brainstorm, viết sáng tạo). Với `FakeLLM`, `seed` giúp `temperature > 0` lặp lại được."
+
+  - id: p7-01-f04
+    tags: [llm]
+    code: |
+      resp = client.chat(messages, max_tokens=5)
+      if resp.finish_reason == "length":
+          print("Truncated!")
+    en:
+      front: "What does `resp.finish_reason == \"length\"` mean, and why check it?"
+      back: "Generation hit the `max_tokens` cap and stopped mid-reply instead of finishing naturally (`\"stop\"`). Checking it prevents using incomplete text or broken JSON."
+    vi:
+      front: "`resp.finish_reason == \"length\"` nghĩa là gì và vì sao cần kiểm tra?"
+      back: "Câu trả lời đã chạm trần `max_tokens` và bị cắt ngang thay vì kết thúc tự nhiên (`\"stop\"`). Kiểm tra trường này giúp tránh dùng nhầm câu chữ hoặc JSON bị cụt."
+
+  - id: p7-01-f05
+    tags: [llm, exceptions]
+    code: |
+      for attempt in range(1, max_attempts + 1):
+          try:
+              return client.chat(messages)
+          except RateLimitError:
+              if attempt == max_attempts:
+                  raise
+    en:
+      front: "Which errors belong in an LLM retry loop with exponential backoff, and which do not?"
+      back: "Retry transient errors like `RateLimitError` (`429`) or timeouts while doubling the wait (`0.5 * 2 ** (attempt - 1)`). Never retry bad-request errors like `ValueError`."
+    vi:
+      front: "Những lỗi nào nên retry với exponential backoff khi gọi LLM, và lỗi nào thì không?"
+      back: "Chỉ retry lỗi tạm thời như `RateLimitError` (`429`) hay timeout kèm thời gian chờ tăng gấp đôi (`0.5 * 2 ** (attempt - 1)`). Không bao giờ retry lỗi request sai như `ValueError`."
+
+  - id: p7-01-f06
+    tags: [llm, apis]
+    code: |
+      # .env (listed in .gitignore) -> LLM_API_KEY=...
+      api_key = os.environ["LLM_API_KEY"]
+    en:
+      front: "How should you store and load a real LLM API key?"
+      back: "Put it in a `.env` file listed in `.gitignore`, read it via `os.environ[\"LLM_API_KEY\"]`, and never print, log, hardcode, or commit it."
+    vi:
+      front: "Nên lưu và nạp API key thật của LLM như thế nào?"
+      back: "Lưu trong file `.env` đã thêm vào `.gitignore`, đọc qua `os.environ[\"LLM_API_KEY\"]`, và tuyệt đối không in, ghi log, dán vào code hay commit."

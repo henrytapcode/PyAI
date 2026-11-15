@@ -1,0 +1,10 @@
+--- Case 1: recovers after 2 failures ---
+Attempt 1: rate limit exceeded, retry later (would wait 0.5s)
+Attempt 2: rate limit exceeded, retry later (would wait 1.0s)
+Attempt 3: succeeded
+Reply: RAG (Retrieval-Augmented Generation) retrieves relevant documents and adds them to the prompt before generating an answer.
+--- Case 2: fails all 3 attempts ---
+Attempt 1: rate limit exceeded, retry later (would wait 0.5s)
+Attempt 2: rate limit exceeded, retry later (would wait 1.0s)
+Attempt 3: rate limit exceeded, retry later (would wait 2.0s)
+Caught after retries exhausted: rate limit exceeded, retry later

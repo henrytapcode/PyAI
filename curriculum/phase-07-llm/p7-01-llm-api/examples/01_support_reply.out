@@ -1,0 +1,11 @@
+Turn 1: What is RAG?
+Reply:  RAG (Retrieval-Augmented Generation) retrieves relevant documents and adds them to the prompt before generating an answer.
+Tokens: prompt=21, completion=21, total=42
+Turn 2: What is a token?
+Reply:  Tokens are the small text pieces (words, subwords, or punctuation) that an LLM reads and generates.
+Tokens: prompt=55, completion=21, total=76
+Turn 3: How do I reset my password?
+Reply:  (fake model) I received: How do I reset my password?
+Tokens: prompt=91, completion=14, total=105
+Grand total tokens: 223 (in=167, out=56)
+Estimated cost (example pricing): $0.000168

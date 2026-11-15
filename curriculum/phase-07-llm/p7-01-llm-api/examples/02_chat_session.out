@@ -1,0 +1,11 @@
+Q: What is RAG?
+A: RAG (Retrieval-Augmented Generation) retrieves relevant documents and adds them to the prompt before generating an answer.
+history length: 3
+Q: What is temperature?
+A: Temperature controls randomness: 0 makes outputs deterministic, while higher values increase variety.
+history length: 5
+Q: What is a token?
+A: Tokens are the small text pieces (words, subwords, or punctuation) that an LLM reads and generates.
+history length: 7
+final history length: 7
+total_tokens: 208
