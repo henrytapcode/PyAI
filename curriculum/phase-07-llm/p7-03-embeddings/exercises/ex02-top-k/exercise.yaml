@@ -1,0 +1,62 @@
+id: p7-03-ex02
+kind: code
+title:
+  en: "Write: rank top-k documents with embeddings"
+  vi: "Viết code: xếp hạng top-k tài liệu bằng embedding"
+difficulty: 2
+tags: [llm, numpy]
+hints:
+  en:
+    - |
+      This combines matrix dot-product ranking from §4 with the similarity threshold from §5. For `docs=["cheap car rental", "fast laptop repair"]` and `query="affordable automobile"` with `k=1`, you must return `[(0, ...)]` with index `0` first.
+    - |
+      The plan:
+      1. Return an empty list right away without calling the embedding client if the document list is empty or the requested count is not positive.
+      2. Embed all documents in a single batch call and build a 2-D NumPy matrix, then embed the query separately as a 1-D vector.
+      3. Multiply the document matrix by the query vector to score every document at once.
+      4. Sort document indexes by descending score using a stable sort so smaller indexes stay first on ties.
+      5. Keep at most `k` items whose rounded Python float score meets the minimum threshold, and return `(index, score)` pairs.
+    - |
+      The shape of the solution:
+      ```python
+      if not docs or k <= 0:
+          return []
+      doc_matrix = np.array(client.embed(docs), dtype=float)
+      query_vec = np.array(client.embed([query])[0], dtype=float)
+      scores = ...
+      order = np.argsort(-scores, kind="stable")
+      results: list[tuple[int, float]] = []
+      for idx in order[:k]:
+          score = round(float(scores[int(idx)]), 3)
+          if score >= min_score:
+              results.append((int(idx), score))
+      return results
+      ```
+      Look back at §4.
+  vi:
+    - |
+      Bài này kết hợp xếp hạng bằng tích ma trận ở §4 với ngưỡng lọc điểm ở §5. Với `docs=["cheap car rental", "fast laptop repair"]`, `query="affordable automobile"` và `k=1`, hàm phải trả về `[(0, ...)]` với chỉ số `0` đứng đầu.
+    - |
+      Kế hoạch:
+      1. Trả về danh sách rỗng ngay lập tức và không gọi client nếu danh sách tài liệu rỗng hoặc số lượng cần lấy không dương.
+      2. Embed toàn bộ tài liệu trong một lần gọi duy nhất thành ma trận 2 chiều của NumPy, rồi embed câu hỏi thành vector 1 chiều.
+      3. Nhân ma trận tài liệu với vector câu hỏi để chấm điểm tất cả tài liệu cùng lúc.
+      4. Sắp xếp chỉ số tài liệu theo điểm giảm dần bằng thuật toán ổn định để khi hòa điểm thì chỉ số nhỏ hơn vẫn đứng trước.
+      5. Lấy tối đa `k` kết quả có điểm dạng số thực Python đã làm tròn đạt từ ngưỡng tối thiểu trở lên rồi trả về danh sách cặp `(index, score)`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      if not docs or k <= 0:
+          return []
+      doc_matrix = np.array(client.embed(docs), dtype=float)
+      query_vec = np.array(client.embed([query])[0], dtype=float)
+      scores = ...
+      order = np.argsort(-scores, kind="stable")
+      results: list[tuple[int, float]] = []
+      for idx in order[:k]:
+          score = round(float(scores[int(idx)]), 3)
+          if score >= min_score:
+              results.append((int(idx), score))
+      return results
+      ```
+      Xem lại §4.

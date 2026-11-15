@@ -1,0 +1,14 @@
+query                  doc   kw    cos
+--------------------------------------
+affordable automobile  doc0   0  0.866
+affordable automobile  doc1   0  0.000
+affordable automobile  doc2   0  0.000
+affordable automobile  doc3   0  0.000
+rapid computer         doc0   0  0.000
+rapid computer         doc1   0  0.707
+rapid computer         doc2   0  0.354
+rapid computer         doc3   0  0.000
+reimbursement bug      doc0   0  0.000
+reimbursement bug      doc1   0  0.000
+reimbursement bug      doc2   0  0.707
+reimbursement bug      doc3   0  0.000

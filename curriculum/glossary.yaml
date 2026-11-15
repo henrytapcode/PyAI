@@ -1781,6 +1781,39 @@ terms:
       vi: "Bước truy xuất xếp hạng tài liệu theo cosine similarity với câu hỏi; quy tắc thường gặp là bỏ kết quả dưới một ngưỡng như 0.3."
     related: [embedding, vector, vector database]
 
+  - term: semantic search
+    vi_term: semantic search (tìm kiếm ngữ nghĩa)
+    tags: [llm, rag]
+    en: "Searching documents by meaning using embeddings and vector similarity instead of requiring exact keyword matches."
+    vi: "Tìm kiếm tài liệu theo ý nghĩa bằng embedding và độ tương đồng vector, thay vì bắt buộc phải khớp chính xác từng từ khóa."
+    example: "scores = doc_matrix @ query_vec\nbest = int(np.argmax(scores))"
+    in_practice:
+      en: "When a user asks \"I cannot sign in\" and the help page says \"reset your password\", semantic search retrieves the right guide even with zero shared words."
+      vi: "Khi người dùng hỏi \"I cannot sign in\" còn trang hướng dẫn viết \"reset your password\", tìm kiếm ngữ nghĩa vẫn tìm đúng tài liệu dù không trùng từ nào."
+    related: [embedding, cosine similarity, top-k]
+
+  - term: top-k
+    vi_term: top-k (k kết quả đứng đầu)
+    tags: [llm, rag]
+    en: "Selecting the k highest-scoring items from a ranked list, such as the 3 most relevant documents for a query."
+    vi: "Chọn k mục có điểm cao nhất từ danh sách đã xếp hạng, chẳng hạn 3 tài liệu liên quan nhất với câu hỏi."
+    example: "top_idx = np.argsort(-scores, kind=\"stable\")[:3]"
+    in_practice:
+      en: "In RAG you retrieve only the top-k chunks (often k=3 to 5) that also pass a minimum similarity score, so the LLM prompt stays focused and cheap."
+      vi: "Trong RAG bạn chỉ lấy top-k đoạn văn bản (thường k=3 đến 5) đạt trên ngưỡng tương đồng tối thiểu, giúp prompt gửi cho LLM gọn và tiết kiệm."
+    related: [semantic search, cosine similarity, RAG]
+
+  - term: normalize
+    vi_term: normalize (chuẩn hóa độ dài vector)
+    tags: [numpy, ml-math]
+    en: "Dividing a non-zero vector by its L2 length so its new length is 1.0 while keeping its direction unchanged."
+    vi: "Chia một vector khác 0 cho độ dài L2 của nó để độ dài mới bằng 1.0 mà hướng vẫn giữ nguyên."
+    example: "unit_v = v / np.linalg.norm(v)"
+    in_practice:
+      en: "When all document and query embeddings are normalized to length 1, cosine similarity simplifies to a fast dot product D @ q."
+      vi: "Khi mọi embedding tài liệu và câu hỏi đều được chuẩn hóa về độ dài 1, cosine similarity rút gọn thành phép tích vô hướng nhanh D @ q."
+    related: [vector, dot product, cosine similarity]
+
   - term: vector database
     vi_term: vector database
     tags: [rag]

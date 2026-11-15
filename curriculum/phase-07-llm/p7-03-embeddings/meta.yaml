@@ -1,0 +1,29 @@
+id: p7-03-embeddings
+phase: p7
+order: 3
+kind: lesson
+title:
+  en: "Embeddings"
+  vi: "Embedding"
+summary:
+  en: "Turn text into numeric vectors with FakeLLM().embed(), measure meaning closeness with NumPy cosine similarity, rank top-k documents by dot product, and guard empty searches with a similarity threshold."
+  vi: "Biến văn bản thành vector số bằng FakeLLM().embed(), đo độ gần ngữ nghĩa bằng cosine similarity với NumPy, xếp hạng top-k tài liệu bằng tích vô hướng và đặt ngưỡng chặn kết quả không liên quan."
+level: beginner
+tags: [llm, numpy]
+prerequisites: [p7-01-llm-api, p5-01-math-bridge]
+duration_min: 14
+outcomes:
+  en:
+    - "Generate text embeddings with the fake client"
+    - "Measure similarity with NumPy cosine similarity"
+    - "Rank documents by semantic relevance"
+  vi:
+    - "Tạo embedding văn bản bằng fake client"
+    - "Đo độ tương đồng bằng cosine similarity với NumPy"
+    - "Xếp hạng tài liệu theo mức độ liên quan ngữ nghĩa"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "Google ML Crash Course: Embeddings", vi: "Google ML Crash Course: Embeddings (EN)" }
+    url: "https://developers.google.com/machine-learning/crash-course/embeddings"
+  - title: { en: "NumPy documentation: numpy.argsort", vi: "Tài liệu NumPy: numpy.argsort (EN)" }
+    url: "https://numpy.org/doc/stable/reference/generated/numpy.argsort.html"

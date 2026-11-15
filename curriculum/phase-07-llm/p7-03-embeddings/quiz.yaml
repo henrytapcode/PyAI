@@ -1,0 +1,380 @@
+questions:
+  - id: p7-03-q01
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is a text embedding?"
+      options:
+        - "A compressed ZIP archive of raw HTML pages"
+        - "A numeric vector capturing text meaning in space"
+        - "A list of SQL table columns for storing logs"
+        - "A random hash string used to encrypt passwords"
+      explanation: "An embedding maps text into a dense vector of numbers so sentences with similar meanings lie close together."
+    vi:
+      prompt: "Text embedding là gì?"
+      options:
+        - "Một file nén ZIP chứa các trang HTML thô"
+        - "Một vector số biểu diễn ý nghĩa của văn bản"
+        - "Một danh sách cột bảng SQL dùng để lưu log"
+        - "Một chuỗi băm ngẫu nhiên dùng mã hóa mật khẩu"
+      explanation: "Embedding ánh xạ văn bản thành một vector số sao cho các câu có nghĩa gần nhau nằm gần nhau trong không gian."
+
+  - id: p7-03-q02
+    type: output
+    tags: [llm, numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(embed_dim=256)
+      v1, v2 = client.embed(["cheap car", "affordable automobile"])
+      a, b = np.array(v1), np.array(v2)
+      print(round(float(np.linalg.norm(a)), 2), round(float(a @ b), 2))
+    answer: "1.0 1.0"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`FakeLLM` L2-normalizes each vector (`norm == 1.0`), and `\"cheap car\"` and `\"affordable automobile\"` map to identical normalized vectors, so `a @ b` equals `1.0`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`FakeLLM` chuẩn hóa L2 mỗi vector (`norm == 1.0`), và `\"cheap car\"` cùng `\"affordable automobile\"` ánh xạ về cùng một vector chuẩn hóa nên `a @ b` bằng `1.0`."
+
+  - id: p7-03-q03
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Why does keyword search fail when a customer asks 'affordable automobile' and the doc says 'cheap car'?"
+      options:
+        - "Because strings with spaces cannot be compared"
+        - "Because lowercase text loses all word boundaries"
+        - "Because the two phrases share zero exact words"
+        - "Because NumPy cannot store English characters"
+      explanation: "Keyword search only counts exact overlapping words; since 'affordable'/'automobile' and 'cheap'/'car' differ as strings, keyword overlap is zero."
+    vi:
+      prompt: "Vì sao keyword search thất bại khi khách hỏi 'affordable automobile' còn tài liệu viết 'cheap car'?"
+      options:
+        - "Vì chuỗi có khoảng trắng không so sánh được"
+        - "Vì chữ thường làm mất ranh giới giữa các từ"
+        - "Vì hai cụm từ không có từ chính xác nào chung"
+        - "Vì NumPy không lưu được ký tự tiếng Anh"
+      explanation: "Keyword search chỉ đếm các từ khớp chính xác; hai cặp từ đồng nghĩa khác mặt chữ nên số từ trùng bằng 0."
+
+  - id: p7-03-q04
+    type: fill
+    tags: [numpy]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      a = np.array([3.0, 4.0])
+      b = np.array([4.0, 3.0])
+      cos = (a @ b) / (np.linalg.___(a) * np.linalg.___(b))
+      print(round(float(cos), 2))
+    answer: ["norm", "norm"]
+    en:
+      prompt: "Fill in the NumPy function name used to compute vector lengths in the cosine similarity formula."
+      explanation: "`np.linalg.norm(v)` computes the L2 length of vector `v`, dividing the dot product `a @ b` by `|a| * |b|` to yield `0.96`."
+    vi:
+      prompt: "Điền tên hàm NumPy dùng để tính độ dài vector trong công thức cosine similarity."
+      explanation: "`np.linalg.norm(v)` tính độ dài L2 của vector `v`, chia tích vô hướng `a @ b` cho `|a| * |b|` để ra `0.96`."
+
+  - id: p7-03-q05
+    type: parsons
+    tags: [llm]
+    difficulty: 1
+    lines:
+      - "from pyai_llm import FakeLLM"
+      - "client = FakeLLM(embed_dim=256)"
+      - 'vecs = client.embed(["cheap car", "fast kitten"])'
+      - "print(len(vecs), len(vecs[0]))"
+    en:
+      prompt: "Arrange these lines to create a 256-dim fake client, embed two phrases, and print the vector count and dimension."
+      explanation: "Import `FakeLLM`, instantiate `client` with `embed_dim=256`, call `client.embed([...])` to produce `vecs`, then print `len(vecs)` and `len(vecs[0])`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tạo fake client 256 chiều, embed hai cụm từ và in số lượng vector cùng số chiều."
+      explanation: "Import `FakeLLM`, khởi tạo `client` với `embed_dim=256`, gọi `client.embed([...])` tạo `vecs`, rồi in `len(vecs)` và `len(vecs[0])`."
+
+  - id: p7-03-q06
+    type: mcq
+    tags: [llm, numpy]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "When all document and query vectors are already L2-normalized, what does cosine similarity simplify to?"
+      options:
+        - "The dot product between the two vectors"
+        - "The Euclidean distance squared minus one"
+        - "The sum of the absolute values of elements"
+        - "The element-wise maximum of both arrays"
+      explanation: "Because L2-normalized vectors have length `1.0`, dividing by `|a| * |b| = 1.0` leaves just the dot product `a @ b`."
+    vi:
+      prompt: "Khi mọi vector tài liệu và câu hỏi đều đã được chuẩn hóa L2, cosine similarity rút gọn thành phép gì?"
+      options:
+        - "Tích vô hướng giữa hai vector đó"
+        - "Bình phương khoảng cách Euclid trừ một"
+        - "Tổng giá trị tuyệt đối của các phần tử"
+        - "Giá trị lớn nhất theo từng vị trí mảng"
+      explanation: "Vì vector chuẩn hóa L2 có độ dài `1.0`, mẫu số `|a| * |b| = 1.0`, nên công thức chỉ còn tích vô hướng `a @ b`."
+
+  - id: p7-03-q07
+    type: output
+    tags: [numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      scores = np.array([0.15, 0.82, 0.44])
+      top_two = np.argsort(-scores, kind="stable")[:2]
+      print(top_two.tolist())
+    answer: "[1, 2]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Negating `scores` gives `[-0.15, -0.82, -0.44]`, so `np.argsort` orders indexes from highest original score to lowest: index `1` (`0.82`), then `2` (`0.44`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Đảo dấu `scores` thành `[-0.15, -0.82, -0.44]`, nên `np.argsort` xếp chỉ số theo điểm gốc giảm dần: chỉ số `1` (`0.82`), rồi `2` (`0.44`)."
+
+  - id: p7-03-q08
+    type: mcq
+    tags: [numpy]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What bug occurs if you write `np.argsort(scores)[:3]` without negating `scores`?"
+      options:
+        - "It raises a ValueError for float inputs"
+        - "It drops every negative score silently"
+        - "It returns similarity values instead of indexes"
+        - "It selects the three lowest-scoring documents"
+      explanation: "`np.argsort()` sorts in ascending order by default, so taking `[:3]` returns the indexes with the smallest (worst) similarity scores."
+    vi:
+      prompt: "Lỗi gì xảy ra nếu bạn viết `np.argsort(scores)[:3]` mà quên đảo dấu `-scores`?"
+      options:
+        - "Hàm báo lỗi ValueError với dữ liệu float"
+        - "Hàm tự động xóa toàn bộ các điểm số âm"
+        - "Hàm trả về điểm tương đồng thay vì chỉ số"
+        - "Hàm lấy nhầm ba tài liệu có điểm thấp nhất"
+      explanation: "`np.argsort()` mặc định sắp xếp tăng dần, nên cắt `[:3]` sẽ lấy ra chỉ số của ba tài liệu có điểm nhỏ nhất (kém nhất)."
+
+  - id: p7-03-q09
+    type: fill
+    tags: [numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      scores = np.array([0.5, 0.5, 0.2])
+      order = np.argsort(___, kind="___")
+      print(order.tolist())
+    answer: ["-scores", "stable"]
+    en:
+      prompt: "Fill in the negated array and sort kind so ties keep the smaller index first in descending order."
+      explanation: "Sorting `-scores` orders scores descending, and `kind=\"stable\"` guarantees that tied index `0` stays ahead of index `1`."
+    vi:
+      prompt: "Điền biểu thức đảo dấu mảng và tham số `kind` để xếp giảm dần và giữ chỉ số nhỏ đứng trước khi hòa điểm."
+      explanation: "Sắp xếp `-scores` giúp điểm cao đứng trước, còn `kind=\"stable\"` bảo đảm khi hòa điểm thì chỉ số `0` luôn đứng trước `1`."
+
+  - id: p7-03-q10
+    type: parsons
+    tags: [numpy]
+    difficulty: 2
+    lines:
+      - "import numpy as np"
+      - "D = np.array([[0.8, 0.6], [0.0, 1.0]])"
+      - "scores = D @ np.array([1.0, 0.0])"
+      - 'best = int(np.argsort(-scores, kind="stable")[0])'
+      - "print(best, round(float(scores[best]), 2))"
+    en:
+      prompt: "Arrange these lines to score a 2-document matrix `D` against query `[1.0, 0.0]` and print the top index and score."
+      explanation: "Import `numpy`, define matrix `D`, compute `scores = D @ np.array([1.0, 0.0])`, find `best` with stable argsort, then print `best` and its rounded score."
+    vi:
+      prompt: "Sắp xếp các dòng sau để chấm điểm ma trận 2 tài liệu `D` với câu hỏi `[1.0, 0.0]` rồi in chỉ số đứng đầu và điểm số."
+      explanation: "Import `numpy`, tạo ma trận `D`, tính `scores = D @ np.array([1.0, 0.0])`, tìm `best` bằng argsort ổn định, rồi in `best` và điểm đã làm tròn."
+
+  - id: p7-03-q11
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Why do semantic search systems apply a minimum similarity threshold like `min_score = 0.3`?"
+      options:
+        - "To double the dimension of query vectors"
+        - "To reject off-topic results and return not found"
+        - "To convert negative numbers into unit vectors"
+        - "To sort document indexes in ascending order"
+      explanation: "Ranking always picks a #1 document even for completely unrelated queries; checking `best_score < min_score` lets you return 'no good match' instead."
+    vi:
+      prompt: "Vì sao hệ thống tìm kiếm ngữ nghĩa cần đặt ngưỡng điểm tối thiểu như `min_score = 0.3`?"
+      options:
+        - "Để tăng gấp đôi số chiều của vector câu hỏi"
+        - "Để loại bỏ kết quả lạc đề và báo không tìm thấy"
+        - "Để chuyển các số âm thành vector có độ dài một"
+        - "Để sắp xếp chỉ số tài liệu theo thứ tự tăng dần"
+      explanation: "Phép xếp hạng lúc nào cũng có tài liệu hạng 1 kể cả với câu hỏi lạc đề; kiểm tra `best_score < min_score` giúp trả về 'không tìm thấy' thay vì đưa nhầm tài liệu."
+
+  - id: p7-03-q12
+    type: output
+    tags: [llm, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(embed_dim=256)
+      D = np.array(client.embed(["cheap car shop", "fast laptop repair"]))
+      q = np.array(client.embed(["affordable automobile"])[0])
+      scores = D @ q
+      print([round(float(x), 3) for x in scores])
+    answer: "[0.816, 0.0]"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`\"affordable automobile\"` matches `\"cheap\"` and `\"car\"` inside `\"cheap car shop\"` (`2 / sqrt(6) = 0.816`) and shares nothing with `\"fast laptop repair\"` (`0.0`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`\"affordable automobile\"` khớp hai từ đồng nghĩa `\"cheap\"` và `\"car\"` trong `\"cheap car shop\"` (`2 / sqrt(6) = 0.816`) và không trùng gì với `\"fast laptop repair\"` (`0.0`)."
+
+  - id: p7-03-q13
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "How do `FakeLLM().embed()` embeddings differ from real neural embeddings?"
+      options:
+        - "FakeLLM produces 3-D lists while real models return dicts"
+        - "FakeLLM refuses lists while real models require single strings"
+        - "FakeLLM hashes words and fixed synonyms; real models learn meaning"
+        - "FakeLLM vectors are unnormalized while real models never normalize"
+      explanation: "`FakeLLM` uses bag-of-words hashing plus a tiny synonym dictionary, whereas real neural models learn rich semantic representations from massive text corpora."
+    vi:
+      prompt: "Embedding của `FakeLLM().embed()` khác embedding neural thật ở điểm nào?"
+      options:
+        - "FakeLLM trả về list 3 chiều còn model thật trả về dict"
+        - "FakeLLM từ chối list còn model thật bắt buộc truyền chuỗi đơn"
+        - "FakeLLM băm từ và bảng đồng nghĩa; model thật học nghĩa từ dữ liệu"
+        - "FakeLLM không chuẩn hóa vector còn model thật không bao giờ chuẩn hóa"
+      explanation: "`FakeLLM` dùng băm bag-of-words kèm bảng từ đồng nghĩa cố định, trong khi model neural thật học ngữ nghĩa phong phú từ kho dữ liệu khổng lồ."
+
+  - id: p7-03-q14
+    type: mcq
+    tags: [llm]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "What is the best practice for embedding a static 10,000-document knowledge base?"
+      options:
+        - "Batch-embed docs once, store them, and embed each query"
+        - "Re-embed every document inside each incoming user request"
+        - "Call embed on one document per loop iteration per query"
+        - "Pass all 10,000 raw documents into every chat prompt"
+      explanation: "Embedding documents once in batches and storing the vectors avoids paying embedding cost and latency on every user question."
+    vi:
+      prompt: "Cách làm chuẩn khi dùng embedding cho kho 10.000 tài liệu ít thay đổi là gì?"
+      options:
+        - "Embed tài liệu theo lô một lần rồi lưu, chỉ embed từng câu hỏi"
+        - "Embed lại toàn bộ tài liệu trong mỗi lượt người dùng gửi câu hỏi"
+        - "Gọi hàm embed cho từng tài liệu một trong vòng lặp mỗi truy vấn"
+        - "Nhét thẳng cả 10.000 tài liệu thô vào mọi prompt gọi chat"
+      explanation: "Embed tài liệu theo lô một lần và lưu ma trận vector lại giúp tránh tốn tiền và độ trễ lặp lại ở mỗi câu hỏi."
+
+  - id: p7-03-q15
+    type: mcq
+    tags: [llm, numpy]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "What happens if documents were embedded with `embed_dim=256` and you query with `embed_dim=64`?"
+      options:
+        - "NumPy pads the shorter vector with zeros silently"
+        - "NumPy raises a ValueError due to mismatched shapes"
+        - "Cosine similarity returns 0.0 without an error"
+        - "FakeLLM truncates the document matrix to 64 columns"
+      explanation: "Computing `D @ q` requires `D.shape[1] == q.shape[0]`; `256 != 64` immediately raises a NumPy shape mismatch `ValueError`."
+    vi:
+      prompt: "Chuyện gì xảy ra nếu tài liệu được embed bằng `embed_dim=256` còn câu hỏi lại dùng `embed_dim=64`?"
+      options:
+        - "NumPy tự động đệm thêm các số không vào vector ngắn hơn"
+        - "NumPy ném lỗi ValueError vì lệch kích thước chiều"
+        - "Phép tính cosine trả về 0.0 mà không báo lỗi nào"
+        - "FakeLLM tự cắt bớt ma trận tài liệu xuống còn 64 cột"
+      explanation: "Phép nhân `D @ q` đòi hỏi `D.shape[1] == q.shape[0]`; `256 != 64` khiến NumPy ném `ValueError` lệch kích thước ngay lập tức."
+
+  - id: p7-03-q16
+    type: fill
+    tags: [llm]
+    difficulty: 3
+    code: |
+      from pyai_llm import FakeLLM, count_tokens
+
+      docs = ["cheap car", "fast laptop"]
+      client = FakeLLM(embed_dim=256)
+      tokens = sum(___(d) for d in docs)
+      vecs = client.embed(___)
+      print(len(vecs), tokens)
+    answer: ["count_tokens", "docs"]
+    en:
+      prompt: "Fill in the token-counting helper and the batch argument passed to `client.embed()`."
+      explanation: "`count_tokens(d)` estimates tokens per text, and passing `docs` directly embeds the whole list in one batch call."
+    vi:
+      prompt: "Điền tên hàm đếm token và đối số lô truyền cho `client.embed()`."
+      explanation: "`count_tokens(d)` ước lượng số token mỗi văn bản, còn truyền thẳng `docs` giúp embed cả danh sách trong một lần gọi."
+
+flashcards:
+  - id: p7-03-f01
+    tags: [llm]
+    en:
+      front: "Embedding"
+      back: "A numeric vector representing a text's meaning so semantically similar texts sit close together in vector space."
+    vi:
+      front: "Embedding"
+      back: "Vector số biểu diễn ý nghĩa văn bản sao cho các đoạn có nghĩa giống nhau nằm gần nhau trong không gian vector."
+  - id: p7-03-f02
+    tags: [numpy]
+    code: |
+      # When |a| == 1 and |b| == 1:
+      score = a @ b
+    en:
+      front: "Normalized vectors + cosine similarity"
+      back: "When vectors have L2 norm 1.0, cosine similarity `(a @ b) / (|a| * |b|)` simplifies to the plain dot product `a @ b`."
+    vi:
+      front: "Vector chuẩn hóa + cosine similarity"
+      back: "Khi vector có độ dài L2 bằng 1.0, cosine similarity `(a @ b) / (|a| * |b|)` rút gọn thành tích vô hướng `a @ b`."
+  - id: p7-03-f03
+    tags: [numpy]
+    code: |
+      top_idx = np.argsort(-scores, kind="stable")[:k]
+    en:
+      front: "Why negate scores in `np.argsort`?"
+      back: "`np.argsort` sorts ascending by default; negating (`-scores`) puts highest similarities first, and `kind=\"stable\"` breaks ties by smaller index."
+    vi:
+      front: "Vì sao phải đảo dấu `-scores` trong `np.argsort`?"
+      back: "`np.argsort` mặc định xếp tăng dần; đảo dấu `-scores` đưa điểm cao nhất lên đầu, còn `kind=\"stable\"` giữ chỉ số nhỏ đứng trước khi bằng điểm."
+  - id: p7-03-f04
+    tags: [llm]
+    en:
+      front: "Similarity threshold (`min_score`)"
+      back: "A cutoff (e.g. `0.3`) below which the top search hit is rejected as `'no good match'`, preventing irrelevant docs from reaching an LLM."
+    vi:
+      front: "Ngưỡng tương đồng (`min_score`)"
+      back: "Mức điểm sàn (vd `0.3`) để từ chối kết quả hạng 1 thành `'no good match'`, tránh đưa tài liệu lạc đề vào prompt LLM."
+  - id: p7-03-f05
+    tags: [llm]
+    en:
+      front: "Why embed documents once in batches?"
+      back: "Document embeddings stay reusable in matrix `D` across queries, and passing a list to `embed(docs)` cuts API overhead and rate-limit risk."
+    vi:
+      front: "Vì sao nên embed tài liệu một lần theo lô?"
+      back: "Ma trận `D` được tái sử dụng qua nhiều truy vấn, còn truyền cả list vào `embed(docs)` giảm số lần gọi mạng và nguy cơ chạm rate limit."
+  - id: p7-03-f06
+    tags: [llm]
+    en:
+      front: "`FakeLLM().embed()` vs. real neural embeddings"
+      back: "`FakeLLM` uses bag-of-words hashing plus a small synonym table (and `embed_dim=256` reduces hash collisions); real models learn deep meaning from huge datasets."
+    vi:
+      front: "`FakeLLM().embed()` khác gì embedding neural thật?"
+      back: "`FakeLLM` dùng băm bag-of-words kèm bảng đồng nghĩa nhỏ (`embed_dim=256` giảm va chạm băm); model thật học ngữ nghĩa sâu từ dữ liệu lớn."

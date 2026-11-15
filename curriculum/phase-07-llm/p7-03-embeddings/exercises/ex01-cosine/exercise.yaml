@@ -1,0 +1,56 @@
+id: p7-03-ex01
+kind: fill
+title:
+  en: "Fill: compute cosine similarity with NumPy"
+  vi: "Điền chỗ trống: tính cosine similarity bằng NumPy"
+difficulty: 1
+tags: [llm, numpy]
+hints:
+  en:
+    - |
+      This uses the cosine similarity formula from §2. For `[3.0, 4.0]` and `[6.0, 8.0]`, your function must return `1.0`.
+    - |
+      The plan:
+      1. Compare the lengths of both input lists first and raise a value error when they differ.
+      2. Convert both lists into floating-point NumPy vectors and measure each vector's L2 norm.
+      3. Return zero as a float immediately if either norm is zero so you never divide by zero.
+      4. Divide the dot product of the two vectors by the product of their norms, then round to three decimals.
+    - |
+      The shape inside `cosine_sim`:
+      ```python
+      if len(a) != len(b):
+          raise ValueError("vectors must have the same length")
+      va = np.array(a, dtype=float)
+      vb = np.array(b, dtype=float)
+      norm_a = float(np.linalg.norm(va))
+      norm_b = float(np.linalg.norm(vb))
+      if norm_a == 0.0 or norm_b == 0.0:
+          return 0.0
+      score = ...
+      return round(float(score), 3)
+      ```
+      Look back at §2.
+  vi:
+    - |
+      Bài này dùng công thức cosine similarity ở §2. Với `[3.0, 4.0]` và `[6.0, 8.0]`, hàm phải trả về `1.0`.
+    - |
+      Kế hoạch:
+      1. So sánh độ dài hai danh sách đầu vào trước và báo lỗi giá trị nếu chúng không bằng nhau.
+      2. Chuyển cả hai danh sách sang mảng số thực NumPy rồi tính độ dài L2 của từng vector.
+      3. Trả về không dạng số thực ngay nếu một trong hai độ dài bằng không để tránh phép chia cho không.
+      4. Chia tích vô hướng của hai vector cho tích hai độ dài rồi làm tròn đến ba chữ số thập phân.
+    - |
+      Hình dạng bên trong `cosine_sim`:
+      ```python
+      if len(a) != len(b):
+          raise ValueError("vectors must have the same length")
+      va = np.array(a, dtype=float)
+      vb = np.array(b, dtype=float)
+      norm_a = float(np.linalg.norm(va))
+      norm_b = float(np.linalg.norm(vb))
+      if norm_a == 0.0 or norm_b == 0.0:
+          return 0.0
+      score = ...
+      return round(float(score), 3)
+      ```
+      Xem lại §2.
