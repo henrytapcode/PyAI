@@ -1836,6 +1836,50 @@ terms:
       vi: "Kích thước chunk ảnh hưởng mạnh tới chất lượng câu trả lời: quá nhỏ mất ngữ cảnh, quá lớn thêm nhiễu và tốn tiền, nên bạn thử vài giá trị bằng eval set."
     related: [RAG, context window, embedding]
 
+  - term: chunk
+    vi_term: chunk (đoạn văn bản)
+    tags: [rag]
+    en: "A small piece cut from a longer document so it can be embedded, stored in a vector database, and retrieved individually."
+    vi: "Một đoạn nhỏ được cắt ra từ tài liệu dài để có thể embed, lưu trong vector database và truy xuất riêng lẻ."
+    example: "store.add([\"doc1#0\"], [\"Full refund within 30 days.\"], [{\"source\": \"faq.md\"}])"
+    in_practice:
+      en: "Instead of embedding an entire 50-page manual as one vector, you store each chunk as its own record alongside source and page metadata."
+      vi: "Thay vì embed cả cuốn tài liệu 50 trang thành một vector, bạn lưu từng chunk thành một bản ghi riêng kèm metadata nguồn và số trang."
+    related: [chunking, metadata, vector database]
+
+  - term: metadata
+    vi_term: metadata (siêu dữ liệu)
+    tags: [rag]
+    en: "Extra structured fields stored alongside a text chunk and its vector, such as source filename, page number, topic, or language."
+    vi: "Các trường dữ liệu có cấu trúc lưu kèm một chunk văn bản và vector của nó, như tên file nguồn, số trang, chủ đề hay ngôn ngữ."
+    example: "meta = {\"source\": \"policy.pdf\", \"page\": 2, \"lang\": \"vi\"}"
+    in_practice:
+      en: "Metadata lets you cite where an answer came from in RAG and narrow searches with metadata filters before ranking."
+      vi: "Metadata giúp bạn trích dẫn nguồn câu trả lời trong RAG và thu hẹp phạm vi tìm kiếm bằng bộ lọc metadata trước khi xếp hạng."
+    related: [metadata filter, vector database, chunk]
+
+  - term: metadata filter
+    vi_term: metadata filter (bộ lọc metadata)
+    tags: [rag]
+    en: "A condition on metadata fields (such as where={\"lang\": \"vi\"}) that restricts which stored vectors are eligible before top-k ranking."
+    vi: "Điều kiện trên các trường metadata (như where={\"lang\": \"vi\"}) giới hạn những vector nào được xét trước khi xếp hạng top-k."
+    example: "hits = store.search(\"refund policy\", k=3, where={\"lang\": \"vi\"})"
+    in_practice:
+      en: "You pre-filter by tenant, user permissions, language, or date so a search always returns k matching items instead of dropping results after ranking."
+      vi: "Bạn lọc trước theo khách hàng, quyền truy cập, ngôn ngữ hoặc ngày tháng để kết quả luôn đủ k mục phù hợp thay vì bị rơi rụng sau khi xếp hạng."
+    related: [metadata, vector database, top-k]
+
+  - term: approximate nearest neighbor (ANN)
+    vi_term: approximate nearest neighbor (ANN — lân cận gần nhất xấp xỉ)
+    tags: [rag, performance]
+    en: "A fast vector index strategy (such as HNSW or IVF) that searches only promising regions of a large collection instead of scanning every vector, trading a tiny bit of accuracy for huge speedups."
+    vi: "Chiến lược chỉ mục vector tốc độ cao (như HNSW hay IVF) chỉ tìm trong những vùng hứa hẹn của kho dữ liệu lớn thay vì quét mọi vector, đánh đổi một chút độ chính xác lấy tốc độ vượt trội."
+    example: "# Brute force: O(n * dim) checks all rows; ANN visits a small graph neighborhood."
+    in_practice:
+      en: "Exact matrix multiplication works well up to thousands of chunks; at millions of vectors, real vector databases switch to ANN indexes so queries stay in milliseconds."
+      vi: "Nhân ma trận vét cạn chạy tốt tới vài nghìn chunk; ở mức hàng triệu vector, vector database thật dùng chỉ mục ANN để truy vấn vẫn xong trong vài mili-giây."
+    related: [vector database, semantic search, top-k]
+
   - term: RAG
     vi_term: RAG (sinh có truy xuất)
     tags: [rag]

@@ -1,0 +1,62 @@
+id: p7-04-ex01
+kind: fill
+title:
+  en: "Fill: pre-filter records by metadata"
+  vi: "Điền chỗ trống: lọc bản ghi theo metadata"
+difficulty: 1
+tags: [llm, dicts]
+hints:
+  en:
+    - |
+      This implements the metadata pre-filter from §3. For `matches({"lang": "vi", "topic": "faq"}, {"lang": "vi"})`, your function must return `True`; for `{"lang": "en"}`, `False`.
+    - |
+      The plan:
+      1. In `matches`, return true right away whenever the filter dictionary is missing or empty.
+      2. Loop through every required key and value in the filter, returning false as soon as the key is absent from metadata or its stored value differs.
+      3. Return true once every filter pair passes.
+      4. In `filter_indexes`, walk through the list with its index and append each index whose metadata dictionary matches the filter.
+    - |
+      The shape of both functions:
+      ```python
+      def matches(metadata: dict, where: dict | None) -> bool:
+          if not where:
+              return True
+          for key, value in where.items():
+              if ...:
+                  return False
+          return True
+
+      def filter_indexes(metadatas: list[dict], where: dict | None) -> list[int]:
+          kept: list[int] = []
+          for idx, meta in enumerate(metadatas):
+              if ...:
+                  kept.append(idx)
+          return kept
+      ```
+  vi:
+    - |
+      Bài này cài đặt bộ lọc trước theo metadata ở §3. Với `matches({"lang": "vi", "topic": "faq"}, {"lang": "vi"})`, hàm phải trả về `True`; với `{"lang": "en"}`, trả về `False`.
+    - |
+      Kế hoạch:
+      1. Trong `matches`, trả về đúng ngay nếu bộ lọc không có giá trị hoặc là từ điển rỗng.
+      2. Duyệt từng cặp khóa và giá trị trong bộ lọc, trả về sai ngay khi khóa đó không tồn tại trong metadata hoặc giá trị lưu trong metadata không khớp.
+      3. Trả về đúng sau khi mọi cặp trong bộ lọc đều đạt.
+      4. Trong `filter_indexes`, duyệt danh sách kèm chỉ số và thêm vào kết quả những chỉ số có metadata thỏa mãn điều kiện lọc.
+    - |
+      Hình dạng hai hàm:
+      ```python
+      def matches(metadata: dict, where: dict | None) -> bool:
+          if not where:
+              return True
+          for key, value in where.items():
+              if ...:
+                  return False
+          return True
+
+      def filter_indexes(metadatas: list[dict], where: dict | None) -> list[int]:
+          kept: list[int] = []
+          for idx, meta in enumerate(metadatas):
+              if ...:
+                  kept.append(idx)
+          return kept
+      ```

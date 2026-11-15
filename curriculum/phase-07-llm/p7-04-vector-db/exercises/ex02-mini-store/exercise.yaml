@@ -1,0 +1,134 @@
+id: p7-04-ex02
+kind: code
+title:
+  en: "Write: build MiniStore with pre-filter and delete"
+  vi: "Viết code: xây MiniStore có lọc trước và xóa"
+difficulty: 2
+tags: [llm, numpy, oop]
+hints:
+  en:
+    - |
+      This combines `VectorStore` from §2, metadata pre-filtering from §3, and `delete()` from §4. Adding `["c1"]`, `["cheap car rental"]` and searching `"affordable vehicle"` with `k=1` must return `[("c1", ...)]`.
+    - |
+      The plan:
+      1. Store parallel lists for IDs, texts, and metadata dictionaries alongside a set of seen IDs and a NumPy matrix that starts empty.
+      2. In `add`, check matching lengths and verify no incoming ID collides with the batch or existing records before calling `embed` once on all texts, then stack the new rows onto the matrix.
+      3. In `search`, return an empty list early if the store is empty, the limit is non-positive, or no records match the metadata filter; otherwise multiply the filtered rows by the query vector, sort descending stably, and round scores to three decimals as plain Python floats.
+      4. In `delete`, raise a key error if the ID is missing; otherwise remove the item from every list, update the ID set, and drop that row from the matrix.
+    - |
+      The shape of `MiniStore`:
+      ```python
+      class MiniStore:
+          def __init__(self, client) -> None:
+              self._client = client
+              self._ids: list[str] = []
+              self._texts: list[str] = []
+              self._metadatas: list[dict] = []
+              self._id_set: set[str] = set()
+              self._matrix: np.ndarray | None = ...
+
+          def __len__(self) -> int:
+              return ...
+
+          def add(self, ids: list[str], texts: list[str], metadatas: list[dict] | None = None) -> None:
+              if len(ids) != len(texts) or (metadatas is not None and len(metadatas) != len(ids)):
+                  raise ValueError("mismatched lengths")
+              if len(set(ids)) != len(ids) or any(cid in self._id_set for cid in ids):
+                  raise ValueError("duplicate id")
+              if not ids:
+                  return
+              metas = [{} for _ in ids] if metadatas is None else [dict(m) for m in metadatas]
+              vecs = np.array(..., dtype=float)
+              self._matrix = vecs if self._matrix is None else np.vstack([self._matrix, vecs])
+              self._ids.extend(ids)
+              self._texts.extend(texts)
+              self._metadatas.extend(metas)
+              self._id_set.update(ids)
+
+          def search(self, query: str, k: int = 3, where: dict | None = None) -> list[tuple[str, float]]:
+              if self._matrix is None or k <= 0:
+                  return []
+              kept = [
+                  i for i, meta in enumerate(self._metadatas)
+                  if not where or all(meta.get(key) == val for key, val in where.items())
+              ]
+              if not kept:
+                  return []
+              q = np.array(self._client.embed([query])[0], dtype=float)
+              scores = ...
+              order = np.argsort(-scores, kind="stable")[:k]
+              return [(self._ids[kept[int(j)]], round(float(scores[int(j)]), 3)) for j in order]
+
+          def delete(self, doc_id: str) -> None:
+              if doc_id not in self._id_set:
+                  raise KeyError(doc_id)
+              idx = self._ids.index(doc_id)
+              self._ids.pop(idx)
+              self._texts.pop(idx)
+              self._metadatas.pop(idx)
+              self._id_set.remove(doc_id)
+              self._matrix = ...
+      ```
+  vi:
+    - |
+      Bài này kết hợp `VectorStore` ở §2, lọc trước metadata ở §3 và `delete()` ở §4. Khi thêm `["c1"]`, `["cheap car rental"]` rồi tìm `"affordable vehicle"` với `k=1`, hàm phải trả về `[("c1", ...)]`.
+    - |
+      Kế hoạch:
+      1. Lưu các danh sách song song cho ID, văn bản và metadata cùng một tập ID đã thấy và ma trận NumPy khởi đầu rỗng.
+      2. Trong `add`, kiểm tra độ dài khớp nhau và bảo đảm không có ID nào trùng trong lô hoặc trùng với kho hiện tại trước khi gọi `embed` đúng một lần cho cả lô văn bản, rồi ghép các hàng mới vào ma trận.
+      3. Trong `search`, trả về danh sách rỗng ngay nếu kho rỗng, số lượng cần lấy không dương hoặc không bản ghi nào khớp bộ lọc metadata; ngược lại nhân ma trận các hàng đã lọc với vector câu hỏi, sắp xếp giảm dần ổn định và làm tròn điểm tới ba chữ số thập phân dạng số thực Python.
+      4. Trong `delete`, báo lỗi khóa nếu ID không tồn tại; ngược lại xóa mục khỏi mọi danh sách, cập nhật tập ID và bỏ đúng hàng tương ứng khỏi ma trận.
+    - |
+      Hình dạng của `MiniStore`:
+      ```python
+      class MiniStore:
+          def __init__(self, client) -> None:
+              self._client = client
+              self._ids: list[str] = []
+              self._texts: list[str] = []
+              self._metadatas: list[dict] = []
+              self._id_set: set[str] = set()
+              self._matrix: np.ndarray | None = ...
+
+          def __len__(self) -> int:
+              return ...
+
+          def add(self, ids: list[str], texts: list[str], metadatas: list[dict] | None = None) -> None:
+              if len(ids) != len(texts) or (metadatas is not None and len(metadatas) != len(ids)):
+                  raise ValueError("mismatched lengths")
+              if len(set(ids)) != len(ids) or any(cid in self._id_set for cid in ids):
+                  raise ValueError("duplicate id")
+              if not ids:
+                  return
+              metas = [{} for _ in ids] if metadatas is None else [dict(m) for m in metadatas]
+              vecs = np.array(..., dtype=float)
+              self._matrix = vecs if self._matrix is None else np.vstack([self._matrix, vecs])
+              self._ids.extend(ids)
+              self._texts.extend(texts)
+              self._metadatas.extend(metas)
+              self._id_set.update(ids)
+
+          def search(self, query: str, k: int = 3, where: dict | None = None) -> list[tuple[str, float]]:
+              if self._matrix is None or k <= 0:
+                  return []
+              kept = [
+                  i for i, meta in enumerate(self._metadatas)
+                  if not where or all(meta.get(key) == val for key, val in where.items())
+              ]
+              if not kept:
+                  return []
+              q = np.array(self._client.embed([query])[0], dtype=float)
+              scores = ...
+              order = np.argsort(-scores, kind="stable")[:k]
+              return [(self._ids[kept[int(j)]], round(float(scores[int(j)]), 3)) for j in order]
+
+          def delete(self, doc_id: str) -> None:
+              if doc_id not in self._id_set:
+                  raise KeyError(doc_id)
+              idx = self._ids.index(doc_id)
+              self._ids.pop(idx)
+              self._texts.pop(idx)
+              self._metadatas.pop(idx)
+              self._id_set.remove(doc_id)
+              self._matrix = ...
+      ```

@@ -1,0 +1,6 @@
+before save -> len: 3 embed_calls: 1
+before search: [('c2', 0.866), ('c1', 0.775)]
+after reload -> len: 3 embed_calls: 0
+reloaded search: [('c2', 0.866), ('c1', 0.775)]
+after delete c2 -> len: 2
+after delete search: [('c1', 0.775), ('c3', 0.0)]

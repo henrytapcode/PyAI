@@ -1,0 +1,3 @@
+# Danh sách bản ghi dataclass và vòng lặp tính điểm
+
+Thay vì ghép các vector thành ma trận NumPy 2 chiều, cách này lưu mỗi chunk thành một dataclass `_Record` trong `list` Python bình thường và tính tích vô hướng bằng vòng lặp `zip()` sau khi lọc. Nhờ thuật toán `.sort()` của Python có tính ổn định, sắp xếp theo `-score` tự động giữ nguyên thứ tự thêm vào khi hòa điểm. Xóa hay sửa một bản ghi chỉ đụng tới một phần tử trong list mà không phải sao chép lại mảng như `np.delete`, nhưng tốc độ tìm kiếm sẽ chậm hơn rõ rệt so với phép nhân ma trận `matrix @ q` khi kho dữ liệu vượt quá vài trăm chunk.

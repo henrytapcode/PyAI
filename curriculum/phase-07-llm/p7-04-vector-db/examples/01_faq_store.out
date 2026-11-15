@@ -1,0 +1,9 @@
+Q: money back
+  faq1 0.447 Full refund within 30 days.
+  faq5 0.408 Hoan tien refund trong 30 ngay.
+Q: affordable vehicle
+  faq3 0.802 Cheap car rental with insurance.
+  faq7 0.577 Thue xe cheap car theo ngay.
+Q: quick computer repair where={'lang': 'vi', 'topic': 'support'}
+  faq6 0.436 Sua nhanh fast laptop tai cua hang.
+  faq8 0.0 Bao loi error dang nhap qua email.

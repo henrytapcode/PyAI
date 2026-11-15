@@ -1,0 +1,397 @@
+questions:
+  - id: p7-04-q01
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What does a vector database add on top of a bare embedding matrix?"
+      options:
+        - "Automatic syntax checking for Python scripts"
+        - "IDs, text, metadata, CRUD, and search"
+        - "Built-in GPU drivers for model training"
+        - "Encryption keys for securing JSON configs"
+      explanation: "A vector database pairs each embedding vector with an ID, original text, and metadata, and supports adding, deleting, filtering, and fast retrieval."
+    vi:
+      prompt: "Vector database bổ sung thêm gì so với một ma trận embedding thuần túy?"
+      options:
+        - "Tự động kiểm tra cú pháp cho script Python"
+        - "ID, văn bản, metadata, thêm/xóa và tìm kiếm"
+        - "Trình điều khiển GPU cho huấn luyện model"
+        - "Khóa mã hóa dùng để bảo mật các file JSON"
+      explanation: "Vector database gắn mỗi vector với ID, văn bản gốc và metadata, đồng thời hỗ trợ thêm, xóa, lọc và tìm kiếm nhanh."
+
+  - id: p7-04-q02
+    type: mcq
+    tags: [rag, dicts]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What is chunk metadata in a vector store?"
+      options:
+        - "The floating-point norm of an embedding"
+        - "The Python version used to run NumPy"
+        - "Extra fields like source or language"
+        - "The random seed passed to FakeLLM"
+      explanation: "Metadata stores structured attributes alongside each text chunk—such as `source`, `page`, `topic`, or `lang`—for filtering and source citations."
+    vi:
+      prompt: "Metadata của một chunk trong vector store là gì?"
+      options:
+        - "Độ dài L2 dạng số thực của một embedding"
+        - "Phiên bản Python dùng để chạy thư viện NumPy"
+        - "Các trường kèm theo như nguồn hay ngôn ngữ"
+        - "Hạt giống ngẫu nhiên truyền vào FakeLLM"
+      explanation: "Metadata lưu các thuộc tính có cấu trúc đi kèm từng chunk—như `source`, `page`, `topic` hay `lang`—để lọc và trích dẫn nguồn."
+
+  - id: p7-04-q03
+    type: output
+    tags: [numpy, llm]
+    difficulty: 1
+    code: |
+      import numpy as np
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(embed_dim=256)
+      ids = ["c1", "c2", "c3"]
+      texts = ["cheap car", "fast laptop", "full refund"]
+      M = np.array(client.embed(texts), dtype=float)
+      M = np.delete(M, 1, axis=0)
+      ids.pop(1)
+      q = np.array(client.embed(["money back"])[0], dtype=float)
+      scores = M @ q
+      best = int(np.argsort(-scores, kind="stable")[0])
+      print(ids[best], round(float(scores[best]), 3))
+    answer: "c3 0.707"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Deleting row `1` (`\"fast laptop\"`) from both `M` and `ids` keeps `c3` aligned with `\"full refund\"`, which matches `\"money back\"` at `0.707`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Xóa hàng `1` (`\"fast laptop\"`) khỏi cả `M` lẫn `ids` giúp `c3` giữ đúng hàng của `\"full refund\"`, khớp `\"money back\"` với điểm `0.707`."
+
+  - id: p7-04-q04
+    type: fill
+    tags: [dicts]
+    difficulty: 1
+    code: |
+      def matches(meta: dict, where: dict | None) -> bool:
+          if not where:
+              return True
+          return all(___ in meta and meta[key] == val for key, val in where.___())
+
+      print(matches({"lang": "vi", "topic": "faq"}, {"lang": "vi"}))
+    answer: ["key", "items"]
+    en:
+      prompt: "Fill in the missing variable and dict method name so `matches` verifies every key/value pair in `where`."
+      explanation: "Checking `key in meta` prevents a `KeyError` on missing keys, and `where.items()` iterates over every `(key, val)` pair in the filter."
+    vi:
+      prompt: "Điền tên biến và tên phương thức của dict để `matches` kiểm tra từng cặp key/value trong `where`."
+      explanation: "Kiểm tra `key in meta` tránh lỗi `KeyError` khi thiếu khóa, còn `where.items()` duyệt qua từng cặp `(key, val)` trong bộ lọc."
+
+  - id: p7-04-q05
+    type: parsons
+    tags: [numpy]
+    difficulty: 1
+    lines:
+      - "import numpy as np"
+      - 'M = np.array([[1.0, 0.0], [0.6, 0.8]])'
+      - "M = np.delete(M, 0, axis=0)"
+      - "scores = M @ np.array([0.6, 0.8])"
+      - "print(round(float(scores[0]), 3))"
+    en:
+      prompt: "Arrange these lines to build a 2-row matrix, delete row 0, dot-product with `[0.6, 0.8]`, and print the remaining score."
+      explanation: "Import `numpy`, create `M`, delete row `0` along `axis=0` so only `[0.6, 0.8]` remains, compute `scores`, and print `round(float(scores[0]), 3)` (`1.0`)."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tạo ma trận 2 hàng, xóa hàng 0, nhân vô hướng với `[0.6, 0.8]` và in điểm còn lại."
+      explanation: "Import `numpy`, tạo `M`, xóa hàng `0` theo `axis=0` để chỉ còn `[0.6, 0.8]`, tính `scores`, rồi in `round(float(scores[0]), 3)` (`1.0`)."
+
+  - id: p7-04-q06
+    type: mcq
+    tags: [rag]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why should a vector store apply metadata filters *before* taking top-k (pre-filter) instead of *after* (post-filter)?"
+      options:
+        - "Post-filtering can return fewer than k hits"
+        - "Pre-filtering converts every vector into a string"
+        - "Post-filtering doubles the embedding dimension"
+        - "Pre-filtering removes the need to embed queries"
+      explanation: "When top-k overall hits belong to other metadata values, post-filtering discards them and leaves fewer than `k` hits—or none at all—whereas pre-filtering always ranks only eligible rows."
+    vi:
+      prompt: "Vì sao vector store nên lọc metadata *trước* khi lấy top-k (pre-filter) thay vì lọc *sau* (post-filter)?"
+      options:
+        - "Lọc sau dễ trả thiếu k kết quả hoặc về 0"
+        - "Lọc trước giúp biến mọi vector thành dạng chuỗi"
+        - "Lọc sau làm số chiều embedding tăng gấp đôi"
+        - "Lọc trước giúp bỏ qua bước embed câu truy vấn"
+      explanation: "Nếu các kết quả đứng đầu toàn kho mang metadata khác, lọc sau sẽ loại hết chúng và trả thiếu `k` mục (thậm chí 0); lọc trước luôn chỉ xếp hạng các bản ghi hợp lệ."
+
+  - id: p7-04-q07
+    type: mcq
+    tags: [numpy]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What bug occurs if you delete a chunk from your text list without deleting its row from the NumPy matrix?"
+      options:
+        - "NumPy immediately raises a MemoryError on import"
+        - "FakeLLM starts returning unsorted random integers"
+        - "All metadata dictionaries turn into empty tuples"
+        - "Row indexes drift and return wrong texts"
+      explanation: "Removing an item from `texts` shifts every later list element left by one, so row `i` of the matrix still points to the old vector while `texts[i]` now holds the next document."
+    vi:
+      prompt: "Lỗi gì xảy ra nếu bạn xóa một chunk khỏi danh sách văn bản nhưng quên xóa hàng tương ứng trong ma trận NumPy?"
+      options:
+        - "NumPy báo ngay lỗi MemoryError ngay khi import"
+        - "FakeLLM bắt đầu trả về các số nguyên ngẫu nhiên"
+        - "Toàn bộ các dictionary metadata bị đổi thành tuple"
+        - "Chỉ số hàng bị lệch và trả nhầm văn bản"
+      explanation: "Xóa một phần tử khỏi `texts` làm mọi phần tử sau dồn sang trái một vị trí, khiến hàng `i` của ma trận ghép nhầm với văn bản ở vị trí kế tiếp."
+
+  - id: p7-04-q08
+    type: output
+    tags: [numpy, rag]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      ids = ["d1", "d2", "d3"]
+      langs = ["en", "vi", "vi"]
+      scores = np.array([0.92, 0.55, 0.25])
+      kept = [i for i, lang in enumerate(langs) if lang == "vi"]
+      sub = scores[kept]
+      top = kept[int(np.argsort(-sub, kind="stable")[0])]
+      print(ids[top], round(float(scores[top]), 3))
+    answer: "d2 0.55"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Pre-filtering for `lang == \"vi\"` keeps indexes `[1, 2]` (`d2` with `0.55` and `d3` with `0.25`), so `d2` wins even though `d1` (`\"en\"`) scored `0.92`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Lọc trước theo `lang == \"vi\"` giữ lại chỉ số `[1, 2]` (`d2` điểm `0.55` và `d3` điểm `0.25`), nên `d2` đứng đầu dù `d1` (`\"en\"`) đạt `0.92`."
+
+  - id: p7-04-q09
+    type: mcq
+    tags: [llm, json]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Why do vector stores save computed embeddings (for example with `to_json()`) instead of re-embedding on every restart?"
+      options:
+        - "Because JSON strings normalize vectors automatically"
+        - "Because re-embedding costs time and API money"
+        - "Because Python lists cannot hold floating-point numbers"
+        - "Because FakeLLM deletes vectors right after search"
+      explanation: "Computing embeddings over thousands or millions of chunks takes time and API budget; saving the vectors lets `from_json()` restore the store with zero embedding calls."
+    vi:
+      prompt: "Vì sao vector store cần lưu lại các embedding đã tính (ví dụ bằng `to_json()`) thay vì embed lại mỗi lần khởi động?"
+      options:
+        - "Vì chuỗi JSON tự động chuẩn hóa độ dài mọi vector"
+        - "Vì embed lại tốn cả thời gian lẫn tiền gọi API"
+        - "Vì list Python không thể chứa được các số thực float"
+        - "Vì FakeLLM tự xóa vector ngay sau một lần tìm kiếm"
+      explanation: "Tính embedding cho hàng nghìn hay hàng triệu chunk tốn thời gian và chi phí API; lưu sẵn vector giúp `from_json()` khôi phục store mà tốn 0 lần gọi embed."
+
+  - id: p7-04-q10
+    type: mcq
+    tags: [llm, performance]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why should `VectorStore.add(ids, texts)` call `client.embed(texts)` once per batch instead of once per text in a loop?"
+      options:
+        - "Calling embed in a loop sets all scores to zero"
+        - "NumPy vstack only accepts 256-dimensional inputs"
+        - "Batching avoids extra round-trips and rate limits"
+        - "Single-text lists raise a KeyError in FakeLLM"
+      explanation: "One batched `client.embed(texts)` call sends all strings in a single request instead of making `n` separate HTTP calls that add latency and exhaust rate limits."
+    vi:
+      prompt: "Vì sao `VectorStore.add(ids, texts)` nên gọi `client.embed(texts)` một lần cho cả lô thay vì gọi từng văn bản trong vòng lặp?"
+      options:
+        - "Gọi embed trong vòng lặp làm mọi điểm số về 0"
+        - "Hàm vstack của NumPy chỉ nhận vector 256 chiều"
+        - "Gọi theo lô tránh trễ mạng và chạm rate limit"
+        - "List một phần tử sẽ gây lỗi KeyError trong FakeLLM"
+      explanation: "Một lần gọi `client.embed(texts)` theo lô gửi tất cả chuỗi trong một request thay vì `n` lần gọi riêng lẻ gây chậm và dễ chạm rate limit."
+
+  - id: p7-04-q11
+    type: fill
+    tags: [numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      matrix = np.array([[1.0, 0.0], [0.0, 1.0]])
+      new_vec = np.array([[0.6, 0.8]])
+      combined = np.___([matrix, new_vec])
+      trimmed = np.___(combined, 0, axis=0)
+      print(trimmed.shape)
+    answer: ["vstack", "delete"]
+    en:
+      prompt: "Fill in the two NumPy functions used to append a new row and remove row `0` from the matrix."
+      explanation: "`np.vstack([matrix, new_vec])` stacks new rows vertically, and `np.delete(combined, 0, axis=0)` removes row `0` cleanly."
+    vi:
+      prompt: "Điền tên hai hàm NumPy dùng để nối thêm hàng mới vào ma trận và xóa hàng `0` khỏi ma trận."
+      explanation: "`np.vstack([matrix, new_vec])` xếp thêm hàng theo chiều dọc, còn `np.delete(combined, 0, axis=0)` xóa đúng hàng `0`."
+
+  - id: p7-04-q12
+    type: output
+    tags: [json, numpy]
+    difficulty: 2
+    code: |
+      import json
+      import numpy as np
+
+      snap = json.dumps({"ids": ["a", "b"], "vectors": [[1.0, 0.0], [0.6, 0.8]]})
+      data = json.loads(snap)
+      M = np.array(data["vectors"], dtype=float)
+      scores = M @ np.array([1.0, 0.0])
+      print(data["ids"][1], round(float(scores[1]), 3))
+    answer: "b 0.6"
+    en:
+      prompt: "What does this code print?"
+      explanation: "After reloading `vectors` from JSON into `M`, row `1` (`[0.6, 0.8]`) dotted with `[1.0, 0.0]` equals `0.6`, matching `data[\"ids\"][1]` (`b`)."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Sau khi nạp lại `vectors` từ JSON vào `M`, hàng `1` (`[0.6, 0.8]`) nhân vô hướng với `[1.0, 0.0]` bằng `0.6`, ứng với `data[\"ids\"][1]` (`b`)."
+
+  - id: p7-04-q13
+    type: mcq
+    tags: [llm]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "What must you do if you switch your application from one embedding model to a new model?"
+      options:
+        - "Re-embed all chunks with the new model"
+        - "Multiply old vectors by the new embed_dim"
+        - "Sort metadata dictionaries alphabetically by key"
+        - "Replace np.vstack with np.hstack in add()"
+      explanation: "Different embedding models produce incompatible vector spaces and often different dimensions, so old stored vectors cannot be compared to queries from the new model."
+    vi:
+      prompt: "Bạn bắt buộc phải làm gì nếu chuyển ứng dụng từ model embedding cũ sang một model embedding mới?"
+      options:
+        - "Embed lại toàn bộ chunk bằng model mới"
+        - "Nhân toàn bộ vector cũ với số chiều embed_dim mới"
+        - "Sắp xếp lại các từ điển metadata theo bảng chữ cái"
+        - "Thay hàm np.vstack bằng np.hstack trong add()"
+      explanation: "Hai model embedding khác nhau tạo ra hai không gian vector (và thường cả số chiều) không tương thích, nên không thể so sánh vector cũ với câu hỏi từ model mới."
+
+  - id: p7-04-q14
+    type: mcq
+    tags: [performance, rag]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "How does an Approximate Nearest Neighbor (ANN) index differ from brute-force `matrix @ q` search?"
+      options:
+        - "ANN guarantees 100% exact top-k by scanning every row"
+        - "ANN trades slight accuracy for faster search"
+        - "ANN requires storing every vector inside a CSV string"
+        - "ANN removes the need for metadata filters in RAG"
+      explanation: "Brute-force `matrix @ q` scans all `n` vectors (`O(n * dim)`), whereas ANN indexes skip distant regions to run much faster on millions of vectors while occasionally missing a true nearest neighbor."
+    vi:
+      prompt: "Chỉ mục Approximate Nearest Neighbor (ANN) khác gì với tìm kiếm vét cạn `matrix @ q`?"
+      options:
+        - "ANN bảo đảm chính xác 100% nhờ quét toàn bộ các hàng"
+        - "ANN đổi chút độ chính xác lấy tốc độ cao hơn"
+        - "ANN bắt buộc lưu toàn bộ vector trong một chuỗi CSV"
+        - "ANN giúp hệ thống RAG không cần tới bộ lọc metadata"
+      explanation: "Phép vét cạn `matrix @ q` quét hết `n` vector (`O(n * dim)`), còn chỉ mục ANN bỏ qua vùng xa để chạy nhanh vượt trội trên hàng triệu vector dù đôi khi sót một láng giềng gần nhất."
+
+  - id: p7-04-q15
+    type: fill
+    tags: [numpy, performance]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      matrix = None
+      if matrix is ___:
+          hits = []
+      else:
+          hits = (matrix @ np.array([1.0, 0.0])).tolist()
+      print(hits)
+    answer: ["None"]
+    en:
+      prompt: "Fill in the early-guard check so searching an empty store safely produces `[]` instead of crashing on `@`."
+      explanation: "Checking `if matrix is None:` before `@` prevents `ValueError` when no documents have been added yet."
+    vi:
+      prompt: "Điền điều kiện thoát sớm để việc tìm kiếm trên store rỗng trả về `[]` an toàn thay vì văng lỗi ở phép `@`."
+      explanation: "Kiểm tra `if matrix is None:` trước phép `@` giúp tránh `ValueError` khi chưa có tài liệu nào trong store."
+
+  - id: p7-04-q16
+    type: parsons
+    tags: [numpy, rag]
+    difficulty: 3
+    lines:
+      - "import numpy as np"
+      - "scores = np.array([0.8, 0.3, 0.7])"
+      - "kept = [i for i in range(len(scores)) if i > 0]"
+      - "sub = scores[kept]"
+      - 'best_sub = int(np.argsort(-sub, kind="stable")[0])'
+      - "print(kept[best_sub], round(float(sub[best_sub]), 3))"
+    en:
+      prompt: "Arrange these lines to pre-filter `scores` to indexes `[1, 2]`, find the top index inside the subset, and print the original index and score."
+      explanation: "Import `numpy`, define `scores` and `kept`, slice `sub = scores[kept]`, pick `best_sub` via stable argsort, and map back with `kept[best_sub]` (`2 0.7`)."
+    vi:
+      prompt: "Sắp xếp các dòng sau để lọc trước `scores` theo chỉ số `[1, 2]`, tìm hạng nhất trong tập con rồi in chỉ số gốc và điểm."
+      explanation: "Import `numpy`, khai báo `scores` và `kept`, cắt `sub = scores[kept]`, tìm `best_sub` bằng argsort ổn định rồi ánh xạ ngược qua `kept[best_sub]` (`2 0.7`)."
+
+flashcards:
+  - id: p7-04-f01
+    tags: [llm, rag]
+    en:
+      front: "What does a vector database store per record?"
+      back: "A unique `id`, the original `text` (chunk), a `metadata` dict (such as `source`, `page`, `lang`), and its embedding `vector`."
+    vi:
+      front: "Một vector database lưu những gì cho mỗi bản ghi?"
+      back: "Một `id` duy nhất, `text` gốc (chunk), từ điển `metadata` (như `source`, `page`, `lang`) và `vector` embedding của nó."
+
+  - id: p7-04-f02
+    tags: [rag]
+    en:
+      front: "Pre-filter vs. post-filter in vector search"
+      back: "Pre-filter applies `where` before top-k ranking so you always get up to `k` matching hits; post-filter ranks globally first and can return fewer than `k` (or 0) hits."
+    vi:
+      front: "Pre-filter và post-filter trong tìm kiếm vector khác nhau thế nào?"
+      back: "Pre-filter lọc `where` trước khi xếp hạng top-k nên luôn trả đủ tới `k` mục khớp; post-filter xếp hạng toàn kho trước rồi mới lọc nên có thể trả thiếu `k` (thậm chí 0)."
+
+  - id: p7-04-f03
+    tags: [numpy]
+    code: |
+      self._matrix = np.delete(self._matrix, idx, axis=0)
+    en:
+      front: "What must happen to the matrix when deleting a record?"
+      back: "You must delete row `idx` from the matrix alongside popping `idx` from `ids`, `texts`, and `metadatas`, or all later indexes shift out of sync."
+    vi:
+      front: "Khi xóa một bản ghi, ma trận phải xử lý thế nào?"
+      back: "Phải xóa đúng hàng `idx` khỏi ma trận cùng lúc với `ids`, `texts` và `metadatas`, nếu không mọi chỉ số phía sau sẽ bị lệch."
+
+  - id: p7-04-f04
+    tags: [llm, json]
+    en:
+      front: "Why serialize stored vectors (`to_json` / `from_json`)?"
+      back: "Embeddings cost time and API money; saving vectors lets you reload the store with zero `embed()` calls, unless you change the embedding model."
+    vi:
+      front: "Vì sao cần lưu lại các vector (`to_json` / `from_json`)?"
+      back: "Tính embedding tốn thời gian và tiền API; lưu vector giúp nạp lại store với 0 lần gọi `embed()`, trừ khi bạn đổi sang model embedding khác."
+
+  - id: p7-04-f05
+    tags: [performance, rag]
+    en:
+      front: "Brute force `matrix @ q` vs. ANN index"
+      back: "Brute force checks all `n` vectors (`O(n · dim)`), exact but slow at millions of rows; ANN indexes (FAISS, HNSW, IVF) search promising regions much faster with a slight accuracy tradeoff."
+    vi:
+      front: "Tìm vét cạn `matrix @ q` và chỉ mục ANN khác gì nhau?"
+      back: "Vét cạn quét đủ `n` vector (`O(n · dim)`), chính xác tuyệt đối nhưng chậm ở quy mô triệu hàng; ANN (FAISS, HNSW, IVF) tìm vùng hứa hẹn nhanh hơn nhiều nhưng đánh đổi chút độ chính xác."
+
+  - id: p7-04-f06
+    tags: [llm]
+    en:
+      front: "What breaks if you query a vector store with a different embedding model?"
+      back: "Vectors from different models (or different `embed_dim`) live in incompatible spaces and shapes; you must re-embed the entire store with the new model."
+    vi:
+      front: "Điều gì hỏng nếu bạn truy vấn vector store bằng một model embedding khác?"
+      back: "Vector từ hai model (hoặc `embed_dim`) khác nhau nằm ở hai không gian và kích thước không khớp; bạn phải embed lại toàn bộ store bằng model mới."

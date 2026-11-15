@@ -1,0 +1,29 @@
+id: p7-04-vector-db
+phase: p7
+order: 4
+kind: lesson
+title:
+  en: "Vector databases"
+  vi: "Vector database"
+summary:
+  en: "Build an in-memory VectorStore with NumPy, pre-filter chunks by metadata, delete or upsert records cleanly, serialize state to JSON, and understand how ANN indexes scale to millions of vectors."
+  vi: "Xây một VectorStore trong bộ nhớ bằng NumPy, lọc trước các chunk theo metadata, xóa và cập nhật bản ghi đồng bộ, lưu nạp trạng thái qua JSON và hiểu cách chỉ mục ANN mở rộng tới hàng triệu vector."
+level: beginner
+tags: [llm, numpy, oop]
+prerequisites: [p7-03-embeddings, p4-01-numpy]
+duration_min: 14
+outcomes:
+  en:
+    - "Build a tiny in-memory vector store with NumPy"
+    - "Index chunks with metadata and filter search"
+    - "Retrieve top-k nearest matches"
+  vi:
+    - "Xây vector store nhỏ trong bộ nhớ bằng NumPy"
+    - "Lưu chunk kèm metadata và tìm kiếm có lọc"
+    - "Truy xuất top-k kết quả gần nhất"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "FAISS Wiki (Meta Research)", vi: "Wiki FAISS (Meta Research) (EN)" }
+    url: "https://github.com/facebookresearch/faiss/wiki"
+  - title: { en: "pgvector Documentation on GitHub", vi: "Tài liệu pgvector trên GitHub (EN)" }
+    url: "https://github.com/pgvector/pgvector"

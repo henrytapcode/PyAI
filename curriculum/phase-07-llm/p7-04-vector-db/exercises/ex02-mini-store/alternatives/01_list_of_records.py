@@ -1,0 +1,72 @@
+from dataclasses import dataclass
+
+
+@dataclass
+class _Record:
+    id: str
+    text: str
+    metadata: dict
+    vector: list[float]
+
+
+class MiniStore:
+    """Alternative MiniStore keeping dataclass records in a list and scoring in a loop."""
+
+    def __init__(self, client) -> None:
+        self._client = client
+        self._records: list[_Record] = []
+        self._id_set: set[str] = set()
+
+    def __len__(self) -> int:
+        return len(self._records)
+
+    def add(
+        self,
+        ids: list[str],
+        texts: list[str],
+        metadatas: list[dict] | None = None,
+    ) -> None:
+        if len(ids) != len(texts) or (metadatas is not None and len(metadatas) != len(ids)):
+            raise ValueError("ids, texts, and metadatas must have the same length")
+        if len(set(ids)) != len(ids) or any(cid in self._id_set for cid in ids):
+            raise ValueError("duplicate id")
+        if not ids:
+            return
+        metas = [{} for _ in ids] if metadatas is None else [dict(m) for m in metadatas]
+        vectors = self._client.embed(texts)
+        for cid, text, meta, vec in zip(ids, texts, metas, vectors, strict=True):
+            self._records.append(_Record(cid, text, meta, list(vec)))
+        self._id_set.update(ids)
+
+    def search(
+        self,
+        query: str,
+        k: int = 3,
+        where: dict | None = None,
+    ) -> list[tuple[str, float]]:
+        if not self._records or k <= 0:
+            return []
+        eligible = [
+            rec
+            for rec in self._records
+            if not where
+            or all(key in rec.metadata and rec.metadata[key] == val for key, val in where.items())
+        ]
+        if not eligible:
+            return []
+        q = self._client.embed([query])[0]
+        scored: list[tuple[str, float]] = []
+        for rec in eligible:
+            dot = sum(a * b for a, b in zip(rec.vector, q, strict=True))
+            scored.append((rec.id, float(dot)))
+        scored.sort(key=lambda item: -item[1])
+        return [(cid, round(score, 3)) for cid, score in scored[:k]]
+
+    def delete(self, doc_id: str) -> None:
+        if doc_id not in self._id_set:
+            raise KeyError(doc_id)
+        for idx, rec in enumerate(self._records):
+            if rec.id == doc_id:
+                self._records.pop(idx)
+                break
+        self._id_set.remove(doc_id)
