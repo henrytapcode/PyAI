@@ -1,0 +1,428 @@
+questions:
+  - id: p7-10-q01
+    type: mcq
+    tags: [agents, system-design]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What should `ToolBox.call(name, args)` return when `name` is not in the allowlist?"
+      options:
+        - "Raise `KeyError` and crash the agent loop"
+        - "Return `\"error: unknown tool <name>\"`"
+        - "Silently run the closest matching function"
+        - "Return `None` without adding a tool message"
+      explanation: "Returning `\"error: unknown tool <name>\"` as a tool observation lets the loop stay safe and lets the model recover on the next step instead of crashing or running unapproved functions."
+    vi:
+      prompt: "`ToolBox.call(name, args)` nên trả về gì khi `name` không nằm trong allowlist?"
+      options:
+        - "Raise `KeyError` và làm sập vòng lặp agent"
+        - "Trả về chuỗi `\"error: unknown tool <name>\"`"
+        - "Tự động chạy hàm có tên gần giống nhất"
+        - "Trả về `None` và bỏ qua message `tool`"
+      explanation: "Trả về `\"error: unknown tool <name>\"` dưới dạng kết quả `tool` giúp vòng lặp không bị sập và cho phép model tự sửa ở bước sau thay vì chạy nhầm hàm chưa được phép."
+
+  - id: p7-10-q02
+    type: mcq
+    tags: [agents, functions]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "A tool schema lists `required: [\"carrier\", \"order_id\"]`, and the model passes `{}`. What should `ToolBox.call` return?"
+      options:
+        - "`\"error: missing order_id\"`"
+        - "`\"error: unknown arguments\"`"
+        - "`\"error: missing carrier\"`"
+        - "Call the tool with `carrier=None`"
+      explanation: "Required parameters are validated in schema order, so checking `[\"carrier\", \"order_id\"]` from index `0` reports the first missing parameter: `\"error: missing carrier\"`."
+    vi:
+      prompt: "Schema của tool ghi `required: [\"carrier\", \"order_id\"]`, nhưng model truyền `{}`. `ToolBox.call` nên trả về gì?"
+      options:
+        - "`\"error: missing order_id\"`"
+        - "`\"error: unknown arguments\"`"
+        - "`\"error: missing carrier\"`"
+        - "Gọi hàm luôn với `carrier=None`"
+      explanation: "Các tham số bắt buộc được kiểm tra theo đúng thứ tự trong `required`, nên với `[\"carrier\", \"order_id\"]` tham số thiếu đầu tiên là `\"error: missing carrier\"`."
+
+  - id: p7-10-q03
+    type: mcq
+    tags: [agents, system-design]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which tool in the order-support project requires the approval gate before execution?"
+      options:
+        - "`issue_refund`"
+        - "`lookup_order`"
+        - "`track_shipment`"
+        - "`check_refund_policy`"
+      explanation: "`lookup_order`, `track_shipment`, and `check_refund_policy` only read data; `issue_refund` changes real state (a side effect), so it must pass the approval gate first."
+    vi:
+      prompt: "Tool nào trong dự án hỗ trợ đơn hàng bắt buộc phải qua cổng duyệt trước khi chạy?"
+      options:
+        - "`issue_refund`"
+        - "`lookup_order`"
+        - "`track_shipment`"
+        - "`check_refund_policy`"
+      explanation: "`lookup_order`, `track_shipment` và `check_refund_policy` chỉ đọc dữ liệu; riêng `issue_refund` làm thay đổi trạng thái thật (side effect) nên phải qua cổng duyệt."
+
+  - id: p7-10-q04
+    type: output
+    tags: [agents, json]
+    difficulty: 1
+    code: |
+      import json
+
+      def lookup_order(order_id: str) -> dict:
+          return {"id": order_id, "late": 4}
+
+      args = {"order_id": "1042", "debug": True}
+      props = {"order_id": {"type": "string"}}
+      clean = {k: v for k, v in args.items() if k in props}
+      print(json.dumps(lookup_order(**clean)))
+    answer: '{"id": "1042", "late": 4}'
+    en:
+      prompt: "What does this toolbox filtering and serialization snippet print?"
+      explanation: "Filtering `args` to `props` drops the unknown `'debug'` key, calls `lookup_order(order_id='1042')`, and serializes the returned dictionary with `json.dumps`."
+    vi:
+      prompt: "Đoạn code lọc tham số và chuyển JSON này in ra gì?"
+      explanation: "Lọc `args` theo `props` bỏ đi khóa lạ `'debug'`, gọi `lookup_order(order_id='1042')`, rồi dùng `json.dumps` chuyển dictionary trả về thành chuỗi JSON."
+
+  - id: p7-10-q05
+    type: fill
+    tags: [agents, exceptions]
+    difficulty: 1
+    code: |
+      def safe_call(fn, args: dict) -> str:
+          ___:
+              return str(fn(**args))
+          ___ Exception as err:
+              return f"error: {err}"
+
+
+      def check(days: int) -> str:
+          if days < 0:
+              raise ValueError("negative days")
+          return "ok"
+
+
+      print(safe_call(check, {"days": -1}))
+    answer: ["try", "except"]
+    en:
+      prompt: "Fill in the blanks so `safe_call` catches tool exceptions and returns an error string."
+      explanation: "Wrapping `fn(**args)` in `try:` / `except Exception as err:` prevents tool errors from crashing the loop and prints `error: negative days`."
+    vi:
+      prompt: "Điền vào chỗ trống để `safe_call` bắt ngoại lệ từ tool và trả về chuỗi lỗi."
+      explanation: "Bọc `fn(**args)` trong `try:` / `except Exception as err:` giúp lỗi từ tool không làm sập vòng lặp và in ra `error: negative days`."
+
+  - id: p7-10-q06
+    type: mcq
+    tags: [agents, system-design]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Why must `approve(name, args)` live in your application code instead of trusting an `approved=True` field generated by the LLM?"
+      options:
+        - "Because `FakeLLM` strips booleans from arguments"
+        - "Because JSON Schema forbids boolean parameters"
+        - "Because Python callbacks run faster than strings"
+        - "Because model outputs are untrusted input"
+      explanation: "Prompts or retrieved text can hijack what the model writes into tool arguments, so authorization decisions must always stay inside your application's code."
+    vi:
+      prompt: "Vì sao hàm `approve(name, args)` phải nằm trong code ứng dụng thay vì tin vào trường `approved=True` do LLM tự sinh?"
+      options:
+        - "Vì `FakeLLM` luôn xóa bỏ kiểu boolean khỏi tham số"
+        - "Vì JSON Schema không cho phép tham số kiểu boolean"
+        - "Vì hàm Python luôn chạy nhanh hơn chuỗi văn bản"
+        - "Vì dữ liệu do model sinh ra là đầu vào không đáng tin"
+      explanation: "Prompt injection hoặc lỗi suy luận có thể khiến model tự điền `approved=True`, nên quyền duyệt hành động có tác dụng phụ luôn phải do code bên ngoài kiểm soát."
+
+  - id: p7-10-q07
+    type: mcq
+    tags: [agents, testing, lists]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Why should a scenario test compare `got_tools` and `expected_tools` as lists (`==`) rather than sets (`set(...) == set(...)`)?"
+      options:
+        - "Lists run faster inside `pytest` parametrize"
+        - "Lists verify both call order and duplicates"
+        - "Sets raise `TypeError` on tool name strings"
+        - "Lists automatically sort tool names A–Z"
+      explanation: "A `set` discards ordering and duplicate calls, so `['check_policy', 'lookup_order']` or extra repeated calls would falsely match `['lookup_order', 'check_policy']`."
+    vi:
+      prompt: "Vì sao scenario test nên so sánh `got_tools` và `expected_tools` bằng `list` (`==`) thay vì `set` (`set(...) == set(...)`)?"
+      options:
+        - "`list` chạy nhanh hơn bên trong `pytest` parametrize"
+        - "`list` kiểm tra được cả thứ tự lẫn số lần gọi"
+        - "`set` sẽ báo `TypeError` khi chứa chuỗi tên tool"
+        - "`list` tự động sắp xếp tên tool theo bảng chữ cái"
+      explanation: "`set` làm mất thứ tự và gộp các phần tử trùng nhau, nên sẽ cho qua cả trường hợp gọi ngược thứ tự hoặc gọi lặp lại sai quy trình."
+
+  - id: p7-10-q08
+    type: mcq
+    tags: [testing, agents]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "What happens if your test suite creates one shared `FakeLLM(script=...)` client instead of calling `make_client(script)` per scenario?"
+      options:
+        - "Later scenarios crash or get shifted call IDs"
+        - "Token usage resets to zero after each call"
+        - "The toolbox clears its registered schemas"
+        - "Approval callbacks stop returning booleans"
+      explanation: "A `FakeLLM` instance tracks `_script_index` and `_tool_call_counter` internally; sharing one instance couples scenarios together and raises `IndexError` once the script runs out."
+    vi:
+      prompt: "Điều gì xảy ra nếu bộ test dùng chung một client `FakeLLM(script=...)` thay vì tạo mới bằng `make_client(script)` cho mỗi kịch bản?"
+      options:
+        - "Kịch bản sau dễ cạn script hoặc lệch ID gọi tool"
+        - "Bộ đếm token tự đặt về không sau mỗi lần gọi"
+        - "Toolbox tự động xóa sạch các schema đã đăng ký"
+        - "Hàm duyệt `approve` ngừng trả về giá trị boolean"
+      explanation: "Mỗi `FakeLLM` tự giữ trạng thái `_script_index` và `_tool_call_counter`; dùng chung sẽ làm các kịch bản phụ thuộc nhau và văng `IndexError` khi hết script."
+
+  - id: p7-10-q09
+    type: mcq
+    tags: [evaluation, testing, agents]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Your 7 scripted scenario tests all pass (`7/7`). What do you still need before trusting the agent with a live LLM?"
+      options:
+        - "Nothing else; scripted tests prove model accuracy"
+        - "Delete the repeat guard to let the model retry"
+        - "Run unscripted evals across diverse real tasks"
+        - "Remove `max_steps` so long tasks never pause"
+      explanation: "Scripted scenario tests only prove your loop, toolbox, and safety gates work when given pre-written decisions; unscripted evals (`p7-08-evals`) are still needed to test a live model's actual tool choices."
+    vi:
+      prompt: "Cả 7 kịch bản dùng script đều đạt (`7/7`). Bạn vẫn cần gì thêm trước khi tin tưởng chạy agent với một LLM thật?"
+      options:
+        - "Không cần gì thêm; script đã chứng minh độ chính xác"
+        - "Xóa bộ chặn `repeat` để model tự do thử lại"
+        - "Chạy eval không dùng script trên nhiều tác vụ thật"
+        - "Bỏ `max_steps` để các tác vụ dài không bị ngắt"
+      explanation: "Kịch bản viết sẵn chỉ kiểm chứng phần code điều khiển của bạn; với LLM thật bạn vẫn cần bộ eval không script (`p7-08-evals`) để đo xem model thật có chọn đúng tool và tham số hay không."
+
+  - id: p7-10-q10
+    type: output
+    tags: [agents, testing]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM
+
+      def make_client(script):
+          return FakeLLM(script=script)
+
+      script = [
+          {"tool_calls": [{"name": "lookup_order", "arguments": {"order_id": "1042"}}]},
+          {"tool_calls": [{"name": "issue_refund", "arguments": {"order_id": "1042", "amount": 50.0}}]},
+      ]
+      c = make_client(script)
+      tools = []
+      reason = "max_steps"
+      for _ in range(4):
+          resp = c.chat([{"role": "user", "content": "Refund 1042"}])
+          if not resp.tool_calls:
+              reason = "final"
+              break
+          tc = resp.tool_calls[0]
+          if tc.name == "issue_refund":
+              reason = "needs_approval"
+              break
+          tools.append(tc.name)
+      print(reason, tools)
+    answer: "needs_approval ['lookup_order']"
+    en:
+      prompt: "What does this approval-gated loop snippet print?"
+      explanation: "Step 1 executes `lookup_order` and appends `'lookup_order'` to `tools`; step 2 proposes `issue_refund`, which triggers `needs_approval` before appending to `tools` or running."
+    vi:
+      prompt: "Đoạn code vòng lặp có cổng duyệt này in ra gì?"
+      explanation: "Bước 1 chạy `lookup_order` và ghi `'lookup_order'` vào `tools`; bước 2 gặp `issue_refund` nên dừng ngay với `needs_approval` trước khi thêm vào `tools` hay thực thi."
+
+  - id: p7-10-q11
+    type: output
+    tags: [testing, evaluation]
+    difficulty: 2
+    code: |
+      def summarize(results: list[dict]) -> list[str]:
+          ok = sum(1 for r in results if r["passed"])
+          lines = [f"passed: {ok}/{len(results)}"]
+          fails = [r for r in results if not r["passed"]]
+          if not fails:
+              lines.append("all passed")
+          for r in fails:
+              lines.append(f"FAIL {r['name']}: {', '.join(r['reasons'])}")
+          return lines
+
+      sample = [
+          {"name": "s1", "passed": True, "reasons": []},
+          {"name": "s2", "passed": False, "reasons": ["stopped_reason", "tools"]},
+      ]
+      print("\n".join(summarize(sample)))
+    answer: |
+      passed: 1/2
+      FAIL s2: stopped_reason, tools
+    en:
+      prompt: "What does this `summarize` helper print for `sample`?"
+      explanation: "One of two scenarios passed (`passed: 1/2`), and because `fails` is non-empty, it skips `'all passed'` and prints `FAIL s2: stopped_reason, tools`."
+    vi:
+      prompt: "Hàm `summarize` này in ra gì với dữ liệu `sample`?"
+      explanation: "Có 1 trong 2 kịch bản đạt (`passed: 1/2`), và vì `fails` không rỗng nên bỏ qua `'all passed'` và in `FAIL s2: stopped_reason, tools`."
+
+  - id: p7-10-q12
+    type: fill
+    tags: [agents, dicts]
+    difficulty: 2
+    code: |
+      def check_expect(stopped: str, tools: list[str], answer: str, expect: dict) -> list[str]:
+          reasons = []
+          if stopped != expect["stopped_reason"]:
+              reasons.append("stopped_reason")
+          if tools ___ expect["tools"]:
+              reasons.append("tools")
+          sub = expect.get("answer_contains")
+          if sub and sub.lower() ___ answer.lower():
+              reasons.append("answer")
+          return reasons
+
+      print(check_expect("final", ["a"], "Order 1042", {"stopped_reason": "final", "tools": ["b"], "answer_contains": "refund"}))
+    answer: ["!=", "not in"]
+    en:
+      prompt: "Fill in the blanks to record `'tools'` when trajectories differ and `'answer'` when the expected substring is missing."
+      explanation: "`tools != expect[\"tools\"]` checks ordered list equality, and `sub.lower() not in answer.lower()` checks case-insensitive inclusion, printing `['tools', 'answer']`."
+    vi:
+      prompt: "Điền vào chỗ trống để ghi nhận `'tools'` khi quỹ đạo sai và `'answer'` khi thiếu cụm từ kỳ vọng."
+      explanation: "`tools != expect[\"tools\"]` so sánh danh sách có thứ tự, còn `sub.lower() not in answer.lower()` kiểm tra chuỗi con không phân biệt hoa/thường, in ra `['tools', 'answer']`."
+
+  - id: p7-10-q13
+    type: parsons
+    tags: [agents, functions]
+    difficulty: 2
+    lines:
+      - "order = {'total': 50.0, 'days_late': 4}"
+      - "pct = 0.2 if order['days_late'] >= 3 else 0.0"
+      - "cap = round(order['total'] * pct, 2)"
+      - "approved = 0 < 8.0 <= cap"
+      - "print(approved, cap)"
+    en:
+      prompt: "Arrange these lines to compute a policy refund cap and print whether `$8.00` is approved."
+      explanation: "Start from `order`, derive the `20%` percentage when `days_late >= 3`, compute `cap`, check `0 < 8.0 <= cap`, and finally print `True 10.0`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tính trần hoàn tiền theo chính sách và in kết quả duyệt `$8.00`."
+      explanation: "Bắt đầu từ `order`, tính tỷ lệ `20%` khi `days_late >= 3`, tính `cap`, kiểm tra `0 < 8.0 <= cap`, rồi in `True 10.0`."
+
+  - id: p7-10-q14
+    type: mcq
+    tags: [agents, loops]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "In an iteration where `token_budget` is `30`, `client.chat()` raises cumulative tokens to `35` and returns `tool_calls=[]`. Which `stopped_reason` wins?"
+      options:
+        - "`final`, because `tool_calls` is empty"
+        - "`budget`, because budget is checked first"
+        - "`max_steps`, because tokens exceed 30"
+        - "`repeat`, because no new tool ran"
+      explanation: "Checking `budget` before `final` ensures a response that pushed cumulative tokens over the limit is flagged as `budget` immediately rather than silently succeeding."
+    vi:
+      prompt: "Ở một lượt lặp với `token_budget=30`, `client.chat()` làm tổng token lên `35` đồng thời trả `tool_calls=[]`. `stopped_reason` nào được trả về?"
+      options:
+        - "`final`, vì `tool_calls` đang rỗng"
+        - "`budget`, vì ngân sách kiểm trước"
+        - "`max_steps`, vì số token vượt quá 30"
+        - "`repeat`, vì không có tool mới chạy"
+      explanation: "Kiểm tra `budget` trước `final` bảo đảm ngay cả lượt trả lời cuối làm vượt trần ngân sách cũng bị gắn nhãn `budget` thay vì cho qua âm thầm."
+
+  - id: p7-10-q15
+    type: mcq
+    tags: [agents, oop]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "Caller code runs `s = box.schemas(); s[0][\"parameters\"][\"required\"].clear()`. How do you prevent this from breaking future `box.call()` checks?"
+      options:
+        - "Return `list(self._schemas.values())` directly"
+        - "Use `s.copy()` on the outer list only"
+        - "Return `copy.deepcopy` of each schema"
+        - "Store schemas inside a tuple of dicts"
+      explanation: "A shallow `list.copy()` or tuple still shares nested `parameters` and `required` objects; `copy.deepcopy` isolates every nested dict and list from external mutation."
+    vi:
+      prompt: "Code bên ngoài chạy `s = box.schemas(); s[0][\"parameters\"][\"required\"].clear()`. Làm sao ngăn việc này phá hỏng kiểm tra `box.call()` về sau?"
+      options:
+        - "Trả trực tiếp `list(self._schemas.values())`"
+        - "Chỉ dùng `.copy()` cho danh sách ngoài cùng"
+        - "Trả về `copy.deepcopy` cho từng schema"
+        - "Lưu các schema trong một tuple chứa dict"
+      explanation: "Bản sao nông `.copy()` hoặc `tuple` vẫn dùng chung các dict và list lồng bên trong; `copy.deepcopy` tách hoàn toàn mọi lớp lồng nhau khỏi thay đổi bên ngoài."
+
+  - id: p7-10-q16
+    type: parsons
+    tags: [agents, loops]
+    difficulty: 3
+    lines:
+      - "tokens = 15"
+      - "tokens += 20"
+      - "over = tokens > 30"
+      - "if over:"
+      - "    reason = f'budget:{tokens}'"
+      - "print(reason)"
+    en:
+      prompt: "Arrange these lines so adding `20` tokens crosses the `30`-token budget and prints `'budget:35'`."
+      explanation: "Initialize `tokens = 15`, add `20` before testing `tokens > 30`, guard `reason = f'budget:{tokens}'` under `if over:`, and print `'budget:35'`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để sau khi cộng `20` token, tổng vượt ngân sách `30` và in ra `'budget:35'`."
+      explanation: "Khởi tạo `tokens = 15`, cộng `20` trước khi kiểm tra `tokens > 30`, gán `reason = f'budget:{tokens}'` trong `if over:`, rồi in `'budget:35'`."
+
+flashcards:
+  - id: p7-10-f01
+    tags: [agents, system-design]
+    en:
+      front: "Safe ToolBox"
+      back: "An allowlisted wrapper around tools that rejects unknown names, validates required args in order, drops extra args, catches exceptions as 'error: ...', and JSON-encodes dicts/lists."
+    vi:
+      front: "ToolBox an toàn"
+      back: "Lớp bọc allowlist chặn tên tool lạ, kiểm tra tham số bắt buộc theo thứ tự, bỏ tham số thừa, bắt ngoại lệ thành 'error: ...' và chuyển dict/list sang JSON."
+
+  - id: p7-10-f02
+    tags: [agents, loops]
+    en:
+      front: "Agent stop-check order"
+      back: "On every step: check token budget -> check final answer (no tool_calls) -> check repeat (same tool & args) -> check side-effect approval -> execute & append trace, bounded by max_steps."
+    vi:
+      front: "Thứ tự kiểm tra dừng agent"
+      back: "Mỗi bước lặp: ngân sách token -> trả lời cuối (không có tool_calls) -> lặp y hệt bước trước -> duyệt side effect -> chạy tool & ghi trace, tất cả nằm trong giới hạn max_steps."
+
+  - id: p7-10-f03
+    tags: [agents, system-design]
+    en:
+      front: "Approval gate (human/policy in the loop)"
+      back: "Before any side_effect=True tool runs, call code-owned approve(name, args); False or None stops immediately with stopped_reason='needs_approval' without executing the tool."
+    vi:
+      front: "Cổng duyệt (approval gate)"
+      back: "Trước khi chạy tool có side_effect=True, gọi hàm approve(name, args) của code; nếu False hoặc None thì dừng ngay với stopped_reason='needs_approval' mà không chạy tool."
+
+  - id: p7-10-f04
+    tags: [agents, testing]
+    en:
+      front: "Golden trajectory"
+      back: "The expected ordered list of tool names an agent must execute for a scenario, compared as a list (never a set) so ordering and duplicate calls are verified."
+    vi:
+      front: "Golden trajectory (quỹ đạo chuẩn)"
+      back: "Danh sách tên tool đúng thứ tự mà agent phải gọi cho một kịch bản, luôn so bằng list (không dùng set) để bắt cả lỗi sai thứ tự và gọi thừa."
+
+  - id: p7-10-f05
+    tags: [testing, agents]
+    en:
+      front: "Fresh client per scenario"
+      back: "Instantiate a new FakeLLM(script=...) inside every scenario run so script indices and ToolCall.id counters never leak across tests."
+    vi:
+      front: "Client mới cho từng kịch bản"
+      back: "Luôn tạo mới FakeLLM(script=...) trong mỗi kịch bản để vị trí đọc script và bộ đếm ToolCall.id không bị rò rỉ giữa các bài test."
+
+  - id: p7-10-f06
+    tags: [evaluation, testing]
+    en:
+      front: "Scenario tests vs. live evals"
+      back: "Scripted scenario tests verify control code deterministically; live-model evals test whether a real LLM actually chooses the right tools and arguments across varied tasks."
+    vi:
+      front: "Scenario test vs. eval với model thật"
+      back: "Scenario test dùng script kiểm chứng code điều khiển một cách tất định; còn eval với model thật đo xem LLM thực tế có chọn đúng tool và tham số trên nhiều tác vụ hay không."

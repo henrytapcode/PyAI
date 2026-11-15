@@ -1,0 +1,35 @@
+id: p7-10-mini-project-agent
+phase: p7
+order: 10
+kind: project
+title:
+  en: "Mini-project: simple agent"
+  vi: "Mini-project: agent đơn giản"
+summary:
+  en: "Build a shop order-support agent end to end: wrap read-only and side-effect tools in an allowlisted toolbox, enforce step, repeat, and token-budget limits, gate refunds behind code-controlled approval, catch a real loop bug with deterministic scenario tests, and print an honest summary report."
+  vi: "Xây dựng agent hỗ trợ đơn hàng cửa hàng từ đầu đến cuối: bọc các tool chỉ đọc và tool có tác dụng phụ trong toolbox có allowlist, áp đặt giới hạn bước, chống lặp và ngân sách token, chặn lệnh hoàn tiền qua cổng duyệt trong code, bắt lỗi vòng lặp thật bằng bộ kịch bản kiểm thử tất định và in báo cáo tổng kết trung thực."
+level: beginner
+tags: [llm, agents, testing]
+prerequisites: [p7-07-agents]
+duration_min: 45
+outcomes:
+  en:
+    - "Build a tool-using agent with safe step limits"
+    - "Test multi-step tool execution deterministically"
+    - "Gate side-effect tools behind explicit approval callbacks and audit logs"
+    - "Summarize scenario passes, failure reasons, and token usage honestly"
+  vi:
+    - "Xây agent dùng tool có giới hạn bước an toàn"
+    - "Kiểm thử luồng gọi tool nhiều bước một cách tất định"
+    - "Chặn tool có tác dụng phụ bằng hàm duyệt rõ ràng kèm nhật ký kiểm tra"
+    - "Tổng hợp số ca đạt/trượt, lý do lỗi và lượng token một cách trung thực"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "Anthropic: Building Effective Agents"
+      vi: "Anthropic: Building Effective Agents (EN)"
+    url: "https://www.anthropic.com/engineering/building-effective-agents"
+  - title:
+      en: "pytest: How to parametrize fixtures and test functions"
+      vi: "pytest: Hướng dẫn parametrize fixture và hàm test (EN)"
+    url: "https://docs.pytest.org/en/stable/how-to/parametrize.html"

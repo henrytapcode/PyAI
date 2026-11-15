@@ -1,0 +1,12 @@
+[read_only] stopped=final
+  s1 lookup_order: {"status": "delayed", "total": 50.0, "late": 4}
+  s2 check_refund_policy: eligible: max 20% refund
+[approved ] stopped=final
+  s1 lookup_order: {"status": "delayed", "total": 50.0, "late": 4}
+  s2 issue_refund: refunded $10.00 for 1042
+  audit: issue_refund ok=True by=supervisor
+[rejected ] stopped=needs_approval
+  pending: issue_refund {'order_id': '1044', 'amount': 50.0}
+  s1 lookup_order: {"status": "delayed", "total": 120.0, "late": 5}
+  audit: issue_refund ok=False by=policy_gate
+refunds_ledger: {'1042': 10.0}

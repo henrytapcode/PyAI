@@ -2876,3 +2876,37 @@ terms:
       en: "Going back to tweak a threshold or chunk size after seeing low held-out test scores leaks test information and invalidates the benchmark."
       vi: "Quay lại sửa ngưỡng hay kích thước chunk sau khi nhìn thấy điểm thấp trên held-out test sẽ gây rò rỉ dữ liệu và làm mất giá trị phép đo."
     related: [dev set, eval set, overfitting]
+
+  # ---------------------------------------------------------- Agent safety & testing
+  - term: approval gate
+    vi_term: cổng duyệt (approval gate)
+    tags: [agents, system-design]
+    en: "A checkpoint in code that pauses before any side-effect tool executes and runs it only after an explicit human or policy callback returns True."
+    vi: "Điểm chặn trong code tạm dừng trước khi tool có tác dụng phụ được chạy và chỉ thực thi khi hàm duyệt của người hoặc quy tắc hệ thống trả về True."
+    example: "if toolbox.is_side_effect(name) and not approve(name, args):\n    return {\"stopped_reason\": \"needs_approval\"}"
+    in_practice:
+      en: "Production agents gate refunds, emails, and database writes behind an approval callback so a confused model or prompt injection cannot trigger irreversible actions."
+      vi: "Agent ngoài thực tế chặn lệnh hoàn tiền, gửi email hay ghi database bằng cổng duyệt để model nhầm lẫn hoặc prompt injection không thể gây hành động không đảo ngược được."
+    related: [side effect, allowlist, agent loop]
+
+  - term: golden trajectory
+    vi_term: quỹ đạo chuẩn (golden trajectory)
+    tags: [agents, testing, evaluation]
+    en: "The expected ordered list of tool names an agent should call when solving a test scenario, compared as a sequence rather than an unordered set."
+    vi: "Danh sách tên tool theo đúng thứ tự mà agent phải gọi khi xử lý một kịch bản kiểm thử, được so sánh như một dãy có thứ tự chứ không phải tập hợp."
+    example: "expect = {\"stopped_reason\": \"final\", \"tools\": [\"lookup_order\", \"check_refund_policy\"]}"
+    in_practice:
+      en: "Checking the golden trajectory catches agents that guessed the right final answer without calling the required lookup or policy tools in order."
+      vi: "Kiểm tra golden trajectory phát hiện ra agent đoán trúng câu trả lời cuối nhưng bỏ qua hoặc đảo lộn thứ tự các bước tra cứu bắt buộc."
+    related: [scenario test, trace, golden answer]
+
+  - term: scenario test
+    vi_term: kiểm thử kịch bản (scenario test)
+    tags: [agents, testing, evaluation]
+    en: "A deterministic test case that pairs a task, scripted model decisions, an approval callback, and expected stop reason, tool trajectory, and answer checks."
+    vi: "Ca kiểm thử tất định ghép một tác vụ, kịch bản quyết định cho model, hàm duyệt và các kỳ vọng về mã dừng, chuỗi tool gọi và nội dung trả lời."
+    example: "scenario = {\"name\": \"refund_rejected\", \"task\": \"...\", \"script\": [...], \"approve\": lambda n, a: False, \"expect\": {...}}"
+    in_practice:
+      en: "Teams run scenario suites in pytest on every pull request to verify step limits, repeat guards, and approval gates before testing against live LLMs."
+      vi: "Các nhóm chạy bộ scenario test bằng pytest ở mỗi pull request để kiểm chứng giới hạn bước, chống lặp và cổng duyệt trước khi thử với LLM thật."
+    related: [golden trajectory, stop condition, approval gate]

@@ -1,0 +1,108 @@
+id: p7-10-ex02
+kind: project
+title:
+  en: "Implement run_scenario and summarize"
+  vi: "Cài đặt run_scenario và summarize"
+difficulty: 3
+tags: [agents, testing, evaluation]
+hints:
+  en:
+    - |
+      This combines the guarded approval loop from §5 (Part 3), the scenario runner from §6 (Part 4), and the report formatter from §7 (Part 5). Given a passing scenario `"happy"` expecting `stopped_reason="final"`, `tools=["lookup_order"]`, and `answer_contains="delayed"`, `run_scenario` returns `{"name": "happy", "passed": True, "stopped_reason": "final", "tools": ["lookup_order"], "reasons": []}`, and `summarize([res])` returns `["passed: 1/1", "all passed"]`.
+    - |
+      Step-by-step plan:
+      1. In `run_scenario`, create a fresh client via `make_client(list(scenario["script"]))`, initialize `messages` with the user task, and read optional `max_steps` (default `6`), `token_budget`, and `approve`.
+      2. Loop from step `1` to `max_steps`, calling `client.chat(messages, tools=toolbox.schemas())`, accumulating `resp.usage.total_tokens`, and checking stop conditions in order: `budget`, then `final` (no `tool_calls`), then `repeat` (same tool name and args as the immediately preceding executed step), then side-effect approval via `toolbox.is_side_effect` and `approve`.
+      3. Only when approved (or read-only), call `toolbox.call(tc.name, dict(tc.arguments))`, append the `assistant` and `tool` messages, and record the tool name and trace entry.
+      4. Compare the run outcome against `scenario["expect"]`, collecting any mismatches into `reasons` in the order `"stopped_reason"`, `"tools"`, `"answer"`.
+      5. In `summarize`, emit `"passed: <ok>/<total>"`, append `"FAIL <name>: <reasons>"` for each failed result, and append `"all passed"` only when zero scenarios failed.
+    - |
+      Function skeleton:
+      ```python
+      def run_scenario(scenario: dict, toolbox, make_client) -> dict:
+          client = make_client(list(scenario["script"]))
+          messages = [{"role": "user", "content": scenario["task"]}]
+          max_steps = scenario.get("max_steps", 6)
+          token_budget = scenario.get("token_budget")
+          approve = scenario.get("approve")
+          trace = []
+          tools_called = []
+          total_tokens = 0
+          stopped_reason = "max_steps"
+          answer = ""
+          for _ in range(1, max_steps + 1):
+              ...
+          expect = scenario["expect"]
+          reasons = []
+          if stopped_reason != expect["stopped_reason"]:
+              reasons.append("stopped_reason")
+          if tools_called != expect["tools"]:
+              reasons.append("tools")
+          sub = expect.get("answer_contains")
+          if sub and sub.lower() not in answer.lower():
+              reasons.append("answer")
+          return {
+              "name": scenario["name"],
+              "passed": len(reasons) == 0,
+              "stopped_reason": stopped_reason,
+              "tools": tools_called,
+              "reasons": reasons,
+          }
+
+
+      def summarize(results: list[dict]) -> list[str]:
+          passed = sum(1 for r in results if r["passed"])
+          lines = [f"passed: {passed}/{len(results)}"]
+          ...
+          return lines
+      ```
+  vi:
+    - |
+      Bài này ghép vòng lặp có cổng duyệt ở §5 (Phần 3), bộ chạy kịch bản ở §6 (Phần 4) và hàm tóm tắt báo cáo ở §7 (Phần 5). Với kịch bản đạt `"happy"` kỳ vọng `stopped_reason="final"`, `tools=["lookup_order"]` và `answer_contains="delayed"`, `run_scenario` trả `{"name": "happy", "passed": True, "stopped_reason": "final", "tools": ["lookup_order"], "reasons": []}`, còn `summarize([res])` trả `["passed: 1/1", "all passed"]`.
+    - |
+      Kế hoạch từng bước:
+      1. Trong `run_scenario`, tạo client mới bằng `make_client(list(scenario["script"]))`, khởi tạo `messages` với yêu cầu của người dùng, và đọc các khóa tùy chọn `max_steps` (mặc định `6`), `token_budget` và `approve`.
+      2. Lặp từ bước `1` tới `max_steps`, gọi `client.chat(messages, tools=toolbox.schemas())`, cộng dồn `resp.usage.total_tokens`, và kiểm tra điều kiện dừng theo thứ tự: `budget`, `final` (không có `tool_calls`), `repeat` (trùng tên tool và args với bước vừa chạy ngay trước đó), rồi mới kiểm quyền duyệt side effect qua `toolbox.is_side_effect` và `approve`.
+      3. Chỉ khi được duyệt (hoặc tool chỉ đọc), mới gọi `toolbox.call(tc.name, dict(tc.arguments))`, nối message `assistant` cùng `tool`, và ghi nhận tên tool vào lịch sử.
+      4. Đối chiếu kết quả với `scenario["expect"]`, gom các mục sai vào `reasons` đúng thứ tự `"stopped_reason"`, `"tools"`, `"answer"`.
+      5. Trong `summarize`, tạo dòng `"passed: <đạt>/<tổng>"`, thêm dòng `"FAIL <name>: <reasons>"` cho mỗi ca trượt, và chỉ thêm `"all passed"` ở cuối khi không có ca nào trượt.
+    - |
+      Khung hàm:
+      ```python
+      def run_scenario(scenario: dict, toolbox, make_client) -> dict:
+          client = make_client(list(scenario["script"]))
+          messages = [{"role": "user", "content": scenario["task"]}]
+          max_steps = scenario.get("max_steps", 6)
+          token_budget = scenario.get("token_budget")
+          approve = scenario.get("approve")
+          trace = []
+          tools_called = []
+          total_tokens = 0
+          stopped_reason = "max_steps"
+          answer = ""
+          for _ in range(1, max_steps + 1):
+              ...
+          expect = scenario["expect"]
+          reasons = []
+          if stopped_reason != expect["stopped_reason"]:
+              reasons.append("stopped_reason")
+          if tools_called != expect["tools"]:
+              reasons.append("tools")
+          sub = expect.get("answer_contains")
+          if sub and sub.lower() not in answer.lower():
+              reasons.append("answer")
+          return {
+              "name": scenario["name"],
+              "passed": len(reasons) == 0,
+              "stopped_reason": stopped_reason,
+              "tools": tools_called,
+              "reasons": reasons,
+          }
+
+
+      def summarize(results: list[dict]) -> list[str]:
+          passed = sum(1 for r in results if r["passed"])
+          lines = [f"passed: {passed}/{len(results)}"]
+          ...
+          return lines
+      ```

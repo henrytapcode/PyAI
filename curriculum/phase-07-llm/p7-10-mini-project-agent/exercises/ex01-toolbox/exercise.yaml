@@ -1,0 +1,92 @@
+id: p7-10-ex01
+kind: project
+title:
+  en: "Build the allowlisted ToolBox class"
+  vi: "Xây dựng class ToolBox có allowlist"
+difficulty: 3
+tags: [agents, oop, testing]
+hints:
+  en:
+    - |
+      This builds on the safe toolbox pattern from §3 (Part 1). After registering `lookup_order` returning `{"status": "delayed"}`, `box.call("lookup_order", {"order_id": "1042", "extra": 1})` returns `'{"status": "delayed"}'`, `box.call("missing", {})` returns `'error: unknown tool missing'`, and `box.is_side_effect("missing")` returns `False`.
+    - |
+      Step-by-step plan:
+      1. Store registered tools in insertion order, raising `ValueError` if `schema["name"]` is already registered.
+      2. Return deep copies of the stored schemas in registration order so caller mutations cannot alter internal state.
+      3. Look up the side-effect flag by name and default unknown names to `False`.
+      4. In `call`, reject unknown names first, then walk `required` in order to report the first missing or empty (`None` / `""`) argument, keep only keys listed in `properties` in a new dict, invoke the function inside `try/except`, and serialize `dict` or `list` results with `json.dumps()`.
+    - |
+      Class skeleton:
+      ```python
+      import copy
+      import json
+
+
+      class ToolBox:
+          def __init__(self) -> None:
+              self._order: list[str] = []
+              self._fns: dict = {}
+              self._schemas: dict[str, dict] = {}
+              self._side_effects: dict[str, bool] = {}
+
+          def register(self, fn, schema: dict, side_effect: bool = False) -> None:
+              name = schema["name"]
+              if name in self._fns:
+                  raise ValueError(f"duplicate tool: {name}")
+              ...
+
+          def schemas(self) -> list[dict]:
+              ...
+
+          def is_side_effect(self, name: str) -> bool:
+              ...
+
+          def call(self, name: str, args: dict) -> str:
+              if name not in self._fns:
+                  return f"error: unknown tool {name}"
+              schema = self._schemas[name]
+              params = schema.get("parameters", {})
+              ...
+      ```
+  vi:
+    - |
+      Bài này mở rộng mẫu toolbox an toàn ở §3 (Phần 1). Sau khi đăng ký `lookup_order` trả về `{"status": "delayed"}`, `box.call("lookup_order", {"order_id": "1042", "extra": 1})` trả về `'{"status": "delayed"}'`, `box.call("missing", {})` trả về `'error: unknown tool missing'`, còn `box.is_side_effect("missing")` trả về `False`.
+    - |
+      Kế hoạch từng bước:
+      1. Lưu các tool đã đăng ký theo đúng thứ tự, raise `ValueError` nếu `schema["name"]` đã tồn tại.
+      2. Trả về bản sao sâu (deep copy) danh sách schema theo thứ tự đăng ký để thay đổi từ bên ngoài không ảnh hưởng tới toolbox.
+      3. Tra cờ side-effect theo tên và mặc định trả `False` cho tên lạ.
+      4. Trong `call`, chặn tên lạ trước, rồi duyệt `required` theo đúng thứ tự để báo tham số thiếu hoặc rỗng (`None` / `""`) đầu tiên, chỉ giữ các khóa có trong `properties` sang dict mới, gọi hàm trong `try/except`, và chuyển `dict` hoặc `list` bằng `json.dumps()`.
+    - |
+      Khung class:
+      ```python
+      import copy
+      import json
+
+
+      class ToolBox:
+          def __init__(self) -> None:
+              self._order: list[str] = []
+              self._fns: dict = {}
+              self._schemas: dict[str, dict] = {}
+              self._side_effects: dict[str, bool] = {}
+
+          def register(self, fn, schema: dict, side_effect: bool = False) -> None:
+              name = schema["name"]
+              if name in self._fns:
+                  raise ValueError(f"duplicate tool: {name}")
+              ...
+
+          def schemas(self) -> list[dict]:
+              ...
+
+          def is_side_effect(self, name: str) -> bool:
+              ...
+
+          def call(self, name: str, args: dict) -> str:
+              if name not in self._fns:
+                  return f"error: unknown tool {name}"
+              schema = self._schemas[name]
+              params = schema.get("parameters", {})
+              ...
+      ```
