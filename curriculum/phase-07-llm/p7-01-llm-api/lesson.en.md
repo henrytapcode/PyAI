@@ -123,7 +123,7 @@ print("repeat seed=3:", again[:35] + "...")
 | `0.7 – 1.0` | brainstorming, creative writing, generating diverse examples |
 
 > [!TIP]
-> Real hosted LLMs with `temperature > 0` are often still non-deterministic even when you pass a `seed` (because of hardware floating-point differences). In production test suites, lock `temperature=0` or inject a deterministic fake/mock client like `FakeLLM`.
+> With real hosted LLMs, even `temperature=0` is only **nearly** deterministic (hardware floating-point differences can still cause small variations), and `temperature > 0` varies more even when you pass a `seed`. In production test suites, lock `temperature=0` for stability or inject a deterministic fake/mock client like `FakeLLM`.
 
 ## 5. Tokens: what you pay for
 
@@ -237,9 +237,9 @@ except RateLimitError as err:
 When you move from `FakeLLM` to a real provider on your laptop, you store your **API key** in a `.env` file, make sure Git ignores `.env`, and read the key from `os.environ` when sending an HTTP POST request (for example with `httpx`):
 
 ```bash
-# 1. Create a .env file (never commit this file)
-echo 'LLM_API_KEY=your-secret-key-here' > .env
+# 1. Ignore .env first, then create it (never commit this file)
 echo '.env' >> .gitignore
+echo 'LLM_API_KEY=your-secret-key-here' > .env
 
 # 2. Write a small script that reads the key from the environment
 cat > call_llm.py <<'EOF'

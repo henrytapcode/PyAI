@@ -157,10 +157,10 @@ k, where = 2, {"lang": "vi"}
 # Lọc sau (post-filter): lấy top-2 toàn kho trước, rồi mới giữ lang == "vi"
 all_scores = matrix @ q
 post_idx = np.argsort(-all_scores, kind="stable")[:k]
-post_hits = [(records[int(i)][0], round(float(all_scores[int(i)]), 3)) for i in post_idx if records[int(i)][2].get("lang") == where["lang"]]
+post_hits = [(records[int(i)][0], round(float(all_scores[int(i)]), 3)) for i in post_idx if "lang" in records[int(i)][2] and records[int(i)][2]["lang"] == where["lang"]]
 
 # Lọc trước (pre-filter): giữ lang == "vi" trước, rồi mới lấy top-2
-kept = [i for i, r in enumerate(records) if all(r[2].get(key) == val for key, val in where.items())]
+kept = [i for i, r in enumerate(records) if all(key in r[2] and r[2][key] == val for key, val in where.items())]
 sub_scores = matrix[kept] @ q
 pre_idx = np.argsort(-sub_scores, kind="stable")[:k]
 pre_hits = [(records[kept[int(j)]][0], round(float(sub_scores[int(j)]), 3)) for j in pre_idx]
@@ -205,7 +205,7 @@ where = {"lang": "vi"}
 
 mask = []
 for meta in metadatas:
-    ok = all(meta.get(k) == v for k, v in where.items())
+    ok = all(k in meta and meta[k] == v for k, v in where.items())
     mask.append(ok)
 
 kept_ids = [cid for cid, keep in zip(ids, mask) if keep]
@@ -278,7 +278,7 @@ print("car search:", store.search("cheap car", k=1))
 # car search: [('c3', 0.802, 'Affordable vehicle rental with insurance.')]
 ```
 
-Sau khi xóa `"c2"`, kết quả tìm kiếm không còn trả về nó nữa, còn `"c3"` vẫn khớp đúng nội dung vừa cập nhật vì dòng `1` của `_matrix` đã được xóa đồng bộ với `_texts[1]`.
+Sau khi xóa `"c2"`, kết quả tìm kiếm không còn trả về nó nữa, còn `"c3"` vẫn khớp đúng nội dung vừa cập nhật vì dòng `1` của `_matrix` đã được xóa đồng bộ với `_texts[1]`. Các vector store thật thường hỗ trợ upsert ngay trong `add()` và lọc kiểu "in" (chọn một trong các giá trị của danh sách) trong `where`—bài tập sẽ cho bạn tự làm cả hai.
 
 ## 5. Lưu và nạp lại
 
@@ -390,7 +390,7 @@ Khi dữ liệu vượt quá phạm vi store NumPy trong RAM, dưới đây là 
 | Qdrant | Hệ quản trị tìm kiếm vector chuyên dụng (dịch vụ hoặc nhúng) | Dịch vụ production cần ANN có lọc nhanh ở quy mô lớn |
 
 > [!NOTE]
-> Cú pháp API của mỗi sản phẩm đều khác nhau, nhưng bên dưới chúng đều cung cấp đúng những thao tác cốt lõi như store bạn vừa tự viết: thêm vector kèm metadata, lọc trước rồi lấy top-k, cập nhật/xóa theo ID và lưu bền vững chỉ mục.
+> Cú pháp API của mỗi sản phẩm đều khác nhau, nhưng bên dưới chúng đều cung cấp đúng những thao tác cốt lõi như store bạn vừa tự viết: thêm vector kèm metadata, tìm kiếm có lọc (filtered search) top-k, cập nhật/xóa theo ID và lưu bền vững chỉ mục. Có hệ lọc trước khi tìm kiếm (pre-filter), và có hệ lọc sau khi tìm kiếm trên tập ứng viên (post-filter).
 
 ## 7. Lỗi thường gặp
 
@@ -399,14 +399,30 @@ Khi dữ liệu vượt quá phạm vi store NumPy trong RAM, dưới đây là 
 Cho phép trùng ID làm thao tác xóa mơ hồ và kết quả trả về bị lặp; hãy kiểm tra ID trước khi thay đổi dữ liệu.
 
 ```python
-existing_ids = {"c1", "c2"}
-new_id = "c1"
+from pyai_llm import FakeLLM
+
+
+class VectorStore:
+    def __init__(self, client) -> None:
+        self._client = client
+        self._ids: list[str] = []
+        self._id_set: set[str] = set()
+
+    def add(self, ids: list[str], texts: list[str]) -> None:
+        if len(set(ids)) != len(ids) or any(cid in self._id_set for cid in ids):
+            raise ValueError(f"duplicate id: {ids}")
+        _ = self._client.embed(texts)
+        self._ids.extend(ids)
+        self._id_set.update(ids)
+
+
+store = VectorStore(FakeLLM(embed_dim=256))
+store.add(["c1", "c2"], ["Full refund.", "Cheap car."])
 try:
-    if new_id in existing_ids:
-        raise ValueError(f"duplicate id: {new_id}")
+    store.add(["c1"], ["Duplicate entry."])
 except ValueError as err:
     print("error:", type(err).__name__, "-", err)
-# error: ValueError - duplicate id: c1
+# error: ValueError - duplicate id: ['c1']
 ```
 
 Cách sửa: kiểm tra cả trùng lặp ngay trong lô đầu vào lẫn trùng với ID đang có trước khi sửa store, hoặc dùng `upsert()` khi muốn ghi đè.

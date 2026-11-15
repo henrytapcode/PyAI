@@ -16,47 +16,31 @@ hints:
       3. Return true once every filter pair passes.
       4. In `filter_indexes`, walk through the list with its index and append each index whose metadata dictionary matches the filter.
     - |
-      The shape of both functions:
+      The shape of the condition check inside `matches` (replace `...` and fill the remaining blanks in `starter.py`):
       ```python
       def matches(metadata: dict, where: dict | None) -> bool:
-          if not where:
-              return True
+          ...
           for key, value in where.items():
-              if ...:
+              if key not in metadata or metadata[key] != value:
                   return False
           return True
-
-      def filter_indexes(metadatas: list[dict], where: dict | None) -> list[int]:
-          kept: list[int] = []
-          for idx, meta in enumerate(metadatas):
-              if ...:
-                  kept.append(idx)
-          return kept
       ```
   vi:
     - |
       Bài này cài đặt bộ lọc trước theo metadata ở §3. Với `matches({"lang": "vi", "topic": "faq"}, {"lang": "vi"})`, hàm phải trả về `True`; với `{"lang": "en"}`, trả về `False`.
     - |
       Kế hoạch:
-      1. Trong `matches`, trả về đúng ngay nếu bộ lọc không có giá trị hoặc là từ điển rỗng.
-      2. Duyệt từng cặp khóa và giá trị trong bộ lọc, trả về sai ngay khi khóa đó không tồn tại trong metadata hoặc giá trị lưu trong metadata không khớp.
-      3. Trả về đúng sau khi mọi cặp trong bộ lọc đều đạt.
+      1. Trong `matches`, trả về `True` ngay nếu bộ lọc không có giá trị hoặc là từ điển rỗng.
+      2. Duyệt từng cặp khóa và giá trị trong bộ lọc, trả về `False` ngay khi khóa đó không tồn tại trong metadata hoặc giá trị lưu trong metadata không khớp.
+      3. Trả về `True` sau khi mọi cặp trong bộ lọc đều đạt.
       4. Trong `filter_indexes`, duyệt danh sách kèm chỉ số và thêm vào kết quả những chỉ số có metadata thỏa mãn điều kiện lọc.
     - |
-      Hình dạng hai hàm:
+      Phần kiểm tra điều kiện khó nhất trong `matches` (thay `...` và tự điền các chỗ trống còn lại trong `starter.py`):
       ```python
       def matches(metadata: dict, where: dict | None) -> bool:
-          if not where:
-              return True
+          ...
           for key, value in where.items():
-              if ...:
+              if key not in metadata or metadata[key] != value:
                   return False
           return True
-
-      def filter_indexes(metadatas: list[dict], where: dict | None) -> list[int]:
-          kept: list[int] = []
-          for idx, meta in enumerate(metadatas):
-              if ...:
-                  kept.append(idx)
-          return kept
       ```

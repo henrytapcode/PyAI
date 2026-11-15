@@ -8,57 +8,33 @@ tags: [llm, json]
 hints:
   en:
     - |
-      This uses the schema validation pattern from §3. For `data={"name": "Lan", "order_id": True}` against a schema requiring `name` (`string`) and `order_id` (`integer`), you must return `["wrong type: order_id"]`.
+      This extends the schema validation pattern from §3 with an optional `"enum"` list check. For `data={"name": "Lan", "status": "pending"}` where `status` allows `["open", "closed"]`, you must return `["status: must be one of ['open', 'closed']"]`.
     - |
       The plan:
-      1. In the first loop, check whether each required field name is absent from the input dictionary, and record a missing-field message if so.
-      2. In the second loop, check whether an integer or number field actually received a boolean value, and record a wrong-type message before running the general type check.
-      3. Finally, use Python's runtime type-checking helper against the expected Python type from the lookup map.
+      1. Keep the required-key and type-validation loops from §3 (remembering that `bool` must be rejected before checking `int` or `float`), and skip further checks on a field once its type fails.
+      2. After the type check passes, read the optional allowed-values list from the field's spec dictionary.
+      3. When that allowed list is present and the field's value is not a member of it, append the formatted error message in order.
     - |
-      The shape inside the function:
+      Shape of the hardest blank inside the property loop:
       ```python
-      for key in schema.get("required", []):
-          if ...:
-              errors.append(f"missing: {key}")
-
-      for key, spec in schema.get("properties", {}).items():
-          if key not in data:
-              continue
-          expected_type = spec.get("type", "")
-          value = data[key]
-          if expected_type in ("integer", "number") and isinstance(value, bool):
-              errors.append(f"wrong type: {key}")
-              continue
-          expected = type_map.get(expected_type)
-          if expected is not None and not ...:
-              errors.append(f"wrong type: {key}")
+      allowed = spec.get(___)
+      if allowed is not None and ...:
+          errors.append(f"{key}: must be one of {___}")
       ```
-      Remember that in Python `bool` is a subclass of `int`, so booleans must be rejected before checking `int` or `(int, float)`.
+      The condition on the `if` line checks membership of `value` in `allowed` so values outside the permitted list are flagged after type validation succeeds.
   vi:
     - |
-      Bài này dùng mẫu kiểm tra schema ở §3. Với `data={"name": "Lan", "order_id": True}` và schema yêu cầu `name` (`string`) cùng `order_id` (`integer`), hàm phải trả về `["wrong type: order_id"]`.
+      Bài này mở rộng mẫu kiểm tra schema ở §3 thêm quy tắc `"enum"` tùy chọn. Với `data={"name": "Lan", "status": "pending"}` khi `status` chỉ cho phép `["open", "closed"]`, hàm phải trả về `["status: must be one of ['open', 'closed']"]`.
     - |
       Kế hoạch:
-      1. Ở vòng lặp đầu tiên, kiểm tra xem từng tên trường bắt buộc có vắng mặt trong dictionary đầu vào hay không để ghi nhận lỗi thiếu trường.
-      2. Ở vòng lặp thứ hai, kiểm tra xem trường kiểu số nguyên hoặc số thực có đang nhận giá trị đúng/sai hay không để báo lỗi sai kiểu trước khi kiểm tra kiểu tổng quát.
-      3. Cuối cùng, kiểm tra kiểu lúc chạy của giá trị với kiểu Python tương ứng lấy từ bảng ánh xạ.
+      1. Giữ nguyên bước kiểm tra khóa bắt buộc và kiểu dữ liệu ở §3 (nhớ loại trường hợp nhận giá trị kiểu `bool` trước khi kiểm tra số nguyên/số thực), và bỏ qua bước sau cho trường đó nếu đã sai kiểu.
+      2. Sau khi qua kiểm tra kiểu, đọc danh sách giá trị cho phép tùy chọn từ spec của trường đó.
+      3. Khi danh sách cho phép tồn tại và giá trị của trường không nằm trong đó, nối thông báo lỗi đúng định dạng theo thứ tự.
     - |
-      Hình dạng bên trong hàm:
+      Hình dạng chỗ trống khó nhất trong vòng lặp trường:
       ```python
-      for key in schema.get("required", []):
-          if ...:
-              errors.append(f"missing: {key}")
-
-      for key, spec in schema.get("properties", {}).items():
-          if key not in data:
-              continue
-          expected_type = spec.get("type", "")
-          value = data[key]
-          if expected_type in ("integer", "number") and isinstance(value, bool):
-              errors.append(f"wrong type: {key}")
-              continue
-          expected = type_map.get(expected_type)
-          if expected is not None and not ...:
-              errors.append(f"wrong type: {key}")
+      allowed = spec.get(___)
+      if allowed is not None and ...:
+          errors.append(f"{key}: must be one of {___}")
       ```
-      Nhớ rằng trong Python `bool` là lớp con của `int`, nên phải loại giá trị boolean trước khi kiểm tra `int` hay `(int, float)`.
+      Điều kiện ở dòng `if` kiểm tra xem `value` có nằm ngoài danh sách `allowed` hay không sau khi đã kiểm tra đúng kiểu.

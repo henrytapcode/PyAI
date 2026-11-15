@@ -7,18 +7,18 @@ questions:
     en:
       prompt: "What is a text embedding?"
       options:
-        - "A compressed ZIP archive of raw HTML pages"
+        - "A dictionary counting exact word frequencies"
         - "A numeric vector capturing text meaning in space"
-        - "A list of SQL table columns for storing logs"
-        - "A random hash string used to encrypt passwords"
+        - "A tokenized list of subword integer IDs"
+        - "A short summary sentence produced by an LLM"
       explanation: "An embedding maps text into a dense vector of numbers so sentences with similar meanings lie close together."
     vi:
       prompt: "Text embedding là gì?"
       options:
-        - "Một file nén ZIP chứa các trang HTML thô"
+        - "Một dictionary đếm số lần xuất hiện của từng từ"
         - "Một vector số biểu diễn ý nghĩa của văn bản"
-        - "Một danh sách cột bảng SQL dùng để lưu log"
-        - "Một chuỗi băm ngẫu nhiên dùng mã hóa mật khẩu"
+        - "Một danh sách các ID số nguyên của từng subword"
+        - "Một câu tóm tắt ngắn do mô hình LLM sinh ra"
       explanation: "Embedding ánh xạ văn bản thành một vector số sao cho các câu có nghĩa gần nhau nằm gần nhau trong không gian."
 
   - id: p7-03-q02
@@ -49,18 +49,18 @@ questions:
     en:
       prompt: "Why does keyword search fail when a customer asks 'affordable automobile' and the doc says 'cheap car'?"
       options:
-        - "Because strings with spaces cannot be compared"
-        - "Because lowercase text loses all word boundaries"
+        - "Because keyword search requires identical word order"
+        - "Because the two phrases have different word lengths"
         - "Because the two phrases share zero exact words"
-        - "Because NumPy cannot store English characters"
+        - "Because stop-word filters strip nouns before matching"
       explanation: "Keyword search only counts exact overlapping words; since 'affordable'/'automobile' and 'cheap'/'car' differ as strings, keyword overlap is zero."
     vi:
       prompt: "Vì sao keyword search thất bại khi khách hỏi 'affordable automobile' còn tài liệu viết 'cheap car'?"
       options:
-        - "Vì chuỗi có khoảng trắng không so sánh được"
-        - "Vì chữ thường làm mất ranh giới giữa các từ"
+        - "Vì tìm theo từ khóa đòi hỏi thứ tự từ giống hệt nhau"
+        - "Vì hai cụm từ có tổng độ dài ký tự không bằng nhau"
         - "Vì hai cụm từ không có từ chính xác nào chung"
-        - "Vì NumPy không lưu được ký tự tiếng Anh"
+        - "Vì bộ lọc stop-word xóa mất các danh từ trước khi so"
       explanation: "Keyword search chỉ đếm các từ khớp chính xác; hai cặp từ đồng nghĩa khác mặt chữ nên số từ trùng bằng 0."
 
   - id: p7-03-q04

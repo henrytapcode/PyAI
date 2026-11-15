@@ -25,7 +25,7 @@ Có ba cách để model biết dữ liệu riêng của bạn: nhét **toàn b�
 
 ## 2. Chunking: cắt tài liệu thành miếng
 
-Tài liệu dài khó nhét vừa một prompt, và việc embed cả file PDF 20 trang thành một vector duy nhất sẽ làm nhòe mọi chủ đề vào nhau. **Chunking** (chia đoạn) cắt văn bản thành các cửa sổ từ có độ dài `size`, bước nhảy `step = size - overlap`, nhờ đó mỗi chunk giữ lại **chunk overlap** (phần gối) từ cuối chunk trước để câu nằm vắt qua ranh giới không bị cắt đứt ngữ cảnh.
+Tài liệu dài khó nhét vừa một prompt, và việc embed cả file PDF 20 trang thành một vector duy nhất sẽ làm nhòe mọi chủ đề vào nhau. **Chunking** (chia đoạn) cắt văn bản thành các cửa sổ từ có độ dài `size`, bước nhảy `step = size - overlap`, nhờ đó mỗi chunk giữ lại **chunk overlap** (phần gối) từ cuối chunk trước để các cụm từ ngắn ngay ranh giới còn nguyên vẹn trong ít nhất một cửa sổ thay vì bị chẻ đôi.
 
 ```text
 words:   [0   1   2   3   4   5   6   7   8   9]
@@ -86,6 +86,8 @@ Chọn kích thước chunk luôn là sự đánh đổi giữa độ nét khi t
 | Nhỏ (vd 50–100 từ) | Embedding sắc nét, ít nhiễu trong prompt | Dễ cắt mất ngữ cảnh hoặc điều kiện đi kèm |
 | Vừa (vd 150–300 từ) | Cân bằng giữa độ tập trung và đủ trọn đoạn | Cần chỉnh overlap để không đứt ý quan trọng |
 | Lớn (vd 500+ từ) | Giữ được mạch văn rộng và sắc thái | Làm loãng tín hiệu embedding, tốn thêm token |
+
+Chia cửa sổ cố định theo số từ tuy đơn giản nhưng vẫn có thể cắt ngang một đoạn văn; khi tài liệu ngăn cách các đoạn rõ ràng bằng dòng trống (`\n\n`), gộp các đoạn văn nguyên vẹn tới ngưỡng `max_words` giúp giữ trọn ý ở từng đoạn dù kích thước chunk không đều nhau (bạn sẽ cài đặt cách chia theo đoạn văn này ở bài tập đầu tiên).
 
 ## 3. Pipeline RAG từ đầu đến cuối
 
@@ -175,10 +177,10 @@ print("sources:", [h["source"] for h in hits])
 
 ## 4. Prompt có căn cứ
 
-**Grounding** (neo câu trả lời vào nguồn) nghĩa là ép model chỉ dựa trên các chunk đã truy xuất thay vì đoán mò từ trí nhớ. Hàm `build_messages(question, hits)` đặt ba luật vào message `system`—chỉ dùng context; không có thì nói không biết; trích `[n]`—theo sau là khối `Context:`, còn câu hỏi của người dùng nằm riêng trong message `user`.
+**Grounding** (neo câu trả lời vào nguồn) nghĩa là ép model chỉ dựa trên các chunk đã truy xuất thay vì đoán mò từ trí nhớ. Hàm `build_rag_messages(question, hits)` đặt ba luật vào message `system`—chỉ dùng context; không có thì nói không biết; trích `[n]`—theo sau là khối `Context:`, còn câu hỏi của người dùng nằm riêng trong message `user` (khác với `build_messages` dựng lịch sử chat ở `p7-01-llm-api`). Ở đây `hits` là dict cho gọn; trong `p7-04-vector-db` bạn đã dùng `Hit` với `.text`, ý tưởng như nhau.
 
 ```python
-def build_messages(question: str, hits: list[dict]) -> list[dict]:
+def build_rag_messages(question: str, hits: list[dict]) -> list[dict]:
     context = "\n".join(f"[{n}] {h['text']}" for n, h in enumerate(hits, 1))
     system = (
         "Answer using only the provided context.\n"
@@ -196,7 +198,7 @@ sample_hits = [
     {"source": "refunds.md", "text": "Refunds are issued within 30 days of purchase."},
     {"source": "shipping.md", "text": "Standard shipping delivers orders in three to five business days."},
 ]
-msgs = build_messages("How many days do refunds take?", sample_hits)
+msgs = build_rag_messages("How many days do refunds take?", sample_hits)
 print(msgs[0]["content"])
 # Answer using only the provided context.
 # If the context lacks the answer, say you don't know.
@@ -214,7 +216,18 @@ Tách phần hướng dẫn cùng `Context:` trong `system` khỏi câu hỏi th
 
 ## 5. Trích nguồn và kiểm trích dẫn
 
-Một **citation** (trích dẫn nguồn) như `[1]` giúp người dùng đối chiếu câu trả lời với file gốc. Bạn dùng `re.findall(r"\[(\d+)\]", answer)` để tách các số được trích, kiểm tra mỗi số có nằm trong `1..len(hits)` không rồi ánh xạ sang `source`—nếu câu trả lời nhắc tới `[7]` khi context chỉ có 2 chunk thì đó là dấu hiệu bịa đặt.
+Một **citation** (trích dẫn nguồn) như `[1]` giúp người dùng đối chiếu câu trả lời với file gốc. Trong biểu thức `re.findall(r"\[(\d+)\]", answer)`, `\[` và `\]` khớp hai dấu ngoặc vuông thật (phải escape vì `[...]` không có `\` là lớp ký tự regex), còn `(\d+)` bắt nhóm một hoặc nhiều chữ số (`0`–`9`). Vì `re.findall` trả về danh sách chuỗi (như `['1', '3']`), ta ép từng phần tử sang `int(...)`, kiểm tra số có nằm trong `1..len(hits)` không rồi ánh xạ sang `source`—nếu câu trả lời nhắc tới `[7]` khi context chỉ có 2 chunk thì đó là dấu hiệu bịa đặt.
+
+```python
+import re
+
+reply = "Refunds take 7 days [1] and cover laptops [3]."
+raw = re.findall(r"\[(\d+)\]", reply)
+print("raw:", raw)
+# raw: ['1', '3']
+print("ints:", [int(x) for x in raw])
+# ints: [1, 3]
+```
 
 ```python
 import re
@@ -328,7 +341,7 @@ Cách sửa: đặt `overlap > 0` (thường khoảng 10–25% của `size`) đ�
 
 **2. Đặt `overlap >= size` khiến bước nhảy `step <= 0`**
 
-Nếu `overlap >= size`, giá trị `step = size - overlap` bằng 0 hoặc âm nên vòng lặp `while` không tiến lên được và bị treo.
+Nếu `overlap >= size`, giá trị `step = size - overlap` bằng 0 hoặc âm: vòng lặp `while` cộng `step` sẽ không tiến lên được (hoặc lùi lại) và bị treo vô hạn, còn `range(..., step=0)` sẽ báo lỗi `ValueError` nếu không kiểm tra trước.
 
 ```python
 def chunk_words(text: str, size: int, overlap: int = 0) -> list[str]:

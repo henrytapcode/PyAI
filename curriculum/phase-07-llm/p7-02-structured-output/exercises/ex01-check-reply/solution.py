@@ -1,7 +1,9 @@
 def check_reply(data: dict, schema: dict) -> list[str]:
-    """Validate a parsed JSON dict against a minimal schema.
+    """Validate a parsed JSON dict against a minimal schema with enum support.
 
-    Example: check_reply({"name": "Lan"}, {"required": ["name"]}) -> []
+    Example:
+        check_reply({"status": "pending"}, {"properties": {"status": {"enum": ["open", "closed"]}}})
+        -> ["status: must be one of ['open', 'closed']"]
     """
     type_map = {
         "string": str,
@@ -25,4 +27,8 @@ def check_reply(data: dict, schema: dict) -> list[str]:
         expected = type_map.get(expected_type)
         if expected is not None and not isinstance(value, expected):
             errors.append(f"wrong type: {key}")
+            continue
+        allowed = spec.get("enum")
+        if allowed is not None and value not in allowed:
+            errors.append(f"{key}: must be one of {allowed}")
     return errors

@@ -2,7 +2,7 @@ import numpy as np
 
 
 class MiniStore:
-    """Minimal in-memory vector store supporting batch add, pre-filter search, and delete."""
+    """Minimal in-memory vector store supporting batch upsert add, pre-filter search, and delete."""
 
     def __init__(self, client) -> None:
         # TODO: initialize storage for ids, texts, metadatas, and vectors

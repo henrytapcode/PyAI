@@ -26,11 +26,11 @@ top_all = np.argsort(-all_scores, kind="stable")[:k]
 post_hits = [
     (ids[int(i)], round(float(all_scores[int(i)]), 3))
     for i in top_all
-    if metadatas[int(i)].get("lang") == where["lang"]
+    if "lang" in metadatas[int(i)] and metadatas[int(i)]["lang"] == where["lang"]
 ]
 
 # Pre-filter: keep matching rows first, then take top-k
-kept = [i for i, m in enumerate(metadatas) if m.get("lang") == where["lang"]]
+kept = [i for i, m in enumerate(metadatas) if "lang" in m and m["lang"] == where["lang"]]
 sub_scores = matrix[kept] @ q
 top_sub = np.argsort(-sub_scores, kind="stable")[:k]
 pre_hits = [

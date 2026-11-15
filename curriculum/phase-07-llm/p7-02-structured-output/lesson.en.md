@@ -37,6 +37,9 @@ print("parsed:", data, type(data).__name__)
 
 Passing `response_format={"type": "json", "schema": schema}` tells `FakeLLM` to reply with a JSON string instead of a sentence. Calling `json.loads()` turns that string into a Python `dict` whose keys you can read directly.
 
+> [!NOTE]
+> `response_format={"type": "json", "schema": ...}` is `FakeLLM`'s convention. Real providers name these fields differently (such as `json_schema` or `strict`), so always check your provider's docs.
+
 ## 2. Schema: describing the shape you want
 
 A **JSON schema** is a plain Python `dict` that acts as a blueprint for your data: `"type": "object"` says the root is a key-value mapping, `"properties"` lists each field and its type, and `"required"` names the fields that must not be missing.
@@ -155,7 +158,7 @@ Notice how `reply 1` fails right at `json.loads()` because of the markdown code 
 
 ## 4. From dict to dataclass
 
-Once `data` passes `validate()`, unpack it into a `@dataclass` with `Ticket(**data)`. Working with a typed object gives your editor autocomplete, catches field-name typos immediately as `AttributeError` instead of silent bugs, and lets you attach business checks inside `__post_init__`.
+Once `data` passes `validate()`, unpack it into a `@dataclass` with `Ticket(**data)`. Working with a typed object gives your editor autocomplete, catches field-name typos immediately as `AttributeError` instead of silent bugs, and lets you attach business checks inside `__post_init__` (which a dataclass calls automatically right after its generated `__init__` finishes).
 
 ```python
 import json
@@ -237,7 +240,7 @@ except ValidationError as e:
     # type: int_parsing
 ```
 
-Pydantic packs everything from §3 and §4 into a few lines, plus extras like `.model_dump()` and `.model_json_schema()`. The exercises in this lesson stick to the Python standard library so you understand the mechanics underneath before relying on a framework.
+Pydantic packs everything from §3 and §4 into a few lines, plus extras like `.model_dump()` and `.model_json_schema()`. By default, Pydantic runs in lax mode and coerces `"1042"` into `1042`, whereas a manual `validate()` rejects strings for integers; pass `strict=True` when you want strict type matching. The exercises in this lesson stick to the Python standard library so you understand the mechanics underneath before relying on a framework.
 
 | approach | good for |
 |---|---|

@@ -47,6 +47,39 @@ TICKET_SCHEMA = {
             TICKET_SCHEMA,
             [],
         ),
+        (
+            {"name": "Lan", "status": "open"},
+            {
+                "properties": {
+                    "name": {"type": "string"},
+                    "status": {"type": "string", "enum": ["open", "closed"]},
+                },
+                "required": ["name", "status"],
+            },
+            [],
+        ),
+        (
+            {"name": "Lan", "status": "pending"},
+            {
+                "properties": {
+                    "name": {"type": "string"},
+                    "status": {"type": "string", "enum": ["open", "closed"]},
+                },
+                "required": ["name", "status"],
+            },
+            ["status: must be one of ['open', 'closed']"],
+        ),
+        (
+            {"status": 123},
+            {
+                "properties": {
+                    "name": {"type": "string"},
+                    "status": {"type": "string", "enum": ["open", "closed"]},
+                },
+                "required": ["name", "status"],
+            },
+            ["missing: name", "wrong type: status"],
+        ),
     ],
     ids=[
         "valid_payload",
@@ -55,6 +88,9 @@ TICKET_SCHEMA = {
         "bool_rejected_for_integer",
         "int_accepted_for_number",
         "optional_key_omitted",
+        "valid_enum_value",
+        "invalid_enum_value",
+        "wrong_type_skips_enum_after_missing",
     ],
 )
 def test_check_reply(data: dict, schema: dict, expected: list[str]):

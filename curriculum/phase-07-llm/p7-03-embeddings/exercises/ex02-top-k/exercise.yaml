@@ -24,15 +24,13 @@ hints:
       doc_matrix = np.array(client.embed(docs), dtype=float)
       query_vec = np.array(client.embed([query])[0], dtype=float)
       scores = ...
-      order = np.argsort(-scores, kind="stable")
+      order = ...
       results: list[tuple[int, float]] = []
-      for idx in order[:k]:
-          score = round(float(scores[int(idx)]), 3)
-          if score >= min_score:
-              results.append((int(idx), score))
+      for idx in order:
+          ...
       return results
       ```
-      Look back at §4.
+      Look back at §4 for matrix dot-product scoring and stable descending sorting, then round each score to 3 decimals as a Python `float` and filter by `min_score`.
   vi:
     - |
       Bài này kết hợp xếp hạng bằng tích ma trận ở §4 với ngưỡng lọc điểm ở §5. Với `docs=["cheap car rental", "fast laptop repair"]`, `query="affordable automobile"` và `k=1`, hàm phải trả về `[(0, ...)]` với chỉ số `0` đứng đầu.
@@ -51,12 +49,10 @@ hints:
       doc_matrix = np.array(client.embed(docs), dtype=float)
       query_vec = np.array(client.embed([query])[0], dtype=float)
       scores = ...
-      order = np.argsort(-scores, kind="stable")
+      order = ...
       results: list[tuple[int, float]] = []
-      for idx in order[:k]:
-          score = round(float(scores[int(idx)]), 3)
-          if score >= min_score:
-              results.append((int(idx), score))
+      for idx in order:
+          ...
       return results
       ```
-      Xem lại §4.
+      Xem lại §4 về phép nhân ma trận chấm điểm và sắp xếp giảm dần ổn định, rồi làm tròn điểm thành `float` tới 3 chữ số thập phân và lọc theo `min_score`.

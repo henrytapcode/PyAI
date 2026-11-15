@@ -16,7 +16,7 @@ get_ticket(client, [{"role": "user", "content": "ticket"}], schema, max_attempts
 ## Rules
 
 - `parse_reply(text)` slices from the first `"{"` to the last `"}"` and parses it with `json.loads()`.
-- `parse_reply(text)` raises `ValueError` if `"{"` or `"}"` is missing, if JSON decoding fails, or if the parsed value is not a `dict`.
+- `parse_reply(text)` raises `ValueError` if `"{"` or `"}"` is missing, or if JSON decoding fails.
 - `get_ticket(client, messages, schema, max_attempts=3)` calls `client.chat(..., response_format={"type": "json", "schema": schema})`, parses with `parse_reply`, and validates with `_check_reply`.
 - If `parse_reply` raises `ValueError` or `_check_reply` returns errors, append an `"assistant"` message with the bad reply and a `"user"` message describing the error, then retry.
 - Return `(data, attempt)` as soon as a valid reply is obtained, or `(None, max_attempts)` if all attempts fail.

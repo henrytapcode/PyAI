@@ -36,7 +36,7 @@ class VectorStore:
             return []
         kept = [
             i for i, m in enumerate(self._metadatas)
-            if not where or all(m.get(key) == val for key, val in where.items())
+            if not where or all(key in m and m[key] == val for key, val in where.items())
         ]
         if not kept:
             return []

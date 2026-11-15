@@ -157,10 +157,10 @@ k, where = 2, {"lang": "vi"}
 # Post-filter: top-2 globally, then keep lang == "vi"
 all_scores = matrix @ q
 post_idx = np.argsort(-all_scores, kind="stable")[:k]
-post_hits = [(records[int(i)][0], round(float(all_scores[int(i)]), 3)) for i in post_idx if records[int(i)][2].get("lang") == where["lang"]]
+post_hits = [(records[int(i)][0], round(float(all_scores[int(i)]), 3)) for i in post_idx if "lang" in records[int(i)][2] and records[int(i)][2]["lang"] == where["lang"]]
 
 # Pre-filter: keep lang == "vi" first, then take top-2
-kept = [i for i, r in enumerate(records) if all(r[2].get(key) == val for key, val in where.items())]
+kept = [i for i, r in enumerate(records) if all(key in r[2] and r[2][key] == val for key, val in where.items())]
 sub_scores = matrix[kept] @ q
 pre_idx = np.argsort(-sub_scores, kind="stable")[:k]
 pre_hits = [(records[kept[int(j)]][0], round(float(sub_scores[int(j)]), 3)) for j in pre_idx]
@@ -205,7 +205,7 @@ where = {"lang": "vi"}
 
 mask = []
 for meta in metadatas:
-    ok = all(meta.get(k) == v for k, v in where.items())
+    ok = all(k in meta and meta[k] == v for k, v in where.items())
     mask.append(ok)
 
 kept_ids = [cid for cid, keep in zip(ids, mask) if keep]
@@ -278,7 +278,7 @@ print("car search:", store.search("cheap car", k=1))
 # car search: [('c3', 0.802, 'Affordable vehicle rental with insurance.')]
 ```
 
-After deleting `"c2"`, it never appears in search results again, and `"c3"` still points to its own updated text because row `1` of `_matrix` was deleted right alongside `_texts[1]`.
+After deleting `"c2"`, it never appears in search results again, and `"c3"` still points to its own updated text because row `1` of `_matrix` was deleted right alongside `_texts[1]`. Real vector stores typically handle upserts directly inside `add()` and also support `"in"` list filters inside `where`—you will implement both in the exercise.
 
 ## 5. Saving and reloading
 
@@ -390,7 +390,7 @@ When you outgrow an in-memory NumPy store, several widely used tools cover diffe
 | Qdrant | Dedicated vector search engine (service or embedded) | Production services needing fast filtered ANN at scale |
 
 > [!NOTE]
-> Every product above uses its own API syntax, yet underneath they all expose the same core operations you built here: add vectors with metadata, pre-filter and search top-k, update/delete by ID, and persist the index.
+> Every product above uses its own API syntax, yet underneath they all expose the same core operations you built here: add vectors with metadata, filtered search for top-k, update/delete by ID, and persist the index. Some systems filter candidates before searching the index (pre-filtering), while others filter after over-fetching candidates (post-filtering).
 
 ## 7. Common mistakes
 
@@ -399,14 +399,30 @@ When you outgrow an in-memory NumPy store, several widely used tools cover diffe
 Allowing duplicate IDs makes deletes ambiguous and returns duplicate hits; validate IDs before modifying state.
 
 ```python
-existing_ids = {"c1", "c2"}
-new_id = "c1"
+from pyai_llm import FakeLLM
+
+
+class VectorStore:
+    def __init__(self, client) -> None:
+        self._client = client
+        self._ids: list[str] = []
+        self._id_set: set[str] = set()
+
+    def add(self, ids: list[str], texts: list[str]) -> None:
+        if len(set(ids)) != len(ids) or any(cid in self._id_set for cid in ids):
+            raise ValueError(f"duplicate id: {ids}")
+        _ = self._client.embed(texts)
+        self._ids.extend(ids)
+        self._id_set.update(ids)
+
+
+store = VectorStore(FakeLLM(embed_dim=256))
+store.add(["c1", "c2"], ["Full refund.", "Cheap car."])
 try:
-    if new_id in existing_ids:
-        raise ValueError(f"duplicate id: {new_id}")
+    store.add(["c1"], ["Duplicate entry."])
 except ValueError as err:
     print("error:", type(err).__name__, "-", err)
-# error: ValueError - duplicate id: c1
+# error: ValueError - duplicate id: ['c1']
 ```
 
 Fix: check both duplicates inside the incoming batch and collisions with existing IDs before mutating the store, or call `upsert()` when overwriting is intentional.

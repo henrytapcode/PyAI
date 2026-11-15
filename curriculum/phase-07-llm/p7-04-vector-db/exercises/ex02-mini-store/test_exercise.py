@@ -75,15 +75,45 @@ def test_empty_store_returns_empty():
     assert len(store) == 0
 
 
-def test_duplicate_id_raises_value_error_without_mutating():
+def test_same_batch_duplicate_id_raises_value_error_without_mutating():
     store = MiniStore(FakeLLM(embed_dim=256))
     store.add(["c1"], ["Full refund"])
     with pytest.raises(ValueError):
-        store.add(["c1", "c2"], ["Cheap car", "Fast laptop"])
-    assert len(store) == 1
-    with pytest.raises(ValueError):
         store.add(["c3", "c3"], ["Cheap car", "Fast laptop"])
     assert len(store) == 1
+
+
+def test_upsert_replaces_existing_record_and_preserves_length():
+    store = MiniStore(FakeLLM(embed_dim=256))
+    store.add(
+        ["c1", "c2"],
+        ["cheap car rental", "fast laptop repair"],
+        [{"lang": "en"}, {"lang": "en"}],
+    )
+    store.add(
+        ["c1", "c3"],
+        ["book a doctor visit", "cheap car rental"],
+        [{"lang": "vi"}, {"lang": "fr"}],
+    )
+    assert len(store) == 3
+    car_hits = store.search("affordable automobile", k=3)
+    assert car_hits is not None and car_hits[0][0] == "c3"
+    doc_hits = store.search("doctor appointment", k=1, where={"lang": "vi"})
+    assert doc_hits is not None and doc_hits[0][0] == "c1"
+
+
+def test_where_list_filter_and_missing_key():
+    store = MiniStore(FakeLLM(embed_dim=256))
+    store.add(
+        ["d1", "d2", "d3", "d4"],
+        ["cheap car rental", "affordable car", "cheap car", "cheap car"],
+        [{"lang": "en"}, {"lang": "vi"}, {"lang": "fr"}, {}],
+    )
+    hits = store.search("affordable automobile", k=5, where={"lang": ["en", "vi"]})
+    assert hits is not None
+    assert sorted(cid for cid, _ in hits) == ["d1", "d2"]
+    assert store.search("cheap car", k=5, where={"lang": ["de", "es"]}) == []
+    assert store.search("cheap car", k=5, where={"lang": [None]}) == []
 
 
 def test_delete_removes_record_and_keeps_alignment():

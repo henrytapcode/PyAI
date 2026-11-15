@@ -81,6 +81,8 @@ Keep this quick scale in mind whenever you read similarity scores:
 | near `0.0` | perpendicular directions (unrelated topics) |
 | `-1.0` | opposite directions (real neural models can produce negatives; `FakeLLM` stays in `[0, 1]`) |
 
+With real embedding models, even unrelated texts often have a noticeably positive cosine similarity (above `0`), so you always need to re-measure thresholds for each model.
+
 ## 3. Keyword search vs. semantic search
 
 A plain keyword matcher counts how many exact words two texts share, so synonyms score `0`. Let's pit a simple keyword counter against embeddings on the query `"affordable automobile"` across four short documents.

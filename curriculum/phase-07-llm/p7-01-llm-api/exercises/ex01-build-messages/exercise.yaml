@@ -15,15 +15,15 @@ hints:
       2. Walk through every past pair in the history and append the user dictionary followed by the assistant dictionary.
       3. Append one final user dictionary for the new question and return the list.
     - |
-      The shape inside the function:
+      The shape of the hardest loop step:
       ```python
-      messages = [{"role": "system", "content": system}]
+      messages = [{"role": ___, "content": system}]
       for prev_user, prev_assistant in history:
-          ...
-      messages.append({"role": "user", "content": user})
-      return messages
+          messages.append({"role": "user", "content": ...})
+          messages.append({"role": ..., "content": prev_assistant})
+      messages.append({"role": "user", "content": ___})
       ```
-      Remember that each tuple in `history` adds two dictionaries to `messages` in `user` then `assistant` order.
+      Inside the `for` loop, each tuple unpacks the user prompt before the assistant reply, so the first appended dict uses `"user"` with `prev_user` and the second uses the model's role string with `prev_assistant`.
   vi:
     - |
       Bài này dùng các role message ở §2 và mẫu lịch sử ở §3. Với `system="Be brief."`, `history=[("Hi", "Hello!")]` và `user="What is RAG?"`, bạn cần trả về 4 dict có thứ tự role là `["system", "user", "assistant", "user"]`.
@@ -33,12 +33,12 @@ hints:
       2. Duyệt qua từng cặp hội thoại cũ trong lịch sử và thêm lần lượt dictionary của người dùng rồi dictionary của trợ lý.
       3. Thêm dictionary của người dùng cho câu hỏi mới ở cuối rồi trả về danh sách.
     - |
-      Hình dạng bên trong hàm:
+      Hình dạng bước vòng lặp khó nhất:
       ```python
-      messages = [{"role": "system", "content": system}]
+      messages = [{"role": ___, "content": system}]
       for prev_user, prev_assistant in history:
-          ...
-      messages.append({"role": "user", "content": user})
-      return messages
+          messages.append({"role": "user", "content": ...})
+          messages.append({"role": ..., "content": prev_assistant})
+      messages.append({"role": "user", "content": ___})
       ```
-      Nhớ rằng mỗi cặp trong `history` bổ sung hai dictionary vào `messages` theo thứ tự `user` trước rồi tới `assistant`.
+      Bên trong vòng `for`, mỗi cặp giải nén câu hỏi trước rồi tới câu trả lời, nên dict thêm vào trước mang `"user"` với `prev_user` và dict tiếp theo mang chuỗi vai trò của model với `prev_assistant`.

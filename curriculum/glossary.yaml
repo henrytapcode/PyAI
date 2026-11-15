@@ -2910,3 +2910,14 @@ terms:
       en: "Teams run scenario suites in pytest on every pull request to verify step limits, repeat guards, and approval gates before testing against live LLMs."
       vi: "Các nhóm chạy bộ scenario test bằng pytest ở mỗi pull request để kiểm chứng giới hạn bước, chống lặp và cổng duyệt trước khi thử với LLM thật."
     related: [golden trajectory, stop condition, approval gate]
+
+  - term: __post_init__
+    vi_term: __post_init__
+    tags: [dataclasses]
+    en: "A special method on a @dataclass that Python calls automatically right after the generated __init__ finishes, used for validation or computing derived fields."
+    vi: "Phương thức đặc biệt trên @dataclass được Python tự động gọi ngay sau khi hàm __init__ được sinh tự động chạy xong, dùng để kiểm tra dữ liệu hoặc tính trường dẫn xuất."
+    example: "@dataclass\nclass Ticket:\n    name: str\n    def __post_init__(self) -> None:\n        if not self.name.strip():\n            raise ValueError(\"empty name\")"
+    in_practice:
+      en: "After unpacking an LLM JSON reply into a dataclass, __post_init__ rejects fake empty defaults like \"\" or 0 before bad data enters your database."
+      vi: "Sau khi giải nén JSON từ LLM vào dataclass, __post_init__ giúp chặn các giá trị rỗng giả như \"\" hay 0 trước khi dữ liệu hỏng lọt vào database."
+    related: [dataclass, validation]

@@ -84,3 +84,12 @@ def test_estimate_cost_rounds_to_six_decimals():
         "estimate_cost returned None: did you forget to return the rounded float?"
     )
     assert cost == 0.000155
+
+
+def test_estimate_cost_rounds_beyond_six_decimals():
+    usage = Usage(prompt_tokens=333, completion_tokens=777, total_tokens=1110)
+    cost = estimate_cost(usage, price_in_per_m=0.35, price_out_per_m=1.25)
+    assert cost is not None, (
+        "estimate_cost returned None: did you forget to return the rounded float?"
+    )
+    assert cost == 0.001088, "round the final cost to 6 decimal places"

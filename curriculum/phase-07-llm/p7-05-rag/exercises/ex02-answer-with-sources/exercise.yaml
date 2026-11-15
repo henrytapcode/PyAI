@@ -32,20 +32,12 @@ hints:
       ) -> dict:
           if not chunks or k <= 0:
               return {"answer": "I don't know.", "sources": []}
-          doc_vecs = np.array(client.embed([c["text"] for c in chunks]), dtype=float)
-          q_vec = np.array(client.embed([question])[0], dtype=float)
-          scores = doc_vecs @ q_vec
-          order = np.argsort(-scores, kind="stable")[:k]
-          if float(scores[int(order[0])]) < min_score:
-              return {"answer": "I don't know.", "sources": []}
+          ...  # batch-embed chunks + question, take top-k, bail out if top score < min_score
           hits = [chunks[int(i)] for i in order]
           messages = ...
           answer = client.chat(messages).content or ""
           sources: list[str] = []
-          for raw in re.findall(r"\[(\d+)\]", answer):
-              idx = int(raw) - 1
-              if 0 <= idx < len(hits) and hits[idx]["source"] not in sources:
-                  sources.append(hits[idx]["source"])
+          ...  # parse [n] citations in bounds and map to unique hit sources
           return {"answer": answer, "sources": sources}
       ```
   vi:
@@ -74,19 +66,11 @@ hints:
       ) -> dict:
           if not chunks or k <= 0:
               return {"answer": "I don't know.", "sources": []}
-          doc_vecs = np.array(client.embed([c["text"] for c in chunks]), dtype=float)
-          q_vec = np.array(client.embed([question])[0], dtype=float)
-          scores = doc_vecs @ q_vec
-          order = np.argsort(-scores, kind="stable")[:k]
-          if float(scores[int(order[0])]) < min_score:
-              return {"answer": "I don't know.", "sources": []}
+          ...  # embed lô chunk + câu hỏi, lấy top-k, dừng sớm nếu điểm cao nhất < min_score
           hits = [chunks[int(i)] for i in order]
           messages = ...
           answer = client.chat(messages).content or ""
           sources: list[str] = []
-          for raw in re.findall(r"\[(\d+)\]", answer):
-              idx = int(raw) - 1
-              if 0 <= idx < len(hits) and hits[idx]["source"] not in sources:
-                  sources.append(hits[idx]["source"])
+          ...  # tách trích dẫn [n] hợp lệ và ánh xạ sang danh sách source không trùng
           return {"answer": answer, "sources": sources}
       ```

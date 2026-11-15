@@ -175,7 +175,7 @@ questions:
         - "To make the API skip counting `prompt_tokens` in `usage`"
         - "To bypass HTTP `429` rate limits on busy provider servers"
         - "To automatically retry failed requests without a `try` block"
-      explanation: "Higher `temperature` introduces randomness; `temperature=0` (and seeded `FakeLLM` in tests) gives repeatable outputs so assertions pass consistently."
+      explanation: "Higher `temperature` introduces randomness; `temperature=0` makes real APIs nearly deterministic (and `FakeLLM` completely repeatable via `seed`) so assertions stay consistent."
     vi:
       prompt: "Khi viết test cho ứng dụng LLM, vì sao kỹ sư thường đặt `temperature=0` (hoặc dùng fake client có `seed`)?"
       options:
@@ -183,7 +183,7 @@ questions:
         - "Để API bỏ qua bước đếm `prompt_tokens` trong đối tượng `usage`"
         - "Để vượt qua giới hạn tốc độ HTTP `429` trên server nhà cung cấp"
         - "Để tự động thử lại khi gọi lỗi mà không cần viết khối `try`"
-      explanation: "`temperature` cao làm kết quả ngẫu nhiên hơn; `temperature=0` (và `FakeLLM(seed=...)` khi test) giúp kết quả lặp lại ổn định để assertion luôn nhất quán."
+      explanation: "`temperature` cao làm kết quả ngẫu nhiên hơn; `temperature=0` giúp API thật gần như tất định (còn `FakeLLM` lặp lại hoàn toàn qua `seed`) để các assertion nhất quán."
 
   - id: p7-01-q10
     type: fill

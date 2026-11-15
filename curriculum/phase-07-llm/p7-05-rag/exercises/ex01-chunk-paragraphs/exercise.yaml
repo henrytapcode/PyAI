@@ -1,0 +1,64 @@
+id: p7-05-ex01
+kind: fill
+title:
+  en: "Fill: group paragraphs into word-budget chunks"
+  vi: "Điền chỗ trống: gom đoạn văn thành các chunk theo ngưỡng từ"
+difficulty: 1
+tags: [rag, strings]
+hints:
+  en:
+    - |
+      This implements the paragraph-based chunking idea mentioned in §2 (`chunk_paragraphs`). Calling `chunk_paragraphs("One two.\n\nThree.\n\nFour five six.", max_words=3)` must return `["One two.\n\nThree.", "Four five six."]`.
+    - |
+      The plan:
+      1. First reject any non-positive word budget by raising a value error.
+      2. Split the text on double newlines, trim whitespace around each piece, and drop blank paragraphs.
+      3. Walk through each paragraph: if an active group already exists and adding this paragraph's word count would exceed the budget, flush the active group joined by double newlines and start a fresh group with the new paragraph; otherwise append the paragraph to the active group and add to its running word count.
+      4. Flush any non-empty group remaining at the end of the loop (a single oversized paragraph stays intact as its own chunk).
+    - |
+      Shape of the hardest blank (the merge-vs-flush check inside the loop; leave the other blanks for yourself):
+      ```python
+      def chunk_paragraphs(text: str, max_words: int) -> list[str]:
+          if ...:
+              raise ValueError("max_words must be positive")
+          paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+          ...
+          for para in paragraphs:
+              word_count = len(para.split())
+              if current and current_words + word_count > max_words:
+                  ...
+              else:
+                  current.append(para)
+                  current_words += word_count
+          if current:
+              chunks.append(...)
+          return chunks
+      ```
+  vi:
+    - |
+      Bài này cài đặt cách chia đoạn văn `chunk_paragraphs` đã nhắc ở §2. Khi gọi `chunk_paragraphs("One two.\n\nThree.\n\nFour five six.", max_words=3)`, hàm phải trả về `["One two.\n\nThree.", "Four five six."]`.
+    - |
+      Kế hoạch:
+      1. Kiểm tra tham số ngay đầu hàm: nếu ngưỡng từ tối đa không dương thì báo lỗi giá trị.
+      2. Tách văn bản theo hai ký tự xuống dòng liên tiếp, cắt khoảng trắng thừa hai đầu từng đoạn và bỏ qua các đoạn rỗng.
+      3. Duyệt từng đoạn: nếu đang có nhóm dở và cộng thêm số từ của đoạn mới sẽ vượt quá ngưỡng, hãy chốt nhóm hiện tại bằng cách nối các đoạn bởi hai dấu xuống dòng rồi mở nhóm mới với đoạn hiện tại; ngược lại thêm đoạn vào nhóm hiện tại và cộng dồn số từ.
+      4. Sau vòng lặp, chốt nốt nhóm còn lại nếu chưa rỗng (một đoạn đơn lẻ dài hơn ngưỡng sẽ giữ nguyên làm một chunk riêng).
+    - |
+      Phần gợi ý cho chỗ trống khó nhất (điều kiện gộp hay tách nhóm trong vòng lặp; tự điền hai chỗ trống còn lại):
+      ```python
+      def chunk_paragraphs(text: str, max_words: int) -> list[str]:
+          if ...:
+              raise ValueError("max_words must be positive")
+          paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+          ...
+          for para in paragraphs:
+              word_count = len(para.split())
+              if current and current_words + word_count > max_words:
+                  ...
+              else:
+                  current.append(para)
+                  current_words += word_count
+          if current:
+              chunks.append(...)
+          return chunks
+      ```

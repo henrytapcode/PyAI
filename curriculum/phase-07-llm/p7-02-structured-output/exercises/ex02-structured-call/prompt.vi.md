@@ -16,7 +16,7 @@ get_ticket(client, [{"role": "user", "content": "ticket"}], schema, max_attempts
 ## Quy tắc
 
 - `parse_reply(text)` cắt từ dấu `"{"` đầu tiên tới dấu `"}"` cuối cùng rồi parse bằng `json.loads()`.
-- `parse_reply(text)` phải `raise ValueError` nếu thiếu `"{"` hoặc `"}"`, giải mã JSON thất bại, hoặc kết quả không phải `dict`.
+- `parse_reply(text)` phải `raise ValueError` nếu thiếu `"{"` hoặc `"}"`, hoặc giải mã JSON thất bại.
 - `get_ticket(client, messages, schema, max_attempts=3)` gọi `client.chat(..., response_format={"type": "json", "schema": schema})`, parse bằng `parse_reply` và kiểm tra bằng `_check_reply`.
 - Nếu `parse_reply` ném `ValueError` hoặc `_check_reply` trả danh sách lỗi không rỗng, nối thêm một tin nhắn `"assistant"` chứa phản hồi hỏng và một tin nhắn `"user"` nêu lỗi, rồi thử lại.
 - Trả về `(data, attempt)` ngay khi nhận được kết quả hợp lệ, hoặc `(None, max_attempts)` nếu hết lượt vẫn lỗi.

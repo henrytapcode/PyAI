@@ -38,10 +38,7 @@ def parse_reply(text: str) -> dict:
     end = text.rfind("}")
     if start == -1 or end == -1 or end < start:
         raise ValueError("no JSON object found in reply")
-    data = json.loads(text[start : end + 1])
-    if not isinstance(data, dict):
-        raise ValueError("parsed JSON is not a dict")
-    return data
+    return json.loads(text[start : end + 1])
 
 
 def get_ticket(

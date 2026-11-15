@@ -81,6 +81,8 @@ Hãy nhớ thang đo nhanh này khi đọc điểm tương đồng:
 | gần `0.0` | hai hướng vuông góc (chủ đề không liên quan) |
 | `-1.0` | hướng ngược hẳn nhau (embedding thật có thể ra số âm; `FakeLLM` chỉ nằm trong `[0, 1]`) |
 
+Với model thật, hai văn bản không liên quan vẫn thường có cosine > 0 rõ rệt, nên ngưỡng lọc phải đo lại cho từng model.
+
 ## 3. Keyword search và semantic search
 
 Hàm tìm kiếm theo từ khóa đơn thuần chỉ đếm số từ trùng chính xác giữa câu hỏi và tài liệu, nên khi gặp từ đồng nghĩa nó cho `0` điểm. Hãy so sánh bộ đếm từ khóa với embedding trên câu truy vấn `"affordable automobile"` qua bốn tài liệu ngắn.

@@ -16,20 +16,17 @@ hints:
       3. Return zero as a float immediately if either norm is zero so you never divide by zero.
       4. Divide the dot product of the two vectors by the product of their norms, then round to three decimals.
     - |
-      The shape inside `cosine_sim`:
+      The shape of the hardest blank (the cosine formula line):
       ```python
-      if len(a) != len(b):
+      if ___:
           raise ValueError("vectors must have the same length")
-      va = np.array(a, dtype=float)
-      vb = np.array(b, dtype=float)
-      norm_a = float(np.linalg.norm(va))
-      norm_b = float(np.linalg.norm(vb))
-      if norm_a == 0.0 or norm_b == 0.0:
+      ...
+      if ___:
           return 0.0
       score = ...
       return round(float(score), 3)
       ```
-      Look back at §2.
+      On the `score` line, divide the dot product of `va` and `vb` by the product of `norm_a` and `norm_b` (remember parentheses around the denominator).
   vi:
     - |
       Bài này dùng công thức cosine similarity ở §2. Với `[3.0, 4.0]` và `[6.0, 8.0]`, hàm phải trả về `1.0`.
@@ -37,20 +34,17 @@ hints:
       Kế hoạch:
       1. So sánh độ dài hai danh sách đầu vào trước và báo lỗi giá trị nếu chúng không bằng nhau.
       2. Chuyển cả hai danh sách sang mảng số thực NumPy rồi tính độ dài L2 của từng vector.
-      3. Trả về không dạng số thực ngay nếu một trong hai độ dài bằng không để tránh phép chia cho không.
+      3. Trả về `0.0` ngay nếu một trong hai độ dài bằng không để tránh phép chia cho không.
       4. Chia tích vô hướng của hai vector cho tích hai độ dài rồi làm tròn đến ba chữ số thập phân.
     - |
-      Hình dạng bên trong `cosine_sim`:
+      Hình dạng của chỗ trống khó nhất (dòng công thức cosine):
       ```python
-      if len(a) != len(b):
+      if ___:
           raise ValueError("vectors must have the same length")
-      va = np.array(a, dtype=float)
-      vb = np.array(b, dtype=float)
-      norm_a = float(np.linalg.norm(va))
-      norm_b = float(np.linalg.norm(vb))
-      if norm_a == 0.0 or norm_b == 0.0:
+      ...
+      if ___:
           return 0.0
       score = ...
       return round(float(score), 3)
       ```
-      Xem lại §2.
+      Ở dòng `score`, chia tích vô hướng của `va` và `vb` cho tích của `norm_a` và `norm_b` (nhớ bọc mẫu số trong dấu ngoặc tròn).

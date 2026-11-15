@@ -7,18 +7,18 @@ questions:
     en:
       prompt: "What does a vector database add on top of a bare embedding matrix?"
       options:
-        - "Automatic syntax checking for Python scripts"
+        - "Pre-trained transformer weights for tokenizing text"
         - "IDs, text, metadata, CRUD, and search"
-        - "Built-in GPU drivers for model training"
-        - "Encryption keys for securing JSON configs"
+        - "Retry backoff loops and prompt templates"
+        - "Built-in LLM weights to generate chat replies"
       explanation: "A vector database pairs each embedding vector with an ID, original text, and metadata, and supports adding, deleting, filtering, and fast retrieval."
     vi:
       prompt: "Vector database bổ sung thêm gì so với một ma trận embedding thuần túy?"
       options:
-        - "Tự động kiểm tra cú pháp cho script Python"
+        - "Trọng số transformer để tokenize văn bản"
         - "ID, văn bản, metadata, thêm/xóa và tìm kiếm"
-        - "Trình điều khiển GPU cho huấn luyện model"
-        - "Khóa mã hóa dùng để bảo mật các file JSON"
+        - "Vòng lặp retry backoff và khuôn mẫu prompt"
+        - "Trọng số LLM có sẵn để sinh câu trả lời chat"
       explanation: "Vector database gắn mỗi vector với ID, văn bản gốc và metadata, đồng thời hỗ trợ thêm, xóa, lọc và tìm kiếm nhanh."
 
   - id: p7-04-q02
@@ -135,17 +135,17 @@ questions:
     en:
       prompt: "What bug occurs if you delete a chunk from your text list without deleting its row from the NumPy matrix?"
       options:
-        - "NumPy immediately raises a MemoryError on import"
-        - "FakeLLM starts returning unsorted random integers"
-        - "All metadata dictionaries turn into empty tuples"
+        - "NumPy pads the deleted row with zeros automatically"
+        - "Dot-product scores turn negative across all rows"
+        - "Cosine similarity stops matching synonyms cleanly"
         - "Row indexes drift and return wrong texts"
       explanation: "Removing an item from `texts` shifts every later list element left by one, so row `i` of the matrix still points to the old vector while `texts[i]` now holds the next document."
     vi:
       prompt: "Lỗi gì xảy ra nếu bạn xóa một chunk khỏi danh sách văn bản nhưng quên xóa hàng tương ứng trong ma trận NumPy?"
       options:
-        - "NumPy báo ngay lỗi MemoryError ngay khi import"
-        - "FakeLLM bắt đầu trả về các số nguyên ngẫu nhiên"
-        - "Toàn bộ các dictionary metadata bị đổi thành tuple"
+        - "NumPy tự động điền toàn số 0 vào hàng đã xóa"
+        - "Điểm tích vô hướng chuyển thành âm ở mọi hàng"
+        - "Cosine similarity không còn bắt được từ đồng nghĩa"
         - "Chỉ số hàng bị lệch và trả nhầm văn bản"
       explanation: "Xóa một phần tử khỏi `texts` làm mọi phần tử sau dồn sang trái một vị trí, khiến hàng `i` của ma trận ghép nhầm với văn bản ở vị trí kế tiếp."
 
@@ -179,18 +179,18 @@ questions:
     en:
       prompt: "Why do vector stores save computed embeddings (for example with `to_json()`) instead of re-embedding on every restart?"
       options:
-        - "Because JSON strings normalize vectors automatically"
+        - "Because JSON files compress float vectors losslessly"
         - "Because re-embedding costs time and API money"
-        - "Because Python lists cannot hold floating-point numbers"
-        - "Because FakeLLM deletes vectors right after search"
+        - "Because models return different vectors each query"
+        - "Because NumPy arrays cannot be created at runtime"
       explanation: "Computing embeddings over thousands or millions of chunks takes time and API budget; saving the vectors lets `from_json()` restore the store with zero embedding calls."
     vi:
       prompt: "Vì sao vector store cần lưu lại các embedding đã tính (ví dụ bằng `to_json()`) thay vì embed lại mỗi lần khởi động?"
       options:
-        - "Vì chuỗi JSON tự động chuẩn hóa độ dài mọi vector"
+        - "Vì file JSON tự động nén các vector số thực"
         - "Vì embed lại tốn cả thời gian lẫn tiền gọi API"
-        - "Vì list Python không thể chứa được các số thực float"
-        - "Vì FakeLLM tự xóa vector ngay sau một lần tìm kiếm"
+        - "Vì model trả về vector khác nhau sau mỗi lần chạy"
+        - "Vì mảng NumPy không thể tạo mới lúc chương trình chạy"
       explanation: "Tính embedding cho hàng nghìn hay hàng triệu chunk tốn thời gian và chi phí API; lưu sẵn vector giúp `from_json()` khôi phục store mà tốn 0 lần gọi embed."
 
   - id: p7-04-q10
@@ -201,18 +201,18 @@ questions:
     en:
       prompt: "Why should `VectorStore.add(ids, texts)` call `client.embed(texts)` once per batch instead of once per text in a loop?"
       options:
-        - "Calling embed in a loop sets all scores to zero"
-        - "NumPy vstack only accepts 256-dimensional inputs"
+        - "Embedding one text at a time skips L2 normalization"
+        - "Single-text calls return mismatched dimensions"
         - "Batching avoids extra round-trips and rate limits"
-        - "Single-text lists raise a KeyError in FakeLLM"
+        - "Batched calls raise cosine scores for synonyms"
       explanation: "One batched `client.embed(texts)` call sends all strings in a single request instead of making `n` separate HTTP calls that add latency and exhaust rate limits."
     vi:
       prompt: "Vì sao `VectorStore.add(ids, texts)` nên gọi `client.embed(texts)` một lần cho cả lô thay vì gọi từng văn bản trong vòng lặp?"
       options:
-        - "Gọi embed trong vòng lặp làm mọi điểm số về 0"
-        - "Hàm vstack của NumPy chỉ nhận vector 256 chiều"
+        - "Embed từng câu một sẽ bỏ qua bước chuẩn hóa L2"
+        - "Gọi lẻ từng câu sẽ trả về số chiều khác nhau"
         - "Gọi theo lô tránh trễ mạng và chạm rate limit"
-        - "List một phần tử sẽ gây lỗi KeyError trong FakeLLM"
+        - "Gọi theo lô giúp tăng điểm cosine cho từ đồng nghĩa"
       explanation: "Một lần gọi `client.embed(texts)` theo lô gửi tất cả chuỗi trong một request thay vì `n` lần gọi riêng lẻ gây chậm và dễ chạm rate limit."
 
   - id: p7-04-q11

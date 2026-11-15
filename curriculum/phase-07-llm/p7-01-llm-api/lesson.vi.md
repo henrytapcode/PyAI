@@ -123,7 +123,7 @@ print("repeat seed=3:", again[:35] + "...")
 | `0.7 – 1.0` | brainstorm ý tưởng, viết sáng tạo, sinh mẫu đa dạng |
 
 > [!TIP]
-> Với model thật chạy trên server, ngay cả khi truyền `seed`, `temperature > 0` thường vẫn không lặp lại y hệt do sai khác tính toán phần cứng. Vì vậy khi viết test thật, người ta thường khóa `temperature=0` hoặc dùng fake/mock client như ở đây.
+> Với API LLM thật, ngay cả `temperature=0` cũng chỉ **gần như** tất định (sai khác dấu phẩy động phần cứng vẫn có thể tạo biến động nhỏ), còn `temperature > 0` càng không lặp lại y hệt dù truyền `seed`. Vì vậy khi viết test tự động, hãy khóa `temperature=0` để ổn định hoặc dùng fake/mock client tất định như `FakeLLM`.
 
 ## 5. Token: thứ bạn trả tiền
 
@@ -237,9 +237,9 @@ except RateLimitError as err:
 Khi chạy trên máy tính cá nhân với API thật, bạn đặt **API key** trong file `.env`, thêm `.env` vào `.gitignore` để Git bỏ qua, rồi đọc key từ `os.environ` khi gửi HTTP POST (ví dụ bằng `httpx`):
 
 ```bash
-# 1. Create a .env file (never commit this file)
-echo 'LLM_API_KEY=your-secret-key-here' > .env
+# 1. Ignore .env first, then create it (never commit this file)
 echo '.env' >> .gitignore
+echo 'LLM_API_KEY=your-secret-key-here' > .env
 
 # 2. Write a small script that reads the key from the environment
 cat > call_llm.py <<'EOF'

@@ -25,7 +25,7 @@ There are three ways to give a model knowledge of your private data: stuffing **
 
 ## 2. Chunking: splitting documents into pieces
 
-Long documents rarely fit into a prompt as a whole, and embedding a 20-page PDF into a single vector blurs all its topics together. **Chunking** splits text into small word windows of length `size` that advance by `step = size - overlap`, so each chunk carries **chunk overlap** from the end of the previous one and sentences straddling a boundary are never sliced in half.
+Long documents rarely fit into a prompt as a whole, and embedding a 20-page PDF into a single vector blurs all its topics together. **Chunking** splits text into small word windows of length `size` that advance by `step = size - overlap`, so each chunk carries **chunk overlap** from the end of the previous one and short boundary phrases stay intact in at least one window instead of getting cut in two.
 
 ```text
 words:   [0   1   2   3   4   5   6   7   8   9]
@@ -86,6 +86,8 @@ Choosing chunk size is always a tradeoff between retrieval precision and surroun
 | Small (e.g. 50–100 words) | Sharp embeddings, less prompt noise | May cut off surrounding context or conditions |
 | Medium (e.g. 150–300 words) | Balanced focus and full paragraphs | Needs tuning overlap so facts stay intact |
 | Large (e.g. 500+ words) | Preserves broad context and nuance | Dilutes embedding signal, sends extra tokens |
+
+Fixed-size word windows are simple, but they can still break in the middle of a paragraph; when documents are structured cleanly with blank lines (`\n\n`), grouping whole paragraphs up to a `max_words` budget preserves complete ideas at the cost of uneven chunk sizes (you will implement paragraph chunking in the first exercise).
 
 ## 3. End-to-end RAG pipeline
 
@@ -175,10 +177,10 @@ Notice that `chunks` has `6` entries (`2` per file) and `client.chat(messages)` 
 
 ## 4. Grounded prompts
 
-**Grounding** means instructing the model to rely strictly on the retrieved chunks instead of guessing from memory. A clean `build_messages(question, hits)` helper puts three rules in the `system` message—use only the context, say you don't know if it is missing, and cite `[n]`—followed by the `Context:` block, while keeping the user's question in its own `user` message.
+**Grounding** means instructing the model to rely strictly on the retrieved chunks instead of guessing from memory. A clean `build_rag_messages(question, hits)` helper puts three rules in the `system` message—use only the context, say you don't know if it is missing, and cite `[n]`—followed by the `Context:` block, while keeping the user's question in its own `user` message (unlike `build_messages` in `p7-01-llm-api`, which formatted chat turns). Here `hits` are plain dicts for brevity; in `p7-04-vector-db` you used `Hit` objects with `.text`, and the idea is identical.
 
 ```python
-def build_messages(question: str, hits: list[dict]) -> list[dict]:
+def build_rag_messages(question: str, hits: list[dict]) -> list[dict]:
     context = "\n".join(f"[{n}] {h['text']}" for n, h in enumerate(hits, 1))
     system = (
         "Answer using only the provided context.\n"
@@ -196,7 +198,7 @@ sample_hits = [
     {"source": "refunds.md", "text": "Refunds are issued within 30 days of purchase."},
     {"source": "shipping.md", "text": "Standard shipping delivers orders in three to five business days."},
 ]
-msgs = build_messages("How many days do refunds take?", sample_hits)
+msgs = build_rag_messages("How many days do refunds take?", sample_hits)
 print(msgs[0]["content"])
 # Answer using only the provided context.
 # If the context lacks the answer, say you don't know.
@@ -214,7 +216,18 @@ Separating instructions + `Context:` in `system` from the raw question in `user`
 
 ## 5. Citations and verification
 
-A **citation** like `[1]` lets users verify every claim against the original file. Use `re.findall(r"\[(\d+)\]", answer)` to extract cited numbers, validate that each number sits inside `1..len(hits)`, and map valid numbers back to each chunk's `source`—flagging out-of-range markers like `[7]` when only two chunks were sent as fabricated.
+A **citation** like `[1]` lets users verify every claim against the original file. In `re.findall(r"\[(\d+)\]", answer)`, `\[` and `\]` match literal square brackets (escaped because unescaped `[...]` is a regex character class), and `(\d+)` captures one or more digits (`0`–`9`). Because `re.findall` returns a list of strings (like `['1', '3']`), we convert each match with `int(...)`, validate that each number sits inside `1..len(hits)`, and map valid numbers back to each chunk's `source`—flagging out-of-range markers like `[7]` when only two chunks were sent as fabricated.
+
+```python
+import re
+
+reply = "Refunds take 7 days [1] and cover laptops [3]."
+raw = re.findall(r"\[(\d+)\]", reply)
+print("raw:", raw)
+# raw: ['1', '3']
+print("ints:", [int(x) for x in raw])
+# ints: [1, 3]
+```
 
 ```python
 import re
@@ -328,7 +341,7 @@ Fix: use a non-zero `overlap` (typically 10–25% of `size`) so phrases near bou
 
 **2. Setting `overlap >= size` makes `step <= 0`**
 
-If `overlap >= size`, `step = size - overlap` is zero or negative, so a `while` loop never advances and hangs.
+If `overlap >= size`, `step = size - overlap` is zero or negative: a `while` loop adding `step` never advances (or steps backwards) and hangs forever, while `range(..., step=0)` raises `ValueError` unless you validate up front.
 
 ```python
 def chunk_words(text: str, size: int, overlap: int = 0) -> list[str]:

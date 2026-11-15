@@ -9,13 +9,27 @@ class _Record:
     vector: list[float]
 
 
+def _matches_where(meta: dict, where: dict | None) -> bool:
+    if not where:
+        return True
+    for key, val in where.items():
+        if key not in meta:
+            return False
+        if isinstance(val, list):
+            if meta[key] not in val:
+                return False
+        elif meta[key] != val:
+            return False
+    return True
+
+
 class MiniStore:
     """Alternative MiniStore keeping dataclass records in a list and scoring in a loop."""
 
     def __init__(self, client) -> None:
         self._client = client
         self._records: list[_Record] = []
-        self._id_set: set[str] = set()
+        self._id_to_index: dict[str, int] = {}
 
     def __len__(self) -> int:
         return len(self._records)
@@ -28,15 +42,19 @@ class MiniStore:
     ) -> None:
         if len(ids) != len(texts) or (metadatas is not None and len(metadatas) != len(ids)):
             raise ValueError("ids, texts, and metadatas must have the same length")
-        if len(set(ids)) != len(ids) or any(cid in self._id_set for cid in ids):
-            raise ValueError("duplicate id")
+        if len(set(ids)) != len(ids):
+            raise ValueError("duplicate id in batch")
         if not ids:
             return
         metas = [{} for _ in ids] if metadatas is None else [dict(m) for m in metadatas]
         vectors = self._client.embed(texts)
         for cid, text, meta, vec in zip(ids, texts, metas, vectors, strict=True):
-            self._records.append(_Record(cid, text, meta, list(vec)))
-        self._id_set.update(ids)
+            record = _Record(cid, text, meta, list(vec))
+            if cid in self._id_to_index:
+                self._records[self._id_to_index[cid]] = record
+            else:
+                self._id_to_index[cid] = len(self._records)
+                self._records.append(record)
 
     def search(
         self,
@@ -46,12 +64,7 @@ class MiniStore:
     ) -> list[tuple[str, float]]:
         if not self._records or k <= 0:
             return []
-        eligible = [
-            rec
-            for rec in self._records
-            if not where
-            or all(key in rec.metadata and rec.metadata[key] == val for key, val in where.items())
-        ]
+        eligible = [rec for rec in self._records if _matches_where(rec.metadata, where)]
         if not eligible:
             return []
         q = self._client.embed([query])[0]
@@ -63,10 +76,10 @@ class MiniStore:
         return [(cid, round(score, 3)) for cid, score in scored[:k]]
 
     def delete(self, doc_id: str) -> None:
-        if doc_id not in self._id_set:
+        if doc_id not in self._id_to_index:
             raise KeyError(doc_id)
-        for idx, rec in enumerate(self._records):
-            if rec.id == doc_id:
-                self._records.pop(idx)
-                break
-        self._id_set.remove(doc_id)
+        idx = self._id_to_index.pop(doc_id)
+        self._records.pop(idx)
+        for rec_id, rec_idx in list(self._id_to_index.items()):
+            if rec_idx > idx:
+                self._id_to_index[rec_id] = rec_idx - 1

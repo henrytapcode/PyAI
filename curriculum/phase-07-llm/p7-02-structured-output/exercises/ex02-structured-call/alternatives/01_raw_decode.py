@@ -36,8 +36,6 @@ def parse_reply(text: str) -> dict:
         raise ValueError("no JSON object found in reply")
     decoder = json.JSONDecoder()
     data, _ = decoder.raw_decode(text, start)
-    if not isinstance(data, dict):
-        raise ValueError("parsed JSON is not a dict")
     return data
 
 

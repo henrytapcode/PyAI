@@ -37,6 +37,9 @@ print("parsed:", data, type(data).__name__)
 
 Truyền `response_format={"type": "json", "schema": schema}` báo cho `FakeLLM` trả về chuỗi JSON thay vì một câu văn. Gọi `json.loads()` sẽ **parse** (phân tích cú pháp) chuỗi đó thành `dict` Python để bạn truy cập từng khóa trực tiếp.
 
+> [!NOTE]
+> Cú pháp `response_format={"type": "json", "schema": ...}` là dạng riêng của `FakeLLM`. Các nhà cung cấp thật đặt tên trường khác nhau (ví dụ `json_schema` hay `strict`), nên hãy đọc tài liệu của từng provider.
+
 ## 2. Schema: mô tả hình dạng bạn muốn
 
 Một **JSON schema** (lược đồ JSON) là một `dict` Python đóng vai trò bản thiết kế cho dữ liệu: `"type": "object"` nói gốc là bảng key-value, `"properties"` liệt kê từng trường cùng kiểu của nó, còn `"required"` ghi tên các trường bắt buộc phải có.
@@ -155,7 +158,7 @@ for i in range(1, 4):
 
 ## 4. Từ dict sang dataclass
 
-Khi `data` đã qua được `validate()`, bạn giải nén nó vào một `@dataclass` bằng `Ticket(**data)`. Dùng object có kiểu giúp IDE gợi ý tên trường, làm lộ ngay lỗi gõ nhầm tên thuộc tính qua `AttributeError` thay vì âm thầm chạy sai, và cho phép gắn kiểm tra nghiệp vụ ngay trong `__post_init__`.
+Khi `data` đã qua được `validate()`, bạn giải nén nó vào một `@dataclass` bằng `Ticket(**data)`. Dùng object có kiểu giúp IDE gợi ý tên trường, làm lộ ngay lỗi gõ nhầm tên thuộc tính qua `AttributeError` thay vì âm thầm chạy sai, và cho phép gắn kiểm tra dữ liệu ngay trong `__post_init__` (phương thức mà dataclass tự gọi ngay sau `__init__` được sinh tự động).
 
 ```python
 import json
@@ -237,7 +240,7 @@ except ValidationError as e:
     # type: int_parsing
 ```
 
-Pydantic gom gọn toàn bộ §3 và §4 chỉ trong vài dòng, kèm tiện ích như `.model_dump()` hay xuất schema tự động. Phần bài tập của bài này chỉ dùng thư viện chuẩn để bạn hiểu rõ cơ chế bên trong trước khi dùng framework.
+Pydantic gom gọn toàn bộ §3 và §4 chỉ trong vài dòng, kèm tiện ích như `.model_dump()` hay xuất schema tự động. Mặc định Pydantic chạy ở chế độ lỏng (lax mode) nên tự đổi `"1042"` thành `1042`, còn `validate()` tự viết thì từ chối; nếu muốn chặt chẽ hãy dùng `strict=True`. Phần bài tập của bài này chỉ dùng thư viện chuẩn để bạn hiểu rõ cơ chế bên trong trước khi dùng framework.
 
 | cách làm | phù hợp khi |
 |---|---|
