@@ -1,0 +1,388 @@
+questions:
+  - id: p8-02-q01
+    type: mcq
+    tags: [production, packaging]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "In Docker, how do an **image** and a **container** relate to each other?"
+      options:
+        - "An image is a running network port and a container is a text config"
+        - "An image is a read-only blueprint and a container is a running instance"
+        - "An image runs only on your laptop and a container runs only in the cloud"
+        - "An image is deleted after one run while a container saves pip caches"
+      explanation: "Like a Python class and its instances, a Docker image is an immutable read-only template built from a Dockerfile, and each container is a live running instance created from that image."
+    vi:
+      prompt: "Trong Docker, **image** và **container** liên hệ với nhau như thế nào?"
+      options:
+        - "Image là cổng mạng đang mở còn container là file cấu hình dạng văn bản"
+        - "Image là bản thiết kế chỉ đọc còn container là một phiên bản đang chạy"
+        - "Image chỉ chạy trên laptop còn container chỉ chạy được trên máy chủ cloud"
+        - "Image tự xóa sau một lần chạy còn container dùng để lưu cache của pip"
+      explanation: "Giống như class và instance trong Python, Docker image là bản mẫu chỉ đọc được build từ Dockerfile, còn mỗi container là một tiến trình đang chạy tạo ra từ image đó."
+
+  - id: p8-02-q02
+    type: output
+    tags: [production, strings]
+    difficulty: 1
+    code: |
+      lines = [
+          "# base image",
+          "FROM python:3.13-slim",
+          "",
+          "WORKDIR /app",
+          "EXPOSE 8000",
+      ]
+      insts = [ln.split()[0] for ln in lines if ln and not ln.startswith("#")]
+      print(len(insts), insts[0], insts[-1])
+    answer: "3 FROM EXPOSE"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Filtering out the `# base image` comment and empty string leaves 3 Dockerfile instructions (`FROM`, `WORKDIR`, `EXPOSE`), so `len(insts)` is `3`, `insts[0]` is `FROM`, and `insts[-1]` is `EXPOSE`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Sau khi bỏ dòng comment `# base image` và chuỗi rỗng, còn lại 3 lệnh Dockerfile (`FROM`, `WORKDIR`, `EXPOSE`), nên `len(insts)` là `3`, `insts[0]` là `FROM` và `insts[-1]` là `EXPOSE`."
+
+  - id: p8-02-q03
+    type: mcq
+    tags: [production, packaging]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What is the key difference between `RUN` and `CMD` in a Dockerfile?"
+      options:
+        - "`RUN` copies host folders; `CMD` deletes temporary layers"
+        - "`RUN` binds host ports; `CMD` installs base Python packages"
+        - "`RUN` runs at image build; `CMD` runs when a container starts"
+        - "`RUN` works only on Linux hosts; `CMD` works only in `.dockerignore`"
+      explanation: "`RUN` executes commands (like `pip install`) while `docker build` creates the image layers; `CMD` specifies the default process (like `uvicorn main:app`) launched when `docker run` starts a container."
+    vi:
+      prompt: "Khác biệt chính giữa `RUN` và `CMD` trong Dockerfile là gì?"
+      options:
+        - "`RUN` chép thư mục từ máy host; `CMD` xóa các layer tạm thời"
+        - "`RUN` ánh xạ cổng mạng host; `CMD` cài đặt các gói Python nền"
+        - "`RUN` chạy lúc build image; `CMD` chạy lúc khởi động container"
+        - "`RUN` chỉ dùng trên máy Linux; `CMD` chỉ dùng trong `.dockerignore`"
+      explanation: "`RUN` thực thi lệnh (như `pip install`) trong quá trình `docker build` tạo layer; `CMD` quy định lệnh mặc định (như `uvicorn main:app`) khi `docker run` khởi động container."
+
+  - id: p8-02-q04
+    type: fill
+    tags: [production, packaging]
+    difficulty: 1
+    code: |
+      from fnmatch import fnmatch
+
+      ignore_rules = [".venv/", "___", "*.pyc"]
+      files = ["main.py", ".env", "app.pyc"]
+      kept = [f for f in files if not any(fnmatch(f, r) for r in ignore_rules)]
+      print(kept)
+    answer: [".env"]
+    en:
+      prompt: "Fill in the `.dockerignore` rule so `.env` is excluded and only `['main.py']` is kept."
+      explanation: "Adding `\".env\"` to `ignore_rules` causes `fnmatch(\".env\", \".env\")` to return `True`, excluding `.env` alongside `app.pyc` so only `['main.py']` remains."
+    vi:
+      prompt: "Điền quy tắc `.dockerignore` để loại `.env` và chỉ giữ lại `['main.py']`."
+      explanation: "Thêm `\".env\"` vào `ignore_rules` khiến `fnmatch(\".env\", \".env\")` trả về `True`, loại bỏ `.env` cùng với `app.pyc` và chỉ giữ lại `['main.py']`."
+
+  - id: p8-02-q05
+    type: parsons
+    tags: [production, strings]
+    difficulty: 1
+    lines:
+      - 'raw = "from python:3.13-slim\nCMD uvicorn main:app"'
+      - "first = raw.splitlines()[0]"
+      - "inst, image = first.split(None, 1)"
+      - 'tag = image.split(":")[1]'
+      - "print(inst.upper(), tag)"
+    en:
+      prompt: "Arrange these lines to extract the normalized `FROM` instruction and tag from `raw`, printing `FROM 3.13-slim`."
+      explanation: "Define `raw`, take `splitlines()[0]`, split into `inst` and `image`, extract `tag` after `:`, and print `inst.upper()` and `tag`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tách lệnh `FROM` chuẩn hóa và tag từ `raw`, in ra `FROM 3.13-slim`."
+      explanation: "Khai báo `raw`, lấy `splitlines()[0]`, tách thành `inst` và `image`, lấy `tag` sau dấu `:` rồi in `inst.upper()` và `tag`."
+
+  - id: p8-02-q06
+    type: mcq
+    tags: [production, packaging]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why should `COPY requirements.txt .` and `RUN pip install ...` come before `COPY . .`?"
+      options:
+        - "Code edits skip reinstalling unchanged requirements"
+        - "`pip install` deletes every file copied by `COPY . .`"
+        - "Docker refuses to run `COPY . .` after `WORKDIR`"
+        - "`requirements.txt` cannot be read inside `/app` later"
+      explanation: "Docker invalidates build cache from the first changed layer downward. Putting `COPY requirements.txt .` and `pip install` before `COPY . .` lets code edits to `main.py` reuse the cached dependency layer."
+    vi:
+      prompt: "Vì sao nên đặt `COPY requirements.txt .` và `RUN pip install ...` trước `COPY . .`?"
+      options:
+        - "Sửa code không phải cài lại thư viện nếu chưa đổi"
+        - "`pip install` sẽ xóa hết file do `COPY . .` vừa chép"
+        - "Docker không cho phép chạy `COPY . .` sau `WORKDIR`"
+        - "Không thể đọc `requirements.txt` trong `/app` ở bước sau"
+      explanation: "Docker hủy build cache từ layer đầu tiên bị thay đổi trở xuống. Đặt `COPY requirements.txt .` và `pip install` trước `COPY . .` giúp sửa `main.py` vẫn dùng lại được cache cài gói."
+
+  - id: p8-02-q07
+    type: output
+    tags: [production, packaging]
+    difficulty: 2
+    code: |
+      layers = [
+          ("FROM", set()),
+          ("COPY requirements.txt .", {"requirements.txt"}),
+          ("RUN pip install", set()),
+          ("COPY . .", {"main.py", "requirements.txt"}),
+          ("CMD", set()),
+      ]
+      changed = {"main.py"}
+      first_miss = next(i for i, (_, w) in enumerate(layers) if w & changed)
+      print(first_miss, len(layers) - first_miss)
+    answer: "3 2"
+    en:
+      prompt: "What does this build cache simulation print?"
+      explanation: "Only `COPY . .` at index `3` watches `main.py`, so `first_miss` is `3`, and the remaining `5 - 3 = 2` layers (`COPY . .` and `CMD`) rebuild while `RUN pip install` stays cached."
+    vi:
+      prompt: "Đoạn mô phỏng build cache này in ra gì?"
+      explanation: "Chỉ có `COPY . .` ở chỉ số `3` phụ thuộc vào `main.py`, nên `first_miss` là `3` và `5 - 3 = 2` layer cuối (`COPY . .` và `CMD`) phải build lại trong khi `RUN pip install` vẫn trúng cache."
+
+  - id: p8-02-q08
+    type: mcq
+    tags: [production, apis]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "In `docker run -p 9000:8000 rag-api`, what do `9000` and `8000` refer to?"
+      options:
+        - "`9000` is the container memory limit in MB; `8000` is CPU cores"
+        - "`9000` is the container's internal port; `8000` is the host port"
+        - "`9000` is the build layer count; `8000` is the image tag version"
+        - "`9000` is the host port; `8000` is the port inside the container"
+      explanation: "Docker's `-p host:container` flag maps port `9000` on your host machine to port `8000` inside the container, so `curl http://127.0.0.1:9000/health` reaches `uvicorn` listening on `8000`."
+    vi:
+      prompt: "Trong lệnh `docker run -p 9000:8000 rag-api`, hai số `9000` và `8000` có nghĩa là gì?"
+      options:
+        - "`9000` là giới hạn RAM theo MB; `8000` là số nhân CPU cấp phát"
+        - "`9000` là cổng bên trong container; `8000` là cổng trên máy host"
+        - "`9000` là số lượng layer khi build; `8000` là số phiên bản của tag"
+        - "`9000` là cổng trên máy host; `8000` là cổng bên trong container"
+      explanation: "Cờ `-p host:container` ánh xạ cổng `9000` trên máy host vào cổng `8000` bên trong container, nên `curl http://127.0.0.1:9000/health` sẽ đi tới `uvicorn` đang nghe ở cổng `8000`."
+
+  - id: p8-02-q09
+    type: fill
+    tags: [production, strings]
+    difficulty: 2
+    code: |
+      text = "FROM python:3.13-slim\nRUN pip install \\\n  --no-cache-dir fastapi"
+      joined = text.replace("\\\n", " ")
+      rows = [tuple(ln.___(None, 1)) for ln in joined.___()]
+      print(rows[1][0], " ".join(rows[1][1].split()))
+    answer: ["split", "splitlines"]
+    en:
+      prompt: "Fill in the two string method names so `joined` splits into lines and each line splits once into `(instruction, args)`."
+      explanation: "Use `joined.splitlines()` to iterate over lines and `ln.split(None, 1)` to separate the instruction (`RUN`) from the rest of the arguments."
+    vi:
+      prompt: "Điền hai tên phương thức chuỗi để tách `joined` thành từng dòng và tách mỗi dòng thành `(instruction, args)`."
+      explanation: "Dùng `joined.splitlines()` để tách từng dòng và `ln.split(None, 1)` để tách tên lệnh (`RUN`) khỏi phần đối số phía sau."
+
+  - id: p8-02-q10
+    type: parsons
+    tags: [production, packaging]
+    difficulty: 2
+    lines:
+      - "import fnmatch"
+      - 'py_only = fnmatch.filter(["main.py", ".env", "notes.pyc"], "*.py")'
+      - 'clean = [p for p in py_only if p != ".env"]'
+      - 'msg = "ok" if clean == ["main.py"] else "bad"'
+      - "print(len(clean), msg)"
+    en:
+      prompt: "Arrange these lines to filter `.py` files, verify `.env` is absent, and print `1 ok`."
+      explanation: "Import `fnmatch`, filter `*.py` files into `py_only`, exclude `.env` into `clean`, verify `clean == [\"main.py\"]`, and print `1 ok`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để lọc các file `.py`, kiểm tra `.env` đã bị loại và in ra `1 ok`."
+      explanation: "Import `fnmatch`, lọc file `*.py` vào `py_only`, loại `.env` vào `clean`, kiểm tra `clean == [\"main.py\"]` rồi in `1 ok`."
+
+  - id: p8-02-q11
+    type: mcq
+    tags: [production, packaging]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "How should you provide API keys to a FastAPI container without leaking them into the image?"
+      options:
+        - "Run `COPY .env .` right after `WORKDIR /app`"
+        - "Add `ENV OPENAI_API_KEY=...` inside the Dockerfile"
+        - "Ignore `.env` and pass `--env-file .env` to `docker run`"
+        - "Store the key inside `requirements.txt` as a comment"
+      explanation: "Anything copied with `COPY` or set with `ENV` stays in the image layers forever. Excluding `.env` in `.dockerignore` and passing `--env-file .env` to `docker run` injects secrets only at runtime."
+    vi:
+      prompt: "Bạn nên đưa API key vào container FastAPI bằng cách nào để không làm lộ key trong image?"
+      options:
+        - "Chạy `COPY .env .` ngay phía dưới dòng `WORKDIR /app`"
+        - "Viết `ENV OPENAI_API_KEY=...` trực tiếp trong Dockerfile"
+        - "Loại `.env` rồi truyền `--env-file .env` lúc `docker run`"
+        - "Ghi sẵn key vào `requirements.txt` dưới dạng chú thích"
+      explanation: "Mọi thứ chép bằng `COPY` hoặc đặt bằng `ENV` đều nằm lại trong các layer của image. Chặn `.env` trong `.dockerignore` và truyền `--env-file .env` khi `docker run` giúp nạp secret lúc chạy."
+
+  - id: p8-02-q12
+    type: output
+    tags: [production, strings]
+    difficulty: 2
+    code: |
+      rows = [
+          ("FROM", "python:latest"),
+          ("COPY", ". ."),
+          ("ENV", "OPENAI_API_KEY=sk-demo"),
+          ("RUN", "pip install -r requirements.txt"),
+          ("CMD", '["uvicorn", "main:app", "--host", "0.0.0.0"]'),
+      ]
+      warns = []
+      if any(i == "FROM" and a.endswith(":latest") for i, a in rows):
+          warns.append("unpinned-base")
+      if any(i == "ENV" and "KEY" in a.split("=")[0] for i, a in rows):
+          warns.append("secret-in-image")
+      print(warns)
+    answer: "['unpinned-base', 'secret-in-image']"
+    en:
+      prompt: "What does this mini-linter snippet print?"
+      explanation: "`FROM python:latest` triggers `unpinned-base` and `ENV OPENAI_API_KEY=sk-demo` triggers `secret-in-image`, so `warns` prints `['unpinned-base', 'secret-in-image']`."
+    vi:
+      prompt: "Đoạn mini-linter này in ra gì?"
+      explanation: "`FROM python:latest` kích hoạt `unpinned-base` và `ENV OPENAI_API_KEY=sk-demo` kích hoạt `secret-in-image`, nên `warns` in ra `['unpinned-base', 'secret-in-image']`."
+
+  - id: p8-02-q13
+    type: mcq
+    tags: [production, apis]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Why does `CMD` inside a Docker container use `--host 0.0.0.0` instead of `--host 127.0.0.1`?"
+      options:
+        - "`0.0.0.0` enables automatic HTTPS encryption on port 8000"
+        - "`127.0.0.1` rejects host traffic forwarded via `-p 8000:8000`"
+        - "`uvicorn` refuses to start unless `0.0.0.0` is passed first"
+        - "`127.0.0.1` blocks requests sent from inside the container"
+      explanation: "Inside a container, `127.0.0.1` refers only to the container's internal loopback interface, so requests forwarded from your host machine through `-p 8000:8000` cannot connect unless `uvicorn` binds `0.0.0.0`."
+    vi:
+      prompt: "Vì sao lệnh `CMD` trong Docker container dùng `--host 0.0.0.0` thay vì `--host 127.0.0.1`?"
+      options:
+        - "`0.0.0.0` tự động bật mã hóa HTTPS cho cổng 8000"
+        - "`127.0.0.1` không nhận kết nối từ host qua `-p 8000:8000`"
+        - "`uvicorn` báo lỗi không chịu chạy nếu thiếu `0.0.0.0`"
+        - "`127.0.0.1` chặn cả các request gửi từ trong container"
+      explanation: "Trong container, `127.0.0.1` chỉ là địa chỉ loopback nội bộ của chính container đó, nên request từ máy host đi qua `-p 8000:8000` chỉ kết nối được khi `uvicorn` bind `0.0.0.0`."
+
+  - id: p8-02-q14
+    type: fill
+    tags: [production, packaging]
+    difficulty: 3
+    code: |
+      rows = [("COPY", "requirements.txt ."), ("RUN", "pip install --no-cache-dir -r requirements.txt"), ("COPY", ". .")]
+      copy_all = next(i for i, (k, a) in enumerate(rows) if k == "COPY" and a == "___")
+      pip_step = next(i for i, (k, a) in enumerate(rows) if k == "RUN" and "___" in a)
+      print(pip_step < copy_all)
+    answer: [". .", "pip install"]
+    en:
+      prompt: "Fill in the two strings to check that `RUN pip install` comes before `COPY . .`, printing `True`."
+      explanation: "Matching `a == \". .\"` locates `COPY . .` at index `2` and `\"pip install\" in a` locates the install step at index `1`, confirming `1 < 2` is `True`."
+    vi:
+      prompt: "Điền hai chuỗi còn thiếu để kiểm tra `RUN pip install` đứng trước `COPY . .` và in ra `True`."
+      explanation: "So khớp `a == \". .\"` tìm được `COPY . .` ở chỉ số `2` và `\"pip install\" in a` tìm được bước cài gói ở chỉ số `1`, xác nhận `1 < 2` là `True`."
+
+  - id: p8-02-q15
+    type: parsons
+    tags: [production, packaging]
+    difficulty: 3
+    lines:
+      - 'steps = [("COPY", {"requirements.txt"}), ("RUN", set()), ("COPY", {"main.py"})]'
+      - 'hit = next(i for i, (_, files) in enumerate(steps) if "main.py" in files)'
+      - "rebuilt = steps[hit:]"
+      - "names = [inst for inst, _ in rebuilt]"
+      - "print(hit, names)"
+    en:
+      prompt: "Arrange these lines to find the first layer invalidated when `main.py` changes and print `2 ['COPY']`."
+      explanation: "Define `steps`, find the first index `hit` watching `main.py`, slice `steps[hit:]`, extract the instruction names, and print `2 ['COPY']`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tìm layer đầu tiên mất cache khi `main.py` thay đổi và in ra `2 ['COPY']`."
+      explanation: "Khai báo `steps`, tìm chỉ số đầu tiên `hit` có `main.py`, cắt `steps[hit:]`, lấy tên lệnh rồi in ra `2 ['COPY']`."
+
+  - id: p8-02-q16
+    type: mcq
+    tags: [production, packaging]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "What risk does `FROM python:latest` introduce compared with `FROM python:3.13-slim`?"
+      options:
+        - "Future builds can pull a newer Python version unexpectedly"
+        - "Docker skips reading `.dockerignore` when `:latest` is used"
+        - "`CMD` is forced into shell form instead of JSON exec form"
+        - "`pip install --no-cache-dir` stops working on `:latest` tags"
+      explanation: "The `:latest` tag is a moving target that changes whenever a new Python release ships, breaking reproducibility and adding extra build tools that `-slim` omits."
+    vi:
+      prompt: "Dùng `FROM python:latest` gây ra rủi ro gì so với `FROM python:3.13-slim`?"
+      options:
+        - "Các lần build sau có thể âm thầm kéo bản Python mới hơn"
+        - "Docker sẽ bỏ qua file `.dockerignore` khi thấy tag `:latest`"
+        - "Lệnh `CMD` bị ép chạy dạng shell thay cho mảng JSON exec form"
+        - "Cờ `pip install --no-cache-dir` bị vô hiệu hóa trên `:latest`"
+      explanation: "Tag `:latest` luôn trỏ tới bản phát hành mới nhất theo thời gian nên build không còn lặp lại được giống nhau, đồng thời image đầy đủ cũng nặng hơn nhiều so với bản `-slim`."
+
+flashcards:
+  - id: p8-02-f01
+    tags: [production]
+    en:
+      front: "Docker image vs. container"
+      back: "An image is a read-only blueprint built from a Dockerfile (like a class); a container is a running instance started from that image (like an object)."
+    vi:
+      front: "Phân biệt Docker image và container"
+      back: "Image là bản thiết kế chỉ đọc được build từ Dockerfile (giống class); container là một tiến trình đang chạy từ image đó (giống object)."
+
+  - id: p8-02-f02
+    tags: [production, packaging]
+    en:
+      front: "`RUN` vs. `CMD` in a Dockerfile"
+      back: "`RUN` executes during `docker build` to install packages and create a layer; `CMD` defines the default command launched when `docker run` starts a container."
+    vi:
+      front: "Khác biệt giữa `RUN` và `CMD` trong Dockerfile"
+      back: "`RUN` chạy lúc `docker build` để cài gói và tạo layer; `CMD` là lệnh mặc định chạy khi `docker run` khởi động container."
+
+  - id: p8-02-f03
+    tags: [production, packaging]
+    code: |
+      COPY requirements.txt .
+      RUN pip install --no-cache-dir -r requirements.txt
+      COPY . .
+    en:
+      front: "Why copy `requirements.txt` and install before `COPY . .`?"
+      back: "Docker invalidates cache from the first changed layer onward; copying `requirements.txt` first keeps the `pip install` layer cached when only Python code changes."
+    vi:
+      front: "Vì sao phải chép `requirements.txt` và cài trước `COPY . .`?"
+      back: "Docker hủy cache từ layer đầu tiên bị đổi trở xuống; chép `requirements.txt` trước giúp giữ lại cache của `pip install` khi bạn chỉ sửa code Python."
+
+  - id: p8-02-f04
+    tags: [production, apis]
+    en:
+      front: "Port mapping `-p 8000:8000` and `--host 0.0.0.0`"
+      back: "`-p host:container` forwards host port 8000 into container port 8000, and `--host 0.0.0.0` lets `uvicorn` accept that forwarded traffic instead of restricting to container `127.0.0.1`."
+    vi:
+      front: "Port mapping `-p 8000:8000` và `--host 0.0.0.0`"
+      back: "`-p host:container` chuyển tiếp cổng 8000 của máy host vào cổng 8000 trong container, còn `--host 0.0.0.0` giúp `uvicorn` nhận kết nối đó thay vì chỉ nghe `127.0.0.1` nội bộ."
+
+  - id: p8-02-f05
+    tags: [production, packaging]
+    en:
+      front: "What goes in `.dockerignore`, and how do you pass `.env` secrets?"
+      back: "Exclude `.venv/`, `.git/`, `__pycache__/`, `*.pyc`, `data/raw/`, and `.env` in `.dockerignore`, and pass secrets at runtime using `docker run --env-file .env`."
+    vi:
+      front: "Nên đưa gì vào `.dockerignore` và truyền secret trong `.env` thế nào?"
+      back: "Loại `.venv/`, `.git/`, `__pycache__/`, `*.pyc`, `data/raw/` và `.env` trong `.dockerignore`, rồi truyền biến bí mật lúc chạy bằng `docker run --env-file .env`."
+
+  - id: p8-02-f06
+    tags: [production, packaging]
+    en:
+      front: "Two quick wins for smaller, reproducible Python images"
+      back: "Pin a slim base image tag such as `FROM python:3.13-slim` (never `:latest`) and pass `--no-cache-dir` to `pip install` alongside pinned package versions."
+    vi:
+      front: "Hai cách nhanh để image Python nhỏ gọn và lặp lại được"
+      back: "Ghim tag base image gọn như `FROM python:3.13-slim` (tránh `:latest`) và thêm `--no-cache-dir` khi `pip install` cùng phiên bản gói đã ghim."

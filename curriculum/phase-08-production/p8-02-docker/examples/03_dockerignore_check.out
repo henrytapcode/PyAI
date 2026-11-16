@@ -1,0 +1,18 @@
+Sent to build context:
+  + main.py
+  + requirements.txt
+  + Dockerfile
+  + rag/retriever.py
+  + .env.example
+
+Excluded by .dockerignore:
+  - .env
+  - .venv/bin/python
+  - .git/HEAD
+  - __pycache__/main.cpython-313.pyc
+  - rag/__pycache__/retriever.cpython-313.pyc
+  - data/raw/handbook.pdf
+
+[Safe .dockerignore] OK: .env is excluded from build context.
+
+[Missing .env rule] WARNING: .env leaked into build context!

@@ -1,0 +1,17 @@
+=== GOOD ORDER (Build 1 cold: 6 rebuilt) ===
+  1. [CACHED ] FROM python:3.13-slim
+  2. [CACHED ] WORKDIR /app
+  3. [CACHED ] COPY requirements.txt .
+  4. [CACHED ] RUN pip install --no-cache-dir -r requirements.txt
+  5. [REBUILD] COPY . .
+  6. [REBUILD] CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+Build 2 (main.py edited) rebuilt layers: 2/6
+
+=== BAD ORDER (Build 1 cold: 5 rebuilt) ===
+  1. [CACHED ] FROM python:3.13-slim
+  2. [CACHED ] WORKDIR /app
+  3. [REBUILD] COPY . .
+  4. [REBUILD] RUN pip install --no-cache-dir -r requirements.txt
+  5. [REBUILD] CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+Build 2 (main.py edited) rebuilt layers: 3/5
+

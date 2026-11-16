@@ -1,0 +1,33 @@
+id: p8-02-docker
+phase: p8
+order: 2
+kind: lesson
+title:
+  en: "Docker basics"
+  vi: "Docker cơ bản"
+summary:
+  en: "Package a FastAPI service into a reproducible Docker image, understand FROM/COPY/RUN/CMD and port mapping, use layer ordering and .dockerignore to keep images fast and safe, and spot common Dockerfile bugs."
+  vi: "Đóng gói dịch vụ FastAPI thành Docker image lặp lại được, hiểu FROM/COPY/RUN/CMD và port mapping, dùng thứ tự layer cùng .dockerignore để build nhanh và an toàn, và nhận diện các lỗi Dockerfile thường gặp."
+level: beginner
+tags: [production, packaging]
+prerequisites: [p8-01-fastapi]
+duration_min: 14
+outcomes:
+  en:
+    - "Read a Dockerfile and explain FROM, COPY, RUN and CMD"
+    - "Write a clean Dockerfile for a Python service"
+    - "Use .dockerignore and layer ordering to keep images small"
+    - "Spot common Dockerfile bugs like unpinned base images, secret leaks, and localhost bindings"
+  vi:
+    - "Đọc Dockerfile và hiểu FROM, COPY, RUN, CMD"
+    - "Viết Dockerfile gọn gàng cho một dịch vụ Python"
+    - "Dùng .dockerignore và sắp xếp layer để image nhỏ gọn"
+    - "Phát hiện lỗi Dockerfile thường gặp như thiếu tag, lộ secret và bind nhầm localhost"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "Docker Docs: Dockerfile reference", vi: "Docker Docs: Dockerfile reference (EN)" }
+    url: "https://docs.docker.com/reference/dockerfile/"
+  - title: { en: "Docker Docs: Build cache", vi: "Docker Docs: Build cache (EN)" }
+    url: "https://docs.docker.com/build/cache/"
+  - title: { en: "uv Docs: Using uv in Docker", vi: "uv Docs: Using uv in Docker (EN)" }
+    url: "https://docs.astral.sh/uv/guides/integration/docker/"

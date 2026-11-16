@@ -3010,3 +3010,81 @@ terms:
       en: "Pair TestClient with pytest fixtures so every route, status code, and validation rule runs in milliseconds inside your automated test suite."
       vi: "Kết hợp TestClient với fixture của pytest để kiểm thử mọi route, status code và quy tắc kiểm tra dữ liệu chỉ trong vài mili-giây."
     related: [endpoint, fixture, unit test]
+
+  # ---------------------------------------------------------- Docker & containers
+  - term: Docker
+    vi_term: Docker
+    tags: [production, packaging]
+    en: "A platform that packages an application, its runtime, and its dependencies into portable images and runs them inside isolated containers."
+    vi: "Nền tảng đóng gói ứng dụng, môi trường chạy và các thư viện phụ thuộc thành image gọn nhẹ để chạy trong các container cô lập."
+    example: "docker build -t rag-api .\ndocker run -p 8000:8000 rag-api"
+    in_practice:
+      en: "Teams ship FastAPI and AI services with Docker so the exact same environment runs on a laptop, in CI, and on cloud servers."
+      vi: "Các nhóm triển khai dịch vụ FastAPI và AI bằng Docker để cùng một môi trường chạy giống hệt nhau trên laptop, CI và máy chủ cloud."
+    related: [Docker image, container, Dockerfile]
+
+  - term: Dockerfile
+    vi_term: Dockerfile
+    tags: [production, packaging]
+    en: "A plain text recipe of instructions (such as FROM, WORKDIR, COPY, RUN, and CMD) that tells Docker how to build an image step by step."
+    vi: "File văn bản thuần chứa danh sách các lệnh (như FROM, WORKDIR, COPY, RUN và CMD) hướng dẫn Docker dựng image theo từng bước."
+    example: "FROM python:3.13-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt"
+    in_practice:
+      en: "Keep a Dockerfile next to your FastAPI app so anyone can rebuild the exact production image with docker build."
+      vi: "Đặt Dockerfile ngay cạnh ứng dụng FastAPI để ai cũng dựng lại được đúng image production bằng docker build."
+    related: [Docker, Docker image, base image]
+
+  - term: base image
+    vi_term: base image (image nền)
+    tags: [production, packaging]
+    en: "The starting image named in a Dockerfile's FROM line (such as python:3.13-slim) that provides the OS files and Python runtime before your steps run."
+    vi: "Image khởi đầu được khai báo ở dòng FROM trong Dockerfile (như python:3.13-slim), cung cấp hệ điều hành nền và bộ chạy Python trước khi chạy các bước của bạn."
+    example: "FROM python:3.13-slim"
+    in_practice:
+      en: "Pin an explicit slim tag like python:3.13-slim instead of :latest so builds stay small and reproducible over time."
+      vi: "Hãy ghim tag slim cụ thể như python:3.13-slim thay cho :latest để image gọn và lặp lại được theo thời gian."
+    related: [Dockerfile, Docker image, layer]
+
+  - term: layer
+    vi_term: layer (lớp image)
+    tags: [production, packaging]
+    en: "One read-only filesystem diff created by a Dockerfile instruction (such as COPY or RUN), stacked on top of earlier layers to form an image."
+    vi: "Một lớp thay đổi chỉ đọc trên hệ thống file do từng lệnh trong Dockerfile (như COPY hay RUN) tạo ra, xếp chồng lên các lớp trước để thành image."
+    example: "# Each instruction adds a layer; changing one rebuilds all layers below it"
+    in_practice:
+      en: "Putting COPY requirements.txt and pip install in earlier layers than COPY . . prevents code edits from invalidating slow dependency layers."
+      vi: "Đặt COPY requirements.txt và pip install ở các layer phía trên COPY . . giúp việc sửa code không làm hỏng cache của layer cài thư viện."
+    related: [build cache, Dockerfile, Docker image]
+
+  - term: build cache
+    vi_term: build cache (bộ nhớ đệm khi build)
+    tags: [production, packaging]
+    en: "Docker's cache of previously built layers; if an instruction and its input files are unchanged, Docker reuses the cached layer until an earlier layer changes."
+    vi: "Bộ nhớ đệm lưu các layer đã build trước đó của Docker; nếu lệnh và file đầu vào không đổi, Docker dùng lại layer có sẵn cho tới khi có layer phía trên thay đổi."
+    example: "COPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . ."
+    in_practice:
+      en: "Ordering Dockerfile steps from least-frequently changed to most-frequently changed keeps rebuilds down to a few seconds."
+      vi: "Sắp xếp các bước trong Dockerfile từ phần ít đổi đến phần hay đổi nhất giúp thời gian build lại chỉ còn vài giây."
+    related: [layer, Dockerfile, .dockerignore]
+
+  - term: .dockerignore
+    vi_term: .dockerignore
+    tags: [production, packaging]
+    en: "A file listing paths and wildcard patterns (such as .venv/, __pycache__/, data/raw/, and .env) that Docker excludes from the build context before COPY runs."
+    vi: "File liệt kê các đường dẫn và mẫu ký tự đại diện (như .venv/, __pycache__/, data/raw/ và .env) để Docker loại khỏi build context trước khi chạy COPY."
+    example: ".venv/\n.git/\n__pycache__/\n*.pyc\n.env"
+    in_practice:
+      en: "Every Python service needs a .dockerignore so local virtual environments, raw datasets, and secret .env files never bloat or leak into images."
+      vi: "Mọi dịch vụ Python đều cần .dockerignore để môi trường ảo, dữ liệu thô và file .env chứa bí mật không làm phình hay rò rỉ vào image."
+    related: [build cache, environment variable, Dockerfile]
+
+  - term: port mapping
+    vi_term: port mapping (ánh xạ cổng)
+    tags: [production, apis]
+    en: "Forwarding a network port on your host machine to a port inside a running container using docker run -p host:container."
+    vi: "Chuyển tiếp một cổng mạng trên máy host vào một cổng bên trong container đang chạy bằng cờ docker run -p host:container."
+    example: "docker run -p 8000:8000 rag-api"
+    in_practice:
+      en: "Combine -p 8000:8000 with --host 0.0.0.0 in your container's uvicorn command so curl or a browser on your laptop can reach your FastAPI service."
+      vi: "Kết hợp -p 8000:8000 với --host 0.0.0.0 trong lệnh uvicorn của container để curl hay trình duyệt trên laptop gọi được dịch vụ FastAPI."
+    related: [container, endpoint, Docker]

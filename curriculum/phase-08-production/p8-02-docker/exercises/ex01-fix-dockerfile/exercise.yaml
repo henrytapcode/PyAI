@@ -1,0 +1,48 @@
+id: p8-02-ex01
+kind: debug
+title:
+  en: "Debug: fix the broken FastAPI Dockerfile"
+  vi: "Sửa lỗi: khắc phục Dockerfile cho dịch vụ FastAPI"
+difficulty: 1
+tags: [production, packaging]
+hints:
+  en:
+    - |
+      Check §2, §3, §4, and §6 for the four rules: pin the base image tag, order `COPY requirements.txt .` and `RUN pip install` before `COPY . .`, disable pip's download cache, and bind `0.0.0.0` in `CMD`. For a clean `DOCKERFILE`, the base image is pinned (for example `python:3.13-slim`) and `CMD` binds `0.0.0.0`.
+    - |
+      The plan:
+      1. Replace `python:latest` with a pinned slim Python tag such as `python:3.13-slim`.
+      2. Move `COPY requirements.txt .` and `RUN pip install ...` before `COPY . .`.
+      3. Add `--no-cache-dir` to `pip install`.
+      4. Change `--host 127.0.0.1` to `--host 0.0.0.0` inside the JSON `CMD` array.
+    - |
+      Follow this Dockerfile structure and fill in the missing pieces:
+      ```dockerfile
+      FROM python:...
+      WORKDIR /app
+      COPY requirements.txt .
+      RUN pip install ... -r requirements.txt
+      COPY . .
+      EXPOSE 8000
+      CMD ["uvicorn", "main:app", "--host", "...", "--port", "8000"]
+      ```
+  vi:
+    - |
+      Xem lại §2, §3, §4 và §6 về bốn quy tắc: ghim tag cho base image, đặt `COPY requirements.txt .` và `RUN pip install` trước `COPY . .`, tắt cache tải gói của pip và bind `0.0.0.0` trong `CMD`. Với một `DOCKERFILE` chuẩn, base image được ghim phiên bản (như `python:3.13-slim`) và `CMD` lắng nghe trên `0.0.0.0`.
+    - |
+      Kế hoạch:
+      1. Đổi `python:latest` thành một tag Python slim cố định như `python:3.13-slim`.
+      2. Đưa `COPY requirements.txt .` và `RUN pip install ...` lên trước `COPY . .`.
+      3. Thêm cờ `--no-cache-dir` vào lệnh `pip install`.
+      4. Đổi `--host 127.0.0.1` thành `--host 0.0.0.0` trong mảng JSON `CMD`.
+    - |
+      Hoàn thiện khung Dockerfile sau bằng cách điền vào các chỗ `...`:
+      ```dockerfile
+      FROM python:...
+      WORKDIR /app
+      COPY requirements.txt .
+      RUN pip install ... -r requirements.txt
+      COPY . .
+      EXPOSE 8000
+      CMD ["uvicorn", "main:app", "--host", "...", "--port", "8000"]
+      ```
