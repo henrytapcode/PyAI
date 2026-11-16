@@ -3265,3 +3265,36 @@ terms:
       en: "Good observability turns \"the bot feels slow and expensive\" into \"route /ask lost its cache hit rate after deploy v4\" within minutes."
       vi: "Observability tốt giúp biến câu \"bot thấy chậm và tốn tiền\" thành \"route /ask bị tụt cache hit rate sau bản deploy v4\" chỉ trong vài phút."
     related: [metric, structured logging, alert]
+
+  - term: app factory
+    vi_term: app factory (hàm tạo app)
+    tags: [production, apis, testing]
+    en: "A function such as create_app(...) that builds and returns a fresh FastAPI application instance with its own local state and injected dependencies."
+    vi: "Hàm như create_app(...) dùng để dựng và trả về một thể hiện FastAPI mới cùng trạng thái cục bộ và các phụ thuộc được tiêm vào riêng."
+    example: "def create_app(docs, client, clock) -> FastAPI:\n    app = FastAPI()\n    ..."
+    in_practice:
+      en: "Using an app factory lets each pytest test create an isolated service with a fake LLM and fake clock instead of sharing mutable module-level globals."
+      vi: "Dùng app factory giúp mỗi bài test pytest tạo một dịch vụ cô lập với fake LLM và đồng hồ giả thay vì dùng chung biến toàn cục ở cấp module."
+    related: [dependency injection, fixture, TestClient]
+
+  - term: dependency injection
+    vi_term: dependency injection (tiêm phụ thuộc)
+    tags: [production, functions, testing]
+    en: "Passing external helpers—such as an LLM client, a cache, or a clock callable—into a function or app factory as parameters instead of hardcoding them inside."
+    vi: "Truyền các thành phần phụ thuộc bên ngoài—như LLM client, cache hay hàm đồng hồ—vào hàm hoặc app factory qua tham số thay vì viết cứng bên trong."
+    example: "app = create_app(DOCS, FakeLLM(), FakeClock())"
+    in_practice:
+      en: "Injecting FakeLLM and FakeClock in tests while passing a real API client and time.monotonic in production keeps service code unchanged across environments."
+      vi: "Tiêm FakeLLM và FakeClock khi kiểm thử còn truyền API client thật và time.monotonic ở production giúp giữ nguyên code dịch vụ giữa các môi trường."
+    related: [app factory, parameter, TestClient]
+
+  - term: health check
+    vi_term: health check (kiểm tra sức khỏe dịch vụ)
+    tags: [production, apis]
+    en: "A lightweight read-only endpoint (commonly GET /health) that reports whether a running service is alive and ready to serve requests."
+    vi: "Endpoint nhẹ chỉ đọc (thường là GET /health) báo cho biết dịch vụ đang chạy có còn sống và sẵn sàng nhận request hay không."
+    example: "@app.get(\"/health\")\ndef health():\n    return {\"status\": \"ok\", \"docs\": len(docs)}"
+    in_practice:
+      en: "Containers and load balancers poll GET /health before sending user traffic to a newly started FastAPI worker."
+      vi: "Container và bộ cân bằng tải gọi GET /health trước khi chuyển lưu lượng người dùng tới một worker FastAPI mới khởi động."
+    related: [route, endpoint, Docker]

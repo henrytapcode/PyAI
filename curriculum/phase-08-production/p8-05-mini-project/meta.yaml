@@ -1,0 +1,39 @@
+id: p8-05-mini-project
+phase: p8
+order: 5
+kind: project
+title:
+  en: "Mini-project: ship a RAG service"
+  vi: "Mini-project: đưa dịch vụ RAG lên production"
+summary:
+  en: "Combine your RAG pipeline with FastAPI, an app factory, a TTL response cache, and latency/cost monitoring into one testable service verified in-process with TestClient and an injected fake clock."
+  vi: "Ghép pipeline RAG với FastAPI, app factory, TTL cache phản hồi và hệ thống đo độ trễ cùng chi phí thành một dịch vụ kiểm thử được bằng TestClient và đồng hồ giả lập tiêm vào."
+level: beginner
+tags: [production, rag, apis, testing]
+prerequisites: [p8-04-monitoring, p7-09-mini-project-rag]
+duration_min: 45
+outcomes:
+  en:
+    - "Wrap the RAG pipeline in a FastAPI service"
+    - "Add response caching plus latency and cost tracking"
+    - "Verify routes and metrics with TestClient"
+    - "Isolate service state with an app factory and injected fake clock for deterministic tests"
+  vi:
+    - "Gói pipeline RAG thành một dịch vụ FastAPI"
+    - "Thêm cache phản hồi và theo dõi độ trễ cùng chi phí"
+    - "Kiểm thử các route và metric bằng TestClient"
+    - "Cô lập trạng thái dịch vụ bằng app factory và đồng hồ giả lập tiêm vào để kiểm thử tất định"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "FastAPI Tutorial: Testing"
+      vi: "FastAPI Tutorial: Testing (EN)"
+    url: "https://fastapi.tiangolo.com/tutorial/testing/"
+  - title:
+      en: "FastAPI Advanced: Settings and Environment Variables"
+      vi: "FastAPI Advanced: Settings and Environment Variables (EN)"
+    url: "https://fastapi.tiangolo.com/advanced/settings/"
+  - title:
+      en: "FastAPI Deployment: FastAPI in Containers - Docker"
+      vi: "FastAPI Deployment: FastAPI in Containers - Docker (EN)"
+    url: "https://fastapi.tiangolo.com/deployment/docker/"

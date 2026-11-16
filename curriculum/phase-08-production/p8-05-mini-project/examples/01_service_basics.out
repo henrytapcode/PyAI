@@ -1,0 +1,8 @@
+health: {'status': 'ok', 'docs': 6}
+q1: status=200 sources=['refunds']
+    ans=Refunds take 5 business days after approval. [1]
+q2: status=200 sources=['shipping']
+    ans=Express shipping costs 12 dollars and arrives next day. [1]
+q3: status=200 sources=[]
+    ans=I don't know based on the provided context.
+calls: index_embed=1 total_embed=4 chat=2

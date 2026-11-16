@@ -1,0 +1,8 @@
+statuses: [200, 200, 200, 200, 200, 422, 200, 200, 200, 200, 200, 200]
+metric         | value
+requests       | 11
+cache_hit_rate | 0.4545
+p50_ms         | 0.0
+p95_ms         | 232.0
+total_cost     | $0.000190
+alerts: ['p95 latency 232.0ms > 200.0ms', 'daily cost $0.000190 > $0.000100']

@@ -1,0 +1,410 @@
+questions:
+  - id: p8-05-q01
+    type: mcq
+    tags: [production, apis, testing]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why does `create_app(docs, client, clock)` return a new `FastAPI()` inside a function instead of creating `app = FastAPI()` at module level?"
+      options:
+        - "Each test gets isolated state and injected dependencies"
+        - "FastAPI refuses to register routes at module level"
+        - "A module-level `app` cannot handle `POST` JSON bodies"
+        - "Creating `app` inside a function runs `uvicorn` automatically"
+      explanation: "An app factory keeps the index, cache, and metrics inside the factory closure and lets tests inject `FakeLLM` and `FakeClock` without sharing state across tests."
+    vi:
+      prompt: "Vì sao nên viết `create_app(docs, client, clock)` trả về `FastAPI()` mới bên trong hàm thay vì tạo `app = FastAPI()` ở cấp module?"
+      options:
+        - "Mỗi test nhận trạng thái cô lập và phụ thuộc riêng"
+        - "FastAPI không cho phép đăng ký route ở cấp module"
+        - "Một `app` ở cấp module không nhận được body JSON `POST`"
+        - "Tạo `app` trong hàm sẽ tự động bật server `uvicorn`"
+      explanation: "App factory giữ chỉ mục, cache và metric nằm riêng trong closure của hàm tạo và cho phép bài test tiêm `FakeLLM` cùng `FakeClock` mà không bị rò rỉ trạng thái giữa các test."
+
+  - id: p8-05-q02
+    type: mcq
+    tags: [rag, performance, production]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "When should your RAG service embed the document corpus `docs`?"
+      options:
+        - "Inside `POST /ask` right before ranking documents"
+        - "Once inside `create_app` when building the app"
+        - "Inside `GET /health` every time a probe arrives"
+        - "Inside `GET /metrics` when computing latency"
+      explanation: "Embedding the corpus once at app startup avoids repeating `len(docs)` embedding work on every user query; at request time, `/ask` embeds only the incoming question."
+    vi:
+      prompt: "Dịch vụ RAG nên gọi `embed` cho kho tài liệu `docs` vào lúc nào?"
+      options:
+        - "Bên trong `POST /ask` ngay trước khi xếp hạng tài liệu"
+        - "Một lần bên trong `create_app` khi khởi tạo app"
+        - "Bên trong `GET /health` mỗi khi có kiểm tra sức khỏe"
+        - "Bên trong `GET /metrics` khi tính toán độ trễ"
+      explanation: "Embed kho tài liệu một lần lúc khởi tạo app giúp tránh lặp lại việc embed toàn bộ `docs` ở mỗi câu hỏi; lúc nhận request `/ask`, dịch vụ chỉ cần embed câu hỏi mới."
+
+  - id: p8-05-q03
+    type: output
+    tags: [rag, production]
+    difficulty: 1
+    code: |
+      from pyai_llm import FakeLLM
+
+      class SpyClient:
+          def __init__(self):
+              self.inner = FakeLLM(embed_dim=256)
+              self.chat_calls = 0
+
+          def chat(self, msgs):
+              self.chat_calls += 1
+              return self.inner.chat(msgs)
+
+      spy = SpyClient()
+      hits = [d for s, d in [(0.12, "refunds")] if s >= 0.2]
+      if not hits:
+          out = ("I don't know.", [])
+      else:
+          out = (spy.chat([{"role": "user", "content": "hi"}]).content, hits)
+      print(spy.chat_calls, out[1])
+    answer: "0 []"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The only candidate has score `0.12 < 0.2`, so `hits` is empty and the `if not hits` branch returns a refusal with `sources=[]` without calling `spy.chat`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Tài liệu duy nhất có điểm `0.12 < 0.2` nên `hits` rỗng; nhánh `if not hits` trả về câu từ chối và `sources=[]` mà không gọi `spy.chat`."
+
+  - id: p8-05-q04
+    type: mcq
+    tags: [production, performance, rag]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "What bug happens if the RAG response cache key hashes only the normalized question and omits `top_k`?"
+      options:
+        - "Pydantic raises a `422` validation error on `top_k`"
+        - "The TTL clock advances twice as fast on hits"
+        - "A `top_k=1` query returns a cached `top_k=3` reply"
+        - "`client.embed` runs twice for every cached request"
+      explanation: "Because `top_k` changes how many source documents enter `Context:`, omitting `top_k` from the cache key makes requests with different `top_k` values collide on the same entry."
+    vi:
+      prompt: "Lỗi gì xảy ra nếu cache key của dịch vụ RAG chỉ băm câu hỏi chuẩn hóa mà thiếu `top_k`?"
+      options:
+        - "Pydantic sẽ báo lỗi kiểm tra dữ liệu `422` cho `top_k`"
+        - "Đồng hồ TTL sẽ tự chạy nhanh gấp đôi khi trúng cache"
+        - "Truy vấn `top_k=1` nhận nhầm kết quả `top_k=3` đã cache"
+        - "`client.embed` bị gọi hai lần cho mỗi request trúng cache"
+      explanation: "Do `top_k` quyết định số tài liệu được đưa vào `Context:`, bỏ sót `top_k` khỏi cache key khiến các request có `top_k` khác nhau đụng chung một mục cache."
+
+  - id: p8-05-q05
+    type: output
+    tags: [production, performance]
+    difficulty: 2
+    code: |
+      records = [
+          {"latency_ms": 220.0, "cost": 0.0001, "cached": False},
+          {"latency_ms": 0.0, "cost": 0.0, "cached": True},
+          {"latency_ms": 240.0, "cost": 0.0002, "cached": False},
+          {"latency_ms": 0.0, "cost": 0.0, "cached": True},
+      ]
+      reqs = len(records)
+      hit_rate = sum(r["cached"] for r in records) / reqs
+      total_cost = round(sum(r["cost"] for r in records), 4)
+      print(reqs, hit_rate, total_cost)
+    answer: "4 0.5 0.0003"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Out of 4 recorded `/ask` calls, 2 are cache hits (`2 / 4 = 0.5`) with `0.0` cost, and the two misses sum to `0.0001 + 0.0002 = 0.0003`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Trong 4 request `/ask` được ghi lại, có 2 lượt trúng cache (`2 / 4 = 0.5`) với chi phí `0.0`, còn 2 lượt trượt cache có tổng chi phí `0.0001 + 0.0002 = 0.0003`."
+
+  - id: p8-05-q06
+    type: fill
+    tags: [production, performance]
+    difficulty: 2
+    code: |
+      import math
+
+      latencies = [240.0, 0.0, 210.0, 0.0, 320.0]
+      ordered = ___(latencies)
+      rank = math.ceil(___ / 100 * len(ordered))
+      print(ordered[rank - 1])
+    answer: ["sorted", "95"]
+    en:
+      prompt: "Fill in the two blanks to compute the nearest-rank `p95` latency (printing `320.0`)."
+      explanation: "Nearest-rank percentiles sort the latencies ascending with `sorted(...)`, compute `math.ceil(95 / 100 * n)`, and read `ordered[rank - 1]`."
+    vi:
+      prompt: "Điền vào hai chỗ trống để tính độ trễ `p95` theo nearest-rank (in ra `320.0`)."
+      explanation: "Phân vị nearest-rank sắp xếp độ trễ tăng dần bằng `sorted(...)`, tính `math.ceil(95 / 100 * n)`, rồi lấy `ordered[rank - 1]`."
+
+  - id: p8-05-q07
+    type: mcq
+    tags: [testing, production]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What breaks when a FastAPI app and its cache are defined at module level instead of inside an app factory?"
+      options:
+        - "`TestClient` refuses to run on module-level apps"
+        - "Pydantic skips validating `AskRequest` fields"
+        - "Cosine similarity always returns `0.0` on repeats"
+        - "Tests become order-dependent and leak state"
+      explanation: "Module-level caches and metric lists keep entries from earlier tests, so a later test sees `cached: True` or inflated request counts depending on test run order."
+    vi:
+      prompt: "Điều gì hỏng khi `app` và `cache` của FastAPI được đặt ở cấp module thay vì trong app factory?"
+      options:
+        - "`TestClient` từ chối chạy với app ở cấp module"
+        - "Pydantic bỏ qua kiểm tra các trường của `AskRequest`"
+        - "Độ tương đồng cosine luôn trả về `0.0` khi lặp lại"
+        - "Các bài test phụ thuộc thứ tự chạy và rò rỉ trạng thái"
+      explanation: "Cache và danh sách metric ở cấp module giữ lại dữ liệu từ test trước, khiến test sau thấy `cached: True` hoặc số request bị cộng dồn tùy theo thứ tự chạy."
+
+  - id: p8-05-q08
+    type: mcq
+    tags: [logging, production]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which field must you leave OUT of structured metric records and logs?"
+      options:
+        - "The raw user question text"
+        - "The integer token counts"
+        - "The `cached` boolean flag"
+        - "The numeric `latency_ms` value"
+      explanation: "Raw user questions can contain personal or confidential data and logs are stored long-term; record only safe measurements like `latency_ms`, token counts, and `cached`."
+    vi:
+      prompt: "Trường nào KHÔNG được phép ghi vào bản ghi metric hay log có cấu trúc?"
+      options:
+        - "Câu hỏi gốc của người dùng"
+        - "Tổng số token dạng số nguyên"
+        - "Cờ boolean đánh dấu `cached`"
+        - "Giá trị độ trễ `latency_ms`"
+      explanation: "Câu hỏi gốc của người dùng có thể chứa dữ liệu cá nhân hoặc thông tin nhạy cảm trong khi log được lưu lâu dài; chỉ nên ghi các số đo an toàn như `latency_ms`, số token và `cached`."
+
+  - id: p8-05-q09
+    type: parsons
+    tags: [rag, production]
+    difficulty: 2
+    lines:
+      - "def ask(q, cache, trace):"
+      - "    if q in cache:"
+      - "        trace.append('hit'); return cache[q]"
+      - "    trace.append('retrieve')"
+      - "    trace.append('llm')"
+      - "    cache[q] = f'{q}:{len(trace)}'; return cache[q]"
+      - "c = {}; t = []; ask('q1', c, t)"
+      - "print(ask('q1', c, t), t)"
+    en:
+      prompt: "Arrange the lines to form the `/ask` pipeline: check cache first, record `retrieve` then `llm` on a miss, store the reply, and print the cached second call."
+      explanation: "The function checks `cache` before running `retrieve` and `llm`; on the first call it records both steps and stores `'q1:2'`, then on the repeat call it hits cache and appends `'hit'`."
+    vi:
+      prompt: "Sắp xếp các dòng để tạo pipeline `/ask`: kiểm tra cache trước, trượt cache thì ghi `retrieve` rồi `llm`, lưu phản hồi và in kết quả lần gọi thứ hai."
+      explanation: "Hàm kiểm tra `cache` trước khi chạy `retrieve` và `llm`; ở lần đầu nó ghi đủ cả hai bước rồi lưu `'q1:2'`, còn ở lần gọi lặp lại thì trúng cache và nối thêm `'hit'`."
+
+  - id: p8-05-q10
+    type: fill
+    tags: [production, testing]
+    difficulty: 1
+    code: |
+      now = 300.0
+      expires_at = 300.0
+      is_hit = now ___ expires_at
+      print("hit:" if is_hit else "___")
+    answer: ["<", "miss"]
+    en:
+      prompt: "Fill in the comparison operator and output label so a request arriving at the exact TTL boundary (`now == expires_at`) expires as a miss."
+      explanation: "A cached item is valid only while `clock() < expires_at`, so once `now == expires_at` (`300.0 < 300.0` is `False`), it is a cache miss."
+    vi:
+      prompt: "Điền toán tử so sánh và nhãn kết quả để request đến đúng mốc hết TTL (`now == expires_at`) bị tính là trượt cache."
+      explanation: "Một mục cache chỉ hợp lệ khi `clock() < expires_at`, nên tại đúng mốc `now == expires_at` (`300.0 < 300.0` là `False`) nó sẽ hết hạn thành miss."
+
+  - id: p8-05-q11
+    type: output
+    tags: [apis, testing]
+    difficulty: 2
+    code: |
+      from fastapi import FastAPI
+      from fastapi.testclient import TestClient
+      from pydantic import BaseModel, Field
+
+      class Ask(BaseModel):
+          question: str = Field(min_length=1)
+
+      app = FastAPI()
+
+      @app.post("/ask")
+      def ask(body: Ask):
+          return {"q": body.question}
+
+      client = TestClient(app)
+      r_bad = client.post("/ask", json={"question": ""})
+      r_ok = client.post("/ask", json={"question": "Hi"})
+      print(r_bad.status_code, r_ok.status_code)
+    answer: "422 200"
+    en:
+      prompt: "What does this `TestClient` snippet print?"
+      explanation: "An empty `question` fails `Field(min_length=1)` with status `422`, while `\"Hi\"` passes validation and returns `200`."
+    vi:
+      prompt: "Đoạn code `TestClient` này in ra gì?"
+      explanation: "Chuỗi `question` rỗng vi phạm `Field(min_length=1)` nên trả mã `422`, còn `\"Hi\"` hợp lệ nên trả mã `200`."
+
+  - id: p8-05-q12
+    type: mcq
+    tags: [apis, production]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "In the mini-project's `/ask` handler, why does an invalid payload like `{\"question\": \"\"}` (`422`) leave `GET /metrics` `requests` unchanged?"
+      options:
+        - "Metrics ignore every request whose status is not `200`"
+        - "Pydantic rejects the payload before `/ask` runs"
+        - "FastAPI clears the metrics list whenever `422` occurs"
+        - "Validation errors are routed to `GET /health` instead"
+      explanation: "FastAPI parses and validates `AskRequest` before invoking the `ask(body)` function, so requests rejected with `422` never reach the metric-recording code inside `ask`."
+    vi:
+      prompt: "Trong hàm `/ask` của mini-project, vì sao payload sai như `{\"question\": \"\"}` (`422`) không làm tăng `requests` ở `GET /metrics`?"
+      options:
+        - "Metric luôn bỏ qua mọi request có status khác `200`"
+        - "Pydantic chặn payload sai trước khi hàm `/ask` chạy"
+        - "FastAPI tự xóa danh sách metric mỗi khi gặp lỗi `422`"
+        - "Lỗi kiểm tra dữ liệu được chuyển sang route `GET /health`"
+      explanation: "FastAPI phân tích và kiểm tra `AskRequest` trước khi gọi vào hàm `ask(body)`, nên các request bị từ chối với mã `422` không bao giờ chạm tới đoạn code ghi metric bên trong `ask`."
+
+  - id: p8-05-q13
+    type: fill
+    tags: [production, json]
+    difficulty: 3
+    code: |
+      import hashlib, json
+
+      def cache_key(question: str, top_k: int) -> str:
+          clean = " ".join(question.___().split())
+          raw = json.dumps({"question": clean, "top_k": top_k}, ___=True)
+          return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:8]
+
+      print(cache_key("  Hi   RAG ", 2) == cache_key("Hi RAG", 2))
+    answer: ["strip", "sort_keys"]
+    en:
+      prompt: "Fill in the two blanks so extra spaces normalize identically and JSON keys serialize in a deterministic order (printing `True`)."
+      explanation: "`question.strip().split()` strips leading/trailing spaces and splits on runs of whitespace, and `sort_keys=True` guarantees canonical JSON key order before hashing."
+    vi:
+      prompt: "Điền hai chỗ trống để chuẩn hóa khoảng trắng giống nhau và sắp xếp khóa JSON tất định (in ra `True`)."
+      explanation: "`question.strip().split()` bỏ khoảng trắng đầu/cuối và tách theo cụm khoảng trắng, còn `sort_keys=True` đảm bảo thứ tự khóa JSON cố định trước khi băm."
+
+  - id: p8-05-q14
+    type: parsons
+    tags: [rag, production]
+    difficulty: 3
+    lines:
+      - "from pyai_llm import FakeLLM"
+      - "client = FakeLLM()"
+      - "vec = client.embed(['Refunds take 5 days.'])[0]"
+      - "ctx = f'[1] Refunds take 5 days. ({round(vec[0], 2)})'"
+      - "resp = client.chat([{'role': 'system', 'content': 'Context:\\n' + ctx}, {'role': 'user', 'content': 'How many days do refunds take?'}])"
+      - "print(resp.content)"
+    en:
+      prompt: "Arrange the lines in strict dependency order to embed a chunk, build a numbered `Context:` prompt, call `FakeLLM.chat`, and print the cited answer."
+      explanation: "Import `FakeLLM`, instantiate `client`, embed the chunk into `vec`, format `ctx` using `vec[0]`, pass `ctx` into `client.chat(...)`, and finally print `resp.content`."
+    vi:
+      prompt: "Sắp xếp các dòng theo đúng thứ tự phụ thuộc để embed một chunk, dựng prompt `Context:` đánh số, gọi `FakeLLM.chat` và in câu trả lời có trích nguồn."
+      explanation: "Import `FakeLLM`, khởi tạo `client`, embed chunk thành `vec`, định dạng `ctx` có dùng `vec[0]`, truyền `ctx` vào `client.chat(...)`, rồi in `resp.content`."
+
+  - id: p8-05-q15
+    type: mcq
+    tags: [production, performance]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "If your service skips recording cache hits in `metrics`, what happens to the numbers reported by `GET /metrics`?"
+      options:
+        - "Both `p95_ms` and `cache_hit_rate` appear artificially low"
+        - "`total_cost` increases because hits get billed twice"
+        - "`cache_hit_rate` drops to `0.0` and `p95_ms` looks higher"
+        - "`requests` still includes hits while `p95_ms` stays `0.0`"
+      explanation: "Omitting cache hits means zero hits are counted (`cache_hit_rate` is `0.0`) and only slow cache-miss latencies remain in the sorted list, pushing `p95_ms` upward."
+    vi:
+      prompt: "Nếu dịch vụ bỏ qua không ghi các lượt trúng cache vào `metrics`, số liệu từ `GET /metrics` bị sai lệch thế nào?"
+      options:
+        - "Cả `p95_ms` và `cache_hit_rate` đều bị thấp giả tạo"
+        - "`total_cost` tăng lên vì lượt hit bị tính tiền hai lần"
+        - "`cache_hit_rate` tụt về `0.0` và `p95_ms` bị đẩy cao hơn"
+        - "`requests` vẫn đếm lượt hit còn `p95_ms` giữ ở `0.0`"
+      explanation: "Bỏ qua các lượt trúng cache khiến số hit bằng 0 (`cache_hit_rate = 0.0`) và chỉ còn các lượt trượt cache chậm trong danh sách, làm `p95_ms` cao hơn thực tế."
+
+  - id: p8-05-q16
+    type: mcq
+    tags: [production, rag]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "You update a policy document in `docs` while keeping `cache_ttl=300`. What is the cleanest way to prevent stale cached replies?"
+      options:
+        - "Switch `clock` from `time.monotonic` to `FakeClock`"
+        - "Stop caching responses whenever `top_k` equals `2`"
+        - "Remove `sort_keys=True` from `json.dumps` in the key"
+        - "Include an `index_version` tag in the cache key"
+      explanation: "Bumping an `index_version` field inside the cache key payload immediately misses all entries created under the older corpus without scanning or clearing the cache manually."
+    vi:
+      prompt: "Bạn vừa cập nhật nội dung một tài liệu trong `docs` khi `cache_ttl=300`. Cách gọn nhất để tránh trả nhầm câu trả lời cũ trong cache là gì?"
+      options:
+        - "Đổi `clock` từ `time.monotonic` sang dùng `FakeClock`"
+        - "Ngừng lưu cache mỗi khi `top_k` mang giá trị `2`"
+        - "Bỏ `sort_keys=True` khỏi `json.dumps` khi tạo key"
+        - "Thêm trường `index_version` vào bên trong cache key"
+      explanation: "Tăng giá trị `index_version` trong dữ liệu tạo cache key khiến mọi câu hỏi lập tức trượt cache cũ và sinh câu trả lời mới theo bộ tài liệu mới."
+
+flashcards:
+  - id: p8-05-f01
+    tags: [production, apis, testing]
+    en:
+      front: "Why wrap FastAPI routes inside `create_app(docs, client, clock)`?"
+      back: "An app factory keeps index, cache, and metrics local to each instance and injects dependencies so tests run independently in any order."
+    vi:
+      front: "Vì sao nên bọc các route FastAPI trong `create_app(docs, client, clock)`?"
+      back: "App factory giữ chỉ mục, cache và metric cục bộ cho từng thể hiện và tiêm phụ thuộc từ ngoài vào để các bài test chạy độc lập theo mọi thứ tự."
+
+  - id: p8-05-f02
+    tags: [production, testing]
+    en:
+      front: "How should `clock` be passed to `create_app` in tests vs. production?"
+      back: "Pass a `FakeClock` instance (callable with `advance(seconds)`) in tests, and pass `time.monotonic` (without calling it) in production."
+    vi:
+      front: "Truyền `clock` cho `create_app` khi test và ở production khác nhau thế nào?"
+      back: "Khi test truyền một `FakeClock` (gọi được như hàm và có `advance(seconds)`), còn ở production truyền `time.monotonic` (truyền hàm, không gọi)."
+
+  - id: p8-05-f03
+    tags: [rag, performance]
+    en:
+      front: "How many times should `client.embed` run for the document corpus vs. user queries?"
+      back: "Embed the full `docs` corpus once inside `create_app`, and embed only the single `body.question` on a cache-miss `/ask`."
+    vi:
+      front: "`client.embed` nên chạy bao nhiêu lần cho kho tài liệu so với câu hỏi người dùng?"
+      back: "Embed toàn bộ `docs` đúng một lần trong `create_app`, và chỉ embed riêng `body.question` khi `/ask` bị trượt cache."
+
+  - id: p8-05-f04
+    tags: [production, rag, json]
+    en:
+      front: "What belongs in the RAG `/ask` cache key?"
+      back: "A SHA-256 hash of `json.dumps(..., sort_keys=True)` over the whitespace-normalized question, `top_k`, and optionally `index_version`."
+    vi:
+      front: "Cache key cho `/ask` của dịch vụ RAG cần chứa những gì?"
+      back: "Mã băm SHA-256 của `json.dumps(..., sort_keys=True)` gồm câu hỏi đã chuẩn hóa khoảng trắng, `top_k`, và thêm `index_version` khi cần vô hiệu hóa."
+
+  - id: p8-05-f05
+    tags: [production, performance]
+    en:
+      front: "What latency and token cost does a cache hit record on `POST /ask`?"
+      back: "Near-zero `latency_ms` (`0.0` with `FakeClock` since `chat` is skipped) and `$0.0` cost (`prompt_tokens=0`, `completion_tokens=0`)."
+    vi:
+      front: "Một lượt trúng cache trên `POST /ask` ghi nhận độ trễ và chi phí token bằng bao nhiêu?"
+      back: "Độ trễ gần bằng `0` (`0.0` ms với `FakeClock` vì bỏ qua `chat`) và chi phí `$0.0` (`prompt_tokens=0`, `completion_tokens=0`)."
+
+  - id: p8-05-f06
+    tags: [logging, production]
+    en:
+      front: "Why should `POST /ask` metrics never store `body.question`?"
+      back: "User questions may contain personal or private details and metric logs are kept long-term on shared dashboards."
+    vi:
+      front: "Vì sao bản ghi metric của `POST /ask` không được lưu trực tiếp `body.question`?"
+      back: "Câu hỏi người dùng có thể chứa thông tin cá nhân hoặc dữ liệu nhạy cảm trong khi log metric được lưu lâu dài trên dashboard dùng chung."

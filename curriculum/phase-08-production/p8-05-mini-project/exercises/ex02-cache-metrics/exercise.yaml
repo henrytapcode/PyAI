@@ -1,0 +1,86 @@
+id: p8-05-ex02
+kind: project
+title:
+  en: "Extend: add TTL cache and metrics"
+  vi: "Mở rộng: thêm TTL cache và metric"
+difficulty: 3
+tags: [production, rag, apis, testing, performance]
+hints:
+  en:
+    - |
+      Combine Parts 3 and 4 of the lesson on top of the working RAG starter: hash normalized question + `top_k`, check `now < expires_at`, measure `clock()` before and after each `/ask`, and aggregate `records` in `GET /metrics`. For 0 requests, `GET /metrics` returns `{"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+    - |
+      The plan:
+      1. Inside `create_app`, initialize `cache: dict[str, tuple[dict, float]] = {}` and `records: list[dict] = []`.
+      2. Build `_cache_key(question, top_k)` from `" ".join(question.strip().split())` and `top_k` using `json.dumps(..., sort_keys=True)` + `hashlib.sha256`.
+      3. At the start of `ask(body)`, capture `t0 = clock()`, check if `key` is in `cache` and `t0 < expires_at`. On hit, set `cached=True`, zero usage, and skip `embed` and `chat`; on miss, retrieve and answer (including refusals), then save `(payload, clock() + cache_ttl)` in `cache`.
+      4. Before returning from `ask`, compute `latency_ms = (clock() - t0) * 1000.0` and `cost = (p_tok / 1000.0) * price_in_per_1k + (c_tok / 1000.0) * price_out_per_1k`, append to `records`, and include `"cached": cached` in the JSON response.
+      5. Implement `@app.get("/metrics")` with nearest-rank `p95_ms` (`ordered[math.ceil(0.95 * len(ordered)) - 1]`) and `round(total_cost, 6)`.
+    - |
+      The shape of the solution:
+      ```python
+      @app.post("/ask")
+      def ask(body: AskRequest) -> dict[str, object]:
+          t0 = clock()
+          key = _cache_key(body.question, body.top_k)
+          entry = cache.get(key)
+          if entry is not None and t0 < entry[1]:
+              payload, cached, p_tok, c_tok = dict(entry[0]), True, 0, 0
+          else:
+              cached = False
+              payload, p_tok, c_tok = _run_rag(body.question, body.top_k)
+              cache[key] = ...
+
+          latency_ms = ...
+          cost = ...
+          records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached})
+          return {**payload, "usage": {"prompt_tokens": p_tok, "completion_tokens": c_tok}, "cached": cached}
+
+      @app.get("/metrics")
+      def metrics() -> dict[str, object]:
+          if not records:
+              return {"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
+          ordered = sorted(r["latency_ms"] for r in records)
+          p95_ms = ...
+          return {"requests": len(records), "cache_hit_rate": sum(r["cached"] for r in records) / len(records), "p95_ms": p95_ms, "total_cost": round(sum(r["cost"] for r in records), 6)}
+      ```
+      Remember that refusals (`sources=[]`) are also stored in `cache` on a miss so repeating an unanswerable question hits the cache without re-embedding.
+  vi:
+    - |
+      Kết hợp Part 3 và Part 4 của bài học trên nền RAG đã chạy sẵn trong starter: băm câu hỏi chuẩn hóa + `top_k`, kiểm tra `now < expires_at`, đo `clock()` trước và sau mỗi `/ask`, và tổng hợp `records` trong `GET /metrics`. Khi chưa có request nào, `GET /metrics` trả `{"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+    - |
+      Kế hoạch:
+      1. Trong `create_app`, khởi tạo `cache: dict[str, tuple[dict, float]] = {}` và `records: list[dict] = []`.
+      2. Viết `_cache_key(question, top_k)` từ `" ".join(question.strip().split())` và `top_k` bằng `json.dumps(..., sort_keys=True)` + `hashlib.sha256`.
+      3. Đầu hàm `ask(body)`, lưu `t0 = clock()`, kiểm tra `key` trong `cache` và `t0 < expires_at`. Nếu trúng cache thì đặt `cached=True`, usage `0/0` và bỏ qua `embed`/`chat`; nếu trượt thì chạy RAG (kể cả câu từ chối), rồi lưu `(payload, clock() + cache_ttl)` vào `cache`.
+      4. Trước khi trả về từ `ask`, tính `latency_ms = (clock() - t0) * 1000.0` và `cost = (p_tok / 1000.0) * price_in_per_1k + (c_tok / 1000.0) * price_out_per_1k`, thêm vào `records`, và trả thêm `"cached": cached`.
+      5. Viết `@app.get("/metrics")` tính `p95_ms` theo nearest-rank (`ordered[math.ceil(0.95 * len(ordered)) - 1]`) và `round(total_cost, 6)`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      @app.post("/ask")
+      def ask(body: AskRequest) -> dict[str, object]:
+          t0 = clock()
+          key = _cache_key(body.question, body.top_k)
+          entry = cache.get(key)
+          if entry is not None and t0 < entry[1]:
+              payload, cached, p_tok, c_tok = dict(entry[0]), True, 0, 0
+          else:
+              cached = False
+              payload, p_tok, c_tok = _run_rag(body.question, body.top_k)
+              cache[key] = ...
+
+          latency_ms = ...
+          cost = ...
+          records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached})
+          return {**payload, "usage": {"prompt_tokens": p_tok, "completion_tokens": c_tok}, "cached": cached}
+
+      @app.get("/metrics")
+      def metrics() -> dict[str, object]:
+          if not records:
+              return {"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
+          ordered = sorted(r["latency_ms"] for r in records)
+          p95_ms = ...
+          return {"requests": len(records), "cache_hit_rate": sum(r["cached"] for r in records) / len(records), "p95_ms": p95_ms, "total_cost": round(sum(r["cost"] for r in records), 6)}
+      ```
+      Nhớ rằng câu từ chối (`sources=[]`) cũng được lưu vào `cache` khi trượt để khi hỏi lặp lại sẽ trúng cache mà không cần embed lại.

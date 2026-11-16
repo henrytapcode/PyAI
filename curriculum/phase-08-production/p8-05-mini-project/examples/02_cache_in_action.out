@@ -1,0 +1,8 @@
+t    | question                         | k | cached | chat
+0    | How many days do refunds take?   | 2 | False  | 1
+10   | How many days   do refunds take? | 2 | True   | 1
+20   | How many days do refunds take?   | 1 | False  | 2
+30   | How long is hardware warranty?   | 2 | False  | 3
+40   | How long is hardware warranty?   | 2 | True   | 3
+50   | Can I pay with crypto?           | 2 | False  | 3
+400  | How many days do refunds take?   | 2 | False  | 4
