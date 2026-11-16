@@ -3165,3 +3165,103 @@ terms:
       en: "Bumping index_version or prompt_version in the cache key invalidates stale RAG answers immediately without scanning and deleting individual keys."
       vi: "Tăng index_version hoặc prompt_version trong cache key giúp vô hiệu hóa ngay toàn bộ câu trả lời RAG cũ mà không cần dò xóa từng key."
     related: [TTL, cache key, eviction]
+
+  # ---------------------------------------------------------- Monitoring, cost & latency
+  - term: metric
+    vi_term: metric (chỉ số đo lường)
+    tags: [production, performance]
+    en: "A numeric measurement recorded over time—such as request latency, token cost, error rate, or cache hit rate—to track how a system behaves."
+    vi: "Một phép đo bằng số được ghi lại theo thời gian—như độ trễ request, chi phí token, tỉ lệ lỗi hay cache hit rate—để theo dõi hành vi hệ thống."
+    example: "record = {\"latency_ms\": 215, \"cost_usd\": 0.0012, \"status\": \"ok\"}"
+    in_practice:
+      en: "Instead of guessing why users say a chatbot feels slow, you inspect per-request metrics to see whether latency jumped on a specific route or model."
+      vi: "Thay vì đoán mò vì sao người dùng than chatbot chậm, bạn xem các metric theo từng request để biết độ trễ tăng ở route hay model nào."
+    related: [latency, observability, threshold]
+
+  - term: percentile
+    vi_term: percentile (phân vị)
+    tags: [production, performance]
+    en: "The value below which a given percentage of sorted observations fall; for example, the 95th percentile marks the threshold that 95% of requests stay under."
+    vi: "Giá trị mà một tỉ lệ phần trăm cho trước của các quan sát đã sắp xếp nằm dưới đó; ví dụ phân vị thứ 95 là ngưỡng mà 95% request nằm dưới."
+    example: "rank = math.ceil(95 / 100 * len(ordered))\np95 = ordered[rank - 1]"
+    in_practice:
+      en: "Latency distributions are skewed by slow outliers, so teams track percentiles like p50 and p95 instead of relying on the mean alone."
+      vi: "Phân phối độ trễ hay bị lệch bởi vài request rất chậm, nên các nhóm theo dõi phân vị như p50 và p95 thay vì chỉ nhìn trung bình."
+    related: [p50, p95, latency]
+
+  - term: p50
+    vi_term: p50 (trung vị / phân vị 50)
+    tags: [production, performance]
+    en: "The 50th percentile (median) of a metric: half of all requests are faster than p50 and half are slower, representing the typical user experience."
+    vi: "Phân vị thứ 50 (trung vị) của một chỉ số: một nửa số request nhanh hơn p50 và một nửa chậm hơn, đại diện cho trải nghiệm thông thường của người dùng."
+    example: "p50_ms = percentile(latencies_ms, 50)"
+    in_practice:
+      en: "Tracking p50 alongside p95 shows whether a slowdown affects every user or only a small tail of heavy prompts."
+      vi: "Theo dõi p50 cùng với p95 cho biết việc chậm đi ảnh hưởng tới mọi người dùng hay chỉ một nhóm nhỏ prompt nặng."
+    related: [percentile, p95, latency]
+
+  - term: p95
+    vi_term: p95 (phân vị 95)
+    tags: [production, performance]
+    en: "The 95th percentile of a metric: 95% of requests finish at or below this value, while the slowest 5% (1 in 20) take at least this long."
+    vi: "Phân vị thứ 95 của một chỉ số: 95% request xong ở mức này trở xuống, còn 5% chậm nhất (1 trong 20 lượt) mất ít nhất bằng mức này."
+    example: "p95_ms = percentile(latencies_ms, 95)"
+    in_practice:
+      en: "Latency alerts usually trigger on p95 rather than mean latency because a few 3-second timeouts hurt real users long before the average moves much."
+      vi: "Cảnh báo độ trễ thường đặt theo p95 thay vì trung bình vì vài lượt chậm 3 giây đã làm người dùng khó chịu rất lâu trước khi số trung bình nhúc nhích."
+    related: [percentile, p50, threshold]
+
+  - term: structured logging
+    vi_term: structured logging (ghi log có cấu trúc)
+    tags: [production, logging, json]
+    en: "Writing each log entry in a consistent, machine-readable format—such as one JSON object per line—with fixed field names so programs can filter and aggregate logs reliably."
+    vi: "Ghi mỗi dòng log theo định dạng nhất quán, máy đọc được—như mỗi dòng một JSON object—với tên trường cố định để chương trình lọc và tổng hợp chính xác."
+    example: "logger.info(json.dumps({\"route\": \"/ask\", \"latency_ms\": 210}, sort_keys=True))"
+    in_practice:
+      en: "With structured JSON logs, you can compute daily cost per route or p95 latency in a few lines of Python without fragile regex parsing."
+      vi: "Nhờ log JSON có cấu trúc, bạn tính được chi phí mỗi ngày theo từng route hay độ trễ p95 chỉ trong vài dòng Python mà không phải viết regex dễ gãy."
+    related: [logging, JSON, metric]
+
+  - term: alert
+    vi_term: alert (cảnh báo)
+    tags: [production]
+    en: "An automated notification fired when a monitored metric—such as p95 latency, error rate, or daily spend—crosses a chosen threshold."
+    vi: "Thông báo tự động được phát ra khi một metric được theo dõi—như độ trễ p95, tỉ lệ lỗi hay chi phí ngày—vượt qua ngưỡng đã chọn."
+    example: "if summary[\"p95_ms\"] > max_p95_ms:\n    alerts.append(\"p95-latency\")"
+    in_practice:
+      en: "Start with a few high-signal alerts (p95 latency, cost budget, error rate) so your team acts on real problems instead of ignoring noisy false alarms."
+      vi: "Hãy bắt đầu bằng vài cảnh báo có tín hiệu rõ (độ trễ p95, ngân sách chi phí, tỉ lệ lỗi) để nhóm xử lý đúng sự cố thay vì lờ đi vì quá nhiều báo động giả."
+    related: [threshold, metric, budget]
+
+  - term: threshold
+    vi_term: threshold (ngưỡng)
+    tags: [production]
+    en: "A numeric cutoff that separates normal behaviour from an alert condition, such as max_p95_ms = 1200 or an 80% budget warning ratio."
+    vi: "Mốc giá trị bằng số phân tách trạng thái bình thường với điều kiện cần cảnh báo, chẳng hạn max_p95_ms = 1200 hay ngưỡng cảnh báo 80% ngân sách."
+    example: "if total_cost >= 0.8 * daily_budget:\n    alerts.append(\"budget-warning\")"
+    in_practice:
+      en: "Setting thresholds too tight causes constant false alarms, while setting them too loose lets latency spikes or runaway token bills go unnoticed."
+      vi: "Đặt ngưỡng quá chặt gây báo động giả liên tục, còn đặt quá lỏng sẽ để lọt các đợt tăng độ trễ hay hóa đơn token tăng vọt."
+    related: [alert, budget, p95]
+
+  - term: budget
+    vi_term: budget (ngân sách)
+    tags: [production, llm]
+    en: "A planned spending limit (or token allowance) for an AI service over a period such as a day or month, paired with early warnings before reaching 100%."
+    vi: "Hạn mức chi tiêu (hoặc lượng token) dự kiến cho một dịch vụ AI trong một khoảng thời gian như ngày hoặc tháng, thường kèm cảnh báo sớm trước khi chạm 100%."
+    example: "if total_cost > budget:\n    alerts.append(\"budget-exceeded\")"
+    in_practice:
+      en: "Alerting at 80% of the daily API budget gives you time to inspect a broken retry loop or cache drop before the account hits its hard cap."
+      vi: "Cảnh báo ở mốc 80% ngân sách ngày giúp bạn kịp kiểm tra vòng lặp retry lỗi hay cache tụt trước khi tài khoản chạm trần."
+    related: [alert, threshold, metric]
+
+  - term: observability
+    vi_term: observability (khả năng quan sát hệ thống)
+    tags: [production, logging]
+    en: "How well you can understand what is happening inside a running system—and diagnose new failures—from the logs, metrics, and traces it emits."
+    vi: "Mức độ bạn có thể hiểu điều gì đang diễn ra bên trong hệ thống đang chạy—và chẩn đoán sự cố mới—từ log, metric và trace mà nó phát ra."
+    example: "# Combine structured logs, p95 latency, cost, error rate, and cache hit rate"
+    in_practice:
+      en: "Good observability turns \"the bot feels slow and expensive\" into \"route /ask lost its cache hit rate after deploy v4\" within minutes."
+      vi: "Observability tốt giúp biến câu \"bot thấy chậm và tốn tiền\" thành \"route /ask bị tụt cache hit rate sau bản deploy v4\" chỉ trong vài phút."
+    related: [metric, structured logging, alert]

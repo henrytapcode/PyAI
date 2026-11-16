@@ -1,0 +1,70 @@
+id: p8-04-ex02
+kind: code
+title:
+  en: "Write: MetricsTracker for cost, p95 latency, and alerts"
+  vi: "Viết code: lớp MetricsTracker theo dõi chi phí, độ trễ p95 và cảnh báo"
+difficulty: 2
+tags: [production, performance, classes]
+hints:
+  en:
+    - |
+      Store each request in `record(...)` regardless of `ok`, compute its token cost as `(prompt_tokens / 1000) * price_in + (completion_tokens / 1000) * price_out`, and return that cost. On an empty tracker, `summary()` must return `{"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+    - |
+      The plan:
+      1. In `__init__`, save the two prices and initialize storage for recorded entries.
+      2. In `record`, compute `cost`, store `(latency_ms, cost, ok)` even when `ok=False`, and return `cost`.
+      3. In `summary`, return zeroed metrics when empty; otherwise compute `error_rate`, nearest-rank `p95_ms` (`math.ceil(0.95 * count) - 1`), and `round(total_cost, 6)`.
+      4. In `alerts`, check `p95_ms > max_p95_ms`, then `total_cost > budget` (`elif total_cost >= warn_ratio * budget`), then `error_rate > 0.05`, appending codes in that exact order.
+    - |
+      Use this skeleton for the empty guard and alert order:
+      ```python
+      class MetricsTracker:
+          def __init__(self, price_in_per_1k: float, price_out_per_1k: float) -> None:
+              self.price_in_per_1k = price_in_per_1k
+              self.price_out_per_1k = price_out_per_1k
+              self._records = []
+
+          def summary(self) -> dict[str, float | int]:
+              if not self._records:
+                  return {"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
+              # sort latencies for nearest-rank p95_ms, count ok=False for error_rate, round total_cost to 6 decimals
+              ...
+
+          def alerts(self, max_p95_ms: float, budget: float, warn_ratio: float = 0.8) -> list[str]:
+              s = self.summary()
+              triggered: list[str] = []
+              # check p95-latency, budget-exceeded / budget-warning (mutually exclusive), and error-rate
+              ...
+              return triggered
+      ```
+  vi:
+    - |
+      Trong `record(...)`, hãy lưu mọi request bất kể `ok` là `True` hay `False`, tính chi phí `(prompt_tokens / 1000) * price_in + (completion_tokens / 1000) * price_out` rồi trả về số đó. Khi chưa có bản ghi nào, `summary()` phải trả về `{"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+    - |
+      Kế hoạch:
+      1. Trong `__init__`, lưu hai đơn giá và khởi tạo danh sách chứa các bản ghi.
+      2. Trong `record`, tính `cost`, lưu `(latency_ms, cost, ok)` kể cả khi `ok=False`, rồi trả về `cost`.
+      3. Trong `summary`, trả về toàn số 0 nếu rỗng; ngược lại tính `error_rate`, `p95_ms` theo nearest-rank (`math.ceil(0.95 * count) - 1`) và `round(total_cost, 6)`.
+      4. Trong `alerts`, kiểm tra lần lượt `p95_ms > max_p95_ms`, rồi `total_cost > budget` (`elif total_cost >= warn_ratio * budget`), rồi `error_rate > 0.05` theo đúng thứ tự đó.
+    - |
+      Dùng bộ khung sau cho nhánh rỗng và thứ tự cảnh báo:
+      ```python
+      class MetricsTracker:
+          def __init__(self, price_in_per_1k: float, price_out_per_1k: float) -> None:
+              self.price_in_per_1k = price_in_per_1k
+              self.price_out_per_1k = price_out_per_1k
+              self._records = []
+
+          def summary(self) -> dict[str, float | int]:
+              if not self._records:
+                  return {"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
+              # sắp xếp latency để lấy p95_ms nearest-rank, đếm ok=False cho error_rate, làm tròn total_cost 6 chữ số
+              ...
+
+          def alerts(self, max_p95_ms: float, budget: float, warn_ratio: float = 0.8) -> list[str]:
+              s = self.summary()
+              triggered: list[str] = []
+              # kiểm tra p95-latency, budget-exceeded / budget-warning (không trùng nhau), và error-rate
+              ...
+              return triggered
+      ```

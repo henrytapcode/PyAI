@@ -1,0 +1,6 @@
+day_1: count=4 p95=310ms cost=$11.50 hit_rate=0.50
+  alerts: none
+day_2: count=4 p95=1650ms cost=$34.00 hit_rate=0.00
+  alerts: ['p95 latency 1650ms > 1000ms', 'budget exceeded: $34.00 > $20.00', 'error rate 0.25 > 0.05']
+day_3: count=4 p95=310ms cost=$17.00 hit_rate=0.50
+  alerts: ['budget warning: 85% of budget used ($17.00/$20.00)']

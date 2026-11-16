@@ -1,0 +1,3 @@
+# Parallel lists and running totals
+
+This alternative replaces the list of `_RequestMetric` dataclass instances with a single `_latencies` list alongside scalar running totals (`_total_cost` and `_error_count`), and evaluates alert rules from a tuple table. Keeping running totals avoids allocating a dataclass per request and computes `total_cost` and `error_rate` in O(1) time inside `summary()`, which is memory-efficient for high-volume services. The trade-off is that individual per-request records are discarded, so you cannot later slice metrics by route, inspect which request failed, or recompute rolling time-window summaries without changing the storage layout.

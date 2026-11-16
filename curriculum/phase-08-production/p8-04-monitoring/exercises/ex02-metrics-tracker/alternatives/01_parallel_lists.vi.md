@@ -1,0 +1,3 @@
+# Lưu danh sách song song và biến cộng dồn
+
+Cách làm thay thế này bỏ qua danh sách các đối tượng dataclass `_RequestMetric`, thay bằng một list `_latencies` kết hợp với các biến đếm cộng dồn (`_total_cost` và `_error_count`), đồng thời duyệt bảng quy tắc để sinh mã cảnh báo. Việc cộng dồn trực tiếp giúp không phải cấp phát một dataclass cho mỗi request và lấy ngay `total_cost` lẫn `error_rate` trong O(1) khi gọi `summary()`, rất tiết kiệm bộ nhớ khi lưu lượng cao. Đổi lại, thông tin chi tiết của từng request không được giữ lại, nên sau này bạn không thể lọc ngược theo route, tra cứu request nào bị lỗi hay tính tổng hợp theo cửa sổ thời gian nếu không sửa lại cấu trúc lưu trữ.

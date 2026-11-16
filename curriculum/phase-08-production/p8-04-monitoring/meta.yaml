@@ -1,0 +1,39 @@
+id: p8-04-monitoring
+phase: p8
+order: 4
+kind: lesson
+title:
+  en: "Monitoring, cost & latency"
+  vi: "Monitoring, chi phí & độ trễ"
+summary:
+  en: "Monitor LLM services in production without guesswork: emit one structured JSON metric log per request, compute nearest-rank p50/p95 latency and token cost from logs, summarize cache hit rate and error rate, and trigger budget and latency alerts."
+  vi: "Giám sát dịch vụ LLM ở production không cần đoán mò: ghi một dòng log metric JSON có cấu trúc cho mỗi request, tính độ trễ p50/p95 theo nearest-rank và chi phí token từ log, tổng hợp cache hit rate cùng error rate, và đặt ngưỡng cảnh báo chi phí lẫn độ trễ."
+level: beginner
+tags: [production, performance, logging, llm]
+prerequisites: [p8-03-caching]
+duration_min: 16
+outcomes:
+  en:
+    - "Log structured request metrics with latency and token counts"
+    - "Compute p50/p95 latency and estimated token cost"
+    - "Set simple budget and latency alerts"
+    - "Summarize request logs to spot error spikes and cache hit drops"
+  vi:
+    - "Ghi log metric có cấu trúc gồm độ trễ và số token"
+    - "Tính độ trễ p50/p95 và ước lượng chi phí token"
+    - "Đặt ngưỡng cảnh báo chi phí và độ trễ đơn giản"
+    - "Tổng hợp log request để phát hiện lỗi tăng đột biến và cache hit tụt"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "Python Docs: Logging HOWTO"
+      vi: "Python Docs: Logging HOWTO (EN)"
+    url: "https://docs.python.org/3/howto/logging.html"
+  - title:
+      en: "Python Docs: statistics.quantiles"
+      vi: "Python Docs: statistics.quantiles (EN)"
+    url: "https://docs.python.org/3/library/statistics.html#statistics.quantiles"
+  - title:
+      en: "OpenTelemetry Overview (open standard for collecting metrics and traces at scale, beyond this lesson)"
+      vi: "OpenTelemetry Overview (chuẩn mở để thu metric và trace ở quy mô lớn, ngoài phạm vi bài)"
+    url: "https://opentelemetry.io/docs/what-is-opentelemetry/"

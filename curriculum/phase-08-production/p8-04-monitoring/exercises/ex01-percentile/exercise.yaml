@@ -1,0 +1,54 @@
+id: p8-04-ex01
+kind: fill
+title:
+  en: "Fill: nearest-rank percentile and latency report"
+  vi: "Điền khuyết: tính percentile nearest-rank và báo cáo độ trễ"
+difficulty: 1
+tags: [production, performance, lists]
+hints:
+  en:
+    - |
+      Review the nearest-rank formula in §3: sort the input values first, compute `rank = math.ceil(p / 100 * n)`, and convert the 1-based `rank` into a 0-based list index. For `[10, 20, 30, 40]` with `p=50`, `rank = 2` so `ordered[1]` is `20.0`.
+    - |
+      The plan:
+      1. Sort `values` into a new list using `sorted(values)` so the original list stays untouched.
+      2. Round `p / 100 * len(ordered)` up with `math.ceil(...)`.
+      3. Index `ordered` at `rank - 1`, and compute `"p95"` in `latency_report` by calling `percentile(values, 95)`.
+    - |
+      Keep the structure below and replace the remaining blanks:
+      ```python
+      def percentile(values: list[float], p: float) -> float:
+          ordered = sorted(values)
+          if not values or p <= 0 or p > 100:
+              raise ValueError("values must be non-empty and p must be in (0, 100]")
+          # compute 1-based rank with math.ceil and return float at 0-based index
+          ...
+
+
+      def latency_report(values: list[float]) -> dict[str, float]:
+          # call percentile for 50 and 95, plus max
+          ...
+      ```
+  vi:
+    - |
+      Xem lại công thức nearest-rank ở §3: sắp xếp danh sách trước, tính `rank = math.ceil(p / 100 * n)` rồi đổi hạng bắt đầu từ 1 sang chỉ số bắt đầu từ 0. Với `[10, 20, 30, 40]` và `p=50`, `rank = 2` nên `ordered[1]` là `20.0`.
+    - |
+      Kế hoạch:
+      1. Sắp xếp `values` thành list mới bằng `sorted(values)` để không làm đổi list gốc.
+      2. Làm tròn lên `p / 100 * len(ordered)` bằng `math.ceil(...)`.
+      3. Truy cập `ordered` ở chỉ số `rank - 1`, và tính `"p95"` trong `latency_report` bằng cách gọi `percentile(values, 95)`.
+    - |
+      Giữ bộ khung dưới đây và điền các chỗ còn trống:
+      ```python
+      def percentile(values: list[float], p: float) -> float:
+          ordered = sorted(values)
+          if not values or p <= 0 or p > 100:
+              raise ValueError("values must be non-empty and p must be in (0, 100]")
+          # tính rank bắt đầu từ 1 bằng math.ceil rồi trả về float ở chỉ số 0-based
+          ...
+
+
+      def latency_report(values: list[float]) -> dict[str, float]:
+          # gọi percentile cho 50 và 95 cùng với max
+          ...
+      ```

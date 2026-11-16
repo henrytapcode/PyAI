@@ -1,0 +1,13 @@
+metric | value
+-------|------
+min    | 180
+mean   | 462.5
+p50    | 215
+p90    | 940
+p95    | 1420
+max    | 2650
+
+slowest 3:
+  req-14: 2650 ms
+  req-05: 1420 ms
+  req-19: 940 ms

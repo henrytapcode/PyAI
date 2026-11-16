@@ -1,0 +1,402 @@
+questions:
+  - id: p8-04-q01
+    type: mcq
+    tags: [production, performance]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Why is **p95 latency** more reliable than **mean latency** for spotting slow LLM responses?"
+      options:
+        - "Mean latency ignores cache hits when aggregating records"
+        - "Slow outliers hurt tail users before mean moves"
+        - "Percentiles automatically remove failed requests from logs"
+        - "Mean latency requires interpolation across unsorted values"
+      explanation: "When 95% of requests are fast and 5% stall for seconds, the arithmetic mean still looks modest, while p95 directly exposes the slow tail experienced by 1 in 20 users."
+    vi:
+      prompt: "Vì sao **độ trễ p95** đáng tin hơn **độ trễ trung bình (mean)** khi phát hiện phản hồi LLM bị chậm?"
+      options:
+        - "Độ trễ trung bình bỏ qua các lượt trúng cache khi tổng hợp"
+        - "Vài request quá chậm làm khổ nhóm cuối trước khi mean đổi rõ"
+        - "Percentile tự động loại bỏ các request lỗi khỏi file log"
+        - "Độ trễ trung bình bắt buộc nội suy trên danh sách chưa sắp xếp"
+      explanation: "Khi 95% request chạy nhanh và 5% bị nghẽn nhiều giây, trung bình cộng vẫn có vẻ ổn, còn p95 chỉ thẳng ra độ trễ mà 1 trong 20 người dùng chậm nhất gặp phải."
+
+  - id: p8-04-q02
+    type: output
+    tags: [production, performance, lists]
+    difficulty: 1
+    code: |
+      import math
+
+      def pct(vals, p):
+          s = sorted(vals)
+          return s[math.ceil(p / 100 * len(s)) - 1]
+
+      ms = [210, 180, 900, 200, 190, 230, 220, 205, 195, 240]
+      print(pct(ms, 50), pct(ms, 95))
+    answer: "205 900"
+    en:
+      prompt: "What does this nearest-rank percentile script print?"
+      explanation: "Sorting `ms` (10 items) gives `[180, 190, 195, 200, 205, 210, 220, 230, 240, 900]`. For `p=50`, `ceil(5.0) - 1 = 4` (`205`). For `p=95`, `ceil(9.5) - 1 = 9` (`900`)."
+    vi:
+      prompt: "Đoạn script tính percentile nearest-rank này in ra gì?"
+      explanation: "Sắp xếp `ms` (10 phần tử) được `[180, 190, 195, 200, 205, 210, 220, 230, 240, 900]`. Với `p=50`, `ceil(5.0) - 1 = 4` (`205`). Với `p=95`, `ceil(9.5) - 1 = 9` (`900`)."
+
+  - id: p8-04-q03
+    type: mcq
+    tags: [production, logging, json]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What is the main advantage of logging one JSON object per request instead of free-text sentences?"
+      options:
+        - "JSON lines prevent `RateLimitError` during model calls"
+        - "JSON formatting runs without importing any stdlib module"
+        - "Fixed keys let scripts parse and sum metrics cleanly"
+        - "Free-text sentences cannot be sent to `sys.stdout`"
+      explanation: "Structured JSON logs give every metric a consistent key and type, so downstream scripts can call `json.loads()` to filter by route or sum costs without fragile regex."
+    vi:
+      prompt: "Ưu điểm chính của việc ghi mỗi request một JSON object thay cho câu văn tự do là gì?"
+      options:
+        - "Dòng JSON giúp ngăn `RateLimitError` khi gọi model"
+        - "Định dạng JSON chạy được mà không cần import thư viện chuẩn"
+        - "Tên trường cố định giúp lọc và cộng metric dễ dàng"
+        - "Câu chữ tự do không thể xuất ra kênh `sys.stdout`"
+      explanation: "Log JSON có cấu trúc giữ tên trường và kiểu dữ liệu nhất quán, nên script phía sau chỉ cần gọi `json.loads()` để lọc theo route hoặc cộng chi phí mà không phải viết regex dễ hỏng."
+
+  - id: p8-04-q04
+    type: fill
+    tags: [production, logging, json]
+    difficulty: 1
+    code: |
+      import json
+      import logging
+      import sys
+
+      logging.basicConfig(stream=sys.___, level=logging.INFO, format="%(message)s", force=True)
+      logger = logging.getLogger("app.metrics")
+      rec = {"route": "/ask", "latency_ms": 210}
+      logger.info(json.___(rec, sort_keys=True))
+    answer: ["stdout", "dumps"]
+    en:
+      prompt: "Fill in the two blanks so `'app.metrics'` writes a sorted JSON line to standard output."
+      explanation: "Pass `sys.stdout` to `stream` so logs go to stdout rather than stderr, and serialize `rec` with `json.dumps(rec, sort_keys=True)`."
+    vi:
+      prompt: "Điền vào hai chỗ trống để logger `'app.metrics'` ghi một dòng JSON đã sắp xếp khóa ra standard output."
+      explanation: "Truyền `sys.stdout` vào `stream` để log ra stdout thay vì stderr, và chuyển `rec` thành chuỗi bằng `json.dumps(rec, sort_keys=True)`."
+
+  - id: p8-04-q05
+    type: parsons
+    tags: [production, performance, lists]
+    difficulty: 1
+    lines:
+      - "import math; raw = [410, 180, 220, 195, 250]"
+      - "ordered = sorted(raw)"
+      - "rank = math.ceil(0.95 * len(ordered))"
+      - "p95 = ordered[rank - 1]"
+      - "print(p95)"
+    en:
+      prompt: "Arrange these lines to compute and print the nearest-rank `p95` latency of `raw`."
+      explanation: "Import `math` and define `raw`, sort it into `ordered`, compute `rank = math.ceil(0.95 * len(ordered))`, index `ordered[rank - 1]`, and print `p95`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tính và in ra độ trễ `p95` theo phương pháp nearest-rank của `raw`."
+      explanation: "Import `math` và khai báo `raw`, sắp xếp thành `ordered`, tính `rank = math.ceil(0.95 * len(ordered))`, lấy `ordered[rank - 1]` rồi in `p95`."
+
+  - id: p8-04-q06
+    type: mcq
+    tags: [production, llm]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why should your cost calculation multiply `prompt_tokens` and `completion_tokens` by separate rates?"
+      options:
+        - "Output tokens are typically billed much higher per 1K"
+        - "Prompt tokens are excluded from `response.usage`"
+        - "Input tokens are billed only when `cache_hit` is True"
+        - "Output tokens are always counted in bytes instead"
+      explanation: "LLM APIs almost always charge more per 1,000 completion tokens than per 1,000 prompt tokens, so applying one flat rate underestimates generation-heavy endpoints."
+    vi:
+      prompt: "Vì sao công thức tính chi phí phải nhân `prompt_tokens` và `completion_tokens` với hai đơn giá riêng?"
+      options:
+        - "Token đầu ra thường có đơn giá mỗi 1K cao hơn nhiều"
+        - "Token đầu vào không nằm trong `response.usage`"
+        - "Token đầu vào chỉ bị tính tiền khi `cache_hit` là True"
+        - "Token đầu ra luôn được tính theo số byte thay vì token"
+      explanation: "Các nhà cung cấp LLM thường tính giá mỗi 1.000 token đầu ra cao hơn hẳn token đầu vào, nên dùng một mức giá chung sẽ ước lượng sai chi phí của các endpoint sinh chữ dài."
+
+  - id: p8-04-q07
+    type: output
+    tags: [production, llm]
+    difficulty: 2
+    code: |
+      PRICE_IN = 0.0005
+      PRICE_OUT = 0.0015
+      reqs = [(1000, 200), (500, 400)]
+      total = sum(p / 1000 * PRICE_IN + c / 1000 * PRICE_OUT for p, c in reqs)
+      print(round(total, 5))
+    answer: "0.00165"
+    en:
+      prompt: "What total cost does this snippet print?"
+      explanation: "First request: `1.0 * 0.0005 + 0.2 * 0.0015 = 0.0008`. Second request: `0.5 * 0.0005 + 0.4 * 0.0015 = 0.00085`. Together they sum to `0.00165`."
+    vi:
+      prompt: "Đoạn code này in ra tổng chi phí bằng bao nhiêu?"
+      explanation: "Request thứ nhất: `1.0 * 0.0005 + 0.2 * 0.0015 = 0.0008`. Request thứ hai: `0.5 * 0.0005 + 0.4 * 0.0015 = 0.00085`. Tổng cộng là `0.00165`."
+
+  - id: p8-04-q08
+    type: mcq
+    tags: [production, logging]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Which piece of data should you **omit** from structured request metric logs?"
+      options:
+        - "The normalized route path such as `\"/ask\"`"
+        - "The boolean `cache_hit` flag and `status`"
+        - "Numeric `prompt_tokens` and `latency_ms`"
+        - "The raw prompt text, reply, and API key"
+      explanation: "Metric logs are shared across dashboards and stored long-term; never log raw prompts, replies, API keys, or personal data—log counts or hashes instead."
+    vi:
+      prompt: "Thông tin nào cần **loại bỏ** khỏi log metric có cấu trúc của từng request?"
+      options:
+        - "Đường dẫn route chuẩn hóa như `\"/ask\"`"
+        - "Cờ boolean `cache_hit` và trạng thái `status`"
+        - "Các con số `prompt_tokens` và `latency_ms`"
+        - "Nội dung prompt thô, câu trả lời và API key"
+      explanation: "Log metric được đẩy lên dashboard chung và lưu dài hạn; tuyệt đối không ghi prompt thô, câu trả lời, API key hay dữ liệu cá nhân—chỉ ghi độ dài hoặc mã băm nếu cần."
+
+  - id: p8-04-q09
+    type: fill
+    tags: [production, performance, lists]
+    difficulty: 2
+    code: |
+      import math
+
+      def nearest_rank(values, p):
+          ordered = ___(values)
+          rank = math.___(p / 100 * len(ordered))
+          return ordered[___]
+
+      print(nearest_rank([500, 100, 300, 200], 50))
+    answer: ["sorted", "ceil", "rank - 1"]
+    en:
+      prompt: "Fill in the three blanks so `nearest_rank` sorts `values`, computes the 1-based rank, and returns `200`."
+      explanation: "`sorted(values)` orders `[100, 200, 300, 500]`, `math.ceil(0.5 * 4)` gives `rank = 2`, and `ordered[rank - 1]` returns `ordered[1] = 200`."
+    vi:
+      prompt: "Điền ba chỗ trống để `nearest_rank` sắp xếp `values`, tính hạng 1-based và in ra `200`."
+      explanation: "`sorted(values)` sắp xếp thành `[100, 200, 300, 500]`, `math.ceil(0.5 * 4)` cho `rank = 2`, và `ordered[rank - 1]` trả về `ordered[1] = 200`."
+
+  - id: p8-04-q10
+    type: mcq
+    tags: [production, performance, llm]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "In your daily summary, `cache_hit_rate` suddenly drops from `0.65` to `0.05` while traffic looks normal. What is the likeliest cause?"
+      options:
+        - "The API pricing for `completion_tokens` increased"
+        - "The cache key changed or TTL became too short"
+        - "The `p50` latency is lower than the mean latency"
+        - "Error logging was wrapped inside a `finally` block"
+      explanation: "A sharp drop in `cache_hit_rate` usually points to an unstable cache key (such as un-sorted dict strings or changing metadata) or a TTL expiring entries too quickly."
+    vi:
+      prompt: "Trong bảng tổng kết ngày, `cache_hit_rate` đột ngột tụt từ `0.65` xuống `0.05` dù lưu lượng bình thường. Nguyên nhân khả dĩ nhất là gì?"
+      options:
+        - "Đơn giá API cho `completion_tokens` vừa tăng lên"
+        - "Cache key bị thay đổi hoặc TTL đặt quá ngắn"
+        - "Độ trễ `p50` đang thấp hơn độ trễ trung bình"
+        - "Khối ghi log lỗi được bọc trong `finally`"
+      explanation: "`cache_hit_rate` tụt mạnh thường do cache key không ổn định (như chuỗi dict chưa sắp xếp khóa hay lọt metadata đổi liên tục) hoặc TTL hết hạn quá nhanh."
+
+  - id: p8-04-q11
+    type: output
+    tags: [production, dicts]
+    difficulty: 2
+    code: |
+      records = [
+          {"cache_hit": True, "status": "ok", "cost": 0.0},
+          {"cache_hit": False, "status": "ok", "cost": 0.004},
+          {"cache_hit": False, "status": "error", "cost": 0.0},
+          {"cache_hit": True, "status": "ok", "cost": 0.0},
+      ]
+      n = len(records)
+      err = sum(r["status"] != "ok" for r in records) / n
+      hit = sum(r["cache_hit"] for r in records) / n
+      print(n, err, hit)
+    answer: "4 0.25 0.5"
+    en:
+      prompt: "What does this log summary snippet print?"
+      explanation: "There are `4` total records, `1` with `status != 'ok'` (`1 / 4 = 0.25`), and `2` with `cache_hit == True` (`2 / 4 = 0.5`)."
+    vi:
+      prompt: "Đoạn tổng hợp log này in ra gì?"
+      explanation: "Có tổng cộng `4` bản ghi, `1` bản ghi có `status != 'ok'` (`1 / 4 = 0.25`), và `2` bản ghi có `cache_hit == True` (`2 / 4 = 0.5`)."
+
+  - id: p8-04-q12
+    type: mcq
+    tags: [production]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why do teams trigger a budget warning at **80%** of the daily limit instead of waiting for **100%**?"
+      options:
+        - "Python floats cannot compare values above `1.0`"
+        - "Warning at 80% automatically raises the API quota"
+        - "It gives time to act before hitting the cap"
+        - "Cost per token drops after passing 80% spend"
+      explanation: "Alerting at 80% gives engineers room to spot a runaway retry loop or cache outage and fix it before the service hits the hard spending cap."
+    vi:
+      prompt: "Vì sao các nhóm thường bật cảnh báo ngân sách ở mốc **80%** hạn mức ngày thay vì đợi chạm **100%**?"
+      options:
+        - "Số float của Python không so sánh được giá trị lớn hơn `1.0`"
+        - "Cảnh báo ở 80% giúp tự động nâng hạn mức API lên"
+        - "Nó chừa thời gian xử lý sự cố trước khi chạm trần chi tiêu"
+        - "Đơn giá mỗi token được giảm sau khi vượt mốc 80%"
+      explanation: "Cảnh báo sớm ở mốc 80% cho kỹ sư đủ thời gian phát hiện vòng lặp retry lỗi hay sự cố tụt cache trước khi tài khoản bị khóa vì chạm trần."
+
+  - id: p8-04-q13
+    type: parsons
+    tags: [production, exceptions, llm]
+    difficulty: 2
+    lines:
+      - "from pyai_llm import FakeLLM, RateLimitError"
+      - "client, statuses = FakeLLM(fail_times=1), []"
+      - "for _ in range(2):"
+      - "    try:"
+      - '        client.chat([{"role": "user", "content": "hi"}]); statuses.append("ok")'
+      - "    except RateLimitError:"
+      - '        statuses.append("error")'
+      - 'print(round(statuses.count("error") / len(statuses), 2))'
+    en:
+      prompt: "Arrange these lines so both successful and `RateLimitError` requests are recorded and the final error rate (`0.5`) is printed."
+      explanation: "Initialize `FakeLLM(fail_times=1)` and `statuses`, loop twice recording `\"ok\"` in `try` and `\"error\"` in `except RateLimitError`, then print the computed error rate."
+    vi:
+      prompt: "Sắp xếp các dòng sau để ghi nhận cả request thành công lẫn lỗi `RateLimitError`, rồi in ra `error_rate` (`0.5`)."
+      explanation: "Khởi tạo `FakeLLM(fail_times=1)` cùng `statuses`, lặp 2 lần để ghi `\"ok\"` trong `try` và `\"error\"` trong `except RateLimitError`, cuối cùng in tỉ lệ lỗi."
+
+  - id: p8-04-q14
+    type: mcq
+    tags: [production]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "What happens when latency and error alert thresholds are set way too tight on a live service?"
+      options:
+        - "False alarms train staff to ignore real issues"
+        - "Python raises `ValueError` inside `math.ceil()`"
+        - "Structured logs automatically drop `'ok'` requests"
+        - "Cache hit rate drops because alerts clear the dict"
+      explanation: "Overly tight thresholds fire false alarms during normal traffic fluctuations, causing alert fatigue so engineers start ignoring notifications when a real outage hits."
+    vi:
+      prompt: "Chuyện gì xảy ra khi các ngưỡng cảnh báo độ trễ và tỉ lệ lỗi bị đặt quá chặt trên dịch vụ đang chạy?"
+      options:
+        - "Báo động giả khiến mọi người quen lờ đi sự cố"
+        - "Python ném lỗi `ValueError` ngay trong hàm `math.ceil()`"
+        - "Log có cấu trúc tự động bỏ qua các request `'ok'`"
+        - "Cache hit rate tụt vì cảnh báo tự động xóa sạch dict"
+      explanation: "Ngưỡng quá chặt khiến cảnh báo reo liên tục mỗi khi lưu lượng dao động nhẹ, tạo mệt mỏi cảnh báo (alert fatigue) và làm người trực bỏ sót sự cố thật."
+
+  - id: p8-04-q15
+    type: fill
+    tags: [production]
+    difficulty: 3
+    code: |
+      def budget_status(cost, budget):
+          if cost > budget:
+              return "budget-exceeded"
+          ___ cost >= 0.8 * budget:
+              return "budget-warning"
+          return ___
+
+      print(budget_status(17.0, 20.0), budget_status(22.0, 20.0))
+    answer: ["elif", "\"ok\""]
+    en:
+      prompt: "Fill in the two blanks so overspending returns only `\"budget-exceeded\"`, >=80% returns `\"budget-warning\"`, and healthy spend returns `\"ok\"`."
+      explanation: "Using `elif` guarantees `budget-warning` is skipped once `cost > budget` is true, and returning `\"ok\"` handles normal spend below 80%."
+    vi:
+      prompt: "Điền vào hai chỗ trống để vượt ngân sách chỉ trả về `\"budget-exceeded\"`, từ 80% trở lên trả về `\"budget-warning\"`, và mức bình thường trả về `\"ok\"`."
+      explanation: "Dùng `elif` đảm bảo `budget-warning` không kích hoạt chung khi `cost > budget` đã đúng, còn `return \"ok\"` xử lý mức chi tiêu bình thường dưới 80%."
+
+  - id: p8-04-q16
+    type: output
+    tags: [production, exceptions, llm]
+    difficulty: 3
+    code: |
+      from pyai_llm import FakeLLM, RateLimitError
+
+      client = FakeLLM(fail_times=1)
+      records = []
+      for idx in range(3):
+          status = "ok"
+          try:
+              client.chat([{"role": "user", "content": "ping"}])
+          except RateLimitError:
+              status = "error"
+          finally:
+              records.append(status)
+      errs = records.count("error")
+      print(len(records), round(errs / len(records), 2))
+    answer: "3 0.33"
+    en:
+      prompt: "What does this `try / except / finally` tracking loop print?"
+      explanation: "With `fail_times=1`, the first call raises `RateLimitError` (`status = 'error'`) and the next two succeed (`'ok'`). `finally` logs all 3 attempts, giving `3` records and `1 / 3 -> 0.33`."
+    vi:
+      prompt: "Vòng lặp theo dõi dùng `try / except / finally` này in ra gì?"
+      explanation: "Với `fail_times=1`, lần gọi đầu ném `RateLimitError` (`status = 'error'`) và hai lần sau thành công (`'ok'`). Khối `finally` ghi cả 3 lượt, cho `3` bản ghi và `1 / 3 -> 0.33`."
+
+flashcards:
+  - id: p8-04-f01
+    tags: [production, logging, json]
+    en:
+      front: "Structured logging"
+      back: "Emitting one machine-readable JSON record per request with fixed keys (`request_id`, `route`, `latency_ms`, `cost_usd`, `status`) so logs can be filtered and aggregated reliably."
+    vi:
+      front: "Structured logging (ghi log có cấu trúc)"
+      back: "Ghi mỗi request một bản ghi JSON máy đọc được với bộ trường cố định (`request_id`, `route`, `latency_ms`, `cost_usd`, `status`) để lọc và tổng hợp chính xác."
+
+  - id: p8-04-f02
+    tags: [production, performance]
+    en:
+      front: "p50 vs p95 latency"
+      back: "**p50** (median) shows the typical user's wait time; **p95** shows the threshold that 95% of requests finish under—exposing slow tail spikes that the mean hides."
+    vi:
+      front: "Độ trễ p50 so với p95"
+      back: "**p50** (trung vị) cho thấy thời gian chờ của người dùng bình thường; **p95** là ngưỡng mà 95% request nằm dưới—lộ ra phần đuôi chậm mà số trung bình che mất."
+
+  - id: p8-04-f03
+    tags: [production, performance]
+    code: |
+      ordered = sorted(values)
+      rank = math.ceil(p / 100 * len(ordered))
+      p_val = ordered[rank - 1]
+    en:
+      front: "Nearest-rank percentile"
+      back: "Sort the list, compute `rank = math.ceil(p / 100 * n)`, and take `ordered[rank - 1]`. Simple and always returns an actual observed value."
+    vi:
+      front: "Percentile kiểu nearest-rank"
+      back: "Sắp xếp list, tính `rank = math.ceil(p / 100 * n)` rồi lấy `ordered[rank - 1]`. Đơn giản và luôn trả về một giá trị có thật trong dữ liệu."
+
+  - id: p8-04-f04
+    tags: [production, llm]
+    en:
+      front: "LLM token cost formula"
+      back: "`(prompt_tokens / 1000) * PRICE_IN + (completion_tokens / 1000) * PRICE_OUT`. Keep rates separate because output tokens usually cost more than input tokens."
+    vi:
+      front: "Công thức tính chi phí token LLM"
+      back: "`(prompt_tokens / 1000) * PRICE_IN + (completion_tokens / 1000) * PRICE_OUT`. Phải tách hai đơn giá vì token đầu ra thường đắt hơn token đầu vào."
+
+  - id: p8-04-f05
+    tags: [production, exceptions]
+    en:
+      front: "Logging failed requests"
+      back: "Always emit a metric record in `try / except / finally` with `status='error'` when a call fails; logging only on success makes `error_rate` read `0.0` forever."
+    vi:
+      front: "Ghi metric cho request bị lỗi"
+      back: "Luôn ghi bản ghi trong `try / except / finally` với `status='error'` khi lời gọi thất bại; chỉ ghi ở nhánh thành công sẽ làm `error_rate` mãi bằng `0.0`."
+
+  - id: p8-04-f06
+    tags: [production]
+    en:
+      front: "Practical alerting rules"
+      back: "Start with 3 alerts (p95 latency, daily budget with an early ~80% warning, and error rate) and tune thresholds to avoid false-alarm fatigue."
+    vi:
+      front: "Nguyên tắc đặt cảnh báo thực tế"
+      back: "Bắt đầu với 3 cảnh báo (độ trễ p95, ngân sách ngày kèm cảnh báo sớm ~80%, và tỉ lệ lỗi) rồi chỉnh ngưỡng để tránh mệt mỏi vì báo động giả."
