@@ -1,0 +1,407 @@
+questions:
+  - id: p8-03-q01
+    type: mcq
+    tags: [production, performance]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What does a cache's **hit rate** measure?"
+      options:
+        - "The maximum number of keys stored before eviction runs"
+        - "The fraction of lookups served from cached entries"
+        - "The average number of tokens inside each cached reply"
+        - "The total seconds saved per request across the server"
+      explanation: "Hit rate equals `hits / (hits + misses)`—the share of incoming lookups answered directly from cache without calling the expensive function or LLM."
+    vi:
+      prompt: "**Hit rate** của cache đo lường đại lượng nào?"
+      options:
+        - "Số lượng key tối đa được lưu trước khi chạy eviction"
+        - "Tỉ lệ các lượt tra cứu được trả lời ngay từ cache"
+        - "Số lượng token trung bình bên trong mỗi câu trả lời"
+        - "Tổng số giây tiết kiệm được trên toàn bộ máy chủ"
+      explanation: "Hit rate bằng `hits / (hits + misses)`—tỉ lệ phần trăm các lượt tra cứu được phục vụ trực tiếp từ cache mà không cần gọi hàm tốn kém hay LLM."
+
+  - id: p8-03-q02
+    type: output
+    tags: [production, performance]
+    difficulty: 1
+    code: |
+      cache = {}
+      hits = 0
+      misses = 0
+      for q in ["pw", "hours", "pw", "invoice", "pw"]:
+          if q in cache:
+              hits += 1
+          else:
+              misses += 1
+              cache[q] = f"ans:{q}"
+      print(hits, misses, round(hits / (hits + misses), 2))
+    answer: "2 3 0.4"
+    en:
+      prompt: "What does this cache simulation print?"
+      explanation: "Three unique questions (`'pw'`, `'hours'`, `'invoice'`) miss on first sight (`misses = 3`), while the two repeated `'pw'` lookups hit (`hits = 2`), giving `2 / 5 = 0.4`."
+    vi:
+      prompt: "Đoạn mô phỏng cache này in ra gì?"
+      explanation: "Ba câu hỏi khác nhau (`'pw'`, `'hours'`, `'invoice'`) trượt cache ở lần đầu (`misses = 3`), còn hai lần hỏi lại `'pw'` trúng cache (`hits = 2`), nên `hit_rate` bằng `2 / 5 = 0.4`."
+
+  - id: p8-03-q03
+    type: mcq
+    tags: [production, performance]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why can't you put `@functools.lru_cache` directly on `chat(messages: list[dict])` with a 60-second expiry?"
+      options:
+        - "`list` arguments are unhashable and `lru_cache` has no TTL"
+        - "`lru_cache` converts every dictionary into a sorted JSON string"
+        - "`lru_cache` deletes all entries whenever `hits` reaches `maxsize`"
+        - "`lru_cache` only works on methods inside an `OrderedDict` subclass"
+      explanation: "`functools.lru_cache` requires hashable arguments (so `list[dict]` raises `TypeError`) and provides no time-based expiration (TTL)."
+    vi:
+      prompt: "Vì sao không thể gắn trực tiếp `@functools.lru_cache` lên hàm `chat(messages: list[dict])` cần hết hạn sau 60 giây?"
+      options:
+        - "Tham số `list` không hashable và `lru_cache` không có TTL"
+        - "`lru_cache` tự động đổi mọi dictionary thành chuỗi JSON"
+        - "`lru_cache` xóa sạch toàn bộ entry khi `hits` chạm `maxsize`"
+        - "`lru_cache` chỉ chạy được trên phương thức của `OrderedDict`"
+      explanation: "`functools.lru_cache` đòi hỏi đối số phải hashable (nên `list[dict]` gây `TypeError`) và không hỗ trợ cơ chế hết hạn theo thời gian (TTL)."
+
+  - id: p8-03-q04
+    type: fill
+    tags: [production, dicts]
+    difficulty: 1
+    code: |
+      from collections import OrderedDict
+
+      lru = OrderedDict([("a", 1), ("b", 2)])
+      lru.___("a")
+      lru["c"] = 3
+      evicted = lru.___(last=False)
+      print(evicted[0], list(lru.keys()))
+    answer: ["move_to_end", "popitem"]
+    en:
+      prompt: "Fill in the two `OrderedDict` method names to mark `'a'` as most recent and evict `'b'` (`last=False`), printing `b ['a', 'c']`."
+      explanation: "Calling `lru.move_to_end('a')` shifts `'a'` to the most-recent end, and `lru.popitem(last=False)` removes and returns the oldest item `('b', 2)` from the front."
+    vi:
+      prompt: "Điền hai tên phương thức của `OrderedDict` để đánh dấu `'a'` là mới dùng nhất và loại `'b'` (`last=False`), in ra `b ['a', 'c']`."
+      explanation: "Gọi `lru.move_to_end('a')` đẩy `'a'` về cuối (mới nhất), rồi `lru.popitem(last=False)` lấy và xóa phần tử cũ nhất `('b', 2)` ở đầu."
+
+  - id: p8-03-q05
+    type: parsons
+    tags: [production, performance]
+    difficulty: 1
+    lines:
+      - "import hashlib, json"
+      - 'raw = json.dumps({"model": "mini", "q": " ".join("  Reset   password? ".strip().split())}, sort_keys=True)'
+      - 'digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()'
+      - "prefix = digest[:12]"
+      - "print(prefix)"
+    en:
+      prompt: "Arrange these lines to normalize whitespace, serialize a sorted JSON payload, and print the 12-character SHA-256 key prefix."
+      explanation: "Import `hashlib, json`, normalize and serialize `raw` with `sort_keys=True`, hash `raw` into `digest`, slice `prefix = digest[:12]`, and print `prefix`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để chuẩn hóa khoảng trắng, tạo chuỗi JSON có sắp xếp khóa và in ra 12 ký tự đầu của hash SHA-256."
+      explanation: "Import `hashlib, json`, chuẩn hóa và tạo `raw` bằng `json.dumps(..., sort_keys=True)`, băm `raw` thành `digest`, cắt `prefix = digest[:12]` rồi in `prefix`."
+
+  - id: p8-03-q06
+    type: mcq
+    tags: [production, llm]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Your cache key hashes only the user's question and skips `system` prompt and `model`. What bug happens?"
+      options:
+        - "Every dictionary raises a `TypeError` inside `sha256`"
+        - "The cache refuses to store any entry with `temperature=0`"
+        - "Two different configs collide and serve the wrong reply"
+        - "Repeated identical requests always trigger a cache miss"
+      explanation: "Without `model` and the `system` prompt in the key, a request using a formal system prompt can match a cached reply generated earlier under a pirate or different system prompt."
+    vi:
+      prompt: "Cache key của bạn chỉ băm câu hỏi người dùng mà bỏ qua `system` prompt và `model`. Lỗi nào sẽ xảy ra?"
+      options:
+        - "Mọi dictionary sẽ ném lỗi `TypeError` trong `sha256`"
+        - "Cache không chịu lưu các câu trả lời có `temperature=0`"
+        - "Hai cấu hình khác nhau trùng key và trả nhầm câu trả lời"
+        - "Các câu hỏi giống hệt nhau luôn bị trượt cache oan"
+      explanation: "Nếu thiếu `model` và `system` prompt trong key, một request dùng system prompt trang trọng có thể trúng nhầm câu trả lời đã lưu từ system prompt khác."
+
+  - id: p8-03-q07
+    type: output
+    tags: [production, dicts]
+    difficulty: 2
+    code: |
+      from collections import OrderedDict
+
+      d = OrderedDict()
+      for k in ("a", "b"):
+          d[k] = k.upper()
+      d.move_to_end("a")
+      d["c"] = "C"
+      if len(d) > 2:
+          d.popitem(last=False)
+      print(list(d.keys()))
+    answer: "['a', 'c']"
+    en:
+      prompt: "What does this `OrderedDict` LRU snippet print?"
+      explanation: "Inserting `'a'` then `'b'` gives `['a', 'b']`. Moving `'a'` to the end yields `['b', 'a']`. Inserting `'c'` triggers `popitem(last=False)`, evicting `'b'` and leaving `['a', 'c']`."
+    vi:
+      prompt: "Đoạn LRU dùng `OrderedDict` này in ra gì?"
+      explanation: "Thêm `'a'` rồi `'b'` được `['a', 'b']`. Đưa `'a'` về cuối thành `['b', 'a']`. Khi thêm `'c'`, `popitem(last=False)` xóa `'b'` ở đầu nên còn lại `['a', 'c']`."
+
+  - id: p8-03-q08
+    type: mcq
+    tags: [production, json]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Why should a cache key use `json.dumps(payload, sort_keys=True)` instead of `str(payload)`?"
+      options:
+        - "`str(payload)` truncates strings longer than 12 characters"
+        - "`sort_keys=True` automatically expires entries after 60 seconds"
+        - "`str(payload)` strips all whitespace inside user messages"
+        - "`sort_keys=True` avoids false misses when dict key order differs"
+      explanation: "Python dicts keep insertion order, so `{'a': 1, 'b': 2}` and `{'b': 2, 'a': 1}` have different `str(...)` output; `json.dumps(..., sort_keys=True)` guarantees one canonical string."
+    vi:
+      prompt: "Vì sao tạo cache key nên dùng `json.dumps(payload, sort_keys=True)` thay cho `str(payload)`?"
+      options:
+        - "`str(payload)` tự động cắt bớt mọi chuỗi dài hơn 12 ký tự"
+        - "`sort_keys=True` tự động cho hết hạn entry sau 60 giây"
+        - "`str(payload)` tự động xóa hết khoảng trắng trong câu hỏi"
+        - "`sort_keys=True` tránh trượt cache khi thứ tự key khác nhau"
+      explanation: "Dictionary trong Python giữ thứ tự chèn nên `{'a': 1, 'b': 2}` và `{'b': 2, 'a': 1}` cho `str(...)` khác nhau; `sort_keys=True` luôn tạo ra một chuỗi chuẩn duy nhất."
+
+  - id: p8-03-q09
+    type: fill
+    tags: [production, json]
+    difficulty: 2
+    code: |
+      import hashlib
+      import json
+
+      p1 = {"model": "mini", "temperature": 0.0}
+      p2 = {"temperature": 0.0, "model": "mini"}
+      s1 = json.dumps(p1, sort_keys=___)
+      s2 = json.dumps(p2, sort_keys=True)
+      h1 = hashlib.sha256(s1.encode("utf-8")).___()[:8]
+      h2 = hashlib.sha256(s2.encode("utf-8")).hexdigest()[:8]
+      print(h1 == h2)
+    answer: ["True", "hexdigest"]
+    en:
+      prompt: "Fill in the two blanks so both payloads produce the same 8-character SHA-256 hex prefix and print `True`."
+      explanation: "Passing `sort_keys=True` sorts keys identically in both dicts, and `.hexdigest()` returns the hexadecimal digest string."
+    vi:
+      prompt: "Điền vào hai chỗ trống để cả hai payload tạo ra cùng 8 ký tự hex SHA-256 đầu tiên và in ra `True`."
+      explanation: "Truyền `sort_keys=True` giúp sắp xếp khóa giống hệt nhau ở cả hai dict, còn `.hexdigest()` trả về chuỗi băm dạng thập lục phân."
+
+  - id: p8-03-q10
+    type: mcq
+    tags: [production, llm]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "How should an LLM response cache handle requests with `temperature > 0`?"
+      options:
+        - "Skip the cache and call the LLM directly each time"
+        - "Increase `maxsize` so older creative replies stay in RAM"
+        - "Replace `temperature` with `0.0` before computing the key"
+        - "Store the reply without hashing the `system` prompt"
+      explanation: "Setting `temperature > 0` signals that callers expect varied outputs across runs; caching would freeze and replay the first sampled response."
+    vi:
+      prompt: "Cache phản hồi LLM nên xử lý thế nào với những request có `temperature > 0`?"
+      options:
+        - "Bỏ qua cache và gọi thẳng tới LLM ở mỗi lượt"
+        - "Tăng `maxsize` lên để giữ các câu trả lời sáng tạo lâu hơn"
+        - "Đổi `temperature` về `0.0` trước khi tính cache key"
+        - "Lưu câu trả lời mà không cần đưa `system` prompt vào key"
+      explanation: "Khi `temperature > 0`, người gọi mong muốn sự đa dạng giữa các lần chạy; nếu cache lại thì mọi lượt sau đều nhận y hệt câu đầu tiên."
+
+  - id: p8-03-q11
+    type: output
+    tags: [production, performance]
+    difficulty: 2
+    code: |
+      ttl = 25.0
+      store = {"k1": ("ok", 10.0 + ttl)}
+
+      def lookup(key, now):
+          item = store.get(key)
+          if item is None or now >= item[1]:
+              store.pop(key, None)
+              return "miss"
+          return item[0]
+
+      print(lookup("k1", 34.0), lookup("k1", 35.0), len(store))
+    answer: "ok miss 0"
+    en:
+      prompt: "What does this TTL boundary check print?"
+      explanation: "At `now=34.0`, `34.0 < 35.0` so `lookup` returns `'ok'`. At `now=35.0`, `35.0 >= 35.0` triggers expiration, deletes `'k1'`, and returns `'miss'`, leaving `len(store) == 0`."
+    vi:
+      prompt: "Đoạn kiểm tra mốc hết hạn TTL này in ra gì?"
+      explanation: "Tại `now=34.0`, `34.0 < 35.0` nên trả về `'ok'`. Tại `now=35.0`, `35.0 >= 35.0` làm entry hết hạn, bị xóa khỏi `store` và trả về `'miss'`, để lại `len(store) == 0`."
+
+  - id: p8-03-q12
+    type: parsons
+    tags: [production, llm]
+    difficulty: 2
+    lines:
+      - 'docs = ["doc A", "doc B", "doc C"]'
+      - 'cache = {("m1", docs[0]): [1.0, 0.0], ("m1", docs[2]): [0.0, 1.0]}'
+      - 'missing = [d for d in docs if ("m1", d) not in cache]'
+      - 'for d in missing: cache[("m1", d)] = [0.5, 0.5]'
+      - 'ordered = [cache[("m1", d)] for d in docs]'
+      - "print(len(missing), len(ordered))"
+    en:
+      prompt: "Arrange these lines to cache-fill only missing documents and print `1 3`."
+      explanation: "Initialize `cache` and `docs`, collect `missing` texts, populate `cache` for each missing item, rebuild `ordered` matching `docs`, and print `1 3`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để chỉ embed bù tài liệu còn thiếu trong cache và in ra `1 3`."
+      explanation: "Khởi tạo `cache` và `docs`, lọc `missing`, điền vector cho các mục thiếu vào `cache`, dựng lại `ordered` đúng thứ tự `docs` rồi in `1 3`."
+
+  - id: p8-03-q13
+    type: mcq
+    tags: [production, llm]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "You upgrade your RAG app from embedding model A to model B. What should happen to cached vectors from model A?"
+      options:
+        - "Average model A and model B vectors before cosine search"
+        - "Discard model A vectors and re-embed with model B"
+        - "Keep model A vectors whenever `temperature` equals `0`"
+        - "Move model A vectors to the front using `move_to_end`"
+      explanation: "Vectors from two different embedding models live in completely different coordinate spaces and cannot be compared with cosine similarity, so old vectors must be invalidated."
+    vi:
+      prompt: "Bạn nâng cấp ứng dụng RAG từ model embedding A sang model B. Cần làm gì với các vector đã cache từ model A?"
+      options:
+        - "Lấy trung bình cộng vector của A và B trước khi tính cosine"
+        - "Bỏ toàn bộ vector của model A và embed lại bằng model B"
+        - "Giữ nguyên vector của model A mỗi khi `temperature` bằng `0`"
+        - "Đẩy các vector của model A lên đầu bằng `move_to_end`"
+      explanation: "Vector từ hai model embedding khác nhau nằm trong hai không gian tọa độ khác nhau nên không so sánh cosine với nhau được; bắt buộc phải bỏ cache cũ."
+
+  - id: p8-03-q14
+    type: fill
+    tags: [production, performance]
+    difficulty: 3
+    code: |
+      store = {"k1": ("cached", 50.0)}
+
+      def get_ttl(key, now):
+          item = store.get(key)
+          if item is None:
+              return None
+          value, expires_at = item
+          if now ___ expires_at:
+              ___ store[key]
+              return None
+          return value
+
+      print(get_ttl("k1", 49.0), get_ttl("k1", 50.0), len(store))
+    answer: [">=", "del"]
+    en:
+      prompt: "Fill in the operator and statement so `k1` expires at `now == 50.0`, is removed from `store`, and the code prints `cached None 0`."
+      explanation: "An entry expires at `now >= expires_at`, and `del store[key]` deletes the stale entry so `len(store)` drops to `0`."
+    vi:
+      prompt: "Điền toán tử và câu lệnh để `k1` hết hạn tại `now == 50.0`, bị xóa khỏi `store` và chương trình in ra `cached None 0`."
+      explanation: "Entry hết hạn khi `now >= expires_at`, và `del store[key]` xóa mục cũ đó khỏi `store` khiến `len(store)` về `0`."
+
+  - id: p8-03-q15
+    type: parsons
+    tags: [production, dicts]
+    difficulty: 3
+    lines:
+      - "from collections import OrderedDict"
+      - 'od = OrderedDict([("a", 1), ("b", 2), ("c", 3)])'
+      - 'od.move_to_end("a")'
+      - 'od["d"] = 4'
+      - "if len(od) > 3: od.popitem(last=False)"
+      - "print(list(od.keys()))"
+    en:
+      prompt: "Arrange these lines so `'a'` is touched before `'d'` is inserted and `['c', 'a', 'd']` is printed."
+      explanation: "Import `OrderedDict`, create `od` with `'a'`, `'b'`, `'c'`, call `move_to_end('a')` before inserting `'d'`, then evict the oldest key `'b'` if `len(od) > 3`, and print `['c', 'a', 'd']`."
+    vi:
+      prompt: "Sắp xếp các dòng sau sao cho `'a'` được dùng lại trước khi thêm `'d'` và kết quả in ra `['c', 'a', 'd']`."
+      explanation: "Import `OrderedDict`, khởi tạo `od` gồm `'a'`, `'b'`, `'c'`, gọi `move_to_end('a')` trước khi chèn `'d'`, rồi loại bỏ key cũ nhất `'b'` nếu `len(od) > 3` và in `['c', 'a', 'd']`."
+
+  - id: p8-03-q16
+    type: mcq
+    tags: [production, llm]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "A bot answers questions about each user's private orders. Why is a shared `(model, question)` key unsafe?"
+      options:
+        - "Adding `user_id` prevents `json.dumps` from sorting keys"
+        - "SHA-256 produces shorter hashes for private user strings"
+        - "User B could receive User A's cached private order details"
+        - "Private answers force `FakeLLM` to ignore `temperature=0`"
+      explanation: "If two users ask `'Where is my last order?'` and the key omits `user_id`, User B hits User A's cached entry and leaks User A's private data. Add `user_id` to the key or skip caching."
+    vi:
+      prompt: "Một bot trả lời câu hỏi về đơn hàng riêng của từng người dùng. Vì sao key dùng chung `(model, question)` gây rủi ro?"
+      options:
+        - "Thêm `user_id` sẽ làm `json.dumps` không sắp xếp được key"
+        - "SHA-256 tạo ra mã băm ngắn hơn với chuỗi dữ liệu riêng"
+        - "Người dùng B có thể nhận nhầm đơn hàng riêng của người dùng A"
+        - "Dữ liệu riêng làm `FakeLLM` tự bỏ qua `temperature=0`"
+      explanation: "Nếu hai người cùng hỏi `'Đơn gần nhất của tôi đâu?'` mà key thiếu `user_id`, người B sẽ trúng cache của người A và lộ thông tin riêng tư. Hãy thêm `user_id` vào key hoặc không cache."
+
+flashcards:
+  - id: p8-03-f01
+    tags: [production, performance]
+    en:
+      front: "Cache hit, cache miss, and hit rate"
+      back: "A cache hit finds a stored result without calling the underlying function; a cache miss computes and stores it. Hit rate = `hits / (hits + misses)`."
+    vi:
+      front: "Cache hit, cache miss và hit rate"
+      back: "Cache hit là tìm thấy sẵn kết quả trong cache; cache miss là chưa có nên phải gọi hàm thật rồi lưu lại. Hit rate = `hits / (hits + misses)`."
+
+  - id: p8-03-f02
+    tags: [production, performance]
+    en:
+      front: "Limits of `functools.lru_cache` for LLM apps"
+      back: "`lru_cache` only accepts hashable arguments (no `list`/`dict`), has no TTL expiration, and should not wrap functions whose output varies over time or has side effects."
+    vi:
+      front: "Giới hạn của `functools.lru_cache` với ứng dụng LLM"
+      back: "`lru_cache` chỉ nhận đối số hashable (không nhận `list`/`dict`), không có TTL hết hạn và không dùng cho hàm có kết quả đổi theo thời gian hay side effect."
+
+  - id: p8-03-f03
+    tags: [production, llm]
+    code: |
+      raw = json.dumps(
+          {"model": model, "messages": clean_msgs, "temperature": 0.0},
+          sort_keys=True,
+      )
+      key = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    en:
+      front: "What belongs in an LLM prompt cache key?"
+      back: "Include `model`, full `messages` (including `system`), `temperature` (cache only at `0`), generation params (`max_tokens`, `response_format`), and `user_id` or version tags when needed—serialized with `sort_keys=True`."
+    vi:
+      front: "Cần đưa gì vào cache key của prompt LLM?"
+      back: "Đưa `model`, toàn bộ `messages` (gồm `system`), `temperature` (chỉ cache khi `0`), tham số sinh (`max_tokens`, `response_format`), cùng `user_id` hoặc version khi cần—tuần tự hóa với `sort_keys=True`."
+
+  - id: p8-03-f04
+    tags: [production, llm]
+    en:
+      front: "Embedding cache rule and model changes"
+      back: "Cache embeddings by `(model, text)`, batch only missing texts in one `embed()` call, reassemble in original order, and discard old vectors whenever switching embedding models."
+    vi:
+      front: "Quy tắc cache embedding và khi đổi model"
+      back: "Cache theo `(model, text)`, chỉ gom các văn bản thiếu gửi một lần vào `embed()`, ghép lại đúng thứ tự ban đầu và bỏ toàn bộ cache cũ nếu đổi sang model embedding khác."
+
+  - id: p8-03-f05
+    tags: [production, dicts]
+    en:
+      front: "How `OrderedDict` implements LRU eviction"
+      back: "Call `move_to_end(key)` on hits and updates to mark a key most recently used, and call `popitem(last=False)` to evict the oldest key when `len > maxsize`."
+    vi:
+      front: "Cách dùng `OrderedDict` để cài đặt LRU eviction"
+      back: "Gọi `move_to_end(key)` khi trúng hoặc cập nhật để đẩy key thành mới nhất, và gọi `popitem(last=False)` để xóa key lâu chưa dùng nhất khi vượt `maxsize`."
+
+  - id: p8-03-f06
+    tags: [production, performance]
+    en:
+      front: "TTL, monotonic clocks, and key versioning"
+      back: "Store `expires_at = now + ttl` and delete when `now >= expires_at`. Inject a clock in tests (`time.monotonic` in production—never system time, which can jump backward) and bump `index_version`/`prompt_version` in keys when source data changes."
+    vi:
+      front: "TTL, đồng hồ monotonic và gắn phiên bản vào key"
+      back: "Lưu `expires_at = now + ttl` và xóa khi `now >= expires_at`. Tiêm đồng hồ khi test (dùng `time.monotonic` ở production—không dùng giờ hệ thống vì có thể bị chỉnh lùi) và tăng `index_version`/`prompt_version` trong key khi nguồn dữ liệu đổi."

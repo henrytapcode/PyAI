@@ -1,0 +1,60 @@
+id: p8-03-ex01
+kind: fill
+title:
+  en: "Fill: LRU cache with OrderedDict"
+  vi: "Điền khuyết: LRU cache dùng OrderedDict"
+difficulty: 1
+tags: [production, performance, dicts]
+hints:
+  en:
+    - |
+      Review `LRUCache` in §5. An `OrderedDict` keeps keys from oldest (front) to most recently used (back): with `maxsize=2`, setting `"a"`, `"b"`, then `"c"` must evict `"a"`.
+    - |
+      The plan:
+      1. In `get(key)`, when `key` is found, move it to the most-recent end of `self._data` and increment `self.hits` by `1`.
+      2. In `set(key, value)`, after inserting or updating `key`, check whether `len(self._data)` exceeds `self.maxsize`; if so, pop the oldest item from the front (`last=False`).
+    - |
+      Keep the two method shapes focused on recency and capacity:
+      ```python
+      def get(self, key: str):
+          if key not in self._data:
+              self.misses += 1
+              return None
+          # move key to the most-recent end and count the hit
+          ...
+          return self._data[key]
+
+
+      def set(self, key: str, value) -> None:
+          if key in self._data:
+              self._data.move_to_end(key)
+          self._data[key] = value
+          # if over capacity, evict the oldest key from the front
+          ...
+      ```
+  vi:
+    - |
+      Xem lại lớp `LRUCache` ở §5. `OrderedDict` giữ các key theo thứ tự từ cũ nhất (ở đầu) tới mới dùng nhất (ở cuối): với `maxsize=2`, lưu `"a"`, `"b"` rồi `"c"` phải loại bỏ `"a"`.
+    - |
+      Kế hoạch:
+      1. Trong `get(key)`, khi tìm thấy `key`, đẩy nó về cuối `self._data` rồi tăng `self.hits` thêm `1`.
+      2. Trong `set(key, value)`, sau khi thêm hoặc cập nhật `key`, kiểm tra nếu `len(self._data)` vượt `self.maxsize` thì xóa phần tử cũ nhất ở đầu (`last=False`).
+    - |
+      Theo khung hai phương thức xử lý thứ tự và giới hạn dung lượng dưới đây:
+      ```python
+      def get(self, key: str):
+          if key not in self._data:
+              self.misses += 1
+              return None
+          # đẩy key về cuối (mới nhất) và tăng biến đếm hit
+          ...
+          return self._data[key]
+
+
+      def set(self, key: str, value) -> None:
+          if key in self._data:
+              self._data.move_to_end(key)
+          self._data[key] = value
+          # nếu vượt quá maxsize thì bỏ key lâu nhất ở đầu
+          ...
+      ```

@@ -1,0 +1,72 @@
+id: p8-03-ex02
+kind: code
+title:
+  en: "Write: LLM cache key builder and TTL cache"
+  vi: "Viết code: hàm tạo cache key cho LLM và TTL cache"
+difficulty: 2
+tags: [production, performance, llm]
+hints:
+  en:
+    - |
+      Combine the key builder from §3 (`json.dumps(..., sort_keys=True)` + `hashlib.sha256`) with the expiration check from §6 (`now >= expires_at`). For `make_key("mini", [{"role": "user", "content": "  Hi   there "}], temperature=0.0, max_tokens=50)`, passing `max_tokens=50, temperature=0.0` must produce the exact same 64-character hex digest.
+    - |
+      The plan:
+      1. In `make_key`, create a new list of message dicts with `" ".join(msg["content"].strip().split())` for string content, wrap `model`, the cleaned messages, and `params` into a dict, dump it with `json.dumps(..., sort_keys=True)`, and return the SHA-256 `hexdigest()`.
+      2. In `TTLCache`, initialize `self.ttl`, `self.hits = 0`, `self.misses = 0`, and a dict for entries. On `set(key, value, now)`, store `(value, now + self.ttl)`. On `get(key, now)`, delete expired entries (`now >= expires_at`), count hits/misses, and compute `hit_rate()` safely when total is `0`.
+    - |
+      Follow this skeleton for the key payload and expiration branch:
+      ```python
+      def make_key(model: str, messages: list[dict], **params) -> str:
+          clean_msgs = [
+              {**m, "content": " ".join(m["content"].strip().split())}
+              if isinstance(m.get("content"), str)
+              else dict(m)
+              for m in messages
+          ]
+          # serialize {"model": ..., "messages": ..., "params": ...} with sort_keys=True and hash with sha256
+          ...
+
+
+      class TTLCache:
+          def __init__(self, ttl: float) -> None:
+              self.ttl = ttl
+              self.hits = 0
+              self.misses = 0
+              self._entries: dict = {}
+
+          def get(self, key: str, now: float):
+              # check missing, delete if now >= expires_at, otherwise count hit and return value
+              ...
+      ```
+  vi:
+    - |
+      Kết hợp cách tạo key ở §3 (`json.dumps(..., sort_keys=True)` + `hashlib.sha256`) với logic kiểm tra hết hạn ở §6 (`now >= expires_at`). Với `make_key("mini", [{"role": "user", "content": "  Hi   there "}], temperature=0.0, max_tokens=50)`, khi đảo thành `max_tokens=50, temperature=0.0` vẫn phải trả về cùng chuỗi hex 64 ký tự.
+    - |
+      Kế hoạch:
+      1. Trong `make_key`, tạo danh sách dict mới với `content` dạng chuỗi được chuẩn hóa bằng `" ".join(msg["content"].strip().split())`, gom `model`, danh sách message đã chuẩn hóa và `params` vào một dict, gọi `json.dumps(..., sort_keys=True)` rồi băm SHA-256 `hexdigest()`.
+      2. Trong `TTLCache`, khởi tạo `self.ttl`, `self.hits = 0`, `self.misses = 0` và dict lưu entry. Khi `set(key, value, now)`, lưu cùng mốc `now + self.ttl`. Khi `get(key, now)`, xóa entry nếu `now >= expires_at`, cập nhật `hits`/`misses` và xử lý `total == 0` trong `hit_rate()`.
+    - |
+      Dùng bộ khung dưới đây cho phần tạo key và nhánh kiểm tra hết hạn:
+      ```python
+      def make_key(model: str, messages: list[dict], **params) -> str:
+          clean_msgs = [
+              {**m, "content": " ".join(m["content"].strip().split())}
+              if isinstance(m.get("content"), str)
+              else dict(m)
+              for m in messages
+          ]
+          # chuyển {"model": ..., "messages": ..., "params": ...} sang JSON với sort_keys=True rồi băm sha256
+          ...
+
+
+      class TTLCache:
+          def __init__(self, ttl: float) -> None:
+              self.ttl = ttl
+              self.hits = 0
+              self.misses = 0
+              self._entries: dict = {}
+
+          def get(self, key: str, now: float):
+              # kiểm tra thiếu key, xóa nếu now >= expires_at, ngược lại tăng hits và trả về value
+              ...
+      ```

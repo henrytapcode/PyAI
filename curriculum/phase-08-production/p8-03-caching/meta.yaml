@@ -1,0 +1,39 @@
+id: p8-03-caching
+phase: p8
+order: 3
+kind: lesson
+title:
+  en: "Caching"
+  vi: "Cache"
+summary:
+  en: "Reduce LLM cost and latency with in-memory caches: design safe prompt and embedding cache keys with json.dumps(sort_keys=True) and SHA-256, bound memory with OrderedDict-based LRU eviction, expire stale entries with injected-clock TTL, and measure hit rate and token savings."
+  vi: "Giảm chi phí và độ trễ LLM bằng cache trong bộ nhớ: thiết kế cache key an toàn cho prompt và embedding với json.dumps(sort_keys=True) cùng SHA-256, giới hạn RAM bằng LRU dùng OrderedDict, cho hết hạn dữ liệu cũ bằng TTL với đồng hồ tiêm vào, và đo hit rate cùng lượng token tiết kiệm."
+level: beginner
+tags: [production, performance, llm]
+prerequisites: [p8-01-fastapi]
+duration_min: 16
+outcomes:
+  en:
+    - "Implement an in-memory TTL and LRU cache"
+    - "Choose cache keys for prompts and embeddings"
+    - "Measure cache hit rate and invalidation edge cases"
+    - "Estimate token and API cost savings from caching LLM calls"
+  vi:
+    - "Cài đặt bộ nhớ đệm TTL và LRU trong RAM"
+    - "Chọn cache key phù hợp cho prompt và embedding"
+    - "Đo cache hit rate và xử lý hết hạn dữ liệu"
+    - "Ước lượng số token và chi phí API tiết kiệm được khi cache lời gọi LLM"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "Python Docs: functools.lru_cache"
+      vi: "Python Docs: functools.lru_cache (EN)"
+    url: "https://docs.python.org/3/library/functools.html#functools.lru_cache"
+  - title:
+      en: "Python Docs: collections.OrderedDict"
+      vi: "Python Docs: collections.OrderedDict (EN)"
+    url: "https://docs.python.org/3/library/collections.html#collections.OrderedDict"
+  - title:
+      en: "OpenAI API Guide: Prompt Caching (provider-side cache, distinct from app caching)"
+      vi: "OpenAI API Guide: Prompt Caching (cache phía nhà cung cấp, khác với cache trong app)"
+    url: "https://developers.openai.com/api/docs/guides/prompt-caching"

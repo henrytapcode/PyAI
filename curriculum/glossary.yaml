@@ -3088,3 +3088,80 @@ terms:
       en: "Combine -p 8000:8000 with --host 0.0.0.0 in your container's uvicorn command so curl or a browser on your laptop can reach your FastAPI service."
       vi: "Kết hợp -p 8000:8000 với --host 0.0.0.0 trong lệnh uvicorn của container để curl hay trình duyệt trên laptop gọi được dịch vụ FastAPI."
     related: [container, endpoint, Docker]
+
+  - term: cache hit
+    vi_term: cache hit (trúng cache)
+    tags: [production, performance]
+    en: "A cache lookup that finds a valid stored entry and returns it immediately without running the expensive operation."
+    vi: "Lần tra cứu tìm thấy sẵn dữ liệu hợp lệ trong cache và trả về ngay lập tức mà không cần chạy thao tác tốn kém."
+    example: "if key in cache:\n    hits += 1\n    return cache[key]"
+    in_practice:
+      en: "High cache hit rates on repeated FAQ questions cut LLM token costs and response latency dramatically."
+      vi: "Tỉ lệ cache hit cao với các câu hỏi FAQ lặp lại giúp giảm mạnh chi phí token và độ trễ phản hồi của LLM."
+    related: [cache, cache miss, hit rate]
+
+  - term: cache miss
+    vi_term: cache miss (trượt cache)
+    tags: [production, performance]
+    en: "A cache lookup that does not find a valid entry (either never stored or already expired), forcing the app to compute and store the result."
+    vi: "Lần tra cứu không tìm thấy dữ liệu hợp lệ trong cache (chưa từng lưu hoặc đã hết hạn), buộc ứng dụng phải tính lại và lưu vào."
+    example: "misses += 1\nresult = call_llm(prompt)\ncache[key] = result"
+    in_practice:
+      en: "Unexpectedly low hit rates often come from unstable cache keys—such as un-sorted dict strings—causing false cache misses."
+      vi: "Hit rate thấp bất thường thường do cache key không ổn định—như chuyển dict thành chuỗi không sắp xếp khóa—gây trượt cache oan."
+    related: [cache, cache hit, cache key]
+
+  - term: TTL
+    vi_term: TTL (thời gian sống)
+    tags: [production, performance]
+    en: "Time To Live: the duration a cached entry stays valid before expiring (checked with now >= expires_at)."
+    vi: "Time To Live: khoảng thời gian một mục trong cache còn hợp lệ trước khi hết hạn (kiểm tra bằng now >= expires_at)."
+    example: "expires_at = clock.now + ttl\nif clock.now >= expires_at:\n    del store[key]"
+    in_practice:
+      en: "Use a monotonic clock in production (time.monotonic) and an injected fake clock in tests so TTL never breaks if system time jumps backward."
+      vi: "Dùng đồng hồ đơn điệu ở production (time.monotonic) và đồng hồ giả lập tiêm vào khi test để TTL không hỏng nếu giờ hệ thống bị chỉnh lùi."
+    related: [cache, invalidation, LRU]
+
+  - term: LRU
+    vi_term: LRU (ít được dùng gần đây nhất)
+    tags: [production, performance, dicts]
+    en: "Least Recently Used: a cache policy that bounds size by evicting the entry that has gone untouched for the longest time."
+    vi: "Least Recently Used: chiến lược giới hạn kích thước cache bằng cách loại bỏ phần tử lâu không được truy cập nhất."
+    example: "od.move_to_end(key)\nif len(od) > maxsize:\n    od.popitem(last=False)"
+    in_practice:
+      en: "Without LRU or another size limit, an in-memory LLM response cache grows unbounded until the service runs out of RAM."
+      vi: "Nếu không có LRU hoặc giới hạn dung lượng, cache câu trả lời LLM trong RAM sẽ phình mãi cho tới khi hết bộ nhớ."
+    related: [cache, eviction, TTL]
+
+  - term: eviction
+    vi_term: eviction (loại bỏ khỏi cache)
+    tags: [production, performance]
+    en: "Removing an entry from a full cache—such as popping the oldest item in LRU—to make room for a newer entry."
+    vi: "Hành động xóa bớt một phần tử khỏi cache đã đầy—như bỏ mục cũ nhất trong LRU—để nhường chỗ cho phần tử mới."
+    example: "if len(cache) > maxsize:\n    cache.popitem(last=False)"
+    in_practice:
+      en: "Monitoring eviction counts alongside hit rate tells you whether maxsize is too small for your active working set of prompts."
+      vi: "Theo dõi số lần eviction cùng hit rate cho biết maxsize có đang quá nhỏ so với lượng câu hỏi thường gặp hay không."
+    related: [LRU, cache, invalidation]
+
+  - term: cache key
+    vi_term: cache key (khóa cache)
+    tags: [production, llm, json]
+    en: "The deterministic identifier (often a SHA-256 hash of sorted JSON) used to store and look up a cached result."
+    vi: "Định danh tất định (thường là mã băm SHA-256 của JSON đã sắp xếp khóa) dùng để lưu và tra cứu kết quả trong cache."
+    example: "raw = json.dumps(payload, sort_keys=True)\nkey = hashlib.sha256(raw.encode('utf-8')).hexdigest()"
+    in_practice:
+      en: "An LLM cache key must include model, system prompt, messages, temperature, and generation params (plus user_id for private data) so different configs never collide."
+      vi: "Cache key cho LLM phải gồm model, system prompt, messages, temperature và các tham số sinh (cộng thêm user_id nếu có dữ liệu riêng) để không trả nhầm kết quả."
+    related: [cache, JSON, invalidation]
+
+  - term: invalidation
+    vi_term: invalidation (làm mất hiệu lực dữ liệu cũ)
+    tags: [production, performance, llm]
+    en: "Clearing or expiring stale cache entries when underlying data, prompts, or models change—via TTL or key version tags."
+    vi: "Xóa bỏ hoặc làm hết hạn các mục cũ trong cache khi dữ liệu nguồn, prompt hay model thay đổi—thông qua TTL hoặc gắn phiên bản vào key."
+    example: "key = make_key(model, msgs, index_version='v2')"
+    in_practice:
+      en: "Bumping index_version or prompt_version in the cache key invalidates stale RAG answers immediately without scanning and deleting individual keys."
+      vi: "Tăng index_version hoặc prompt_version trong cache key giúp vô hiệu hóa ngay toàn bộ câu trả lời RAG cũ mà không cần dò xóa từng key."
+    related: [TTL, cache key, eviction]

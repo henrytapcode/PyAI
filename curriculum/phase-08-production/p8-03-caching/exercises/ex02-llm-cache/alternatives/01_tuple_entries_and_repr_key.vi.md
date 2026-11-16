@@ -1,0 +1,3 @@
+# Lưu entry bằng tuple thuần và tạo key bằng repr đã sắp xếp
+
+Cách làm thay thế này lưu trực tiếp cặp `(value, expires_at)` trong dictionary thay vì dùng dataclass `_Entry`, đồng thời dựng chuỗi khóa bằng hàm đệ quy `repr` có sắp xếp khóa thay cho `json.dumps(..., sort_keys=True)`. Tuple thuần giúp code gọn nhẹ và tránh tạo thêm lớp bọc, nhưng dataclass có tên trường rõ ràng hơn nếu sau này bạn cần lưu thêm thông tin như số token. Về phần tạo key, `json.dumps(..., sort_keys=True)` trong `solution.py` an toàn hơn `repr`: JSON báo lỗi ngay nếu lọt đối tượng không tuần tự hóa được, xử lý đồng nhất các dict lồng nhau, và tạo chuỗi chuẩn để các hệ thống ngoài như Redis hay service viết bằng ngôn ngữ khác tạo lại đúng cùng một key.

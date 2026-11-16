@@ -1,0 +1,13 @@
+MISS 'What is RAG?'
+MISS 'What is a token?'
+HIT  '  What is   RAG? '
+MISS 'What is temperature?'
+HIT  'What is a token?  '
+MISS 'What is cosine similarity?'
+HIT  'What is RAG?'
+MISS 'What is hallucination?'
+HIT  '  What is  temperature? '
+MISS 'What is tool calling?'
+HIT  'What is cosine similarity?'
+HIT  'What is a token?'
+total=12 hits=6 misses=6 hit_rate=0.50

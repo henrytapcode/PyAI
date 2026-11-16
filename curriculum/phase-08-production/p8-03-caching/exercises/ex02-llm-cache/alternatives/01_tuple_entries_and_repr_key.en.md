@@ -1,0 +1,3 @@
+# Plain tuple entries and sorted repr key
+
+This alternative stores `(value, expires_at)` tuples directly in the dictionary instead of a `_Entry` dataclass, and builds the canonical string with a recursive sorted `repr` helper instead of `json.dumps(..., sort_keys=True)`. Plain tuples save boilerplate and avoid creating wrapper objects, though named dataclass fields are easier to read and extend if you later add metadata like token counts. For keys, `json.dumps(..., sort_keys=True)` in `solution.py` is safer than `repr`: JSON fails loudly on non-serializable objects, handles nested dictionaries uniformly, and produces standard text that external caches such as Redis or services in other languages can reproduce identically.

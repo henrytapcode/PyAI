@@ -1,0 +1,11 @@
+t  | op  | key | result  | keys in cache
+---+-----+-----+---------+--------------------
+0  | set | k1  | STORED  | ['k1']
+5  | set | k2  | STORED  | ['k1', 'k2']
+10 | set | k3  | STORED  | ['k1', 'k2', 'k3']
+12 | get | k1  | HIT(v1) | ['k2', 'k3', 'k1']
+15 | set | k4  | STORED  | ['k3', 'k1', 'k4']
+20 | get | k2  | MISS    | ['k3', 'k1', 'k4']
+36 | get | k3  | HIT(v3) | ['k1', 'k4', 'k3']
+40 | get | k1  | EXPIRED | ['k4', 'k3']
+42 | get | k4  | HIT(v4) | ['k3', 'k4']
