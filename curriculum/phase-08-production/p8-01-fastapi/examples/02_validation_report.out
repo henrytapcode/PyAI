@@ -1,0 +1,6 @@
+ #  status  detail
+ 1     200  ok
+ 2     422  ['body', 'question'] -> missing
+ 3     422  ['body', 'question'] -> string_too_short
+ 4     422  ['body', 'top_k'] -> less_than_equal
+ 5     422  ['body', 'top_k'] -> int_parsing

@@ -1,0 +1,33 @@
+id: p8-01-fastapi
+phase: p8
+order: 1
+kind: lesson
+title:
+  en: "FastAPI services"
+  vi: "Dịch vụ FastAPI"
+summary:
+  en: "Expose Python functions and AI pipelines over HTTP with FastAPI, validate request payloads automatically with Pydantic BaseModel and Field constraints, return intentional HTTP status codes, and test every route in-process with TestClient and pytest."
+  vi: "Đưa hàm Python và pipeline AI lên HTTP với FastAPI, tự động kiểm tra dữ liệu đầu vào bằng Pydantic BaseModel và Field, trả về mã trạng thái HTTP có chủ ý, và kiểm thử mọi route ngay trong process bằng TestClient cùng pytest."
+level: beginner
+tags: [production, apis, testing, typing]
+prerequisites: [p2-05-typing]
+duration_min: 16
+outcomes:
+  en:
+    - "Define GET and POST routes with Pydantic schemas"
+    - "Validate request payloads and return HTTP status codes"
+    - "Test endpoints locally with FastAPI TestClient"
+    - "Wrap an LLM call behind a POST endpoint returning token usage"
+  vi:
+    - "Định nghĩa route GET và POST với schema Pydantic"
+    - "Kiểm tra dữ liệu đầu vào và trả về mã trạng thái HTTP"
+    - "Kiểm thử endpoint cục bộ bằng FastAPI TestClient"
+    - "Gói lời gọi LLM sau một POST endpoint có trả về số token"
+review_by: "2027-05-01"
+further_reading:
+  - title: { en: "FastAPI Tutorial: First Steps", vi: "FastAPI Tutorial: First Steps (EN)" }
+    url: "https://fastapi.tiangolo.com/tutorial/first-steps/"
+  - title: { en: "FastAPI Tutorial: Testing", vi: "FastAPI Tutorial: Testing (EN)" }
+    url: "https://fastapi.tiangolo.com/tutorial/testing/"
+  - title: { en: "Pydantic: Models", vi: "Pydantic: Models (EN)" }
+    url: "https://docs.pydantic.dev/latest/concepts/models/"

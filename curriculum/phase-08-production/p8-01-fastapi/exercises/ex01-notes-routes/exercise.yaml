@@ -1,0 +1,58 @@
+id: p8-01-ex01
+kind: fill
+title:
+  en: "Fill: notes API routes and status codes"
+  vi: "Điền khuyết: các route và status code cho API ghi chú"
+difficulty: 1
+tags: [production, apis, typing]
+hints:
+  en:
+    - |
+      Review §2–§5: `@app.get` / `@app.post` set the HTTP method, `status_code=201` marks newly created items, typed path parameters (`int`) trigger `422` on non-integers, and `HTTPException(status_code=404, ...)` handles missing IDs. For `POST /notes` with `{"text": "hi"}`, the response status is `201` and body is `{"id": 1, "text": "hi"}`.
+    - |
+      The plan:
+      1. Name the string field in `NoteCreate` to match `body.text` in `create_note`.
+      2. Pick the HTTP method decorator on `list_notes`, and set the creation status code on `create_note`.
+      3. Add the type hint on `note_id` so FastAPI parses integers and rejects `"abc"`, and set the missing-item status code inside `HTTPException`.
+    - |
+      Fill the blanks across the model and route decorators:
+      ```python
+      class NoteCreate(BaseModel):
+          ...: str = Field(min_length=1, max_length=100)
+
+
+      @app.___("/notes")
+      def list_notes() -> list[dict[str, object]]:
+          ...
+
+
+      @app.post("/notes", status_code=...)
+      def create_note(body: NoteCreate) -> dict[str, object]:
+          ...
+      ```
+      Then in `get_note`, annotate `note_id` as an integer and raise `HTTPException` with the "not found" status code.
+  vi:
+    - |
+      Xem lại §2–§5: `@app.get` / `@app.post` chọn HTTP method, `status_code=201` đánh dấu bản ghi mới tạo, type hint `int` trên path parameter giúp tự trả `422` khi nhận chữ, còn `HTTPException(status_code=404, ...)` báo thiếu ID. Với `POST /notes` gửi `{"text": "hi"}`, status trả về phải là `201` và body là `{"id": 1, "text": "hi"}`.
+    - |
+      Kế hoạch:
+      1. Đặt tên field chuỗi trong `NoteCreate` cho khớp với `body.text` ở hàm `create_note`.
+      2. Chọn decorator HTTP method cho `list_notes`, và điền mã trạng thái tạo mới cho `create_note`.
+      3. Thêm type hint kiểu số nguyên cho `note_id` để FastAPI tự kiểm `"abc"`, rồi điền mã báo không tìm thấy vào `HTTPException`.
+    - |
+      Điền các ô trống trên model và decorator route:
+      ```python
+      class NoteCreate(BaseModel):
+          ...: str = Field(min_length=1, max_length=100)
+
+
+      @app.___("/notes")
+      def list_notes() -> list[dict[str, object]]:
+          ...
+
+
+      @app.post("/notes", status_code=...)
+      def create_note(body: NoteCreate) -> dict[str, object]:
+          ...
+      ```
+      Sau đó ở `get_note`, chú thích `note_id` là số nguyên và raise `HTTPException` với mã "not found".

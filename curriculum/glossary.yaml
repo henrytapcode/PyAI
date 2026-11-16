@@ -2932,3 +2932,81 @@ terms:
       en: "A ToolBox returns deep copies of its tool schemas so caller code cannot mutate nested required lists and bypass argument validation."
       vi: "ToolBox trả về deep copy của các tool schema để code bên ngoài không thể sửa list required lồng bên trong và vô hiệu hóa bước kiểm tra tham số."
     related: [schema, allowlist, dataclass]
+
+  # ---------------------------------------------------------- FastAPI & production services
+  - term: route
+    vi_term: route (tuyến đường API)
+    tags: [apis, production]
+    en: "The combination of an HTTP method and a URL path mapped to a Python handler function, such as @app.get(\"/health\")."
+    vi: "Sự kết hợp giữa một HTTP method và đường dẫn URL được gắn với một hàm xử lý Python, như @app.get(\"/health\")."
+    example: "@app.get(\"/health\")\ndef health():\n    return {\"status\": \"ok\"}"
+    in_practice:
+      en: "Each feature of your AI service—health checks, /ask, /chat—lives on its own FastAPI route so clients call the right handler."
+      vi: "Mỗi chức năng của dịch vụ AI—như kiểm tra sức khỏe, /ask, /chat—nằm trên một route FastAPI riêng để client gọi đúng hàm xử lý."
+    related: [endpoint, HTTP method, HTTP status code]
+
+  - term: HTTP method
+    vi_term: HTTP method (phương thức HTTP)
+    tags: [apis]
+    en: "The verb in an HTTP request that states what action the client wants, most commonly GET to read data and POST to send data or create a resource."
+    vi: "Động từ trong request HTTP cho biết client muốn làm gì, phổ biến nhất là GET để đọc dữ liệu và POST để gửi dữ liệu hoặc tạo tài nguyên mới."
+    example: "client.get(\"/notes\")\nclient.post(\"/notes\", json={\"text\": \"ship v1\"})"
+    in_practice:
+      en: "Using GET for read-only lookups and POST for sending prompts or creating records keeps your endpoints predictable and easy to cache or test."
+      vi: "Dùng GET cho thao tác chỉ đọc và POST khi gửi prompt hay tạo bản ghi giúp các endpoint nhất quán, dễ kiểm thử và dễ cache."
+    related: [route, endpoint, request body]
+
+  - term: request body
+    vi_term: request body (phần thân request)
+    tags: [apis, json]
+    en: "The payload data—usually JSON in FastAPI services—sent by a client inside a POST request for the endpoint to validate and process."
+    vi: "Dữ liệu đi kèm—thường ở dạng JSON trong dịch vụ FastAPI—mà client gửi trong request POST để endpoint kiểm tra và xử lý."
+    example: "client.post(\"/ask\", json={\"question\": \"What is RAG?\", \"top_k\": 2})"
+    in_practice:
+      en: "Questions, chat histories, and generation parameters travel in the JSON request body so they do not clutter URLs and can be validated with Pydantic."
+      vi: "Câu hỏi, lịch sử chat và các tham số sinh văn bản đều đi trong JSON request body để không làm rối URL và được kiểm tra bằng Pydantic."
+    related: [Pydantic, JSON, HTTP method]
+
+  - term: path parameter
+    vi_term: path parameter (tham số trong đường dẫn)
+    tags: [apis, typing]
+    en: "A variable segment written inside curly braces in a route path, like {doc_id} in /docs/{doc_id}, extracted and type-checked from the URL."
+    vi: "Phần biến nằm trong ngoặc nhọn của đường dẫn route, như {doc_id} trong /docs/{doc_id}, được trích xuất và kiểm tra kiểu ngay từ URL."
+    example: "@app.get(\"/docs/{doc_id}\")\ndef read_doc(doc_id: int):\n    return {\"doc_id\": doc_id}"
+    in_practice:
+      en: "Path parameters identify a specific record by ID, and annotating them as int makes FastAPI reject non-numeric IDs like /docs/abc with 422 automatically."
+      vi: "Path parameter dùng để chỉ đích danh một bản ghi theo ID, và chú thích kiểu int giúp FastAPI tự từ chối ID không phải số như /docs/abc bằng mã 422."
+    related: [route, query parameter, HTTP status code]
+
+  - term: query parameter
+    vi_term: query parameter (tham số truy vấn)
+    tags: [apis, typing]
+    en: "An optional or extra key-value parameter appended after ? in a URL, such as ?limit=2, mapped to function parameters not listed in the path."
+    vi: "Tham số dạng key=value nằm sau dấu ? trên URL, như ?limit=2, được ánh xạ tới các tham số hàm không xuất hiện trong đường dẫn."
+    example: "@app.get(\"/docs/{doc_id}\")\ndef read_doc(doc_id: int, limit: int = 3):\n    return {\"doc_id\": doc_id, \"limit\": limit}"
+    in_practice:
+      en: "Query parameters are ideal for optional filters, pagination limits, or preview sizes while the core resource ID stays in the path."
+      vi: "Query parameter rất hợp cho bộ lọc tùy chọn, giới hạn số dòng hay kích thước xem trước trong khi ID tài nguyên chính vẫn nằm ở path."
+    related: [path parameter, route, default argument]
+
+  - term: Pydantic
+    vi_term: Pydantic
+    tags: [typing, apis, json]
+    en: "A Python data validation library used by FastAPI that turns BaseModel subclasses and Field constraints into automatic parsing and 422 error reports."
+    vi: "Thư viện kiểm tra dữ liệu Python được FastAPI sử dụng, biến các lớp con BaseModel cùng ràng buộc Field thành bộ parse tự động và báo lỗi 422."
+    example: "from pydantic import BaseModel, Field\n\nclass AskRequest(BaseModel):\n    question: str = Field(min_length=1, max_length=200)"
+    in_practice:
+      en: "Instead of writing repetitive isinstance checks by hand for every endpoint, you declare a Pydantic model once and reject bad payloads at the door."
+      vi: "Thay vì viết tay hàng loạt kiểm tra isinstance cho từng endpoint, bạn khai báo Pydantic model một lần để chặn payload sai ngay ở cửa vào."
+    related: [request body, validation, type hint]
+
+  - term: TestClient
+    vi_term: TestClient
+    tags: [testing, apis]
+    en: "FastAPI's in-process HTTP test client (built on httpx) that sends simulated GET and POST requests directly to an app without starting a server or opening a port."
+    vi: "Client kiểm thử HTTP ngay trong process của FastAPI (xây trên httpx), gửi các request GET và POST giả lập thẳng tới app mà không cần bật server hay mở port."
+    example: "from fastapi.testclient import TestClient\n\nclient = TestClient(app)\nr = client.get(\"/health\")"
+    in_practice:
+      en: "Pair TestClient with pytest fixtures so every route, status code, and validation rule runs in milliseconds inside your automated test suite."
+      vi: "Kết hợp TestClient với fixture của pytest để kiểm thử mọi route, status code và quy tắc kiểm tra dữ liệu chỉ trong vài mili-giây."
+    related: [endpoint, fixture, unit test]

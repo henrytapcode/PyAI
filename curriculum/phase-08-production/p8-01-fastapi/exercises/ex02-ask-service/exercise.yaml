@@ -1,0 +1,72 @@
+id: p8-01-ex02
+kind: code
+title:
+  en: "Write: document search /ask service"
+  vi: "Viết code: dịch vụ hỏi tài liệu /ask"
+difficulty: 2
+tags: [production, apis, typing, testing]
+hints:
+  en:
+    - |
+      This combines `GET` / `POST` routes (§2, §4), `AskRequest` with `Field(...)` bounds (§4), and `HTTPException(status_code=404, ...)` (§3, §5). For `{"question": "FastAPI tests"}` with default `top_k=2`, `POST /ask` returns `{"question": "FastAPI tests", "sources": [3, 4]}`.
+    - |
+      The plan:
+      1. Add `Field(min_length=1, max_length=200)` to `question` and `Field(default=2, ge=1, le=5)` to `top_k` inside `AskRequest`.
+      2. Implement `health()` to return `{"status": "ok"}`.
+      3. In `ask(body)`, split `body.question.lower().split()` into a set of unique words, count overlapping words for each entry in `DOCS`, keep entries with overlap > 0, and raise a `404` `HTTPException` with `detail="no matching documents"` if none match.
+      4. Sort matches by `(-overlap, doc_id)`, slice `[: body.top_k]`, and return `{"question": body.question, "sources": sources}`.
+    - |
+      The shape of the solution:
+      ```python
+      class AskRequest(BaseModel):
+          question: str = Field(...)
+          top_k: int = Field(default=2, ...)
+
+
+      @app.post("/ask")
+      def ask(body: AskRequest) -> dict[str, object]:
+          q_words = set(body.question.lower().split())
+          scored: list[tuple[int, int]] = []
+          for doc_id, text in DOCS.items():
+              overlap = ...
+              if overlap > 0:
+                  scored.append((overlap, doc_id))
+          if not scored:
+              raise HTTPException(...)
+          scored.sort(key=lambda item: (-item[0], item[1]))
+          sources = [doc_id for _, doc_id in scored[: body.top_k]]
+          return {"question": body.question, "sources": sources}
+      ```
+      Remember to also implement `health()` above `ask()`, and negate `item[0]` in the sort key so higher overlap comes first while ties sort by smaller `doc_id`.
+  vi:
+    - |
+      Bài này kết hợp route `GET` / `POST` (§2, §4), `AskRequest` với ràng buộc `Field(...)` (§4) và `HTTPException(status_code=404, ...)` (§3, §5). Với `{"question": "FastAPI tests"}` dùng `top_k=2` mặc định, `POST /ask` trả về `{"question": "FastAPI tests", "sources": [3, 4]}`.
+    - |
+      Kế hoạch:
+      1. Thêm `Field(min_length=1, max_length=200)` cho `question` và `Field(default=2, ge=1, le=5)` cho `top_k` trong `AskRequest`.
+      2. Cài đặt `health()` trả về `{"status": "ok"}`.
+      3. Trong `ask(body)`, tách `body.question.lower().split()` thành tập từ duy nhất, đếm số từ trùng với từng câu trong `DOCS`, giữ các mục có số từ trùng > 0, và raise `HTTPException` mã `404` với `detail="no matching documents"` nếu không có mục nào khớp.
+      4. Sắp xếp theo `(-overlap, doc_id)`, cắt `[: body.top_k]` và trả về `{"question": body.question, "sources": sources}`.
+    - |
+      Hình dạng của lời giải:
+      ```python
+      class AskRequest(BaseModel):
+          question: str = Field(...)
+          top_k: int = Field(default=2, ...)
+
+
+      @app.post("/ask")
+      def ask(body: AskRequest) -> dict[str, object]:
+          q_words = set(body.question.lower().split())
+          scored: list[tuple[int, int]] = []
+          for doc_id, text in DOCS.items():
+              overlap = ...
+              if overlap > 0:
+                  scored.append((overlap, doc_id))
+          if not scored:
+              raise HTTPException(...)
+          scored.sort(key=lambda item: (-item[0], item[1]))
+          sources = [doc_id for _, doc_id in scored[: body.top_k]]
+          return {"question": body.question, "sources": sources}
+      ```
+      Nhớ cài đặt cả `health()` ở trên, và lấy dấu trừ `-item[0]` trong khóa sắp xếp để số từ chung cao xếp trước còn hòa thì xếp `doc_id` tăng dần.

@@ -1,0 +1,6 @@
+GET  /notes    200 []
+POST /notes    201 {'id': 1, 'text': 'log bug'}
+POST /notes    201 {'id': 2, 'text': 'ship'}
+GET  /notes    200 [{'id': 1, 'text': 'log bug'}, {'id': 2, 'text': 'ship'}]
+GET  /notes/2  200 {'id': 2, 'text': 'ship'}
+GET  /notes/99 404 {'detail': 'note not found'}

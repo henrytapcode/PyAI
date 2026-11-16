@@ -1,0 +1,454 @@
+questions:
+  - id: p8-01-q01
+    type: mcq
+    tags: [apis]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "In `@app.get(\"/docs/{doc_id}\")` with `def read_doc(doc_id: int, limit: int = 3):`, what are `doc_id` and `limit` in `GET /docs/7?limit=2`?"
+      options:
+        - "Both `doc_id` and `limit` are JSON request body fields"
+        - "`doc_id` is a path parameter and `limit` is a query parameter"
+        - "`doc_id` is a query parameter and `limit` is a path parameter"
+        - "Both `doc_id` and `limit` are HTTP status codes on the route"
+      explanation: "`{doc_id}` sits inside the URL path (`/docs/7`), so it is a path parameter; `limit` is not in the path, so it is read as a query parameter (`?limit=2`)."
+    vi:
+      prompt: "Với `@app.get(\"/docs/{doc_id}\")` và `def read_doc(doc_id: int, limit: int = 3):`, `doc_id` và `limit` trong `GET /docs/7?limit=2` là gì?"
+      options:
+        - "Cả `doc_id` và `limit` đều là trường trong JSON request body"
+        - "`doc_id` là path parameter còn `limit` là query parameter"
+        - "`doc_id` là query parameter còn `limit` là path parameter"
+        - "Cả `doc_id` và `limit` đều là mã trạng thái HTTP trên route"
+      explanation: "`{doc_id}` nằm trong đường dẫn URL (`/docs/7`) nên là path parameter; `limit` không nằm trong đường dẫn nên được đọc như query parameter (`?limit=2`)."
+
+  - id: p8-01-q02
+    type: output
+    tags: [apis]
+    difficulty: 1
+    code: |
+      from fastapi import FastAPI
+      from fastapi.testclient import TestClient
+
+      app = FastAPI()
+
+
+      @app.get("/health")
+      def health():
+          return {"status": "ok"}
+
+
+      r = TestClient(app).get("/health")
+      print(health()["status"], r.status_code)
+    answer: "ok 200"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`@app.get(\"/health\")` keeps `health()` directly callable, so `health()[\"status\"]` is `\"ok\"`, and `TestClient(app).get(\"/health\")` returns status `200`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`@app.get(\"/health\")` giữ `health()` gọi trực tiếp được như hàm thường nên `health()[\"status\"]` là `\"ok\"`, còn `TestClient(app).get(\"/health\")` trả mã `200`."
+
+  - id: p8-01-q03
+    type: mcq
+    tags: [apis, production]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which `status_code` should you pass to `@app.post(\"/notes\", status_code=...)` when the endpoint creates a new record?"
+      options:
+        - "`200`, the standard code meaning a new item was stored"
+        - "`404`, meaning the old record was replaced in memory"
+        - "`201`, the HTTP status code meaning Created"
+        - "`422`, meaning Pydantic validated the request body"
+      explanation: "`201 Created` tells callers a new resource was created; `200` is the generic OK default, while `404` and `422` are client errors."
+    vi:
+      prompt: "Bạn nên truyền `status_code` nào vào `@app.post(\"/notes\", status_code=...)` khi endpoint tạo mới một bản ghi?"
+      options:
+        - "`200`, mã chuẩn báo hiệu một mục mới đã được lưu vào bộ nhớ"
+        - "`404`, báo hiệu bản ghi cũ đã được thay thế trong bộ nhớ"
+        - "`201`, mã trạng thái HTTP mang nghĩa Created (đã tạo mới)"
+        - "`422`, báo hiệu Pydantic đã kiểm tra xong dữ liệu body"
+      explanation: "`201 Created` báo cho phía gọi biết một tài nguyên mới đã được tạo; `200` là mặc định chung, còn `404` và `422` là mã lỗi từ phía client."
+
+  - id: p8-01-q04
+    type: fill
+    tags: [apis]
+    difficulty: 1
+    code: |
+      from fastapi import FastAPI
+      from fastapi.testclient import TestClient
+
+      app = FastAPI()
+
+
+      @app.___("/notes", status_code=___)
+      def add_note():
+          return {"id": 1}
+
+
+      r = TestClient(app).post("/notes")
+      print(r.status_code)
+    answer: ["post", "201"]
+    en:
+      prompt: "Fill in the decorator method and status code so `POST /notes` responds with `201`."
+      explanation: "Use `@app.post(\"/notes\", status_code=201)` to register a `POST` route that returns `201 Created`."
+    vi:
+      prompt: "Điền tên method của decorator và mã trạng thái để `POST /notes` trả về `201`."
+      explanation: "Dùng `@app.post(\"/notes\", status_code=201)` để đăng ký route `POST` trả về mã `201 Created`."
+
+  - id: p8-01-q05
+    type: parsons
+    tags: [apis, testing]
+    difficulty: 1
+    lines:
+      - "from fastapi import FastAPI, testclient"
+      - "app = FastAPI()"
+      - '@app.get("/health")'
+      - 'def health(): return {"status": "ok"}'
+      - 'r = testclient.TestClient(app).get("/health")'
+      - 'print(r.status_code, r.json()["status"])'
+    en:
+      prompt: "Arrange these lines in order to define `GET /health`, call it with `TestClient`, and print `200 ok`."
+      explanation: "Import `FastAPI` and `testclient`, create `app`, attach `@app.get(\"/health\")` above `health()`, send the `GET` request, and print the status code and `\"status\"` field."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để định nghĩa `GET /health`, gọi bằng `TestClient` và in ra `200 ok`."
+      explanation: "Import `FastAPI` và `testclient`, tạo `app`, gắn `@app.get(\"/health\")` ngay trên `health()`, gửi request `GET` rồi in status code cùng trường `\"status\"`."
+
+  - id: p8-01-q06
+    type: mcq
+    tags: [apis, typing]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "How does HTTP `422` differ from HTTP `400` in a FastAPI service?"
+      options:
+        - "`422` is Pydantic rejecting bad types or bounds; `400` is your handler rejecting valid types on a business rule"
+        - "`422` is raised only by `GET` routes; `400` is raised only by `POST` routes with a JSON body"
+        - "`422` means the server crashed with an unhandled exception; `400` means a path ID was missing"
+        - "`422` runs after your handler returns; `400` runs inside Pydantic before your handler executes"
+      explanation: "FastAPI and Pydantic automatically return `422` when path, query, or JSON body types/constraints fail before your function runs; you raise `HTTPException(status_code=400, ...)` inside your handler when the payload types are valid but violate a business rule."
+    vi:
+      prompt: "Mã HTTP `422` khác mã HTTP `400` thế nào trong một dịch vụ FastAPI?"
+      options:
+        - "`422` do Pydantic chặn sai kiểu hoặc ngưỡng; `400` do hàm của bạn chặn dữ liệu đúng kiểu nhưng sai nghiệp vụ"
+        - "`422` chỉ xuất hiện trên các route `GET`; `400` chỉ xuất hiện trên các route `POST` có JSON body"
+        - "`422` nghĩa là server gặp lỗi chưa bắt; `400` nghĩa là ID trong đường dẫn không tồn tại"
+        - "`422` chạy sau khi hàm trả kết quả; `400` chạy trong Pydantic trước khi hàm xử lý bắt đầu"
+      explanation: "FastAPI và Pydantic tự động trả `422` trước khi hàm chạy khi path, query hay JSON body sai kiểu/ràng buộc; bạn chủ động `raise HTTPException(status_code=400, ...)` trong hàm khi dữ liệu đúng kiểu nhưng vi phạm quy tắc nghiệp vụ."
+
+  - id: p8-01-q07
+    type: output
+    tags: [typing, apis]
+    difficulty: 2
+    code: |
+      from fastapi import FastAPI
+      from fastapi.testclient import TestClient
+      from pydantic import BaseModel, Field
+
+      app = FastAPI()
+
+
+      class Ask(BaseModel):
+          q: str = Field(min_length=1)
+          top_k: int = Field(default=3, ge=1, le=5)
+
+
+      @app.post("/ask")
+      def ask(body: Ask):
+          return {"top_k": body.top_k}
+
+
+      c = TestClient(app)
+      r1 = c.post("/ask", json={"q": "RAG"})
+      r2 = c.post("/ask", json={"q": "RAG", "top_k": 9})
+      print(r1.status_code, r1.json()["top_k"], r2.status_code, r2.json()["detail"][0]["type"])
+    answer: "200 3 422 less_than_equal"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The first request omits `top_k`, so Pydantic fills the default `3` and returns `200`; the second passes `top_k=9`, violating `le=5`, so FastAPI returns `422` with error type `less_than_equal`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Request đầu bỏ qua `top_k` nên Pydantic dùng mặc định `3` và trả `200`; request thứ hai gửi `top_k=9` vi phạm `le=5` nên FastAPI trả `422` với loại lỗi `less_than_equal`."
+
+  - id: p8-01-q08
+    type: mcq
+    tags: [testing, apis]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "What happens when you call `client.post(\"/ask\", data={\"question\": \"Hi\"})` on a route expecting a Pydantic `BaseModel`?"
+      options:
+        - "FastAPI converts the form fields to JSON and returns `200`"
+        - "TestClient skips validation and passes an empty dictionary"
+        - "Python raises a `TypeError` before sending the test request"
+        - "FastAPI rejects it as `422` (`model_attributes_type`)"
+      explanation: "Passing `data=` sends form-encoded data rather than a JSON request body, so Pydantic cannot parse the body as JSON and returns `422`. Use `json=` instead."
+    vi:
+      prompt: "Điều gì xảy ra khi bạn gọi `client.post(\"/ask\", data={\"question\": \"Hi\"})` tới một route nhận Pydantic `BaseModel`?"
+      options:
+        - "FastAPI tự chuyển dữ liệu form sang JSON và trả về mã `200`"
+        - "TestClient bỏ qua bước kiểm tra và truyền vào một dict rỗng"
+        - "Python ném lỗi `TypeError` trước khi gửi request kiểm thử"
+        - "FastAPI trả về mã `422` kèm lỗi `model_attributes_type`"
+      explanation: "Truyền `data=` gửi dữ liệu dạng form thay vì JSON request body, khiến Pydantic không parse được và trả `422`. Hãy dùng `json=`."
+
+  - id: p8-01-q09
+    type: fill
+    tags: [apis]
+    difficulty: 2
+    code: |
+      from fastapi import FastAPI, HTTPException
+      from fastapi.testclient import TestClient
+      from pydantic import BaseModel
+
+      app = FastAPI()
+
+
+      class Item(BaseModel):
+          name: str
+
+
+      @app.post("/items/{item_id}")
+      def get_or_fail(item_id: int, body: Item):
+          if item_id == 99:
+              raise HTTPException(status_code=___, detail="missing")
+          return {"id": item_id, "name": body.name}
+
+
+      r = TestClient(app).post("/items/99", ___={"name": "box"})
+      print(r.status_code)
+    answer: ["404", "json"]
+    en:
+      prompt: "Fill in the missing HTTP status code for a missing item and the `TestClient.post` keyword argument that sends a JSON body so the snippet prints `404`."
+      explanation: "Raise `HTTPException(status_code=404, ...)` for missing items and pass `json={\"name\": \"box\"}` in `TestClient.post` so FastAPI reaches your route handler instead of failing with `422`."
+    vi:
+      prompt: "Điền mã trạng thái cho mục không tìm thấy và tham số có tên của `TestClient.post` để gửi JSON body sao cho đoạn code in ra `404`."
+      explanation: "Raise `HTTPException(status_code=404, ...)` khi thiếu tài nguyên và truyền `json={\"name\": \"box\"}` trong `TestClient.post` để request qua được Pydantic và chạy vào hàm."
+
+  - id: p8-01-q10
+    type: parsons
+    tags: [apis, typing]
+    difficulty: 2
+    lines:
+      - "from pydantic import BaseModel, Field, ValidationError"
+      - "class Ask(BaseModel):"
+      - "    q: str = Field(min_length=1)"
+      - 'ok = Ask(q="RAG")'
+      - 'try: Ask(q="")'
+      - 'except ValidationError as e: print(ok.q, e.errors()[0]["type"])'
+    en:
+      prompt: "Arrange these lines to define `Ask`, validate a good instance `ok`, catch a validation failure on an empty string, and print `RAG string_too_short`."
+      explanation: "Import from `pydantic`, define `Ask` with `Field(min_length=1)`, construct `ok = Ask(q=\"RAG\")`, try constructing `Ask(q=\"\")`, and catch `ValidationError` to print `ok.q` and the error type."
+    vi:
+      prompt: "Sắp xếp các dòng sau để định nghĩa `Ask`, tạo instance hợp lệ `ok`, bắt lỗi khi truyền chuỗi rỗng và in ra `RAG string_too_short`."
+      explanation: "Import từ `pydantic`, định nghĩa `Ask` với `Field(min_length=1)`, tạo `ok = Ask(q=\"RAG\")`, thử tạo `Ask(q=\"\")` rồi bắt `ValidationError` để in `ok.q` và loại lỗi."
+
+  - id: p8-01-q11
+    type: mcq
+    tags: [production, apis]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "What goes wrong when an endpoint returns `{\"error\": \"not found\"}` with HTTP status `200`?"
+      options:
+        - "FastAPI refuses to serialize any dictionary containing an `\"error\"` key"
+        - "Pydantic automatically converts the `200` response into a `422` error"
+        - "Clients and monitoring count the `200` failure as a success"
+        - "`TestClient.get()` raises a `ConnectionError` on non-empty error payloads"
+      explanation: "HTTP clients, health checks, and monitoring dashboards (`p8-04-monitoring`) inspect the status code first; returning `200` masks real failures in error-rate metrics and bypasses `r.status_code == 200` checks."
+    vi:
+      prompt: "Điều gì bị hỏng khi một endpoint trả về `{\"error\": \"not found\"}` kèm mã HTTP `200`?"
+      options:
+        - "FastAPI từ chối chuyển đổi mọi dictionary có chứa khóa `\"error\"`"
+        - "Pydantic tự động đổi phản hồi `200` đó thành lỗi `422` trên đường truyền"
+        - "Client và hệ thống monitoring đọc mã `200` nên tính lỗi đó là thành công"
+        - "`TestClient.get()` sẽ ném ra `ConnectionError` khi body có khóa lỗi"
+      explanation: "Client HTTP và bảng monitoring (`p8-04-monitoring`) đọc status code trước; trả `200` khiến lỗi bị tính nhầm là request thành công và qua mặt các bước kiểm tra `status_code`."
+
+  - id: p8-01-q12
+    type: output
+    tags: [production, apis]
+    difficulty: 2
+    code: |
+      from fastapi import FastAPI
+      from fastapi.testclient import TestClient
+      from pyai_llm import FakeLLM
+      from pydantic import BaseModel
+
+      app = FastAPI()
+      llm = FakeLLM(seed=0)
+
+
+      class ChatIn(BaseModel):
+          message: str
+
+
+      @app.post("/chat")
+      def chat(body: ChatIn):
+          reply = llm.chat([{"role": "user", "content": body.message}])
+          return {"tokens": reply.usage.total_tokens}
+
+
+      r = TestClient(app).post("/chat", json={"message": "What is RAG?"})
+      print(r.status_code, r.json()["tokens"])
+    answer: "200 29"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`POST /chat` passes `\"What is RAG?\"` to `FakeLLM(seed=0)`, which reports `29` `total_tokens` (`8` prompt + `21` completion), and FastAPI returns status `200`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`POST /chat` gửi `\"What is RAG?\"` tới `FakeLLM(seed=0)`, trả về `29` `total_tokens` (`8` prompt + `21` completion), còn FastAPI trả mã `200`."
+
+  - id: p8-01-q13
+    type: mcq
+    tags: [apis]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What happens if you call `health()` directly in Python after decorating it with `@app.get(\"/health\")`?"
+      options:
+        - "It raises a `TypeError` unless wrapped inside `TestClient(app)`"
+        - "It runs like a normal Python function and returns its dict"
+        - "It starts a background `uvicorn` server on port `8000`"
+        - "It returns a `Response` object with `.status_code` and `.json()`"
+      explanation: "FastAPI's `@app.get(...)` decorator registers the function in the app's routing table and returns the original Python function unchanged, so calling `health()` directly works just like any plain function."
+    vi:
+      prompt: "Điều gì xảy ra nếu bạn gọi trực tiếp `health()` trong Python sau khi gắn decorator `@app.get(\"/health\")`?"
+      options:
+        - "Nó ném ra `TypeError` trừ khi được bọc bên trong `TestClient(app)`"
+        - "Nó chạy như hàm Python bình thường và trả về dict kết quả"
+        - "Nó tự khởi chạy một server `uvicorn` chạy ngầm ở cổng `8000`"
+        - "Nó trả về object `Response` có `.status_code` và `.json()`"
+      explanation: "Decorator `@app.get(...)` của FastAPI chỉ đăng ký hàm vào bảng route của `app` rồi trả lại nguyên hàm gốc, nên gọi trực tiếp `health()` vẫn chạy như hàm Python bình thường."
+
+  - id: p8-01-q14
+    type: fill
+    tags: [apis, typing]
+    difficulty: 3
+    code: |
+      from fastapi import FastAPI
+      from fastapi.testclient import TestClient
+      from pydantic import BaseModel, Field
+
+      app = FastAPI()
+
+
+      class Ask(BaseModel):
+          q: str
+          top_k: int = Field(default=2, ge=___, le=___)
+
+
+      @app.post("/ask")
+      def ask(body: Ask):
+          return {"top_k": body.top_k}
+
+
+      c = TestClient(app)
+      print(c.post("/ask", json={"q": "hi"}).json()["top_k"], c.post("/ask", json={"q": "hi", "top_k": 9}).status_code)
+    answer: ["1", "5"]
+    en:
+      prompt: "Fill in the `ge` and `le` bounds so `top_k` must be between `1` and `5` inclusive (making `top_k=9` return `422`)."
+      explanation: "Setting `ge=1` and `le=5` restricts `top_k` to `1..5`, so omitting `top_k` uses `default=2` and sending `9` triggers `422`."
+    vi:
+      prompt: "Điền hai cận `ge` và `le` để `top_k` chỉ nhận giá trị từ `1` đến `5` (khiến `top_k=9` bị trả `422`)."
+      explanation: "Đặt `ge=1` và `le=5` giới hạn `top_k` trong đoạn `1..5`, nên bỏ qua `top_k` sẽ lấy `default=2` còn gửi `9` sẽ nhận lỗi `422`."
+
+  - id: p8-01-q15
+    type: parsons
+    tags: [apis]
+    difficulty: 3
+    lines:
+      - "from fastapi import FastAPI, HTTPException, testclient"
+      - "app = FastAPI()"
+      - '@app.get("/notes/{nid}")'
+      - 'def read(nid: int): raise HTTPException(status_code=404, detail="missing")'
+      - 'r = testclient.TestClient(app).get("/notes/9")'
+      - 'print(r.status_code, r.json()["detail"])'
+    en:
+      prompt: "Arrange these lines to build a route that raises a `404` `HTTPException`, call it with `TestClient`, and print `404 missing`."
+      explanation: "Import the names, instantiate `app`, attach `@app.get(\"/notes/{nid}\")` above `read`, call `TestClient(app).get(\"/notes/9\")`, and print the `status_code` and `detail`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tạo route raise `HTTPException` `404`, gọi bằng `TestClient` và in ra `404 missing`."
+      explanation: "Import các tên cần dùng, tạo `app`, gắn `@app.get(\"/notes/{nid}\")` ngay trên `read`, gọi `TestClient(app).get(\"/notes/9\")` rồi in `status_code` và `detail`."
+
+  - id: p8-01-q16
+    type: mcq
+    tags: [testing, production]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "Why should a `pytest` fixture reset an in-memory `notes` dictionary before each endpoint test?"
+      options:
+        - "To keep every test isolated regardless of execution order"
+        - "Because `TestClient` deletes all routes after one request"
+        - "Because Pydantic `BaseModel` caches old HTTP responses globally"
+        - "To prevent FastAPI from opening a network port on `localhost`"
+      explanation: "If tests share a global dict without resetting it in a fixture, notes created by an earlier test change IDs and list contents for later tests, breaking order independence."
+    vi:
+      prompt: "Vì sao fixture `pytest` nên dọn sạch dictionary `notes` trong bộ nhớ trước mỗi bài test endpoint?"
+      options:
+        - "Để mỗi bài test độc lập hoàn toàn bất kể thứ tự chạy"
+        - "Vì `TestClient` tự xóa toàn bộ các route sau một lần gọi"
+        - "Vì `BaseModel` của Pydantic lưu cache mọi response toàn cục"
+        - "Để ngăn FastAPI tự mở một cổng mạng thật trên `localhost`"
+      explanation: "Nếu các bài test dùng chung một dict toàn cục mà không dọn sạch trong fixture, dữ liệu từ test trước sẽ làm sai ID và danh sách ở test sau khi chạy đảo thứ tự."
+
+flashcards:
+  - id: p8-01-f01
+    tags: [apis]
+    en:
+      front: "What does `@app.get(\"/health\")` do to the function underneath it?"
+      back: "It registers the function as the `GET /health` route handler on `app` and leaves the Python function directly callable."
+    vi:
+      front: "Decorator `@app.get(\"/health\")` làm gì với hàm nằm ngay dưới nó?"
+      back: "Nó đăng ký hàm đó làm hàm xử lý route `GET /health` trên `app` và vẫn giữ nguyên hàm Python đó để gọi trực tiếp được."
+
+  - id: p8-01-f02
+    tags: [apis, typing]
+    en:
+      front: "Path parameter vs. query parameter in `@app.get(\"/docs/{doc_id}\")`"
+      back: "`{doc_id}` in the URL path is a path parameter; extra function parameters like `limit: int = 3` come from the `?limit=...` query string."
+    vi:
+      front: "Phân biệt path parameter và query parameter trong `@app.get(\"/docs/{doc_id}\")`"
+      back: "`{doc_id}` trong đường dẫn URL là path parameter; các tham số phụ của hàm như `limit: int = 3` lấy từ chuỗi truy vấn `?limit=...`."
+
+  - id: p8-01-f03
+    tags: [typing, apis]
+    code: |
+      class AskRequest(BaseModel):
+          question: str = Field(min_length=1, max_length=200)
+          top_k: int = Field(default=3, ge=1, le=5)
+    en:
+      front: "What happens if a `POST` body fails a Pydantic `Field(...)` constraint?"
+      back: "FastAPI stops before the route function runs and automatically returns HTTP `422` with `detail` entries showing `loc` and `type`."
+    vi:
+      front: "Điều gì xảy ra nếu JSON body gửi lên vi phạm ràng buộc `Field(...)` của Pydantic?"
+      back: "FastAPI dừng trước khi chạy hàm xử lý và tự trả về mã HTTP `422` kèm danh sách `detail` ghi rõ `loc` và `type`."
+
+  - id: p8-01-f04
+    tags: [apis]
+    en:
+      front: "When should you return `422`, `400`, `404`, and `201`?"
+      back: "`201` when creating a resource, `404` when an ID is missing, `400` when valid JSON breaks a business rule, and `422` for automatic schema/type failures."
+    vi:
+      front: "Khi nào dùng mã `422`, `400`, `404` và `201`?"
+      back: "`201` khi tạo mới bản ghi, `404` khi thiếu ID, `400` khi JSON đúng kiểu nhưng sai quy tắc nghiệp vụ, và `422` cho lỗi kiểu/schema tự động."
+
+  - id: p8-01-f05
+    tags: [apis, production]
+    en:
+      front: "Why should an API never return `{\"error\": ...}` with status `200`?"
+      back: "HTTP clients and monitoring tools check `status_code` first and will treat a `200` response as a successful call."
+    vi:
+      front: "Vì sao API không bao giờ nên trả `{\"error\": ...}` kèm mã `200`?"
+      back: "Client HTTP và hệ thống monitoring đọc `status_code` trước nên sẽ coi phản hồi `200` là một lượt gọi thành công."
+
+  - id: p8-01-f06
+    tags: [testing, apis]
+    code: |
+      r = client.post("/ask", json={"question": "What is RAG?"})
+    en:
+      front: "How does `TestClient(app)` test FastAPI endpoints, and why use `json=`?"
+      back: "`TestClient(app)` calls your app in-process with no open port; pass `json=` (not `data=`) so the payload is sent as a JSON request body."
+    vi:
+      front: "`TestClient(app)` kiểm thử endpoint thế nào và vì sao phải dùng `json=`?"
+      back: "`TestClient(app)` gọi app ngay trong cùng process mà không mở port; luôn truyền `json=` (không dùng `data=`) để gửi dữ liệu dạng JSON request body."
