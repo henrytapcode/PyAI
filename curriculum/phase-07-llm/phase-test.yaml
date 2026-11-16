@@ -1,0 +1,531 @@
+id: p7-phase-test
+kind: phase_test
+phase: p7
+title:
+  en: "Phase 7 test: LLMs & GenAI"
+  vi: "Bài kiểm tra Phase 7: LLM & GenAI"
+description:
+  en: "20 questions covering LLM APIs and retries, structured JSON outputs, embeddings, vector databases, RAG pipelines, tool use, agents, evaluation metrics, and end-to-end RAG and agent mini-projects."
+  vi: "20 câu hỏi về API LLM và retry, structured output JSON, embedding, vector database, pipeline RAG, tool use, agent, đánh giá eval, cùng hai mini-project RAG và agent."
+duration_min: 30
+pass_score: 0.7
+questions:
+  # ---- llm-api
+  - id: p7-test-q01
+    type: output
+    tags: [llm]
+    difficulty: 1
+    code: |
+      from pyai_llm import Usage
+
+      turns = [Usage(120, 30, 150), Usage(200, 50, 250)]
+      in_tok = sum(u.prompt_tokens for u in turns)
+      out_tok = sum(u.completion_tokens for u in turns)
+      cost = (in_tok * 0.50 + out_tok * 1.50) / 1_000_000
+      print(in_tok, out_tok, round(cost, 6))
+    answer: "320 80 0.00028"
+    en:
+      prompt: "What does this token-cost calculation print?"
+      explanation: "Summing `prompt_tokens` (`120 + 200 = 320`) and `completion_tokens` (`30 + 50 = 80`) yields `(320 * 0.50 + 80 * 1.50) / 1_000_000 = 280 / 1_000_000 = 0.00028` USD."
+    vi:
+      prompt: "Đoạn code tính chi phí token này in ra gì?"
+      explanation: "Cộng `prompt_tokens` (`120 + 200 = 320`) và `completion_tokens` (`30 + 50 = 80`) cho ra `(320 * 0.50 + 80 * 1.50) / 1_000_000 = 280 / 1_000_000 = 0.00028` USD."
+
+  - id: p7-test-q02
+    type: mcq
+    tags: [llm]
+    difficulty: 3
+    answer: 0
+    code: |
+      import time
+
+      def send(client, msgs):
+          for attempt in range(3):
+              try:
+                  return client.chat(msgs)
+              except Exception:
+                  if attempt == 2:
+                      raise
+                  time.sleep(0.5 * 2 ** attempt)
+    en:
+      prompt: "When `msgs = [{\"role\": \"bot\", \"content\": \"hi\"}]`, why is `except Exception:` a bug in `send`?"
+      options:
+        - "It retries a permanent `ValueError` three times with backoff"
+        - "It skips retrying `RateLimitError` on the first two attempts"
+        - "It converts the invalid role string into `'assistant'` silently"
+        - "It halves the sleep delay after each failed `chat` attempt"
+      explanation: "An invalid role like `'bot'` raises a permanent `ValueError` that fails identically on every retry; catching broad `Exception` wastes exponential backoff sleeps instead of failing fast, whereas only transient errors like `RateLimitError` should be retried."
+    vi:
+      prompt: "Khi `msgs = [{\"role\": \"bot\", \"content\": \"hi\"}]`, vì sao `except Exception:` trong `send` là một lỗi?"
+      options:
+        - "Nó thử lại lỗi `ValueError` cố định ba lần kèm backoff"
+        - "Nó bỏ qua không thử lại `RateLimitError` ở hai lần đầu"
+        - "Nó tự đổi tên vai trò bị sai thành `'assistant'` âm thầm"
+        - "Nó giảm một nửa thời gian chờ sau mỗi lần gọi thất bại"
+      explanation: "Tên role sai như `'bot'` ném `ValueError` cố định và sẽ lỗi y hệt ở mọi lần thử lại; bắt chung `Exception` làm mất thời gian chờ exponential backoff thay vì báo lỗi ngay, trong khi chỉ lỗi tạm thời như `RateLimitError` mới nên retry."
+
+  # ---- structured-output
+  - id: p7-test-q03
+    type: fill
+    tags: [llm, json]
+    difficulty: 2
+    code: |
+      import json
+
+      raw = 'Note:\n{"priority": "high", "seats": 3}\nDone.'
+      data = json.loads(raw[raw.index("{") : raw.rindex("}") + 1])
+      schema = {
+          "required": ["priority", "seats"],
+          "enum": ("low", "medium", "high"),
+      }
+      has_req = all(k in data for k in schema["___"])
+      valid_type = isinstance(data["seats"], int) and not isinstance(data["seats"], ___)
+      valid_enum = data["priority"] in schema["___"]
+      print(has_req and valid_type and valid_enum)
+    answer: ["required", "bool", "enum"]
+    en:
+      prompt: "Fill in the three blanks to check required fields, reject booleans masquerading as integers, and enforce the `enum` list."
+      explanation: "Check `schema['required']` for missing keys, guard `isinstance(..., int)` with `not isinstance(..., bool)` because `bool` subclasses `int`, and verify `data['priority'] in schema['enum']`."
+    vi:
+      prompt: "Điền vào ba chỗ trống để kiểm tra các trường bắt buộc, chặn `bool` giả làm `int` và ràng buộc giá trị `enum`."
+      explanation: "Duyệt `schema['required']` để phát hiện khóa thiếu, chặn `bool` bằng `not isinstance(..., bool)` vì `bool` kế thừa `int`, và kiểm tra `data['priority'] in schema['enum']`."
+
+  - id: p7-test-q04
+    type: mcq
+    tags: [llm, json]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "A structured-output parser extracts `{\"priority\": \"urgent\"}`, which fails an `enum` check (`low`/`medium`/`high`). Which recovery flow handles this cleanly?"
+      options:
+        - "Map `'urgent'` to `'high'` silently without logging or retrying"
+        - "Run `eval()` on the raw text inside an unbounded `while True` retry loop"
+        - "Append the reply and error feedback, retry up to a cap, then fallback"
+        - "Clear all prior turns and resend only the single word `'JSON'` on retry"
+      explanation: "Appending the invalid `assistant` reply plus a `user` message explaining the schema error gives the model a chance to fix its JSON within a bounded retry count, and falling back safely avoids crashing if retries still fail."
+    vi:
+      prompt: "Bộ phân tích structured output tách được `{\"priority\": \"urgent\"}`, nhưng giá trị này sai quy định `enum` (`low`/`medium`/`high`). Quy trình xử lý nào sau đây là chuẩn?"
+      options:
+        - "Tự đổi `'urgent'` thành `'high'` âm thầm mà không ghi nhận hay thử lại"
+        - "Chạy `eval()` trên chuỗi thô bên trong một vòng lặp `while True` vô hạn"
+        - "Nối phản hồi và thông báo lỗi, retry có giới hạn rồi trả về fallback"
+        - "Xóa toàn bộ hội thoại trước đó rồi chỉ gửi lại đúng một chữ `'JSON'`"
+      explanation: "Nối phản hồi `assistant` bị sai kèm tin nhắn `user` nêu rõ lỗi giúp model tự sửa JSON trong số lượt retry giới hạn, và chuyển sang fallback an toàn nếu vẫn thất bại."
+
+  # ---- embeddings
+  - id: p7-test-q05
+    type: output
+    tags: [llm]
+    difficulty: 1
+    code: |
+      import numpy as np
+
+      D = np.array([[0.0, 1.0], [0.6, 0.8], [1.0, 0.0]])
+      q = np.array([0.8, 0.6])
+      scores = D @ q
+      top2 = np.argsort(-scores, kind="stable")[:2]
+      print(top2.tolist(), [round(float(scores[i]), 3) for i in top2])
+    answer: "[1, 2] [0.96, 0.8]"
+    en:
+      prompt: "All rows in `D` and vector `q` are L2-normalized. What does this code print?"
+      explanation: "For unit vectors, the dot product `D @ q` equals cosine similarity: `[0.6, 0.96, 0.8]`. Negating `scores` in `np.argsort` ranks indexes descending, giving top-2 indexes `[1, 2]` with scores `[0.96, 0.8]`."
+    vi:
+      prompt: "Mọi hàng của `D` và vector `q` đều đã chuẩn hóa L2. Đoạn code này in ra gì?"
+      explanation: "Với vector đơn vị, tích vô hướng `D @ q` chính là cosine similarity: `[0.6, 0.96, 0.8]`. Đảo dấu `-scores` trong `np.argsort` xếp chỉ số giảm dần, cho top 2 là `[1, 2]` với điểm `[0.96, 0.8]`."
+
+  - id: p7-test-q06
+    type: mcq
+    tags: [llm]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "You tuned `min_score = 0.35` on Model A and then switch your embedding store to Model B. What should you do with `min_score`?"
+      options:
+        - "Keep `0.35` unchanged since cosine similarity always shares the same scale"
+        - "Re-embed the corpus and re-measure `min_score` on Model B's dev scores"
+        - "Multiply `0.35` by the ratio of Model B's `embed_dim` to Model A's"
+        - "Set `min_score = 0.0` permanently so Model B never drops a valid hit"
+      explanation: "Different embedding models produce incompatible vector spaces with different baseline cosine distributions, so you must re-embed the store and calibrate `min_score` empirically for the new model on dev data."
+    vi:
+      prompt: "Bạn đã chỉnh `min_score = 0.35` trên Model A rồi chuyển kho vector sang Model B. Bạn cần làm gì với `min_score`?"
+      options:
+        - "Giữ nguyên `0.35` vì điểm cosine của mọi model luôn cùng phân bố"
+        - "Embed lại kho tài liệu và đo lại `min_score` trên tập dev của Model B"
+        - "Nhân `0.35` với tỉ lệ số chiều `embed_dim` giữa Model B và Model A"
+        - "Đặt `min_score = 0.0` cố định để Model B không bỏ sót tài liệu đúng"
+      explanation: "Mỗi model embedding tạo ra một không gian vector với phân bố điểm cosine khác nhau, nên bạn bắt buộc phải embed lại kho tài liệu và đo lại ngưỡng `min_score` trên tập dev cho model mới."
+
+  # ---- vector-db
+  - id: p7-test-q07
+    type: mcq
+    tags: [rag]
+    difficulty: 3
+    answer: 3
+    code: |
+      import numpy as np
+
+      ids = ["d1", "d2", "d3", "d4"]
+      topics = ["billing", "billing", "shipping", "shipping"]
+      scores = np.array([0.91, 0.85, 0.62, 0.58])
+      top2 = np.argsort(-scores, kind="stable")[:2]
+      hits = [ids[i] for i in top2 if topics[i] == "shipping"]
+      print(hits)
+    en:
+      prompt: "This search requests `k=2` documents with `topic == 'shipping'`, yet prints `[]` even though `d3` and `d4` match. What fixes this bug?"
+      options:
+        - "Sort `scores` ascending before slicing the first two indexes"
+        - "Replace `kind='stable'` with the default quicksort algorithm"
+        - "Delete `d1` and `d2` permanently from the vector database first"
+        - "Filter indexes by `topics[i] == 'shipping'` before taking `[:2]`"
+      explanation: "Post-filtering checks `topics` after taking global top-2 (`d1`, `d2`), leaving zero `'shipping'` hits. Pre-filtering eligible indexes first and then ranking top-k ensures all `k` available matches are returned."
+    vi:
+      prompt: "Lệnh tìm kiếm này cần lấy `k=2` tài liệu có `topic == 'shipping'`, nhưng lại in `[]` dù có sẵn `d3` và `d4`. Cách sửa nào đúng?"
+      options:
+        - "Sắp xếp `scores` theo thứ tự tăng dần trước khi cắt hai phần tử đầu"
+        - "Thay tham số `kind='stable'` bằng thuật toán sắp xếp mặc định"
+        - "Xóa vĩnh viễn `d1` và `d2` khỏi vector database trước khi tìm"
+        - "Lọc các chỉ số thỏa `topics[i] == 'shipping'` trước khi cắt `[:2]`"
+      explanation: "Lọc sau (post-filter) kiểm tra `topics` sau khi đã lấy top 2 toàn kho (`d1`, `d2`), nên trả về rỗng. Lọc trước (pre-filter) các chỉ số hợp lệ rồi mới xếp hạng top-k giúp trả đủ `k` kết quả khớp."
+
+  - id: p7-test-q08
+    type: fill
+    tags: [rag, json]
+    difficulty: 2
+    code: |
+      import json
+      import numpy as np
+
+      ids = ["c1", "c2"]
+      M = np.array([[1.0, 0.0], [0.0, 1.0]])
+      doc_id, new_vec = "c2", [0.6, 0.8]
+      if doc_id ___ ids:
+          M[ids.index(doc_id)] = new_vec
+      saved = json.___({"ids": ids, "vectors": M.___()})
+      loaded = json.loads(saved)
+      print(loaded["ids"][1], loaded["vectors"][1])
+    answer: ["in", "dumps", "tolist"]
+    en:
+      prompt: "Fill in the three blanks to upsert an existing record in-place while keeping `ids` and `M` aligned, then serialize and reload the store."
+      explanation: "Checking `doc_id in ids` updates the matching row in `M` in-place without duplicating `ids`, `json.dumps` serializes the store, and `M.tolist()` converts the NumPy array into JSON-serializable nested lists."
+    vi:
+      prompt: "Điền vào ba chỗ trống để upsert bản ghi đã có tại chỗ mà vẫn giữ `ids` và `M` đồng bộ, rồi lưu và nạp lại store."
+      explanation: "Kiểm tra `doc_id in ids` giúp cập nhật đúng hàng trong `M` mà không tạo trùng trong `ids`, `json.dumps` tuần tự hóa store thành chuỗi JSON, và `M.tolist()` đổi mảng NumPy thành list lồng nhau lưu được vào JSON."
+
+  # ---- rag
+  - id: p7-test-q09
+    type: parsons
+    tags: [rag, llm]
+    difficulty: 2
+    lines:
+      - "from pyai_llm import FakeLLM, cosine"
+      - 'client, q = FakeLLM(embed_dim=256), "How many days do refunds take?"'
+      - "qv = client.embed([q])[0]"
+      - 'best = max(["Shipping takes 5 days.", "Refunds take 30 days."], key=lambda t: cosine(client.embed([t])[0], qv))'
+      - "sys_msg = f\"Context:\\n[1] {best}\\nOnly use context; say I don't know if missing.\""
+      - 'resp = client.chat([{"role": "system", "content": sys_msg}, {"role": "user", "content": q}])'
+      - "print(resp.content)"
+    en:
+      prompt: "Arrange these lines in order to embed a query, pick the top chunk by cosine similarity, build a grounded `Context:` prompt, and print the RAG answer."
+      explanation: "Import `FakeLLM` and `cosine`, create `client` and `q`, embed `q` into `qv`, select `best` via `cosine(..., qv)`, format the `Context:` system prompt, call `client.chat(...)`, and print `resp.content`."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để embed câu hỏi, chọn chunk cao điểm nhất theo cosine similarity, dựng prompt `Context:` có quy tắc bám nguồn và in câu trả lời RAG."
+      explanation: "Import `FakeLLM` và `cosine`, tạo `client` và `q`, embed `q` thành `qv`, chọn `best` qua `cosine(..., qv)`, dựng system prompt có `Context:`, gọi `client.chat(...)` rồi in `resp.content`."
+
+  - id: p7-test-q10
+    type: output
+    tags: [rag]
+    difficulty: 2
+    code: |
+      doc = "Returns take 30 days.\n\nKeep your receipt.\n\nShipping is free over $50."
+      chunks, cur = [], []
+      for para in doc.split("\n\n"):
+          if cur and len((" ".join(cur + [para])).split()) > 7:
+              chunks.append(" ".join(cur))
+              cur = [para]
+          else:
+              cur.append(para)
+      if cur:
+          chunks.append(" ".join(cur))
+      best_score, min_score = 0.18, 0.30
+      reply = "I don't know." if best_score < min_score else "CALL_LLM"
+      print(len(chunks), chunks[0], "|", reply)
+    answer: "2 Returns take 30 days. Keep your receipt. | I don't know."
+    en:
+      prompt: "What does this paragraph-chunking and `min_score` gating snippet print?"
+      explanation: "Paragraphs 1 and 2 together total `7` words (`<= 7`), forming chunk 0, while paragraph 3 (`5` words) would make `12 > 7` and starts chunk 1 (`len(chunks) == 2`). Since `best_score = 0.18 < 0.30`, the pipeline skips calling the LLM and returns `\"I don't know.\"`."
+    vi:
+      prompt: "Đoạn code gom chunk theo đoạn và chặn theo ngưỡng `min_score` này in ra gì?"
+      explanation: "Đoạn 1 và 2 gộp lại có `7` từ (`<= 7`) nên thành chunk 0, còn đoạn 3 (`5` từ) sẽ vượt `7` nên tách sang chunk 1 (`len(chunks) == 2`). Do `best_score = 0.18 < 0.30`, pipeline bỏ qua lời gọi LLM và trả `\"I don't know.\"`."
+
+  - id: p7-test-q11
+    type: mcq
+    tags: [rag]
+    difficulty: 3
+    answer: 0
+    code: |
+      import re
+
+      hits = [{"source": "faq.md"}, {"source": "terms.md"}]
+      reply = "See policy [0] and [2]."
+      sources = [hits[int(n) - 1]["source"] for n in re.findall(r"\[(\d+)\]", reply) if int(n) <= len(hits)]
+      print(sources)
+    en:
+      prompt: "This citation extractor prints `['terms.md', 'terms.md']` for `'See policy [0] and [2].'` instead of ignoring `[0]`. What causes this bug?"
+      options:
+        - "Without `1 <= int(n)`, `[0]` gives index `-1` and reads the last hit"
+        - "The regex `r'\\[(\\d+)\\]'` skips `[0]` and matches `[2]` twice instead"
+        - "Python list comprehensions evaluate `int(n) - 1` from right to left"
+        - "Using `len(hits)` without subtracting `1` duplicates the final item"
+      explanation: "Checking only `int(n) <= len(hits)` allows `0`: `int('0') - 1` evaluates to `-1`, which Python treats as the last element (`hits[-1] == 'terms.md'`). Citations must satisfy `1 <= int(n) <= len(hits)`."
+    vi:
+      prompt: "Bộ trích dẫn này in `['terms.md', 'terms.md']` cho `'See policy [0] and [2].'` thay vì bỏ qua `[0]`. Nguyên nhân lỗi là gì?"
+      options:
+        - "Thiếu `1 <= int(n)` khiến `[0]` thành chỉ số `-1` và lấy nhầm mục cuối"
+        - "Regex `r'\\[(\\d+)\\]'` bỏ qua `[0]` rồi khớp trùng `[2]` thành hai lần"
+        - "List comprehension trong Python duyệt `int(n) - 1` từ phải sang trái"
+        - "Dùng `len(hits)` mà không trừ `1` làm nhân đôi phần tử đứng cuối danh sách"
+      explanation: "Chỉ kiểm tra `int(n) <= len(hits)` đã để lọt số `0`: `int('0') - 1` ra `-1`, khiến Python lấy phần tử cuối (`hits[-1] == 'terms.md'`). Cần ràng buộc đầy đủ `1 <= int(n) <= len(hits)`."
+
+  # ---- tool-use
+  - id: p7-test-q12
+    type: parsons
+    tags: [llm, agents]
+    difficulty: 2
+    lines:
+      - "from pyai_llm import FakeLLM"
+      - 'resp = FakeLLM().chat([{"role": "user", "content": "What is eta for ''A1''?"}], tools=[{"name": "get_eta", "description": "eta", "parameters": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}}])'
+      - "tc = resp.tool_calls[0]"
+      - 'msgs = [{"role": "user", "content": "What is eta for ''A1''?"}, {"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": tc.arguments}]}]'
+      - 'out = {"get_eta": lambda id: f"ETA {id}: 2d"}[msgs[-1]["tool_calls"][0]["name"]](**tc.arguments)'
+      - 'msgs.append({"role": "tool", "tool_call_id": tc.id, "content": out})'
+      - 'print([m["role"] for m in msgs], FakeLLM().chat(msgs).content)'
+    en:
+      prompt: "Arrange these lines in order to run one full tool-call round (call `chat`, get `tool_calls[0]`, store `user` and `assistant` in `msgs`, dispatch via allowlist, append `tool` with `tool_call_id`, and print the final reply)."
+      explanation: "Import `FakeLLM`, call `chat` with the tool schema to get `resp`, take `tc = resp.tool_calls[0]`, initialize `msgs` with `user` and `assistant` (`tool_calls`), dispatch via the allowlist reading `msgs[-1]['tool_calls'][0]` to get `out`, append the `tool` message referencing `tc.id`, and print the roles plus second `chat(msgs)` reply."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự cho một lượt tool call hoàn chỉnh (gọi `chat`, lấy `tool_calls[0]`, lưu `user` và `assistant` vào `msgs`, chạy tool qua allowlist, nối message `tool` có `tool_call_id`, rồi gọi chat lần hai và in kết quả)."
+      explanation: "Import `FakeLLM`, gọi `chat` kèm tool schema lấy `resp`, lấy `tc = resp.tool_calls[0]`, khởi tạo `msgs` gồm `user` và `assistant` (`tool_calls`), chạy hàm qua allowlist đọc `msgs[-1]['tool_calls'][0]` lấy `out`, nối message `tool` gắn `tc.id`, và cuối cùng in danh sách role cùng phản hồi lần hai."
+
+  - id: p7-test-q13
+    type: mcq
+    tags: [llm, agents]
+    difficulty: 3
+    answer: 2
+    code: |
+      MAX_REFUND = 100.0
+      state = {"user_confirmed": False}
+      model_args = {"order_id": "1042", "amount": 250.0, "confirmed": True}
+
+      def can_refund(args: dict, app_state: dict) -> bool:
+          return args.get("confirmed", False) and args["amount"] <= MAX_REFUND
+    en:
+      prompt: "A prompt-injected chunk tricked the model into proposing `model_args`. Why is `can_refund` unsafe even though it checks `MAX_REFUND`?"
+      options:
+        - "It compares `amount` with `<=` rather than strict `<` against `MAX_REFUND`"
+        - "It uses `args.get('confirmed', False)` rather than raising a `KeyError`"
+        - "It trusts `args['confirmed']` instead of `app_state['user_confirmed']`"
+        - "It accepts `order_id` as a string instead of casting it to an integer"
+      explanation: "Tool arguments generated by a model are untrusted input: prompt injection or model mistakes can set `confirmed=True` inside `args`, so confirmation flags and limits must always be read from code-owned `app_state`."
+    vi:
+      prompt: "Một đoạn tài liệu bị gài prompt injection đã khiến model đề xuất `model_args` như trên. Vì sao `can_refund` vẫn mất an toàn dù đã kiểm tra `MAX_REFUND`?"
+      options:
+        - "Hàm so sánh `amount` bằng `<=` thay vì dùng dấu `<` chặt chẽ với `MAX_REFUND`"
+        - "Hàm dùng `args.get('confirmed', False)` thay vì để chương trình ném `KeyError`"
+        - "Hàm tin vào `args['confirmed']` thay vì kiểm tra `app_state['user_confirmed']`"
+        - "Hàm nhận `order_id` ở dạng chuỗi ký tự thay vì ép sang số nguyên trước"
+      explanation: "Tham số tool do model sinh là dữ liệu không đáng tin: prompt injection hoặc lỗi suy luận có thể tự đặt `confirmed=True` trong `args`, nên cờ xác nhận và hạn mức phải lấy từ `app_state` do code ứng dụng quản lý."
+
+  # ---- agents
+  - id: p7-test-q14
+    type: fill
+    tags: [agents]
+    difficulty: 2
+    code: |
+      SIDE_EFFECTS = {"issue_refund"}
+
+      def step_guard(step: int, max_steps: int, tokens: int, budget: int, action: tuple, prev: tuple | None) -> str:
+          if step > ___:
+              return "max_steps"
+          if tokens > ___:
+              return "budget"
+          if action == ___:
+              return "repeat"
+          if action[0] in SIDE_EFFECTS:
+              return "___"
+          return "ok"
+
+      print(step_guard(2, 5, 40, 100, ("issue_refund", "1042"), ("lookup", "1042")))
+    answer: ["max_steps", "budget", "prev", "needs_approval"]
+    en:
+      prompt: "Fill in the four blanks to enforce the `max_steps` cap, token `budget`, immediate `repeat` check, and `needs_approval` gate on side-effect tools."
+      explanation: "Stop with `max_steps` when `step > max_steps`, stop with `budget` when `tokens > budget`, stop with `repeat` when `action == prev`, and pause with `\"needs_approval\"` before running any tool in `SIDE_EFFECTS`."
+    vi:
+      prompt: "Điền vào bốn chỗ trống để áp dụng giới hạn `max_steps`, ngân sách `budget`, kiểm tra lặp `repeat` và cổng `needs_approval` cho tool có tác dụng phụ."
+      explanation: "Dừng với `max_steps` khi `step > max_steps`, dừng với `budget` khi `tokens > budget`, dừng với `repeat` khi `action == prev`, và tạm dừng với `\"needs_approval\"` trước khi chạy tool thuộc `SIDE_EFFECTS`."
+
+  - id: p7-test-q15
+    type: mcq
+    tags: [agents, llm]
+    difficulty: 3
+    answer: 1
+    code: |
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM()
+      tools = [{"name": "lookup_order", "description": "lookup order", "parameters": {"type": "object", "properties": {"id": {"type": "string"}}}}]
+      msgs = [{"role": "user", "content": "lookup order '1042'"}]
+      seen = []
+      for _ in range(3):
+          reply = client.chat(msgs, tools=tools)
+          if not reply.tool_calls:
+              print("final:", reply.content)
+              break
+          tc = reply.tool_calls[0]
+          if (tc.name, tc.arguments) in seen:
+              print("stopped: repeat")
+              break
+          seen.append((tc.name, tc.arguments))
+          msgs.append({"role": "assistant", "content": None, "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": tc.arguments}]})
+    en:
+      prompt: "This loop prints `stopped: repeat` on iteration 2 instead of finishing with a text reply. Which missing step causes the model to repeat `lookup_order`?"
+      options:
+        - "Resetting `seen.clear()` before starting the second loop turn"
+        - "Appending the `tool` result message with `tc.id` to `msgs`"
+        - "Passing `temperature=0.8` to vary the tool name each turn"
+        - "Removing the `assistant` message from `msgs` after step 1"
+      explanation: "Because no `{\"role\": \"tool\", \"tool_call_id\": tc.id, \"content\": ...}` observation was appended to `msgs`, the model never receives the tool output and proposes the exact same `lookup_order` call again on turn 2."
+    vi:
+      prompt: "Vòng lặp này in `stopped: repeat` ngay ở lượt 2 thay vì trả lời xong bằng văn bản. Thiếu bước nào khiến model cứ gọi lặp lại `lookup_order`?"
+      options:
+        - "Gọi `seen.clear()` để xóa lịch sử trước khi bắt đầu lượt thứ hai"
+        - "Nối message kết quả `tool` kèm `tc.id` vào danh sách `msgs`"
+        - "Truyền `temperature=0.8` để model đổi sang tên tool khác ở lượt sau"
+        - "Xóa message `assistant` vừa thêm khỏi `msgs` sau khi xong bước 1"
+      explanation: "Do chưa nối message quan sát `{\"role\": \"tool\", \"tool_call_id\": tc.id, \"content\": ...}` vào `msgs`, model không thấy kết quả chạy tool nên ở lượt 2 lại đề xuất đúng lệnh `lookup_order` cũ."
+
+  # ---- evals
+  - id: p7-test-q16
+    type: output
+    tags: [evaluation, rag]
+    difficulty: 2
+    code: |
+      import re
+
+      rows = [
+          {"expected": "a.md", "top": ["b.md", "a.md", "c.md"]},
+          {"expected": "c.md", "top": ["a.md", "b.md", "c.md"]},
+          {"expected": None, "top": ["a.md"]},
+      ]
+      ans = [r for r in rows if r["expected"] is not None]
+      hit2 = sum(r["expected"] in r["top"][:2] for r in ans) / len(ans)
+      ctx = ["Refunds take 30 days."]
+      reply = "Refunds take 30 days. [1]"
+      cites_ok = all(1 <= int(n) <= len(ctx) for n in re.findall(r"\[(\d+)\]", reply))
+      words_ok = set(re.findall(r"[a-z]+", reply.lower())) <= set(re.findall(r"[a-z]+", " ".join(ctx).lower()))
+      print(round(hit2, 3), cites_ok and words_ok)
+    answer: "0.5 True"
+    en:
+      prompt: "What does this retrieval and faithfulness check print?"
+      explanation: "Skipping the `expected=None` row leaves 2 answerable rows; only row 0 has its expected source in `top[:2]`, so `hit2 = 1 / 2 = 0.5`. Citation `[1]` is within `1..len(ctx)` and every word in `reply` appears in `ctx`, giving `True`."
+    vi:
+      prompt: "Đoạn code chấm retrieval và độ trung thực bám nguồn này in ra gì?"
+      explanation: "Bỏ dòng `expected=None` còn 2 câu trả lời được; chỉ dòng 0 có nguồn đúng trong `top[:2]` nên `hit2 = 1 / 2 = 0.5`. Trích dẫn `[1]` nằm trong `1..len(ctx)` và mọi từ trong `reply` đều có trong `ctx`, nên cho kết quả `True`."
+
+  - id: p7-test-q17
+    type: mcq
+    tags: [evaluation, rag]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "A retrieved document mistakenly states `'Shipping is free on orders over $200'` (real policy is `$50`), and the bot replies `'Shipping is free over $200. [1]'`. How is this answer rated?"
+      options:
+        - "Faithful to context `[1]`, though factually wrong in reality"
+        - "Unfaithful to context `[1]`, though factually true in reality"
+        - "Both unfaithful and ungrounded since `[1]` cites a stale document"
+        - "Factually true because `FakeLLM` verified the shipping database"
+      explanation: "Faithfulness measures only whether every claim and `[n]` citation in the reply is supported by the retrieved context—it does not verify real-world truth if the retrieved document itself is outdated or wrong."
+    vi:
+      prompt: "Một tài liệu truy xuất viết nhầm `'Miễn phí vận chuyển cho đơn trên 200$'` (thực tế là `50$`), và bot đáp `'Miễn phí vận chuyển trên 200$. [1]'`. Câu trả lời này được đánh giá thế nào?"
+      options:
+        - "Trung thực với ngữ cảnh `[1]`, nhưng sai sự thật ngoài đời"
+        - "Không trung thực với `[1]`, nhưng đúng sự thật ngoài đời"
+        - "Vừa không trung thực vừa vô căn cứ do `[1]` là tài liệu cũ"
+        - "Đúng sự thật vì `FakeLLM` đã tự tra lại kho dữ liệu vận chuyển"
+      explanation: "Tính trung thực (faithfulness) chỉ đo xem mọi ý và trích dẫn `[n]` có căn cứ từ ngữ cảnh truy xuất hay không, chứ không đồng nghĩa với đúng sự thật ngoài đời nếu bản thân tài liệu bị sai hoặc cũ."
+
+  # ---- mini-project-rag
+  - id: p7-test-q18
+    type: output
+    tags: [rag, evaluation]
+    difficulty: 2
+    code: |
+      dev_runs = [
+          {"cfg": ("words", 2, 0.2), "hit": 3, "facts": 2, "refusal": 1},
+          {"cfg": ("sent", 2, 0.3), "hit": 4, "facts": 4, "refusal": 2},
+          {"cfg": ("sent", 3, 0.1), "hit": 4, "facts": 4, "refusal": 0},
+      ]
+      winner = max(dev_runs, key=lambda r: (r["facts"], r["refusal"], r["hit"]))["cfg"]
+      test_rows = [
+          {"hit": True, "facts": True, "refusal": None},
+          {"hit": True, "facts": False, "refusal": None},
+          {"hit": None, "facts": None, "refusal": True},
+      ]
+      hits = sum(1 for r in test_rows if r["hit"] is True)
+      facts = sum(1 for r in test_rows if r["facts"] is True)
+      refusals = sum(1 for r in test_rows if r["refusal"] is True)
+      print(winner, f"hit={hits}/2 facts={facts}/2 refusal={refusals}/1")
+    answer: "('sent', 2, 0.3) hit=2/2 facts=1/2 refusal=1/1"
+    en:
+      prompt: "What does this dev-selection and single held-out test reporting snippet print?"
+      explanation: "Comparing candidate `(chunk, k, min_score)` settings on `dev_runs` picks `('sent', 2, 0.3)` because it ties on `facts=4` and wins the `refusal=2` tie-breaker. Evaluating that single winner once on `test_rows` yields `hit=2/2`, `facts=1/2`, and `refusal=1/1`."
+    vi:
+      prompt: "Đoạn code chọn cấu hình trên dev và báo cáo một lần trên tập test giữ riêng này in ra gì?"
+      explanation: "So sánh các cấu hình `(chunk, k, min_score)` trên `dev_runs` chọn `('sent', 2, 0.3)` vì cùng đạt `facts=4` nhưng thắng ở tiêu chí phụ `refusal=2`. Chấm cấu hình thắng cuộc đúng một lần trên `test_rows` cho kết quả `hit=2/2 facts=1/2 refusal=1/1`."
+
+  # ---- mini-project-agent
+  - id: p7-test-q19
+    type: fill
+    tags: [agents, testing]
+    difficulty: 2
+    code: |
+      import copy
+
+      schemas = [{"name": "refund", "parameters": {"required": ["id"]}}]
+      exported = [copy.___(s) for s in schemas]
+      exported[0]["parameters"]["required"].clear()
+
+      def gate(approve_fn, name: str, args: dict) -> str:
+          if approve_fn is ___:
+              return "needs_approval"
+          return "approved" if approve_fn(name, args) else "___"
+
+      print(schemas[0]["parameters"]["required"], gate(None, "refund", {}), gate(lambda n, a: False, "refund", {}))
+    answer: ["deepcopy", "None", "rejected"]
+    en:
+      prompt: "Fill in the three blanks so `ToolBox`-style schema export isolates nested lists from caller edits and the approval gate distinguishes missing callbacks from denied approvals."
+      explanation: "`copy.deepcopy` prevents `.clear()` on `exported` from mutating `schemas`; when `approve_fn is None`, the gate stops with `needs_approval`, whereas returning `False` from `approve_fn` stops with `rejected`."
+    vi:
+      prompt: "Điền vào ba chỗ trống để bước xuất schema kiểu `ToolBox` tách biệt list lồng nhau khỏi thay đổi bên ngoài và cổng duyệt phân biệt giữa thiếu hàm duyệt với bị từ chối."
+      explanation: "`copy.deepcopy` ngăn lệnh `.clear()` trên `exported` làm hỏng `schemas`; khi `approve_fn is None`, cổng duyệt dừng với `needs_approval`, còn khi `approve_fn` trả `False` thì dừng với `rejected`."
+
+  - id: p7-test-q20
+    type: mcq
+    tags: [agents, testing]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "In an agent test suite, each scenario passes a fresh `FakeLLM(script=...)` and checks `got_tools == expected_tools` (the golden trajectory). What does this check guarantee?"
+      options:
+        - "That a live LLM will always pick those tools on unseen user inputs"
+        - "That the agent's final answer is factually correct for the user"
+        - "That `set(got_tools)` ignores call order and duplicate executions"
+        - "That the loop calls the exact tools in order deterministically"
+      explanation: "Scripted `FakeLLM` scenarios make every test deterministic and isolated; comparing ordered lists (`got_tools == expected_tools`) guarantees your agent control flow executes the exact expected tool sequence, though live-model evals are still required for real LLM tool selection."
+    vi:
+      prompt: "Trong bộ test agent, mỗi kịch bản tạo mới `FakeLLM(script=...)` và kiểm tra `got_tools == expected_tools` (golden trajectory). Phép kiểm tra này bảo đảm điều gì?"
+      options:
+        - "LLM thật sẽ luôn chọn đúng các tool đó với mọi câu hỏi chưa gặp"
+        - "Câu trả lời cuối của agent là đúng sự thật đối với người dùng"
+        - "Phép so `set(got_tools)` bỏ qua thứ tự và số lần gọi trùng lặp"
+        - "Vòng lặp gọi đúng các tool theo đúng thứ tự một cách tất định"
+      explanation: "Kịch bản `FakeLLM(script=...)` giúp test chạy tất định và độc lập; so sánh list có thứ tự (`got_tools == expected_tools`) bảo đảm code điều khiển agent chạy đúng chuỗi tool kỳ vọng, dù vẫn cần eval với LLM thật để đo khả năng tự chọn tool."
