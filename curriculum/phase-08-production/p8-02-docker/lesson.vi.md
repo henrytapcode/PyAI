@@ -86,7 +86,7 @@ for inst, args in rows[:4]:
 # RUN: pip install --no-cache-dir -r requirements.txt
 ```
 
-Hãy để ý `rows` có đúng 7 phần tử vì dòng comment `#` và dòng trống đã được bỏ qua.
+Hãy để ý `rows` có đúng 7 phần tử vì dòng comment `#` và dòng trống đã được bỏ qua, còn `line.split(None, 1)` tách theo bất kỳ chuỗi khoảng trắng nào tối đa một lần để thu được `[instruction, rest_of_line]`.
 
 ## 3. Build và run
 
@@ -113,7 +113,7 @@ flowchart LR
 
 ## 4. Layer và build cache: thứ tự quan trọng
 
-Mỗi lệnh trong Dockerfile tạo ra một **layer** (lớp) xếp chồng lên nhau, và Docker lưu từng layer vào **build cache** (bộ nhớ đệm khi build). Khi bạn sửa file rồi build lại, Docker dùng lại cache từ trên xuống—nhưng hễ một layer thay đổi, chính layer đó và **mọi layer đứng sau nó** đều phải build lại.
+Chỉ `RUN`, `COPY` và `ADD` mới tạo **layer** (lớp) hệ thống file (các lệnh như `FROM`, `WORKDIR`, `ENV`, `EXPOSE`, `CMD` chỉ ghi metadata cho image), và Docker lưu từng bước vào **build cache** (bộ nhớ đệm khi build). Khi bạn sửa file rồi build lại, Docker dùng lại cache từ trên xuống—nhưng hễ một bước thay đổi, chính bước đó và **mọi bước đứng sau nó** đều phải build lại.
 
 Vì thế bạn phải `COPY requirements.txt .` và `RUN pip install` **trước** khi `COPY . .`. Khi bạn chỉ sửa `main.py`, file `requirements.txt` không đổi nên Docker dùng lại layer `pip install` rất nặng từ cache và chỉ chạy lại bước `COPY . .` rất nhanh; ngược lại, nếu đặt `COPY . .` lên trước, mỗi lần sửa một dòng ở `main.py` là `COPY . .` mất cache và kéo theo `pip install` phải cài lại từ đầu.
 
@@ -174,46 +174,59 @@ Bạn thấy `good_layers` build lại 2 layer từ chỉ số `4` (`COPY . .` v
 
 ## 5. `.dockerignore`: những gì không được vào image
 
-Trước khi chạy `COPY . .`, Docker gửi toàn bộ thư mục dự án (build context) cho bộ dựng image, trừ các mục được liệt kê trong file **`.dockerignore`**. Bạn luôn nên loại bỏ `.venv/`, `.git/`, `__pycache__/`, `*.pyc`, `.env` và dữ liệu thô lớn như `data/raw/` để image nhỏ hơn, build nhanh hơn và **không lộ secret**.
+Ngay khi `docker build` bắt đầu, Docker gửi toàn bộ thư mục dự án (build context) cho bộ dựng image, trừ các mục được liệt kê trong file **`.dockerignore`**. Khác với `.gitignore` (nơi pattern không chứa `/` khớp ở mọi cấp thư mục), Docker so các pattern `.dockerignore` **từ gốc build context**: viết `__pycache__/` hay `*.pyc` chỉ khớp ở thư mục gốc chứ không chặn được `rag/__pycache__/retriever.cpython-313.pyc`. Bạn luôn nên loại bỏ `.venv/`, `.git/`, `**/__pycache__`, `**/*.pyc`, `.env` và `data/raw/` để image nhỏ hơn, build nhanh hơn và **không lộ secret**.
 
-Đoạn Python sau dùng `fnmatch` và `PurePosixPath` để mô phỏng lọc `.dockerignore` trên một danh sách đường dẫn giả (lưu ý đây là bản đơn giản: luật `.dockerignore` thật của Docker còn hỗ trợ thêm `**` cho thư mục lồng sâu và `!` để giữ ngoại lệ):
+Đoạn Python sau mô phỏng lọc `.dockerignore` tính từ gốc bằng `split("/")` (tách đường dẫn thành từng đoạn để `*` không vượt qua `/`) và `fnmatchcase` (hàm so một chuỗi với pattern chứa `*`, `?` và có phân biệt chữ hoa/thường). Lưu ý mô phỏng này bỏ qua luật `!` (ngoại lệ):
 
 ```python
-from fnmatch import fnmatch
-from pathlib import PurePosixPath
+from fnmatch import fnmatchcase
 
 files = [
     "main.py",
     "requirements.txt",
     ".env",
     ".venv/bin/python",
-    "__pycache__/main.pyc",
+    "rag/__pycache__/retriever.cpython-313.pyc",
     "data/raw/docs.pdf",
 ]
-patterns = [".venv/", "__pycache__/", "*.pyc", ".env", "data/raw/"]
+old_patterns = [".venv/", ".git/", "__pycache__/", "*.pyc", ".env", "data/raw/"]
+good_patterns = [".venv/", ".git/", "**/__pycache__", "**/*.pyc", ".env", "data/raw/"]
 
 
-def is_ignored(rel_path: str, rules: list[str]) -> bool:
-    parts = PurePosixPath(rel_path).parts
-    for pat in rules:
-        if pat.endswith("/"):
-            folder = pat.rstrip("/")
-            if rel_path.startswith(folder + "/") or folder in parts[:-1]:
+def _match_from(pat_parts: list[str], path_parts: list[str]) -> bool:
+    if len(pat_parts) > len(path_parts):
+        return False
+    return all(fnmatchcase(s, p) for p, s in zip(pat_parts, path_parts))
+
+
+def is_ignored(rel_path: str, patterns: list[str]) -> bool:
+    parts = rel_path.split("/")
+    for raw in patterns:
+        pat = raw.strip().strip("/")
+        if not pat or pat.startswith("#"):
+            continue
+        pat_parts = pat.split("/")
+        if pat_parts[0] == "**":
+            rest = pat_parts[1:]
+            if any(_match_from(rest, parts[i:]) for i in range(len(parts))):
                 return True
-        elif fnmatch(rel_path, pat) or fnmatch(parts[-1], pat):
+        elif _match_from(pat_parts, parts):
             return True
     return False
 
 
-kept = [f for f in files if not is_ignored(f, patterns)]
-ignored = [f for f in files if is_ignored(f, patterns)]
+old_kept = [f for f in files if not is_ignored(f, old_patterns)]
+kept = [f for f in files if not is_ignored(f, good_patterns)]
+ignored = [f for f in files if is_ignored(f, good_patterns)]
+print("old kept:", old_kept)
+# old kept: ['main.py', 'requirements.txt', 'rag/__pycache__/retriever.cpython-313.pyc']
 print("kept:", kept)
 # kept: ['main.py', 'requirements.txt']
 print("ignored:", ignored)
-# ignored: ['.env', '.venv/bin/python', '__pycache__/main.pyc', 'data/raw/docs.pdf']
+# ignored: ['.env', '.venv/bin/python', 'rag/__pycache__/retriever.cpython-313.pyc', 'data/raw/docs.pdf']
 ```
 
-Hãy để ý chỉ còn `main.py` và `requirements.txt` đi vào `COPY . .` sau khi `.dockerignore` đã gạt bỏ môi trường ảo, file cache, dữ liệu thô và `.env`.
+Hãy để ý `old_patterns` để lọt `rag/__pycache__/retriever.cpython-313.pyc` vào build context, còn `**/__pycache__` và `**/*.pyc` đã chặn sạch cả các thư mục cache nằm sâu bên trong để chỉ còn `main.py` và `requirements.txt`.
 
 > [!WARNING]
 > File `.env` mà lọt vào image thì bất kỳ ai có image đó đều đọc được API key của bạn. Đừng bao giờ viết `ENV API_KEY=...` hay `COPY .env .` trong Dockerfile—hãy truyền biến môi trường lúc chạy container bằng lệnh sau:
@@ -226,7 +239,7 @@ docker run --env-file .env -p 8000:8000 rag-api
 
 Ba thói quen nhỏ sau giúp image Python gọn nhẹ và build ra kết quả giống hệt nhau mỗi lần:
 
-- **Ghim tag của base image:** luôn viết `FROM python:3.13-slim`, không dùng `FROM python:latest` hay `FROM python` để tránh bản Python tự nhảy ngầm giữa các lần build.
+- **Ghim tag của base image:** luôn viết `FROM python:3.13-slim`, không dùng `FROM python:latest` hay `FROM python` để tránh bản Python tự nhảy ngầm giữa các lần build. Ngay cả tag phiên bản vẫn có thể được đẩy đè bản vá mới, nên khi cần bất biến tuyệt đối bạn hãy ghim thêm digest dạng `@sha256:...`.
 - **Tắt cache tải gói của pip:** thêm `--no-cache-dir` vào `pip install` để các file `.whl` tạm không nằm lại trong layer của image.
 - **Ghim phiên bản trong `requirements.txt`:** ghi rõ từng phiên bản (như `fastapi==0.162.7`) để mọi lần build đều cài đúng cùng thư viện; khi dùng `uv`, công cụ này làm việc đó tự động bằng file khóa `uv.lock`.
 

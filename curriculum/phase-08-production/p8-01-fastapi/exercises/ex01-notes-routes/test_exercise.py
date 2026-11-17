@@ -26,6 +26,15 @@ def test_create_note_returns_201_with_new_id(client):
     assert r.json() == {"id": 1, "text": "ship v1"}
 
 
+def test_get_existing_note_returns_200_with_int_id(client):
+    client.post("/notes", json={"text": "first note"})
+    r = client.get("/notes/1")
+    assert r.status_code == 200
+    body = r.json()
+    assert body == {"id": 1, "text": "first note"}
+    assert type(body["id"]) is int, "note_id must be parsed as int, not float"
+
+
 def test_get_missing_note_returns_404(client):
     r = client.get("/notes/999")
     assert r.status_code == 404, "missing note ID must raise 404"

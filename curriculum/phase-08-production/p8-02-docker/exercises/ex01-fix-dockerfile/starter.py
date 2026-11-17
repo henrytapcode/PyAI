@@ -1,8 +1,8 @@
-# TODO: Fix the four bugs in DOCKERFILE:
-#   1. Pin a specific Python tag instead of :latest
-#   2. Copy requirements.txt and run pip install BEFORE COPY . .
-#   3. Add --no-cache-dir to pip install
-#   4. Bind 0.0.0.0 instead of 127.0.0.1 in CMD
+# TODO: Fix the 4 bugs in DOCKERFILE so all checks pass:
+#   1. Base image check fails (tag is not pinned to a concrete version)
+#   2. Build cache check fails (editing app code forces dependencies to reinstall)
+#   3. Image size check fails (pip keeps downloaded wheel archives in the layer)
+#   4. Host connectivity check fails (container refuses traffic forwarded from host)
 
 DOCKERFILE = """
 FROM python:latest

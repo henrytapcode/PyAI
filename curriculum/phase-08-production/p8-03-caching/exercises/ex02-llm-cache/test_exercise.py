@@ -74,11 +74,28 @@ def test_make_key_changes_when_model_system_or_temperature_changes(
     assert changed != base
 
 
+def test_make_key_changes_when_max_tokens_or_message_role_changes():
+    base_msgs = [{"role": "user", "content": "What is RAG?"}]
+    base = exercise.make_key("fake-mini", base_msgs, temperature=0.0, max_tokens=50)
+    diff_tokens = exercise.make_key("fake-mini", base_msgs, temperature=0.0, max_tokens=100)
+    diff_role = exercise.make_key(
+        "fake-mini",
+        [{"role": "system", "content": "What is RAG?"}],
+        temperature=0.0,
+        max_tokens=50,
+    )
+    assert diff_tokens != base, "changing max_tokens must change the cache key"
+    assert diff_role != base, "changing a message role must change the cache key"
+
+
 def test_ttl_cache_hits_before_expiry_and_misses_at_expiry():
     cache = exercise.TTLCache(ttl=60.0)
     cache.set("k1", "cached reply", now=10.0)
     assert cache.get("k1", now=69.9) == "cached reply"
     assert cache.get("k1", now=70.0) is None, "entry should expire when now == expires_at"
+    assert cache.hits == 1
+    assert cache.misses == 1, "expired lookup must increment misses"
+    assert cache.hit_rate() == pytest.approx(0.5)
 
 
 def test_ttl_cache_deletes_expired_entry():

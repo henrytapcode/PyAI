@@ -15,5 +15,5 @@ lint("FROM python:latest\nCOPY . .\nRUN pip install -r requirements.txt\n")
 - `lint(text)` returns warning codes in this fixed order (at most once per code, or `[]` when clean):
   1. `"unpinned-base"`: a `FROM` image has no `:` tag or uses `:latest` (case-insensitive).
   2. `"copy-before-install"`: `COPY . .` appears before the first `RUN` instruction containing `pip install`.
-  3. `"secret-in-image"`: `COPY` or `ADD` copies `.env` (not `.env.example`), or `ENV` defines a variable whose name contains `KEY`, `TOKEN`, or `SECRET`.
+  3. `"secret-in-image"`: `COPY` or `ADD` copies `.env` (not `.env.example`), or `ENV` defines any variable (including multi-pair syntax like `ENV MODE=prod API_KEY=abc`) whose name contains `KEY`, `TOKEN`, or `SECRET`.
   4. `"localhost-cmd"`: `CMD` contains `127.0.0.1` or `localhost`.

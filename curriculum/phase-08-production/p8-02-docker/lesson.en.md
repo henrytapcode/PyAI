@@ -86,7 +86,7 @@ for inst, args in rows[:4]:
 # RUN: pip install --no-cache-dir -r requirements.txt
 ```
 
-Notice that `rows` has 7 entries because the `#` comment and blank line were skipped.
+Notice that `rows` has 7 entries because the `#` comment and blank line were skipped, and `line.split(None, 1)` splits on any run of whitespace at most once into `[instruction, rest_of_line]`.
 
 ## 3. Build and run
 
@@ -113,7 +113,7 @@ flowchart LR
 
 ## 4. Layers and build cache: order matters
 
-Every instruction in a Dockerfile builds a **layer** stacked on top of the previous one, and Docker saves each layer in its **build cache**. When you edit files and rebuild, Docker reuses cached layers from the top down—but the moment one layer changes, that layer and **every layer after it** must rebuild.
+Only `RUN`, `COPY`, and `ADD` create filesystem **layers** (other instructions such as `FROM`, `WORKDIR`, `ENV`, `EXPOSE`, and `CMD` only record image metadata), and Docker saves each step in its **build cache**. When you edit files and rebuild, Docker reuses cached steps from the top down—but the moment one step changes, that step and **every step after it** must rebuild.
 
 That is why you copy `requirements.txt` and run `pip install` **before** running `COPY . .`. When you only edit `main.py`, `requirements.txt` has not changed, so Docker reuses the slow `pip install` layer from cache and only rebuilds the fast `COPY . .` step; if you put `COPY . .` first, every one-line edit to `main.py` invalidates `COPY . .` and forces `pip install` to re-download everything.
 
@@ -174,46 +174,59 @@ Notice that `good_layers` rebuilds 2 layers from index `4` (`COPY . .` and `CMD`
 
 ## 5. `.dockerignore`: keeping unwanted files out
 
-Before `COPY . .` runs, Docker sends your project directory (the build context) to the builder, unless a **`.dockerignore`** file tells it what to skip. Always exclude `.venv/`, `.git/`, `__pycache__/`, `*.pyc`, `.env`, and large raw datasets like `data/raw/` so your image stays small, builds stay fast, and secrets never enter the image.
+When `docker build` starts, Docker sends your project directory (the build context) to the builder, unless a **`.dockerignore`** file tells it what to skip. Unlike `.gitignore`, where a pattern with no `/` matches at any depth, Docker matches `.dockerignore` patterns **from the root of the build context**: writing `__pycache__/` or `*.pyc` only matches at the top folder and misses nested folders like `rag/__pycache__/retriever.cpython-313.pyc`. Always exclude `.venv/`, `.git/`, `**/__pycache__`, `**/*.pyc`, `.env`, and `data/raw/` so your image stays small, builds stay fast, and secrets never enter the image.
 
-The Python snippet below simulates `.dockerignore` filtering on a list of paths using `fnmatch` and `PurePosixPath` (note that this is a simplified model: real Docker `.dockerignore` files also support recursive `**` wildcards and `!` exception rules):
+The Python snippet below simulates root-relative `.dockerignore` filtering using `split("/")` (splitting each POSIX path into segments so `*` never crosses `/`) and `fnmatchcase` (case-sensitive wildcard matching for `*` and `?` on one segment). Note that this simulation skips `!` exception rules:
 
 ```python
-from fnmatch import fnmatch
-from pathlib import PurePosixPath
+from fnmatch import fnmatchcase
 
 files = [
     "main.py",
     "requirements.txt",
     ".env",
     ".venv/bin/python",
-    "__pycache__/main.pyc",
+    "rag/__pycache__/retriever.cpython-313.pyc",
     "data/raw/docs.pdf",
 ]
-patterns = [".venv/", "__pycache__/", "*.pyc", ".env", "data/raw/"]
+old_patterns = [".venv/", ".git/", "__pycache__/", "*.pyc", ".env", "data/raw/"]
+good_patterns = [".venv/", ".git/", "**/__pycache__", "**/*.pyc", ".env", "data/raw/"]
 
 
-def is_ignored(rel_path: str, rules: list[str]) -> bool:
-    parts = PurePosixPath(rel_path).parts
-    for pat in rules:
-        if pat.endswith("/"):
-            folder = pat.rstrip("/")
-            if rel_path.startswith(folder + "/") or folder in parts[:-1]:
+def _match_from(pat_parts: list[str], path_parts: list[str]) -> bool:
+    if len(pat_parts) > len(path_parts):
+        return False
+    return all(fnmatchcase(s, p) for p, s in zip(pat_parts, path_parts))
+
+
+def is_ignored(rel_path: str, patterns: list[str]) -> bool:
+    parts = rel_path.split("/")
+    for raw in patterns:
+        pat = raw.strip().strip("/")
+        if not pat or pat.startswith("#"):
+            continue
+        pat_parts = pat.split("/")
+        if pat_parts[0] == "**":
+            rest = pat_parts[1:]
+            if any(_match_from(rest, parts[i:]) for i in range(len(parts))):
                 return True
-        elif fnmatch(rel_path, pat) or fnmatch(parts[-1], pat):
+        elif _match_from(pat_parts, parts):
             return True
     return False
 
 
-kept = [f for f in files if not is_ignored(f, patterns)]
-ignored = [f for f in files if is_ignored(f, patterns)]
+old_kept = [f for f in files if not is_ignored(f, old_patterns)]
+kept = [f for f in files if not is_ignored(f, good_patterns)]
+ignored = [f for f in files if is_ignored(f, good_patterns)]
+print("old kept:", old_kept)
+# old kept: ['main.py', 'requirements.txt', 'rag/__pycache__/retriever.cpython-313.pyc']
 print("kept:", kept)
 # kept: ['main.py', 'requirements.txt']
 print("ignored:", ignored)
-# ignored: ['.env', '.venv/bin/python', '__pycache__/main.pyc', 'data/raw/docs.pdf']
+# ignored: ['.env', '.venv/bin/python', 'rag/__pycache__/retriever.cpython-313.pyc', 'data/raw/docs.pdf']
 ```
 
-Notice how only `main.py` and `requirements.txt` remain for `COPY . .` once `.dockerignore` strips out virtual environments, caches, raw data, and `.env`.
+Notice how `old_patterns` let `rag/__pycache__/retriever.cpython-313.pyc` slip into the context, while `**/__pycache__` and `**/*.pyc` catch nested cache directories cleanly so only `main.py` and `requirements.txt` remain.
 
 > [!WARNING]
 > If `.env` enters your image, anyone who pulls or inspects that image can read your API keys from its layers. Never put `ENV API_KEY=...` or `COPY .env .` in a Dockerfile—pass secrets at container startup instead:
@@ -226,7 +239,7 @@ docker run --env-file .env -p 8000:8000 rag-api
 
 Three small habits keep Python images lean and ensure every build installs the exact same software:
 
-- **Pin the base image tag:** write `FROM python:3.13-slim`, never `FROM python:latest` or bare `FROM python`, so a surprise upstream release cannot break your service.
+- **Pin the base image tag:** write `FROM python:3.13-slim`, never `FROM python:latest` or bare `FROM python`, so a surprise upstream release cannot break your service. Even a version tag can be re-pushed with upstream patches, so when you need an exact immutable build, pin the image digest with `@sha256:...`.
 - **Skip the pip download cache:** pass `--no-cache-dir` to `pip install` so downloaded `.whl` archives are not stored inside the image layer.
 - **Pin package versions:** list exact versions (such as `fastapi==0.162.7`) in `requirements.txt` so every build installs the exact same packages; when you use `uv`, it handles this automatically with a `uv.lock` lock file.
 

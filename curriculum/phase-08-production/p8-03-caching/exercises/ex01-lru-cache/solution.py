@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 
 class LRUCache:
-    """In-memory LRU cache backed by OrderedDict with hit/miss counters."""
+    """In-memory LRU cache backed by OrderedDict with hit, miss, and eviction counters."""
 
     def __init__(self, maxsize: int) -> None:
         if maxsize <= 0:
@@ -11,6 +11,11 @@ class LRUCache:
         self._data: OrderedDict = OrderedDict()
         self.hits = 0
         self.misses = 0
+        self.evictions = 0
+
+    def peek(self, key: str):
+        """Return cached value or None without changing recency or hit/miss counts."""
+        return self._data.get(key)
 
     def get(self, key: str):
         """Return cached value and mark key as recent, or None on miss.
@@ -31,6 +36,7 @@ class LRUCache:
         self._data[key] = value
         if len(self._data) > self.maxsize:
             self._data.popitem(last=False)
+            self.evictions += 1
 
     def __len__(self) -> int:
         return len(self._data)

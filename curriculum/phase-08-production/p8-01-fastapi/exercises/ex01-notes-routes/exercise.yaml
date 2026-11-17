@@ -8,51 +8,37 @@ tags: [production, apis, typing]
 hints:
   en:
     - |
-      Review §2–§5: `@app.get` / `@app.post` set the HTTP method, `status_code=201` marks newly created items, typed path parameters (`int`) trigger `422` on non-integers, and `HTTPException(status_code=404, ...)` handles missing IDs. For `POST /notes` with `{"text": "hi"}`, the response status is `201` and body is `{"id": 1, "text": "hi"}`.
+      Review §2–§4 on FastAPI route decorators, creation status codes, typed path parameters, and `HTTPException`. For `POST /notes` with `{"text": "hi"}`, the response status is `201` and body is `{"id": 1, "text": "hi"}`.
     - |
       The plan:
-      1. Name the string field in `NoteCreate` to match `body.text` in `create_note`.
-      2. Pick the HTTP method decorator on `list_notes`, and set the creation status code on `create_note`.
-      3. Add the type hint on `note_id` so FastAPI parses integers and rejects `"abc"`, and set the missing-item status code inside `HTTPException`.
+      1. Name the string field on `NoteCreate` to match the attribute read inside `create_note`.
+      2. Choose the read-only HTTP method decorator for `list_notes`, and pass the "Created" status code on `create_note`.
+      3. Type `note_id` as a whole number so non-numeric path segments fail validation, and pass the "not found" status code to `HTTPException` when the ID is missing.
     - |
-      Fill the blanks across the model and route decorators:
+      For the missing-note lookup, follow this pattern:
       ```python
-      class NoteCreate(BaseModel):
-          ...: str = Field(min_length=1, max_length=100)
-
-
-      @app.___("/notes")
-      def list_notes() -> list[dict[str, object]]:
-          ...
-
-
-      @app.post("/notes", status_code=...)
-      def create_note(body: NoteCreate) -> dict[str, object]:
-          ...
+      @app.get("/items/{item_id}")
+      def read_item(item_id: ...):
+          if item_id not in items:
+              raise HTTPException(status_code=..., detail="...")
+          return ...
       ```
-      Then in `get_note`, annotate `note_id` as an integer and raise `HTTPException` with the "not found" status code.
+      Use Python's integer type for the URL ID and the standard HTTP status code for a missing resource.
   vi:
     - |
-      Xem lại §2–§5: `@app.get` / `@app.post` chọn HTTP method, `status_code=201` đánh dấu bản ghi mới tạo, type hint `int` trên path parameter giúp tự trả `422` khi nhận chữ, còn `HTTPException(status_code=404, ...)` báo thiếu ID. Với `POST /notes` gửi `{"text": "hi"}`, status trả về phải là `201` và body là `{"id": 1, "text": "hi"}`.
+      Xem lại §2–§4 về decorator route trong FastAPI, mã trạng thái khi tạo mới, type hint cho path parameter và `HTTPException`. Với `POST /notes` gửi `{"text": "hi"}`, status trả về phải là `201` và body là `{"id": 1, "text": "hi"}`.
     - |
       Kế hoạch:
-      1. Đặt tên field chuỗi trong `NoteCreate` cho khớp với `body.text` ở hàm `create_note`.
-      2. Chọn decorator HTTP method cho `list_notes`, và điền mã trạng thái tạo mới cho `create_note`.
-      3. Thêm type hint kiểu số nguyên cho `note_id` để FastAPI tự kiểm `"abc"`, rồi điền mã báo không tìm thấy vào `HTTPException`.
+      1. Đặt tên trường chuỗi trong `NoteCreate` khớp với thuộc tính được đọc trong `create_note`.
+      2. Chọn decorator HTTP chỉ đọc cho `list_notes`, và đặt mã trạng thái "đã tạo mới" trên `create_note`.
+      3. Khai báo `note_id` là kiểu số nguyên để URL không phải số bị chặn lại, rồi truyền mã "không tìm thấy" vào `HTTPException` khi thiếu ID.
     - |
-      Điền các ô trống trên model và decorator route:
+      Với nhánh tra cứu ghi chú có thể bị thiếu, hãy theo mẫu sau:
       ```python
-      class NoteCreate(BaseModel):
-          ...: str = Field(min_length=1, max_length=100)
-
-
-      @app.___("/notes")
-      def list_notes() -> list[dict[str, object]]:
-          ...
-
-
-      @app.post("/notes", status_code=...)
-      def create_note(body: NoteCreate) -> dict[str, object]:
-          ...
+      @app.get("/items/{item_id}")
+      def read_item(item_id: ...):
+          if item_id not in items:
+              raise HTTPException(status_code=..., detail="...")
+          return ...
       ```
-      Sau đó ở `get_note`, chú thích `note_id` là số nguyên và raise `HTTPException` với mã "not found".
+      Dùng kiểu số nguyên của Python cho ID trong URL và mã trạng thái HTTP chuẩn khi không tìm thấy tài nguyên.

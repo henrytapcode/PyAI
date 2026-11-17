@@ -15,5 +15,5 @@ lint("FROM python:latest\nCOPY . .\nRUN pip install -r requirements.txt\n")
 - `lint(text)` trả về danh sách mã cảnh báo theo đúng thứ tự cố định sau (mỗi mã tối đa một lần, hoặc `[]` nếu sạch):
   1. `"unpinned-base"`: image trong `FROM` không có tag `:` hoặc dùng tag `:latest` (không phân biệt hoa/thường).
   2. `"copy-before-install"`: lệnh `COPY . .` đứng trước lệnh `RUN` đầu tiên có chứa `pip install`.
-  3. `"secret-in-image"`: `COPY` hoặc `ADD` chép file `.env` (không tính `.env.example`), hoặc `ENV` khai báo biến có tên chứa `KEY`, `TOKEN` hoặc `SECRET`.
+  3. `"secret-in-image"`: `COPY` hoặc `ADD` chép file `.env` (không tính `.env.example`), hoặc `ENV` khai báo biến (kể cả cú pháp nhiều cặp như `ENV MODE=prod API_KEY=abc`) có tên chứa `KEY`, `TOKEN` hoặc `SECRET`.
   4. `"localhost-cmd"`: `CMD` có chứa `127.0.0.1` hoặc `localhost`.

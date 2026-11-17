@@ -7,19 +7,19 @@ questions:
     en:
       prompt: "In Docker, how do an **image** and a **container** relate to each other?"
       options:
-        - "An image is a running network port and a container is a text config"
+        - "An image is the text `Dockerfile` recipe and a container is the finished build"
         - "An image is a read-only blueprint and a container is a running instance"
-        - "An image runs only on your laptop and a container runs only in the cloud"
-        - "An image is deleted after one run while a container saves pip caches"
-      explanation: "Like a Python class and its instances, a Docker image is an immutable read-only template built from a Dockerfile, and each container is a live running instance created from that image."
+        - "A container is the read-only template and an image is one live process"
+        - "Each image can launch only a single container before needing a rebuild"
+      explanation: "Like a Python class and its instances, a Docker image is an immutable read-only template built from a Dockerfile, and each container is a live running instance created from that image—you can run many containers from one image."
     vi:
       prompt: "Trong Docker, **image** và **container** liên hệ với nhau như thế nào?"
       options:
-        - "Image là cổng mạng đang mở còn container là file cấu hình dạng văn bản"
+        - "Image là file công thức `Dockerfile` dạng chữ còn container là bản đã build"
         - "Image là bản thiết kế chỉ đọc còn container là một phiên bản đang chạy"
-        - "Image chỉ chạy trên laptop còn container chỉ chạy được trên máy chủ cloud"
-        - "Image tự xóa sau một lần chạy còn container dùng để lưu cache của pip"
-      explanation: "Giống như class và instance trong Python, Docker image là bản mẫu chỉ đọc được build từ Dockerfile, còn mỗi container là một tiến trình đang chạy tạo ra từ image đó."
+        - "Container là bản mẫu chỉ đọc còn image là một tiến trình đang chạy"
+        - "Mỗi image chỉ chạy được một container duy nhất rồi phải build lại"
+      explanation: "Giống như class và instance trong Python, Docker image là bản mẫu chỉ đọc được build từ Dockerfile, còn mỗi container là một tiến trình đang chạy tạo ra từ image đó—từ một image bạn có thể bật nhiều container."
 
   - id: p8-02-q02
     type: output
@@ -70,19 +70,19 @@ questions:
     tags: [production, packaging]
     difficulty: 1
     code: |
-      from fnmatch import fnmatch
+      from fnmatch import fnmatchcase
 
       ignore_rules = [".venv/", "___", "*.pyc"]
       files = ["main.py", ".env", "app.pyc"]
-      kept = [f for f in files if not any(fnmatch(f, r) for r in ignore_rules)]
+      kept = [f for f in files if not any(fnmatchcase(f, r) for r in ignore_rules)]
       print(kept)
-    answer: [".env"]
+    answer: [[".env", ".env*"]]
     en:
       prompt: "Fill in the `.dockerignore` rule so `.env` is excluded and only `['main.py']` is kept."
-      explanation: "Adding `\".env\"` to `ignore_rules` causes `fnmatch(\".env\", \".env\")` to return `True`, excluding `.env` alongside `app.pyc` so only `['main.py']` remains."
+      explanation: "Adding `\".env\"` (or `\".env*\"` here) to `ignore_rules` causes `fnmatchcase(\".env\", ...)` to return `True`, excluding `.env` alongside `app.pyc` so only `['main.py']` remains."
     vi:
       prompt: "Điền quy tắc `.dockerignore` để loại `.env` và chỉ giữ lại `['main.py']`."
-      explanation: "Thêm `\".env\"` vào `ignore_rules` khiến `fnmatch(\".env\", \".env\")` trả về `True`, loại bỏ `.env` cùng với `app.pyc` và chỉ giữ lại `['main.py']`."
+      explanation: "Thêm `\".env\"` (hoặc `\".env*\"` ở đây) vào `ignore_rules` khiến `fnmatchcase(\".env\", ...)` trả về `True`, loại bỏ `.env` cùng với `app.pyc` và chỉ giữ lại `['main.py']`."
 
   - id: p8-02-q05
     type: parsons
@@ -190,17 +190,16 @@ questions:
     tags: [production, packaging]
     difficulty: 2
     lines:
-      - "import fnmatch"
-      - 'py_only = fnmatch.filter(["main.py", ".env", "notes.pyc"], "*.py")'
-      - 'clean = [p for p in py_only if p != ".env"]'
-      - 'msg = "ok" if clean == ["main.py"] else "bad"'
-      - "print(len(clean), msg)"
+      - "from fnmatch import fnmatchcase"
+      - 'py_only = [f for f in ["main.py", ".env", "notes.pyc"] if fnmatchcase(f, "*.py")]'
+      - 'msg = "ok" if py_only == ["main.py"] else "bad"'
+      - "print(len(py_only), msg)"
     en:
-      prompt: "Arrange these lines to filter `.py` files, verify `.env` is absent, and print `1 ok`."
-      explanation: "Import `fnmatch`, filter `*.py` files into `py_only`, exclude `.env` into `clean`, verify `clean == [\"main.py\"]`, and print `1 ok`."
+      prompt: "Arrange these lines to keep only `.py` files with `fnmatchcase`, verify the result is `['main.py']`, and print `1 ok`."
+      explanation: "Import `fnmatchcase`, filter `*.py` files into `py_only`, verify `py_only == [\"main.py\"]`, and print `1 ok`."
     vi:
-      prompt: "Sắp xếp các dòng sau để lọc các file `.py`, kiểm tra `.env` đã bị loại và in ra `1 ok`."
-      explanation: "Import `fnmatch`, lọc file `*.py` vào `py_only`, loại `.env` vào `clean`, kiểm tra `clean == [\"main.py\"]` rồi in `1 ok`."
+      prompt: "Sắp xếp các dòng sau để lọc chỉ giữ các file `.py` bằng `fnmatchcase`, kiểm tra kết quả là `['main.py']` và in ra `1 ok`."
+      explanation: "Import `fnmatchcase`, lọc file `*.py` vào `py_only`, kiểm tra `py_only == [\"main.py\"]` rồi in `1 ok`."
 
   - id: p8-02-q11
     type: mcq
@@ -373,10 +372,10 @@ flashcards:
     tags: [production, packaging]
     en:
       front: "What goes in `.dockerignore`, and how do you pass `.env` secrets?"
-      back: "Exclude `.venv/`, `.git/`, `__pycache__/`, `*.pyc`, `data/raw/`, and `.env` in `.dockerignore`, and pass secrets at runtime using `docker run --env-file .env`."
+      back: "Exclude `.venv/`, `.git/`, `**/__pycache__`, `**/*.pyc`, `data/raw/`, and `.env` in `.dockerignore` (remember `**/...` is needed for nested directories because Docker matches from context root), and pass secrets at runtime using `docker run --env-file .env`."
     vi:
       front: "Nên đưa gì vào `.dockerignore` và truyền secret trong `.env` thế nào?"
-      back: "Loại `.venv/`, `.git/`, `__pycache__/`, `*.pyc`, `data/raw/` và `.env` trong `.dockerignore`, rồi truyền biến bí mật lúc chạy bằng `docker run --env-file .env`."
+      back: "Loại `.venv/`, `.git/`, `**/__pycache__`, `**/*.pyc`, `data/raw/` và `.env` trong `.dockerignore` (nhớ dùng `**/...` cho thư mục lồng sâu vì Docker so từ gốc context), rồi truyền bí mật lúc chạy bằng `docker run --env-file .env`."
 
   - id: p8-02-f06
     tags: [production, packaging]

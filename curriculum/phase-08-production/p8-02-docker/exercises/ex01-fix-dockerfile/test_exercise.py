@@ -28,6 +28,9 @@ def test_base_image_pins_a_specific_tag():
     assert ":" in image, f"pin a specific tag on {image!r} (e.g. python:3.13-slim)"
     tag = image.split(":")[-1].lower()
     assert tag and tag != "latest", "do not use :latest; pin an explicit version tag"
+    assert any(ch.isdigit() for ch in tag), (
+        f"pin a versioned tag on {image!r} (e.g. python:3.13-slim), not {tag!r}"
+    )
 
 
 def test_copies_requirements_before_installing_then_app_code():
@@ -79,5 +82,10 @@ def test_cmd_uses_exec_form_and_binds_all_interfaces():
     assert raw_cmd.startswith("["), "CMD must use JSON exec form, e.g. CMD [\"uvicorn\", ...]"
     tokens = json.loads(raw_cmd)
     assert isinstance(tokens, list), "CMD exec form must be a JSON list of strings"
-    assert "0.0.0.0" in tokens, "bind --host 0.0.0.0 so the host machine can reach the container"
-    assert "127.0.0.1" not in tokens and "localhost" not in tokens, "remove loopback host from CMD"
+    has_all_interfaces = "0.0.0.0" in tokens or "--host=0.0.0.0" in tokens
+    has_loopback = any(
+        tok in ("127.0.0.1", "localhost", "--host=127.0.0.1", "--host=localhost")
+        for tok in tokens
+    )
+    assert has_all_interfaces, "bind --host 0.0.0.0 so the host machine can reach the container"
+    assert not has_loopback, "remove loopback host from CMD"

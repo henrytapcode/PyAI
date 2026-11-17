@@ -13,7 +13,7 @@ DOCS: dict[int, str] = {
 
 
 class AskRequest(BaseModel):
-    # TODO: add Field constraints (question: 1..200 chars, top_k: 1..5 default 2)
+    # TODO: enforce length bounds on question and inclusive bounds/default on top_k with Field
     question: str
     top_k: int = 2
 
@@ -24,7 +24,7 @@ def health() -> dict[str, str] | None:
 
     Example: GET /health -> {"status": "ok"}
     """
-    # TODO: return {"status": "ok"}
+    # TODO: return the service health status payload
     return None
 
 
@@ -35,6 +35,6 @@ def ask(body: AskRequest) -> dict[str, object] | None:
     Example: AskRequest(question="FastAPI tests", top_k=2)
              -> {"question": "FastAPI tests", "sources": [3, 4]}
     """
-    # TODO: split lowercase words, rank by (-overlap, doc_id), slice [:body.top_k],
-    #       and raise HTTPException(404, detail="no matching documents") when empty
+    # TODO: score case-insensitive whole-word overlap against DOCS, handle empty matches,
+    #       sort by overlap descending then doc_id ascending, and keep at most top_k IDs
     return None

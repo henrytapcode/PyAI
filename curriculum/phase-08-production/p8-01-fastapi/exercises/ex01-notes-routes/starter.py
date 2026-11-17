@@ -24,7 +24,7 @@ def create_note(body: NoteCreate) -> dict[str, object]:
     return {"id": note_id, "text": body.text}
 
 
-# TODO: fill in the path parameter type and the 404 status code
+# TODO: fill in the path parameter type and the missing-item status code
 @app.get("/notes/{note_id}")
 def get_note(note_id: ___) -> dict[str, object]:
     if note_id not in notes:

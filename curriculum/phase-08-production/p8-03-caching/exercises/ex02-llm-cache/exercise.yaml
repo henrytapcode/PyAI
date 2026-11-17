@@ -11,18 +11,19 @@ hints:
       Combine the key builder from §3 (`json.dumps(..., sort_keys=True)` + `hashlib.sha256`) with the expiration check from §6 (`now >= expires_at`). For `make_key("mini", [{"role": "user", "content": "  Hi   there "}], temperature=0.0, max_tokens=50)`, passing `max_tokens=50, temperature=0.0` must produce the exact same 64-character hex digest.
     - |
       The plan:
-      1. In `make_key`, create a new list of message dicts with `" ".join(msg["content"].strip().split())` for string content, wrap `model`, the cleaned messages, and `params` into a dict, dump it with `json.dumps(..., sort_keys=True)`, and return the SHA-256 `hexdigest()`.
-      2. In `TTLCache`, initialize `self.ttl`, `self.hits = 0`, `self.misses = 0`, and a dict for entries. On `set(key, value, now)`, store `(value, now + self.ttl)`. On `get(key, now)`, delete expired entries (`now >= expires_at`), count hits/misses, and compute `hit_rate()` safely when total is `0`.
+      1. In `make_key`, copy each message dict so you never mutate the caller's list, collapse whitespace in string content, bundle `model`, the cleaned messages, and `params` into one dict, serialize with sorted keys, and return the SHA-256 hex digest.
+      2. In `TTLCache`, validate positive `ttl`, initialize hit/miss counters and a storage dict, store `(value, now + ttl)` on `set`, and on `get` treat missing or expired entries as misses (deleting expired ones).
+      3. In `hit_rate()`, divide hits by total lookups while returning `0.0` if no lookups occurred yet.
     - |
       Follow this skeleton for the key payload and expiration branch:
       ```python
       def make_key(model: str, messages: list[dict], **params) -> str:
-          clean_msgs = [
-              {**m, "content": " ".join(m["content"].strip().split())}
-              if isinstance(m.get("content"), str)
-              else dict(m)
-              for m in messages
-          ]
+          clean_msgs = []
+          for msg in messages:
+              copied = dict(msg)
+              if isinstance(copied.get("content"), str):
+                  copied["content"] = ...
+              clean_msgs.append(copied)
           # serialize {"model": ..., "messages": ..., "params": ...} with sort_keys=True and hash with sha256
           ...
 
@@ -35,7 +36,7 @@ hints:
               self._entries: dict = {}
 
           def get(self, key: str, now: float):
-              # check missing, delete if now >= expires_at, otherwise count hit and return value
+              # check missing, delete and count miss if expired, otherwise count hit and return value
               ...
       ```
   vi:
@@ -43,18 +44,19 @@ hints:
       Kết hợp cách tạo key ở §3 (`json.dumps(..., sort_keys=True)` + `hashlib.sha256`) với logic kiểm tra hết hạn ở §6 (`now >= expires_at`). Với `make_key("mini", [{"role": "user", "content": "  Hi   there "}], temperature=0.0, max_tokens=50)`, khi đảo thành `max_tokens=50, temperature=0.0` vẫn phải trả về cùng chuỗi hex 64 ký tự.
     - |
       Kế hoạch:
-      1. Trong `make_key`, tạo danh sách dict mới với `content` dạng chuỗi được chuẩn hóa bằng `" ".join(msg["content"].strip().split())`, gom `model`, danh sách message đã chuẩn hóa và `params` vào một dict, gọi `json.dumps(..., sort_keys=True)` rồi băm SHA-256 `hexdigest()`.
-      2. Trong `TTLCache`, khởi tạo `self.ttl`, `self.hits = 0`, `self.misses = 0` và dict lưu entry. Khi `set(key, value, now)`, lưu cùng mốc `now + self.ttl`. Khi `get(key, now)`, xóa entry nếu `now >= expires_at`, cập nhật `hits`/`misses` và xử lý `total == 0` trong `hit_rate()`.
+      1. Trong `make_key`, tạo bản sao cho từng dict message để không làm biến đổi danh sách gốc, gộp khoảng trắng trong chuỗi `content`, gom `model`, danh sách message đã làm sạch và `params` vào một dict, tuần tự hóa với khóa được sắp xếp rồi trả về chuỗi hex SHA-256.
+      2. Trong `TTLCache`, kiểm tra `ttl` dương, khởi tạo biến đếm hit/miss và dict lưu trữ, lưu giá trị kèm mốc hết hạn khi `set`, và khi `get` thì coi mục thiếu hoặc đã hết hạn là miss (xóa mục hết hạn).
+      3. Trong `hit_rate()`, chia số hit cho tổng số lượt tra cứu và trả về `0.0` khi chưa có lượt nào.
     - |
       Dùng bộ khung dưới đây cho phần tạo key và nhánh kiểm tra hết hạn:
       ```python
       def make_key(model: str, messages: list[dict], **params) -> str:
-          clean_msgs = [
-              {**m, "content": " ".join(m["content"].strip().split())}
-              if isinstance(m.get("content"), str)
-              else dict(m)
-              for m in messages
-          ]
+          clean_msgs = []
+          for msg in messages:
+              copied = dict(msg)
+              if isinstance(copied.get("content"), str):
+                  copied["content"] = ...
+              clean_msgs.append(copied)
           # chuyển {"model": ..., "messages": ..., "params": ...} sang JSON với sort_keys=True rồi băm sha256
           ...
 
@@ -67,6 +69,6 @@ hints:
               self._entries: dict = {}
 
           def get(self, key: str, now: float):
-              # kiểm tra thiếu key, xóa nếu now >= expires_at, ngược lại tăng hits và trả về value
+              # kiểm tra thiếu key, xóa và tăng misses nếu hết hạn, ngược lại tăng hits và trả về value
               ...
       ```

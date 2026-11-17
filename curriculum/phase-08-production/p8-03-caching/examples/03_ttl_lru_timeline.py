@@ -5,14 +5,17 @@ from collections import OrderedDict
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
+
+    def __call__(self) -> float:
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class TTLLRUCache:
-    def __init__(self, maxsize: int, ttl: float, clock: FakeClock) -> None:
+    def __init__(self, maxsize: int, ttl: float, clock) -> None:
         self.maxsize = maxsize
         self.ttl = ttl
         self.clock = clock
@@ -21,7 +24,7 @@ class TTLLRUCache:
     def set(self, key: str, value: str) -> None:
         if key in self.entries:
             self.entries.move_to_end(key)
-        self.entries[key] = (value, self.clock.now + self.ttl)
+        self.entries[key] = (value, self.clock() + self.ttl)
         if len(self.entries) > self.maxsize:
             self.entries.popitem(last=False)
 
@@ -30,7 +33,7 @@ class TTLLRUCache:
         if item is None:
             return "MISS"
         value, expires_at = item
-        if self.clock.now >= expires_at:
+        if self.clock() >= expires_at:
             del self.entries[key]
             return "EXPIRED"
         self.entries.move_to_end(key)
@@ -56,8 +59,8 @@ def main() -> None:
     print("t  | op  | key | result  | keys in cache")
     print("---+-----+-----+---------+--------------------")
     for target_t, op, key, val in timeline:
-        if target_t > clock.now:
-            clock.advance(target_t - clock.now)
+        if target_t > clock():
+            clock.advance(target_t - clock())
         if op == "set":
             cache.set(key, val)
             res = "STORED"

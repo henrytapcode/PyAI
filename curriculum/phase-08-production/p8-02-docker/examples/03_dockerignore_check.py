@@ -1,7 +1,6 @@
-# Simulate .dockerignore filtering on a RAG service project tree.
+# Simulate root-relative .dockerignore filtering on a RAG service project tree.
 
-from fnmatch import fnmatch
-from pathlib import PurePosixPath
+from fnmatch import fnmatchcase
 
 PROJECT_FILES = [
     "main.py",
@@ -20,25 +19,33 @@ PROJECT_FILES = [
 SAFE_DOCKERIGNORE = [
     ".venv/",
     ".git/",
-    "__pycache__/",
-    "*.pyc",
+    "**/__pycache__",
+    "**/*.pyc",
     ".env",
     "data/raw/",
 ]
 
 
+def _match_from(pat_parts: list[str], path_parts: list[str]) -> bool:
+    # Pattern matches the path or a parent directory of the path.
+    if len(pat_parts) > len(path_parts):
+        return False
+    return all(fnmatchcase(s, p) for p, s in zip(pat_parts, path_parts, strict=False))
+
+
 def is_ignored(rel_path: str, patterns: list[str]) -> bool:
-    """Simplified .dockerignore matcher using fnmatch and path parts."""
-    path = PurePosixPath(rel_path)
+    """Root-relative .dockerignore matcher supporting leading ** (omits ! rules)."""
+    parts = rel_path.split("/")
     for raw in patterns:
-        pat = raw.strip()
+        pat = raw.strip().strip("/")
         if not pat or pat.startswith("#"):
             continue
-        if pat.endswith("/"):
-            folder = pat.rstrip("/")
-            if rel_path.startswith(folder + "/") or folder in path.parts[:-1]:
+        pat_parts = pat.split("/")
+        if pat_parts[0] == "**":
+            rest = pat_parts[1:]
+            if any(_match_from(rest, parts[i:]) for i in range(len(parts))):
                 return True
-        elif fnmatch(rel_path, pat) or fnmatch(path.name, pat):
+        elif _match_from(pat_parts, parts):
             return True
     return False
 

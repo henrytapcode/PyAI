@@ -8,41 +8,31 @@ tags: [production, packaging]
 hints:
   en:
     - |
-      Check §2, §3, §4, and §6 for the four rules: pin the base image tag, order `COPY requirements.txt .` and `RUN pip install` before `COPY . .`, disable pip's download cache, and bind `0.0.0.0` in `CMD`. For a clean `DOCKERFILE`, the base image is pinned (for example `python:3.13-slim`) and `CMD` binds `0.0.0.0`.
+      Review §2, §3, §4, and §6 on Dockerfile structure, container networking, build cache invalidation, and smaller reproducible images.
     - |
-      The plan:
-      1. Replace `python:latest` with a pinned slim Python tag such as `python:3.13-slim`.
-      2. Move `COPY requirements.txt .` and `RUN pip install ...` before `COPY . .`.
-      3. Add `--no-cache-dir` to `pip install`.
-      4. Change `--host 127.0.0.1` to `--host 0.0.0.0` inside the JSON `CMD` array.
+      Group the four fixes into two areas:
+      1. Build-time layers and base image: lock `FROM` to a concrete versioned Python tag, install dependencies before copying the rest of the project so code edits stay cached, and disable pip's wheel cache.
+      2. Container startup: keep `CMD` in JSON array form and make `uvicorn` listen on all container network interfaces rather than loopback only.
     - |
-      Follow this Dockerfile structure and fill in the missing pieces:
+      The trickiest bug is layer cache invalidation—splitting the copy step so `requirements.txt` is installed before the rest of your source code arrives:
       ```dockerfile
-      FROM python:...
-      WORKDIR /app
-      COPY requirements.txt .
+      COPY ... .
       RUN pip install ... -r requirements.txt
       COPY . .
-      EXPOSE 8000
-      CMD ["uvicorn", "main:app", "--host", "...", "--port", "8000"]
       ```
+      Check §3 and §6 as well for the pinned base tag version, pip cache flag, and non-loopback `CMD` host.
   vi:
     - |
-      Xem lại §2, §3, §4 và §6 về bốn quy tắc: ghim tag cho base image, đặt `COPY requirements.txt .` và `RUN pip install` trước `COPY . .`, tắt cache tải gói của pip và bind `0.0.0.0` trong `CMD`. Với một `DOCKERFILE` chuẩn, base image được ghim phiên bản (như `python:3.13-slim`) và `CMD` lắng nghe trên `0.0.0.0`.
+      Xem lại §2, §3, §4 và §6 về cấu trúc Dockerfile, mạng trong container, thứ tự invalidation của build cache và cách làm image gọn, lặp lại được.
     - |
-      Kế hoạch:
-      1. Đổi `python:latest` thành một tag Python slim cố định như `python:3.13-slim`.
-      2. Đưa `COPY requirements.txt .` và `RUN pip install ...` lên trước `COPY . .`.
-      3. Thêm cờ `--no-cache-dir` vào lệnh `pip install`.
-      4. Đổi `--host 127.0.0.1` thành `--host 0.0.0.0` trong mảng JSON `CMD`.
+      Chia bốn lỗi cần sửa thành hai nhóm:
+      1. Lúc build image: khóa `FROM` vào một tag có số phiên bản cụ thể, tách phần cài thư viện ra trước phần chép toàn bộ code để sửa code không làm mất cache cài gói, và tắt bộ nhớ đệm file `.whl` của pip.
+      2. Lúc chạy container: giữ `CMD` dạng mảng JSON và cấu hình `uvicorn` lắng nghe mọi giao diện mạng trong container thay vì địa chỉ loopback nội bộ.
     - |
-      Hoàn thiện khung Dockerfile sau bằng cách điền vào các chỗ `...`:
+      Lỗi dễ vướng nhất là thứ tự làm trượt build cache—cần tách bước chép và cài `requirements.txt` lên trước bước chép toàn bộ mã nguồn:
       ```dockerfile
-      FROM python:...
-      WORKDIR /app
-      COPY requirements.txt .
+      COPY ... .
       RUN pip install ... -r requirements.txt
       COPY . .
-      EXPOSE 8000
-      CMD ["uvicorn", "main:app", "--host", "...", "--port", "8000"]
       ```
+      Đồng thời kiểm tra lại §3 và §6 cho tag có số phiên bản, cờ tắt cache pip và địa chỉ host không phải loopback trong `CMD`.

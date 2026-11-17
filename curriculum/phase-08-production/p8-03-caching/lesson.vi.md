@@ -60,7 +60,7 @@ Bạn thấy 6 câu hỏi gửi tới nhưng chỉ cần gọi `slow_answer` đ�
 
 ## 2. `functools.lru_cache`: cache có sẵn cho hàm thuần
 
-Ở bài `p2-07-decorators`, bạn đã từng thấy `@cache` trong bảng tóm tắt các decorator. Thư viện chuẩn Python có sẵn `@lru_cache(maxsize=...)` trong module `functools`, giúp tự động ghi nhớ kết quả cho những hàm thuần tính toán mà đầu ra không thay đổi theo thời gian:
+Ở bài `p2-07-decorators`, bạn đã từng tự viết decorator `@cache_results` bằng một dict trong closure. Thư viện chuẩn Python cũng có sẵn `@lru_cache(maxsize=...)` trong module `functools`, giúp tự động ghi nhớ kết quả cho những **hàm thuần (pure function)**—những hàm có đầu ra chỉ phụ thuộc vào đầu vào và không đổi theo thời gian:
 
 ```python
 from functools import lru_cache
@@ -92,7 +92,7 @@ Hãy để ý `cache_info()` tự báo `hits=2, misses=3, maxsize=3, currsize=3`
 
 ## 3. Cache key cho prompt: cái gì làm câu trả lời khác đi?
 
-Câu trả lời của LLM phụ thuộc vào nhiều thứ hơn chuỗi câu hỏi cuối cùng của người dùng: chỉ cần đổi `model`, `system` prompt, lịch sử `messages`, `temperature` hay `max_tokens` là kết quả có thể khác hẳn. **Cache key** của bạn phải chứa **tất cả** những yếu tố làm thay đổi câu trả lời, chuyển thành chuỗi ổn định bằng `json.dumps(..., sort_keys=True)` rồi băm bằng `hashlib.sha256`.
+Câu trả lời của LLM phụ thuộc vào nhiều thứ hơn chuỗi câu hỏi cuối cùng của người dùng: chỉ cần đổi `model`, `system` prompt, lịch sử `messages`, `temperature` hay `max_tokens` là kết quả có thể khác hẳn. **Cache key** của bạn phải chứa **tất cả** những yếu tố làm thay đổi câu trả lời, chuyển thành chuỗi ổn định bằng `json.dumps(..., sort_keys=True)` rồi băm bằng `hashlib.sha256`. Hàm `sha256` biến một chuỗi bất kỳ thành mã hex có độ dài cố định 64 ký tự: cùng một đầu vào luôn cho ra đúng cùng một mã, còn chỉ cần đổi một ký tự là mã đổi hoàn toàn.
 
 Chuẩn hóa nhẹ khoảng trắng—cắt khoảng trắng thừa hai đầu và gộp nhiều dấu cách liên tiếp—giúp `"Reset password?"` và `"  Reset   password?  "` trúng cùng một key. Đừng tự ý viết thường toàn bộ hay xóa dấu câu, vì đổi `"US"` thành `"us"` hoặc `"Help!"` thành `"Help?"` có thể làm sai nghĩa câu hỏi.
 
@@ -142,7 +142,7 @@ Chỉ cache câu trả lời LLM khi `temperature == 0`: khi `temperature > 0`, 
 [model | system | messages | temperature | max_tokens]
      │
      ▼  json.dumps(..., sort_keys=True)
-'{"max_tokens":128,"messages":[...],"model":"fake-mini","temperature":0.0}'
+'{"max_tokens": 128, "messages": [...], "model": "fake-mini", "temperature": 0.0}'
      │
      ▼  sha256(...).hexdigest()
 "3f2a9c..." (cache key)
@@ -203,7 +203,7 @@ print("unchanged doc vector reused:", vecs_2[0] == vecs_1[0])
 # unchanged doc vector reused: True
 ```
 
-Bạn thấy ở lần chạy thứ hai, chỉ có `1` tài liệu thật sự được gửi tới `client.embed(...)`, trong khi danh sách trả về vẫn đủ `5` vector đúng thứ tự. Nhớ lại bài `p7-03-embeddings`: nếu bạn đổi sang model embedding khác, bạn phải bỏ toàn bộ cache cũ vì vector của hai model khác nhau không so sánh với nhau được.
+Bạn thấy ở lần chạy thứ hai, chỉ có `1` tài liệu thật sự được gửi tới `client.embed(...)`, trong khi danh sách trả về vẫn đủ `5` vector đúng thứ tự. Vì key đã chứa `model` rồi nên cache của model cũ sẽ không đụng hàng với model mới—tuy vậy, khi chuyển hẳn sang model embedding khác (nhớ lại bài `p7-03-embeddings` rằng vector giữa hai model không so sánh được với nhau), hãy xóa cache của model cũ để giải phóng RAM và embed lại bằng model mới.
 
 ## 5. LRU: giới hạn bộ nhớ
 
@@ -274,32 +274,37 @@ Hãy để ý lệnh `get("a")` đã đẩy `"a"` sang phía bên phải (mới 
 
 Dù bộ nhớ đã có giới hạn, câu trả lời vẫn có thể lỗi thời khi tài liệu hay chính sách thay đổi. **TTL** (Time To Live — thời gian sống) gắn mốc hết hạn `expires_at = now + ttl` cho mỗi entry; khi `get` thấy `now >= expires_at`, nó xóa entry đã hết hạn và tính là một lần miss.
 
-Để output tất định và test chạy tức thì, code dưới đây tiêm một `FakeClock` vào thay cho đồng hồ thật; ở production, bạn truyền `time.monotonic` vào làm hàm lấy giờ. Luôn dùng `monotonic` chứ không dùng giờ hệ thống, vì giờ hệ thống có thể bị chỉnh lùi (khi đồng bộ NTP hay đổi múi giờ) làm sai lệch thời điểm hết hạn.
+Để output tất định và test chạy tức thì, code dưới đây truyền vào (inject) một `FakeClock` thay cho đồng hồ thật; ở production, bạn truyền `time.monotonic` (không có ngoặc) vào làm hàm lấy giờ. Luôn dùng `monotonic` chứ không dùng giờ hệ thống, vì giờ hệ thống có thể nhảy lùi khi đồng bộ giờ và làm sai lệch thời điểm hết hạn.
+
+Khi định nghĩa `__call__` trên một class, object tạo ra có thể được gọi như một hàm: gọi `clock()` sẽ chạy `clock.__call__()`. Nhờ `FakeClock` cài đặt `__call__() -> float`, bài test có thể truyền `FakeClock()` còn production truyền `time.monotonic`, và `TTLCache` chỉ cần gọi `self.clock()` mà không cần biết bên trong là cái nào.
 
 ```python
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
+
+    def __call__(self) -> float:
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class TTLCache:
-    def __init__(self, ttl: float, clock: FakeClock) -> None:
+    def __init__(self, ttl: float, clock) -> None:
         self.ttl = ttl
         self.clock = clock
         self.store: dict[str, tuple[str, float]] = {}
 
     def set(self, key: str, value: str) -> None:
-        self.store[key] = (value, self.clock.now + self.ttl)
+        self.store[key] = (value, self.clock() + self.ttl)
 
     def get(self, key: str) -> str | None:
         item = self.store.get(key)
         if item is None:
             return None
         value, expires_at = item
-        if self.clock.now >= expires_at:
+        if self.clock() >= expires_at:
             del self.store[key]
             return None
         return value
@@ -440,40 +445,55 @@ print("good keys equal:", gk_pirate == gk_formal, gk_pirate, gk_formal)
 
 **2. Cache cả khi `temperature > 0`**
 
-Cache một lời gọi có tính ngẫu nhiên sẽ đóng băng kết quả đầu tiên và lặp lại y hệt ở mọi lượt sau. Cách sửa: bỏ qua cache mỗi khi `temperature > 0`.
+Cache một lời gọi có tính ngẫu nhiên sẽ đóng băng mẫu đầu tiên và bỏ qua việc gọi model ở mọi lượt lặp lại. Cách sửa: bỏ qua cache mỗi khi `temperature > 0` để mỗi request đều gọi model lấy câu trả lời mới.
 
 ```python
 from pyai_llm import FakeLLM
 
 client = FakeLLM(seed=0)
 bad_cache: dict[str, str] = {}
+good_cache: dict[str, str] = {}
+bad_calls = 0
+good_calls = 0
+
+
+def call_model(prompt: str, temperature: float) -> str:
+    return client.chat([{"role": "user", "content": prompt}], temperature=temperature).content or ""
 
 
 # sai: cache cả khi temperature > 0
 def ask_bad(prompt: str, temperature: float) -> str:
+    global bad_calls
     if prompt not in bad_cache:
-        bad_cache[prompt] = client.chat([{"role": "user", "content": prompt}], temperature=temperature).content or ""
+        bad_calls += 1
+        bad_cache[prompt] = call_model(prompt, temperature)
     return bad_cache[prompt]
 
 
 # đã sửa: chỉ cache khi temperature == 0
 def ask_good(prompt: str, temperature: float) -> str:
+    global good_calls
     if temperature > 0:
-        return client.chat([{"role": "user", "content": prompt}], temperature=temperature).content or ""
-    if prompt not in bad_cache:
-        bad_cache[prompt] = client.chat([{"role": "user", "content": prompt}], temperature=0.0).content or ""
-    return bad_cache[prompt]
+        good_calls += 1
+        return call_model(prompt, temperature)
+    if prompt not in good_cache:
+        good_calls += 1
+        good_cache[prompt] = call_model(prompt, 0.0)
+    return good_cache[prompt]
 
 
-print("bad temp=0.8 #1:", ask_bad("hello", 0.8))
-# bad temp=0.8 #1: Sure. (fake model) I received: hello
-print("bad temp=0.8 #2:", ask_bad("hello", 0.8))
-# bad temp=0.8 #2: Sure. (fake model) I received: hello
-print("good temp=0.8 #1:", ask_good("hello", 0.8))
-# good temp=0.8 #1: (fake model) I received: hello
-print("good temp=0.8 #2:", ask_good("hello", 0.8))
-# good temp=0.8 #2: Here is what I know: (fake model) I received: hello
+b1 = ask_bad("hello", 0.8)
+b2 = ask_bad("hello", 0.8)
+print("bad calls:", bad_calls, "same reply:", b1 == b2)
+# bad calls: 1 same reply: True
+
+g1 = ask_good("hello", 0.8)
+g2 = ask_good("hello", 0.8)
+print("good calls:", good_calls)
+# good calls: 2
 ```
+
+Hãy để ý `ask_bad("hello", 0.8)` chỉ gọi model đúng 1 lần (`bad_calls == 1`) và đóng băng mẫu đầu tiên cho lần sau, còn `ask_good("hello", 0.8)` gọi model thật ở cả hai lần (`good_calls == 2`).
 
 **3. Dùng `str(dict)` làm key**
 
@@ -524,4 +544,4 @@ print("bounded len:", len(bounded), list(bounded.keys()))
 - `functools.lru_cache` phù hợp cho hàm thuần có đối số hashable, nhưng lời gọi LLM cần cache key riêng, kiểm tra `temperature == 0` và cơ chế hết hạn.
 - Tạo cache key cho prompt từ `model`, toàn bộ `messages` (gồm `system`), `temperature` và các tham số sinh văn bản bằng `json.dumps(..., sort_keys=True)` cùng `sha256`—và không cache dữ liệu riêng dưới key dùng chung.
 - Cache embedding theo `(model, text)`, chỉ gửi một batch gồm các text chưa có trong cache tới `embed()`, ghép lại đúng thứ tự và bỏ cache nếu đổi model embedding.
-- Kết hợp **LRU** (`OrderedDict` với `move_to_end` và `popitem(last=False)`) để giới hạn RAM cùng **TTL** (dùng `time.monotonic` ở production, đồng hồ tiêm vào khi test) và gắn phiên bản vào key để làm sạch dữ liệu cũ an toàn.
+- Kết hợp **LRU** (`OrderedDict` với `move_to_end` và `popitem(last=False)`) để giới hạn RAM cùng **TTL** (dùng `time.monotonic` ở production, đồng hồ truyền vào (inject) khi test) và gắn phiên bản vào key để làm sạch dữ liệu cũ an toàn.

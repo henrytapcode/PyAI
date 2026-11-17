@@ -8,53 +8,33 @@ tags: [production, performance, dicts]
 hints:
   en:
     - |
-      Review `LRUCache` in §5. An `OrderedDict` keeps keys from oldest (front) to most recently used (back): with `maxsize=2`, setting `"a"`, `"b"`, then `"c"` must evict `"a"`.
+      Review `LRUCache` in §5. An `OrderedDict` keeps keys from oldest (front) to most recently used (back): with `maxsize=2`, calling `set("a", 1)`, `set("b", 2)`, `peek("a")`, then `set("c", 3)` leaves `"a"` at the front so `"a"` is evicted and `evictions` becomes `1`.
     - |
       The plan:
-      1. In `get(key)`, when `key` is found, move it to the most-recent end of `self._data` and increment `self.hits` by `1`.
-      2. In `set(key, value)`, after inserting or updating `key`, check whether `len(self._data)` exceeds `self.maxsize`; if so, pop the oldest item from the front (`last=False`).
+      1. In `peek`, read from the underlying dictionary without altering key order or hit/miss counts.
+      2. In `get`, when a key hits, move it to the most-recent end before returning its value.
+      3. In `set`, when the cache grows past `maxsize`, remove the oldest entry from the front and bump the eviction counter by one.
     - |
-      Keep the two method shapes focused on recency and capacity:
+      For `peek(key)`, read from `self._data` using the dictionary method that returns `None` instead of raising `KeyError`. On capacity overflow in `set`:
       ```python
-      def get(self, key: str):
-          if key not in self._data:
-              self.misses += 1
-              return None
-          # move key to the most-recent end and count the hit
-          ...
-          return self._data[key]
-
-
-      def set(self, key: str, value) -> None:
-          if key in self._data:
-              self._data.move_to_end(key)
-          self._data[key] = value
-          # if over capacity, evict the oldest key from the front
-          ...
+      if len(self._data) > self.maxsize:
+          self._data.popitem(last=...)
+          self.evictions += ...
       ```
+      Remember that `OrderedDict.popitem` removes from the oldest end when `last` is `False`.
   vi:
     - |
-      Xem lại lớp `LRUCache` ở §5. `OrderedDict` giữ các key theo thứ tự từ cũ nhất (ở đầu) tới mới dùng nhất (ở cuối): với `maxsize=2`, lưu `"a"`, `"b"` rồi `"c"` phải loại bỏ `"a"`.
+      Xem lại lớp `LRUCache` ở §5. `OrderedDict` giữ các key theo thứ tự từ cũ nhất (ở đầu) tới mới dùng nhất (ở cuối): với `maxsize=2`, gọi `set("a", 1)`, `set("b", 2)`, `peek("a")` rồi `set("c", 3)` giữ nguyên `"a"` ở đầu nên `"a"` bị loại bỏ và `evictions` bằng `1`.
     - |
       Kế hoạch:
-      1. Trong `get(key)`, khi tìm thấy `key`, đẩy nó về cuối `self._data` rồi tăng `self.hits` thêm `1`.
-      2. Trong `set(key, value)`, sau khi thêm hoặc cập nhật `key`, kiểm tra nếu `len(self._data)` vượt `self.maxsize` thì xóa phần tử cũ nhất ở đầu (`last=False`).
+      1. Trong `peek`, tra cứu từ điển bên trong mà không làm đổi thứ tự key hay các bộ đếm hit/miss.
+      2. Trong `get`, khi trúng cache, đẩy key về cuối (mới dùng nhất) trước khi trả về giá trị.
+      3. Trong `set`, khi số phần tử vượt `maxsize`, xóa phần tử lâu chưa dùng nhất ở đầu và tăng biến đếm eviction thêm một.
     - |
-      Theo khung hai phương thức xử lý thứ tự và giới hạn dung lượng dưới đây:
+      Với `peek(key)`, hãy đọc từ `self._data` bằng phương thức của dict trả về `None` khi thiếu key thay vì ném `KeyError`. Khi cache vượt sức chứa trong `set`:
       ```python
-      def get(self, key: str):
-          if key not in self._data:
-              self.misses += 1
-              return None
-          # đẩy key về cuối (mới nhất) và tăng biến đếm hit
-          ...
-          return self._data[key]
-
-
-      def set(self, key: str, value) -> None:
-          if key in self._data:
-              self._data.move_to_end(key)
-          self._data[key] = value
-          # nếu vượt quá maxsize thì bỏ key lâu nhất ở đầu
-          ...
+      if len(self._data) > self.maxsize:
+          self._data.popitem(last=...)
+          self.evictions += ...
       ```
+      Nhớ rằng `OrderedDict.popitem` xóa ở đầu cũ nhất khi `last` nhận giá trị `False`.

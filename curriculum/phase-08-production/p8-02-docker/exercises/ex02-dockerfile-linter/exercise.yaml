@@ -11,8 +11,8 @@ hints:
       Extend `parse_dockerfile` from §2 (handling line continuations `\`) and loop over its `(inst, args)` pairs like the two-rule check in §7. For `"FROM python:latest\nCMD uvicorn main:app --host 127.0.0.1"`, `lint(...)` must return `["unpinned-base", "localhost-cmd"]`.
     - |
       The plan:
-      1. In `parse_dockerfile`, iterate over `text.splitlines()`, skip blank or `#` lines, buffer lines ending with `\` after stripping the trailing backslash, and split each complete line once on whitespace into `(inst.upper(), args.strip())`.
-      2. In `lint`, parse the text first, then evaluate the four checks in fixed order (`unpinned-base`, `copy-before-install`, `secret-in-image`, `localhost-cmd`), appending each triggered code once.
+      1. In `parse_dockerfile`, iterate over lines, skip blank or `#` lines, buffer lines ending with `\` after stripping the trailing backslash, and split each complete line once on whitespace into an uppercase instruction and stripped arguments.
+      2. In `lint`, parse the text first, then evaluate the four checks in fixed order (`unpinned-base`, `copy-before-install`, `secret-in-image`, `localhost-cmd`), appending each triggered code at most once.
     - |
       Use this skeleton for the parser and fixed-order checks:
       ```python
@@ -44,8 +44,8 @@ hints:
       Mở rộng `parse_dockerfile` ở §2 (xử lý thêm dòng nối `\`) rồi duyệt các cặp `(inst, args)` giống đoạn kiểm tra hai lỗi ở §7. Với `"FROM python:latest\nCMD uvicorn main:app --host 127.0.0.1"`, `lint(...)` phải trả về `["unpinned-base", "localhost-cmd"]`.
     - |
       Kế hoạch:
-      1. Trong `parse_dockerfile`, duyệt từng dòng trong `text.splitlines()`, bỏ dòng trống hoặc dòng `#`, gom các dòng kết thúc bằng `\` sau khi cắt dấu `\`, rồi tách mỗi lệnh hoàn chỉnh thành `(inst.upper(), args.strip())`.
-      2. Trong `lint`, gọi `parse_dockerfile(text)` trước, rồi kiểm tra lần lượt bốn quy tắc theo đúng thứ tự (`unpinned-base`, `copy-before-install`, `secret-in-image`, `localhost-cmd`), mỗi mã vi phạm chỉ thêm tối đa một lần.
+      1. Trong `parse_dockerfile`, duyệt từng dòng của văn bản, bỏ dòng trống hoặc dòng `#`, gom các dòng kết thúc bằng `\` sau khi cắt dấu `\`, rồi tách mỗi lệnh hoàn chỉnh một lần theo khoảng trắng thành tên lệnh viết hoa và phần đối số đã cắt khoảng trắng.
+      2. Trong `lint`, tách Dockerfile trước, rồi kiểm tra lần lượt bốn quy tắc theo đúng thứ tự (`unpinned-base`, `copy-before-install`, `secret-in-image`, `localhost-cmd`), mỗi mã vi phạm chỉ thêm tối đa một lần.
     - |
       Dùng bộ khung dưới đây cho bộ tách và hàm kiểm lỗi theo thứ tự cố định:
       ```python

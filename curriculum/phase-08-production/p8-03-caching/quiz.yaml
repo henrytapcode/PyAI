@@ -267,17 +267,17 @@ questions:
       options:
         - "Average model A and model B vectors before cosine search"
         - "Discard model A vectors and re-embed with model B"
-        - "Keep model A vectors whenever `temperature` equals `0`"
-        - "Move model A vectors to the front using `move_to_end`"
-      explanation: "Vectors from two different embedding models live in completely different coordinate spaces and cannot be compared with cosine similarity, so old vectors must be invalidated."
+        - "Keep model A vectors for existing docs and embed only new docs with B"
+        - "Truncate or zero-pad model A vectors to match model B's dimension"
+      explanation: "Vectors from two different embedding models live in completely different coordinate spaces and cannot be compared with cosine similarity, so you should discard old model A vectors (to free RAM) and re-embed with model B."
     vi:
       prompt: "Bạn nâng cấp ứng dụng RAG từ model embedding A sang model B. Cần làm gì với các vector đã cache từ model A?"
       options:
         - "Lấy trung bình cộng vector của A và B trước khi tính cosine"
         - "Bỏ toàn bộ vector của model A và embed lại bằng model B"
-        - "Giữ nguyên vector của model A mỗi khi `temperature` bằng `0`"
-        - "Đẩy các vector của model A lên đầu bằng `move_to_end`"
-      explanation: "Vector từ hai model embedding khác nhau nằm trong hai không gian tọa độ khác nhau nên không so sánh cosine với nhau được; bắt buộc phải bỏ cache cũ."
+        - "Giữ vector của A cho tài liệu cũ và chỉ embed tài liệu mới bằng B"
+        - "Cắt bớt hoặc đệm số 0 để vector của A khớp số chiều với B"
+      explanation: "Vector từ hai model embedding khác nhau nằm trong hai không gian tọa độ khác nhau nên không so sánh cosine với nhau được; hãy xóa cache của model A (để giải phóng RAM) và embed lại toàn bộ bằng model B."
 
   - id: p8-03-q14
     type: fill
@@ -331,18 +331,18 @@ questions:
     en:
       prompt: "A bot answers questions about each user's private orders. Why is a shared `(model, question)` key unsafe?"
       options:
-        - "Adding `user_id` prevents `json.dumps` from sorting keys"
-        - "SHA-256 produces shorter hashes for private user strings"
+        - "Shared keys cause extra cache misses and higher LLM costs"
+        - "Whitespace normalization deletes numbers from order questions"
         - "User B could receive User A's cached private order details"
-        - "Private answers force `FakeLLM` to ignore `temperature=0`"
+        - "Cached entries overwrite each other only when `ttl` expires"
       explanation: "If two users ask `'Where is my last order?'` and the key omits `user_id`, User B hits User A's cached entry and leaks User A's private data. Add `user_id` to the key or skip caching."
     vi:
       prompt: "Một bot trả lời câu hỏi về đơn hàng riêng của từng người dùng. Vì sao key dùng chung `(model, question)` gây rủi ro?"
       options:
-        - "Thêm `user_id` sẽ làm `json.dumps` không sắp xếp được key"
-        - "SHA-256 tạo ra mã băm ngắn hơn với chuỗi dữ liệu riêng"
+        - "Key dùng chung làm tăng số lần trượt cache và tốn thêm tiền LLM"
+        - "Bước chuẩn hóa khoảng trắng sẽ xóa mất mã đơn hàng trong câu hỏi"
         - "Người dùng B có thể nhận nhầm đơn hàng riêng của người dùng A"
-        - "Dữ liệu riêng làm `FakeLLM` tự bỏ qua `temperature=0`"
+        - "Các entry cache chỉ ghi đè lên nhau sau khi hết hạn `ttl`"
       explanation: "Nếu hai người cùng hỏi `'Đơn gần nhất của tôi đâu?'` mà key thiếu `user_id`, người B sẽ trúng cache của người A và lộ thông tin riêng tư. Hãy thêm `user_id` vào key hoặc không cache."
 
 flashcards:
@@ -404,4 +404,4 @@ flashcards:
       back: "Store `expires_at = now + ttl` and delete when `now >= expires_at`. Inject a clock in tests (`time.monotonic` in production—never system time, which can jump backward) and bump `index_version`/`prompt_version` in keys when source data changes."
     vi:
       front: "TTL, đồng hồ monotonic và gắn phiên bản vào key"
-      back: "Lưu `expires_at = now + ttl` và xóa khi `now >= expires_at`. Tiêm đồng hồ khi test (dùng `time.monotonic` ở production—không dùng giờ hệ thống vì có thể bị chỉnh lùi) và tăng `index_version`/`prompt_version` trong key khi nguồn dữ liệu đổi."
+      back: "Lưu `expires_at = now + ttl` và xóa khi `now >= expires_at`. Truyền đồng hồ vào (inject) khi test (dùng `time.monotonic` ở production—không dùng giờ hệ thống vì có thể bị chỉnh lùi) và tăng `index_version`/`prompt_version` trong key khi nguồn dữ liệu đổi."

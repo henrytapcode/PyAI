@@ -60,7 +60,7 @@ Notice how 6 incoming questions required only 3 calls to `slow_answer`, giving a
 
 ## 2. `functools.lru_cache`: built-in cache for pure functions
 
-Back in `p2-07-decorators`, we saw `@cache` in the decorator summary table. Python's standard library includes `@lru_cache(maxsize=...)` in `functools`, which automatically memoizes any pure function whose arguments never change meaning over time:
+Back in `p2-07-decorators`, you built a `@cache_results` decorator by hand with a closure dictionary. Python's standard library also includes `@lru_cache(maxsize=...)` in `functools`, which automatically memoizes any pure function whose arguments never change meaning over time:
 
 ```python
 from functools import lru_cache
@@ -92,7 +92,7 @@ Notice that `cache_info()` reports `hits=2, misses=3, maxsize=3, currsize=3` wit
 
 ## 3. Cache keys for prompts: what changes the answer?
 
-An LLM reply depends on more than the user's latest string: changing the `model`, the `system` prompt, earlier `messages`, `temperature`, or `max_tokens` can produce a completely different response. Your **cache key** must include every input that affects the output, serialized deterministically with `json.dumps(..., sort_keys=True)` and hashed with `hashlib.sha256`.
+An LLM reply depends on more than the user's latest string: changing the `model`, the `system` prompt, earlier `messages`, `temperature`, or `max_tokens` can produce a completely different response. Your **cache key** must include every input that affects the output, serialized deterministically with `json.dumps(..., sort_keys=True)` and hashed with `hashlib.sha256`. `sha256` turns any string into a fixed-length 64-character hexadecimal fingerprint: the same input always produces the exact same digest, while changing even a single character yields a completely different one.
 
 Light whitespace normalization—stripping outer spaces and collapsing internal runs—lets `"Reset password?"` and `"  Reset   password?  "` hit the same entry. Do **not** automatically lowercase text or strip punctuation, because changing `"US"` to `"us"` or `"Help!"` to `"Help?"` can alter meaning.
 
@@ -142,7 +142,7 @@ Only cache LLM responses when `temperature == 0`: when `temperature > 0`, the ca
 [model | system | messages | temperature | max_tokens]
      │
      ▼  json.dumps(..., sort_keys=True)
-'{"max_tokens":128,"messages":[...],"model":"fake-mini","temperature":0.0}'
+'{"max_tokens": 128, "messages": [...], "model": "fake-mini", "temperature": 0.0}'
      │
      ▼  sha256(...).hexdigest()
 "3f2a9c..." (cache key)
@@ -203,7 +203,7 @@ print("unchanged doc vector reused:", vecs_2[0] == vecs_1[0])
 # unchanged doc vector reused: True
 ```
 
-Notice that on the second run, only `1` text was sent to `client.embed(...)` while all `5` vectors came back in exact document order. Remember from `p7-03-embeddings`: if you switch to a different embedding model, you must discard the old model's cached vectors completely because vectors from two models are incompatible.
+Notice that on the second run, only `1` text was sent to `client.embed(...)` while all `5` vectors came back in exact document order. Because the key already includes `model`, entries from an older embedding model will not collide with a new model—still, when you switch models permanently (remember from `p7-03-embeddings` that vectors from two models cannot be compared), discard the old model's cached entries to free RAM and re-embed with the new model.
 
 ## 5. LRU: bounding cache memory
 
@@ -274,32 +274,37 @@ Notice how `get("a")` moved `"a"` to the right-hand (most recent) end, so `"b"`�
 
 Even with bounded memory, answers grow stale when policies or documents change. A **TTL** (Time To Live) attaches an expiration timestamp `expires_at = now + ttl` to each entry; when `get` sees `now >= expires_at`, it deletes the stale entry and counts a miss.
 
-To keep tests deterministic and instant, the code below injects a `FakeClock` instead of reading real wall time; in production, you pass `time.monotonic` as the clock function. Always use a monotonic clock rather than system clock time, because system time can jump backward during clock syncs and break expiration checks.
+To keep tests deterministic and instant, the code below injects a `FakeClock` instead of reading real wall time; in production, you pass `time.monotonic` (with no parentheses) as the clock function. Always use a monotonic clock rather than system clock time, because system time can jump backward during clock syncs and break expiration checks.
+
+Defining `__call__` on a class lets an object be called just like a function: calling `clock()` executes `clock.__call__()`. Because `FakeClock` defines `__call__() -> float`, tests can pass `FakeClock()` while production passes `time.monotonic`, and `TTLCache` simply calls `self.clock()` without needing to know which one it received.
 
 ```python
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
+
+    def __call__(self) -> float:
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class TTLCache:
-    def __init__(self, ttl: float, clock: FakeClock) -> None:
+    def __init__(self, ttl: float, clock) -> None:
         self.ttl = ttl
         self.clock = clock
         self.store: dict[str, tuple[str, float]] = {}
 
     def set(self, key: str, value: str) -> None:
-        self.store[key] = (value, self.clock.now + self.ttl)
+        self.store[key] = (value, self.clock() + self.ttl)
 
     def get(self, key: str) -> str | None:
         item = self.store.get(key)
         if item is None:
             return None
         value, expires_at = item
-        if self.clock.now >= expires_at:
+        if self.clock() >= expires_at:
             del self.store[key]
             return None
         return value
@@ -440,40 +445,55 @@ print("good keys equal:", gk_pirate == gk_formal, gk_pirate, gk_formal)
 
 **2. Caching responses when `temperature > 0`**
 
-Caching a non-deterministic call freezes the first random sample and returns identical text every time. Fix: bypass the cache whenever `temperature > 0`.
+Caching a non-deterministic call freezes the first random sample and skips calling the model on every repeat. Fix: bypass the cache whenever `temperature > 0` so each request calls the model fresh.
 
 ```python
 from pyai_llm import FakeLLM
 
 client = FakeLLM(seed=0)
 bad_cache: dict[str, str] = {}
+good_cache: dict[str, str] = {}
+bad_calls = 0
+good_calls = 0
+
+
+def call_model(prompt: str, temperature: float) -> str:
+    return client.chat([{"role": "user", "content": prompt}], temperature=temperature).content or ""
 
 
 # wrong: caches even when temperature > 0
 def ask_bad(prompt: str, temperature: float) -> str:
+    global bad_calls
     if prompt not in bad_cache:
-        bad_cache[prompt] = client.chat([{"role": "user", "content": prompt}], temperature=temperature).content or ""
+        bad_calls += 1
+        bad_cache[prompt] = call_model(prompt, temperature)
     return bad_cache[prompt]
 
 
 # fixed: skip cache when temperature > 0
 def ask_good(prompt: str, temperature: float) -> str:
+    global good_calls
     if temperature > 0:
-        return client.chat([{"role": "user", "content": prompt}], temperature=temperature).content or ""
-    if prompt not in bad_cache:
-        bad_cache[prompt] = client.chat([{"role": "user", "content": prompt}], temperature=0.0).content or ""
-    return bad_cache[prompt]
+        good_calls += 1
+        return call_model(prompt, temperature)
+    if prompt not in good_cache:
+        good_calls += 1
+        good_cache[prompt] = call_model(prompt, 0.0)
+    return good_cache[prompt]
 
 
-print("bad temp=0.8 #1:", ask_bad("hello", 0.8))
-# bad temp=0.8 #1: Sure. (fake model) I received: hello
-print("bad temp=0.8 #2:", ask_bad("hello", 0.8))
-# bad temp=0.8 #2: Sure. (fake model) I received: hello
-print("good temp=0.8 #1:", ask_good("hello", 0.8))
-# good temp=0.8 #1: (fake model) I received: hello
-print("good temp=0.8 #2:", ask_good("hello", 0.8))
-# good temp=0.8 #2: Here is what I know: (fake model) I received: hello
+b1 = ask_bad("hello", 0.8)
+b2 = ask_bad("hello", 0.8)
+print("bad calls:", bad_calls, "same reply:", b1 == b2)
+# bad calls: 1 same reply: True
+
+g1 = ask_good("hello", 0.8)
+g2 = ask_good("hello", 0.8)
+print("good calls:", good_calls)
+# good calls: 2
 ```
+
+Notice that `ask_bad("hello", 0.8)` called the model only once (`bad_calls == 1`) and froze that first sample across repeats, while `ask_good("hello", 0.8)` called the model on both requests (`good_calls == 2`).
 
 **3. Using `str(dict)` as a cache key**
 

@@ -41,12 +41,34 @@ def test_ask_returns_404_when_no_documents_match(client):
     "payload",
     [
         {"question": ""},
+        {"question": "a" * 201},
+        {"question": "FastAPI", "top_k": 0},
         {"question": "FastAPI", "top_k": 9},
     ],
 )
 def test_ask_rejects_invalid_payloads_with_422(client, payload):
     r = client.post("/ask", json=payload)
     assert r.status_code == 422, "check Field constraints on AskRequest"
+
+
+def test_ask_accepts_max_length_question(client):
+    r = client.post("/ask", json={"question": "a" * 200})
+    assert r.status_code == 404, "200-char question must pass validation (not 422)"
+
+
+def test_ask_is_case_insensitive(client):
+    r_mixed = client.post("/ask", json={"question": "FASTAPI Tests", "top_k": 5})
+    r_lower = client.post("/ask", json={"question": "fastapi tests", "top_k": 5})
+    assert r_mixed.status_code == 200
+    assert r_lower.status_code == 200
+    assert r_mixed.json()["sources"] == r_lower.json()["sources"] == [3, 4, 1]
+
+
+def test_ask_matches_whole_words_not_substrings(client):
+    # "test" is a substring of "tests", "TestClient", and "Pytest" in DOCS,
+    # but does not appear as a standalone word.
+    r = client.post("/ask", json={"question": "test"})
+    assert r.status_code == 404, "partial substring 'test' must not match 'tests'"
 
 
 def test_ask_defaults_top_k_to_two(client):

@@ -5,21 +5,21 @@ questions:
     difficulty: 1
     answer: 1
     en:
-      prompt: "In `@app.get(\"/docs/{doc_id}\")` with `def read_doc(doc_id: int, limit: int = 3):`, what are `doc_id` and `limit` in `GET /docs/7?limit=2`?"
+      prompt: "In `@app.get(\"/documents/{doc_id}\")` with `def read_doc(doc_id: int, limit: int = 3):`, what are `doc_id` and `limit` in `GET /documents/7?limit=2`?"
       options:
         - "Both `doc_id` and `limit` are JSON request body fields"
         - "`doc_id` is a path parameter and `limit` is a query parameter"
         - "`doc_id` is a query parameter and `limit` is a path parameter"
         - "Both `doc_id` and `limit` are HTTP status codes on the route"
-      explanation: "`{doc_id}` sits inside the URL path (`/docs/7`), so it is a path parameter; `limit` is not in the path, so it is read as a query parameter (`?limit=2`)."
+      explanation: "`{doc_id}` sits inside the URL path (`/documents/7`), so it is a path parameter; `limit` is not in the path, so it is read as a query parameter (`?limit=2`)."
     vi:
-      prompt: "Với `@app.get(\"/docs/{doc_id}\")` và `def read_doc(doc_id: int, limit: int = 3):`, `doc_id` và `limit` trong `GET /docs/7?limit=2` là gì?"
+      prompt: "Với `@app.get(\"/documents/{doc_id}\")` và `def read_doc(doc_id: int, limit: int = 3):`, `doc_id` và `limit` trong `GET /documents/7?limit=2` là gì?"
       options:
         - "Cả `doc_id` và `limit` đều là trường trong JSON request body"
         - "`doc_id` là path parameter còn `limit` là query parameter"
         - "`doc_id` là query parameter còn `limit` là path parameter"
         - "Cả `doc_id` và `limit` đều là mã trạng thái HTTP trên route"
-      explanation: "`{doc_id}` nằm trong đường dẫn URL (`/docs/7`) nên là path parameter; `limit` không nằm trong đường dẫn nên được đọc như query parameter (`?limit=2`)."
+      explanation: "`{doc_id}` nằm trong đường dẫn URL (`/documents/7`) nên là path parameter; `limit` không nằm trong đường dẫn nên được đọc như query parameter (`?limit=2`)."
 
   - id: p8-01-q02
     type: output
@@ -55,19 +55,19 @@ questions:
     en:
       prompt: "Which `status_code` should you pass to `@app.post(\"/notes\", status_code=...)` when the endpoint creates a new record?"
       options:
-        - "`200`, the standard code meaning a new item was stored"
-        - "`404`, meaning the old record was replaced in memory"
+        - "`200`, the default HTTP status for any successful request"
+        - "`204`, meaning the server stored it with no response needed"
         - "`201`, the HTTP status code meaning Created"
-        - "`422`, meaning Pydantic validated the request body"
-      explanation: "`201 Created` tells callers a new resource was created; `200` is the generic OK default, while `404` and `422` are client errors."
+        - "`202`, meaning the new record was accepted and saved"
+      explanation: "`201 Created` tells callers a new resource was created; `200` is the generic OK default, `202 Accepted` means queued for later processing, and `204 No Content` returns an empty body."
     vi:
       prompt: "Bạn nên truyền `status_code` nào vào `@app.post(\"/notes\", status_code=...)` khi endpoint tạo mới một bản ghi?"
       options:
-        - "`200`, mã chuẩn báo hiệu một mục mới đã được lưu vào bộ nhớ"
-        - "`404`, báo hiệu bản ghi cũ đã được thay thế trong bộ nhớ"
+        - "`200`, mã HTTP mặc định cho mọi request xử lý thành công"
+        - "`204`, nghĩa là server đã lưu xong và không cần trả body"
         - "`201`, mã trạng thái HTTP mang nghĩa Created (đã tạo mới)"
-        - "`422`, báo hiệu Pydantic đã kiểm tra xong dữ liệu body"
-      explanation: "`201 Created` báo cho phía gọi biết một tài nguyên mới đã được tạo; `200` là mặc định chung, còn `404` và `422` là mã lỗi từ phía client."
+        - "`202`, nghĩa là bản ghi mới đã được chấp nhận và lưu lại"
+      explanation: "`201 Created` báo cho phía gọi biết một tài nguyên mới đã được tạo; `200` là mặc định chung, `202 Accepted` dành cho tác vụ xếp hàng xử lý sau, còn `204 No Content` trả về body rỗng."
 
   - id: p8-01-q04
     type: fill
@@ -405,10 +405,10 @@ flashcards:
   - id: p8-01-f02
     tags: [apis, typing]
     en:
-      front: "Path parameter vs. query parameter in `@app.get(\"/docs/{doc_id}\")`"
+      front: "Path parameter vs. query parameter in `@app.get(\"/documents/{doc_id}\")`"
       back: "`{doc_id}` in the URL path is a path parameter; extra function parameters like `limit: int = 3` come from the `?limit=...` query string."
     vi:
-      front: "Phân biệt path parameter và query parameter trong `@app.get(\"/docs/{doc_id}\")`"
+      front: "Phân biệt path parameter và query parameter trong `@app.get(\"/documents/{doc_id}\")`"
       back: "`{doc_id}` trong đường dẫn URL là path parameter; các tham số phụ của hàm như `limit: int = 3` lấy từ chuỗi truy vấn `?limit=...`."
 
   - id: p8-01-f03

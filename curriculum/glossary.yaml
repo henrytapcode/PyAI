@@ -3298,3 +3298,15 @@ terms:
       en: "Containers and load balancers poll GET /health before sending user traffic to a newly started FastAPI worker."
       vi: "Container và bộ cân bằng tải gọi GET /health trước khi chuyển lưu lượng người dùng tới một worker FastAPI mới khởi động."
     related: [route, endpoint, Docker]
+
+  - term: __call__
+    vi_term: __call__ (phương thức gọi đối tượng như hàm)
+    tags: [classes, functions]
+    en: "A special method that lets an instance be called with parentheses like a function; obj() runs obj.__call__()."
+    vi: "Phương thức đặc biệt cho phép gọi một instance bằng dấu ngoặc tròn như gọi hàm; obj() sẽ chạy obj.__call__()."
+    example: "class FakeClock:\n    def __call__(self) -> float:\n        return self.t\n\nclock = FakeClock()\nclock()"
+    in_practice:
+      en: "Implementing __call__ on FakeClock lets tests pass FakeClock() wherever production passes a plain function like time.monotonic, so callers just invoke clock()."
+      vi: "Cài đặt __call__ trên FakeClock giúp bài test truyền FakeClock() vào đúng chỗ mà production truyền hàm như time.monotonic, nên bên gọi chỉ cần gọi clock()."
+    related: [method, function, constructor (__init__), dependency injection]
+

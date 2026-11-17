@@ -73,7 +73,7 @@ DOCS = {
 }
 
 
-@app.get("/docs/{doc_id}")
+@app.get("/documents/{doc_id}")
 def read_doc(doc_id: int, limit: int = 3) -> dict[str, object]:
     if doc_id not in DOCS:
         raise HTTPException(status_code=404, detail="doc not found")
@@ -82,29 +82,29 @@ def read_doc(doc_id: int, limit: int = 3) -> dict[str, object]:
 
 
 client = TestClient(app)
-for url in ["/docs/1", "/docs/2?limit=2", "/docs/99", "/docs/abc"]:
+for url in ["/documents/1", "/documents/2?limit=2", "/documents/99", "/documents/abc"]:
     r = client.get(url)
     if r.status_code == 422:
         errs = [(e["loc"], e["type"]) for e in r.json()["detail"]]
         print(url, r.status_code, errs)
     else:
         print(url, r.status_code, r.json())
-# /docs/1 200 {'doc_id': 1, 'limit': 3, 'preview': 'RAG retrieves chunks'}
-# /docs/2?limit=2 200 {'doc_id': 2, 'limit': 2, 'preview': 'FastAPI validates'}
-# /docs/99 404 {'detail': 'doc not found'}
-# /docs/abc 422 [(['path', 'doc_id'], 'int_parsing')]
+# /documents/1 200 {'doc_id': 1, 'limit': 3, 'preview': 'RAG retrieves chunks'}
+# /documents/2?limit=2 200 {'doc_id': 2, 'limit': 2, 'preview': 'FastAPI validates'}
+# /documents/99 404 {'detail': 'doc not found'}
+# /documents/abc 422 [(['path', 'doc_id'], 'int_parsing')]
 ```
 
 Here is how FastAPI resolved each request in the trace above:
 
 | request | doc_id | limit | status |
 |---|---|---|---|
-| `GET /docs/1` | `1` | `3` | `200` |
-| `GET /docs/2?limit=2` | `2` | `2` | `200` |
-| `GET /docs/99` | `99` | `3` | `404` |
-| `GET /docs/abc` | `"abc"` (invalid int) | `3` | `422` |
+| `GET /documents/1` | `1` | `3` | `200` |
+| `GET /documents/2?limit=2` | `2` | `2` | `200` |
+| `GET /documents/99` | `99` | `3` | `404` |
+| `GET /documents/abc` | `"abc"` (invalid int) | `3` | `422` |
 
-Notice how `"2"` in `/docs/2?limit=2` became integer `2`, and `/docs/abc` failed before `read_doc` even started.
+Notice how `"2"` in `/documents/2?limit=2` became integer `2`, and `/documents/abc` failed before `read_doc` even started.
 
 ## 4. POST with Pydantic: automatic input validation
 
@@ -489,7 +489,7 @@ Fix: add `status_code=201` inside `@app.post("/notes", status_code=201)` when cr
 ## Recap
 
 - FastAPI maps Python functions to HTTP **endpoints** via `@app.get(...)` and `@app.post(...)` decorators, and leaves the underlying function directly callable.
-- **Path parameters** (`/docs/{doc_id}`) and **query parameters** (`limit: int = 3`) are parsed and checked from your function's type hints.
+- **Path parameters** (`/documents/{doc_id}`) and **query parameters** (`limit: int = 3`) are parsed and checked from your function's type hints.
 - Subclass `pydantic.BaseModel` with `Field(...)` rules (`min_length`, `max_length`, `ge`, `le`) to reject malformed JSON bodies automatically with `422`.
 - Pick status codes intentionally (`201` for creation, `400` for business-rule errors, `404` for missing items via `HTTPException`)—never return error dicts with `200`.
 - Test routes in-process without opening ports using `TestClient(app)` and `pytest` fixtures that reset shared state between tests.

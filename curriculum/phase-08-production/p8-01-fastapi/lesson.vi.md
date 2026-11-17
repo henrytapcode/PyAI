@@ -73,7 +73,7 @@ DOCS = {
 }
 
 
-@app.get("/docs/{doc_id}")
+@app.get("/documents/{doc_id}")
 def read_doc(doc_id: int, limit: int = 3) -> dict[str, object]:
     if doc_id not in DOCS:
         raise HTTPException(status_code=404, detail="doc not found")
@@ -82,29 +82,29 @@ def read_doc(doc_id: int, limit: int = 3) -> dict[str, object]:
 
 
 client = TestClient(app)
-for url in ["/docs/1", "/docs/2?limit=2", "/docs/99", "/docs/abc"]:
+for url in ["/documents/1", "/documents/2?limit=2", "/documents/99", "/documents/abc"]:
     r = client.get(url)
     if r.status_code == 422:
         errs = [(e["loc"], e["type"]) for e in r.json()["detail"]]
         print(url, r.status_code, errs)
     else:
         print(url, r.status_code, r.json())
-# /docs/1 200 {'doc_id': 1, 'limit': 3, 'preview': 'RAG retrieves chunks'}
-# /docs/2?limit=2 200 {'doc_id': 2, 'limit': 2, 'preview': 'FastAPI validates'}
-# /docs/99 404 {'detail': 'doc not found'}
-# /docs/abc 422 [(['path', 'doc_id'], 'int_parsing')]
+# /documents/1 200 {'doc_id': 1, 'limit': 3, 'preview': 'RAG retrieves chunks'}
+# /documents/2?limit=2 200 {'doc_id': 2, 'limit': 2, 'preview': 'FastAPI validates'}
+# /documents/99 404 {'detail': 'doc not found'}
+# /documents/abc 422 [(['path', 'doc_id'], 'int_parsing')]
 ```
 
 Bảng theo dõi dưới đây cho thấy FastAPI xử lý từng request ở trên như thế nào:
 
 | request | doc_id | limit | status |
 |---|---|---|---|
-| `GET /docs/1` | `1` | `3` | `200` |
-| `GET /docs/2?limit=2` | `2` | `2` | `200` |
-| `GET /docs/99` | `99` | `3` | `404` |
-| `GET /docs/abc` | `"abc"` (sai kiểu int) | `3` | `422` |
+| `GET /documents/1` | `1` | `3` | `200` |
+| `GET /documents/2?limit=2` | `2` | `2` | `200` |
+| `GET /documents/99` | `99` | `3` | `404` |
+| `GET /documents/abc` | `"abc"` (sai kiểu int) | `3` | `422` |
 
-Bạn thấy `"2"` trong `/docs/2?limit=2` tự thành số nguyên `2`, còn `/docs/abc` bị chặn trước khi `read_doc` kịp chạy.
+Bạn thấy `"2"` trong `/documents/2?limit=2` tự thành số nguyên `2`, còn `/documents/abc` bị chặn trước khi `read_doc` kịp chạy.
 
 ## 4. POST với Pydantic: tự kiểm dữ liệu vào
 
@@ -489,7 +489,7 @@ Cách sửa: thêm `status_code=201` vào `@app.post("/notes", status_code=201)`
 ## Tóm tắt
 
 - FastAPI gắn hàm Python vào **endpoint** HTTP qua decorator `@app.get(...)` và `@app.post(...)`, mà vẫn giữ hàm đó gọi trực tiếp được.
-- **Path parameter** (`/docs/{doc_id}`) và **query parameter** (`limit: int = 3`) được parse và kiểm tra tự động từ type hint.
+- **Path parameter** (`/documents/{doc_id}`) và **query parameter** (`limit: int = 3`) được parse và kiểm tra tự động từ type hint.
 - Dùng lớp con `pydantic.BaseModel` với `Field(...)` (`min_length`, `max_length`, `ge`, `le`) để tự động trả `422` khi payload JSON không hợp lệ.
 - Chọn status code có chủ ý (`201` khi tạo mới, `400` khi sai quy tắc nghiệp vụ, `404` qua `HTTPException` khi thiếu tài nguyên)—không bao giờ trả lỗi kèm `200`.
 - Kiểm thử route ngay trong process bằng `TestClient(app)` và fixture `pytest` dọn sạch trạng thái chung giữa các test.

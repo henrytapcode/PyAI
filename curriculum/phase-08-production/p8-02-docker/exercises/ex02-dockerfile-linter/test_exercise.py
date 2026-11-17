@@ -65,11 +65,24 @@ def test_lint_returns_empty_list_for_clean_dockerfile():
             "unpinned-base",
         ),
         (
+            'FROM python:LATEST\nCMD ["uvicorn", "main:app", "--host", "0.0.0.0"]',
+            "unpinned-base",
+        ),
+        (
             "FROM python:3.13-slim\nCOPY . .\nRUN pip install -r requirements.txt",
             "copy-before-install",
         ),
+        (
+            "FROM python:3.13-slim\nRUN apt-get update\n"
+            "COPY . .\nRUN pip install -r requirements.txt",
+            "copy-before-install",
+        ),
         ("FROM python:3.13-slim\nCOPY .env .", "secret-in-image"),
+        ("FROM python:3.13-slim\nADD .env /app/.env", "secret-in-image"),
         ("FROM python:3.13-slim\nENV OPENAI_API_KEY=sk-test", "secret-in-image"),
+        ("FROM python:3.13-slim\nENV HF_TOKEN=abc", "secret-in-image"),
+        ("FROM python:3.13-slim\nENV DB_SECRET=x", "secret-in-image"),
+        ("FROM python:3.13-slim\nENV MODE=prod API_KEY=abc", "secret-in-image"),
         (
             'FROM python:3.13-slim\nCMD ["uvicorn", "main:app", "--host", "127.0.0.1"]',
             "localhost-cmd",
