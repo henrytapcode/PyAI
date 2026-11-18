@@ -1,0 +1,35 @@
+id: cap-01-rag-chatbot
+phase: cap
+order: 1
+kind: project
+title:
+  en: "Capstone: RAG chatbot with evals"
+  vi: "Capstone: RAG chatbot có eval"
+summary:
+  en: "Upgrade a single-turn FAQ RAG bot into a stateful multi-turn chatbot: maintain token-budgeted history, rewrite follow-up questions before retrieval, evaluate multi-turn golden dialogs against a baseline, and isolate user sessions with TTL expiration and capacity eviction."
+  vi: "Nâng cấp bot RAG hỏi-đáp một lượt thành chatbot nhiều lượt có trạng thái: giữ lịch sử theo ngân sách token, viết lại câu hỏi nối tiếp trước khi truy xuất, đánh giá hội thoại nhiều lượt theo golden dialog so với baseline, và tách biệt phiên người dùng có hết hạn TTL và giới hạn số phiên."
+level: applied
+tags: [llm, rag, evaluation, production]
+prerequisites: [p7-08-evals, p7-09-mini-project-rag, p8-05-mini-project]
+duration_min: 90
+outcomes:
+  en:
+    - "Maintain token-budgeted conversation history and rewrite follow-up questions before retrieval"
+    - "Evaluate multi-turn dialogs against golden conversations and compare runs to a baseline"
+    - "Manage isolated user sessions with TTL expiration and capacity eviction using FakeClock"
+    - "Wrap the stateful chatbot behind FastAPI session endpoints tested end to end"
+  vi:
+    - "Quản lý lịch sử hội thoại theo ngân sách token và viết lại câu hỏi nối tiếp trước khi truy xuất"
+    - "Đánh giá hội thoại nhiều lượt theo bộ golden dialog và so sánh với baseline"
+    - "Quản lý phiên người dùng tách biệt kèm hết hạn TTL và giới hạn số phiên bằng FakeClock"
+    - "Bọc chatbot có trạng thái sau các endpoint FastAPI cho phiên và kiểm thử đầu cuối"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "RAGAS: Automated Evaluation of Retrieval Augmented Generation (arXiv:2309.15217)"
+      vi: "RAGAS: Đánh giá tự động hệ thống RAG (arXiv:2309.15217) (EN)"
+    url: "https://arxiv.org/abs/2309.15217"
+  - title:
+      en: "FastAPI Documentation: Dependencies"
+      vi: "Tài liệu FastAPI: Dependencies (EN)"
+    url: "https://fastapi.tiangolo.com/tutorial/dependencies/"

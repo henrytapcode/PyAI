@@ -1,0 +1,20 @@
+Turn 1:
+  question : How long are store pickup orders held?
+  rewritten: How long are store pickup orders held?
+  sources  : ['pickup.md']
+  answer   : Unclaimed orders are held at the counter for 7 days. [2]
+Turn 2:
+  question : And photo ID?
+  rewritten: How long are store pickup orders held? And photo ID?
+  sources  : ['pickup.md']
+  answer   : Bring a photo ID at pickup. [1]
+Turn 3:
+  question : When do support agents work on weekdays?
+  rewritten: When do support agents work on weekdays?
+  sources  : ['support.md']
+  answer   : Support agents work Monday to Friday from 9 AM to 6 PM. [1]
+Turn 4:
+  question : Do you offer cryptocurrency billing?
+  rewritten: Do you offer cryptocurrency billing?
+  sources  : []
+  answer   : I don't know based on the provided context.

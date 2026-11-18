@@ -1,0 +1,7 @@
+case     baseline   current   
+d1#t1    PASS       PASS      
+d1#t2    FAIL       PASS      
+d2#t1    PASS       FAIL      
+d2#t2    PASS       PASS      
+fixed : ['d1#t2']
+broken: ['d2#t1']

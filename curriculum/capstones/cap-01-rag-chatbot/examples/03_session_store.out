@@ -1,0 +1,6 @@
+t=0  create alice: {'alice': 1}
+t=20 create bob  : {'alice': 1, 'bob': 0}
+t=30 touch alice : {'alice': 2, 'bob': 0}
+t=40 create carol: {'alice': 2, 'carol': 0}
+t=90 after ttl   : {'carol': 0}
+t=90 alice ok?   : False

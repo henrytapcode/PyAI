@@ -460,8 +460,20 @@ phases:
 
 capstones:
   - id: cap-01-rag-chatbot
+    kind: project
     title: { en: "Capstone: RAG chatbot with evals", vi: "Capstone: RAG chatbot có eval" }
     prerequisites: [p7-08-evals, p7-09-mini-project-rag, p8-05-mini-project]
+    outcomes:
+      en:
+        - "Maintain token-budgeted conversation history and rewrite follow-up questions before retrieval"
+        - "Evaluate multi-turn dialogs against golden conversations and compare runs to a baseline"
+        - "Manage isolated user sessions with TTL expiration and capacity eviction using FakeClock"
+        - "Wrap the stateful chatbot behind FastAPI session endpoints tested end to end"
+      vi:
+        - "Quản lý lịch sử hội thoại theo ngân sách token và viết lại câu hỏi nối tiếp trước khi truy xuất"
+        - "Đánh giá hội thoại nhiều lượt theo bộ golden dialog và so sánh với baseline"
+        - "Quản lý phiên người dùng tách biệt kèm hết hạn TTL và giới hạn số phiên bằng FakeClock"
+        - "Bọc chatbot có trạng thái sau các endpoint FastAPI cho phiên và kiểm thử đầu cuối"
   - id: cap-02-tool-agent
     title: { en: "Capstone: tool-using agent", vi: "Capstone: agent dùng tool" }
     prerequisites: [p7-07-agents, p7-10-mini-project-agent, p8-04-monitoring]
