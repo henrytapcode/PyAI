@@ -7,7 +7,7 @@ questions:
     en:
       prompt: "What does `np.linalg.norm(v)` compute for a 1D vector `v`?"
       options:
-        - "The length of the arrow from the origin to `v`"
+        - "The Euclidean length of vector `v`"
         - "The sum of all elements in `v`"
         - "The largest element in `v`"
         - "The dot product of `v` with `[1, 1, ...]`"
@@ -15,7 +15,7 @@ questions:
     vi:
       prompt: "`np.linalg.norm(v)` tính gì cho một vector 1 chiều `v`?"
       options:
-        - "Độ dài mũi tên từ gốc tọa độ tới điểm `v`"
+        - "Độ dài Euclid của vector `v`"
         - "Tổng tất cả các phần tử trong `v`"
         - "Phần tử lớn nhất trong `v`"
         - "Tích vô hướng của `v` với `[1, 1, ...]`"
@@ -84,17 +84,17 @@ questions:
       prompt: "Why does mean squared error (`MSE`) square `(pred - y)` instead of just averaging `pred - y`?"
       options:
         - "Because NumPy cannot compute the mean of negative numbers"
-        - "So positive and negative errors do not cancel out, and larger misses are penalised more"
+        - "So opposite-sign errors cannot cancel and big misses cost more"
         - "Because squaring converts the answer into a Python `float`"
-        - "So the learning rate can be set above `1.0`"
+        - "So the learning rate can safely be set above `1.0`"
       explanation: "If one prediction is `+5` too high and another is `-5` too low, their raw average is `0`. Squaring makes every error non-negative and amplifies large mistakes."
     vi:
       prompt: "Vì sao mean squared error (`MSE`) bình phương `(pred - y)` thay vì lấy trung bình trực tiếp của `pred - y`?"
       options:
-        - "Vì NumPy không tính được trung bình của số âm"
-        - "Để sai số âm và dương không triệt tiêu nhau, đồng thời phạt sai lệch lớn nặng hơn"
+        - "Vì NumPy không tính được trung bình của các số âm"
+        - "Để sai số trái dấu không bù trừ nhau và lỗi lớn bị phạt nặng"
         - "Vì bình phương giúp đổi kết quả thành `float` Python"
-        - "Để có thể đặt learning rate lớn hơn `1.0`"
+        - "Để có thể đặt learning rate lớn hơn `1.0` mà không lỗi"
       explanation: "Nếu một dự đoán cao hơn `+5` và một dự đoán thấp hơn `-5`, trung bình thô sẽ bằng `0`. Bình phương khiến mọi sai số không âm và phạt nặng các lỗi lớn."
 
   - id: p5-01-q06
@@ -112,7 +112,7 @@ questions:
       options:
         - "It returns `14.0` using only the first two elements"
         - "It pads `b` with `0.0` and returns `14.0`"
-        - "It raises a `ValueError` because the vector lengths do not match"
+        - "It raises a `ValueError` for mismatched lengths"
         - "It returns `np.array([4.0, 10.0])`"
       explanation: "`np.dot` pairs elements one by one, so vectors of lengths `3` and `2` cannot align and raise `ValueError`."
     vi:
@@ -120,7 +120,7 @@ questions:
       options:
         - "Trả về `14.0` bằng cách chỉ lấy hai phần tử đầu"
         - "Tự đệm `0.0` vào `b` và trả về `14.0`"
-        - "Gây lỗi `ValueError` vì độ dài hai vector không khớp"
+        - "Báo lỗi `ValueError` về độ dài không khớp"
         - "Trả về `np.array([4.0, 10.0])`"
       explanation: "`np.dot` ghép từng cặp phần tử tương ứng, nên hai vector dài `3` và `2` không khớp chiều nhau và gây lỗi `ValueError`."
 
@@ -180,7 +180,7 @@ questions:
       options:
         - "Giữ nguyên `w` vì độ dốc khác 0"
         - "Tăng `w` bằng cách cộng thêm `lr * 22.5`"
-        - "Nhân `w` với `22.5`"
+        - "Nhân `w` với `22.5` để đi nhanh hơn"
         - "Giảm `w` bằng cách trừ đi `lr * 22.5`"
       explanation: "Độ dốc dương nghĩa là loss tăng khi `w` tăng, nên muốn đi xuống dốc bạn phải giảm `w` bằng phép trừ `w - lr * slope`."
 
@@ -283,16 +283,16 @@ questions:
       prompt: "You run gradient descent for 20 steps and watch the MSE loss jump from `30` to `226`, then `1715`, then `12975`. What is the most likely fix?"
       options:
         - "Double the learning rate so it reaches zero faster"
-        - "Cut the learning rate down (for example by half or `10x`) because steps are overshooting the valley"
-        - "Change `w - lr * slope` to `w + lr * slope`"
+        - "Lower the learning rate, e.g. halve it or cut it `10x`"
+        - "Change the update from `w - lr * slope` to `w + lr * slope`"
         - "Replace `np.mean` with `np.sum` in the loss"
       explanation: "Exploding loss usually means the learning rate `lr` is too large, causing each step to overshoot to a steeper wall on the other side."
     vi:
       prompt: "Bạn chạy gradient descent 20 bước và thấy MSE loss nhảy từ `30` lên `226`, rồi `1715`, rồi `12975`. Cách sửa hợp lý nhất là gì?"
       options:
         - "Tăng gấp đôi learning rate để chạm đáy nhanh hơn"
-        - "Giảm learning rate xuống (ví dụ chia đôi hoặc giảm 10 lần) vì bước đi đang vọt lố qua đáy thung lũng"
-        - "Đổi `w - lr * slope` thành `w + lr * slope`"
+        - "Giảm learning rate, ví dụ chia đôi hoặc giảm `10` lần"
+        - "Đổi bước cập nhật `w - lr * slope` thành `w + lr * slope`"
         - "Thay `np.mean` bằng `np.sum` trong hàm loss"
       explanation: "Loss phình to liên tục thường do `learning rate` quá lớn, khiến mỗi bước nhảy vọt qua đáy sang sườn dốc cao hơn ở bên kia."
 

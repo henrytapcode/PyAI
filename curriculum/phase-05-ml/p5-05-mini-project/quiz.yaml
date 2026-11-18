@@ -9,7 +9,7 @@ questions:
       options:
         - "After tuning the decision threshold on all rows with `cross_val_predict`"
         - "After fitting `StandardScaler` on the full feature matrix `X`"
-        - "Right after cleaning `(X, y)`, before running cross-validation or choosing thresholds"
+        - "Right after cleaning `(X, y)`, before any CV or threshold tuning"
         - "Only after picking the winning model so `test` uses the same predictions"
       explanation: "Splitting off the holdout `test` set before CV, scaling, or threshold tuning keeps `test` completely unseen until the single final evaluation."
     vi:
@@ -17,8 +17,8 @@ questions:
       options:
         - "Sau khi chỉnh ngưỡng quyết định trên toàn bộ dữ liệu bằng `cross_val_predict`"
         - "Sau khi gọi `StandardScaler().fit` trên toàn bộ ma trận `X`"
-        - "Ngay sau khi làm sạch thành `(X, y)`, trước khi chạy cross-validation hay chọn ngưỡng"
-        - "Chỉ sau khi đã chọn được mô hình thắng cuộc"
+        - "Ngay sau khi làm sạch `(X, y)`, trước khi chạy CV hay chọn ngưỡng"
+        - "Chỉ sau khi chọn xong mô hình thắng, để `test` dùng chung dự đoán"
       explanation: "Tách tập holdout `test` ngay trước khi chạy CV, chuẩn hóa hay chỉnh ngưỡng giúp giữ `test` hoàn toàn chưa từng thấy cho tới lần chấm cuối."
 
   - id: p5-05-q02
@@ -71,15 +71,15 @@ questions:
       prompt: "Your support-ticket table includes `escalated_to_oncall`, a column logged only after an engineer reviews the ticket and decides it was urgent. Why must this column be dropped before training?"
       options:
         - "Because binary `0/1` columns cause `StandardScaler` to divide by zero"
-        - "Because it is target leakage—a post-outcome field unavailable when a new ticket arrives"
+        - "Because it is target leakage, known only after the outcome is decided"
         - "Because `DecisionTreeClassifier` only accepts continuous floating-point features"
         - "Because dropping it increases the size of the holdout test split"
       explanation: "Features recorded after the label is decided leak the answer during CV and training, yet are missing at prediction time for brand-new tickets."
     vi:
       prompt: "Bảng log ticket có cột `escalated_to_oncall` chỉ được ghi lại sau khi kỹ sư xem xét xong ticket. Vì sao bắt buộc phải bỏ cột này trước khi huấn luyện?"
       options:
-        - "Vì cột `0/1` làm `StandardScaler` chia cho 0"
-        - "Vì đó là target leakage—cột chỉ có sau khi biết kết quả, không tồn tại vào lúc ticket mới gửi tới"
+        - "Vì cột nhị phân `0/1` làm `StandardScaler` chia cho 0"
+        - "Vì đó là target leakage, chỉ có sau khi đã biết kết quả"
         - "Vì `DecisionTreeClassifier` chỉ nhận feature số thực liên tục"
         - "Vì bỏ cột này làm tập holdout test có nhiều dòng hơn"
       explanation: "Feature chỉ biết được sau khi đã có kết quả sẽ làm rò rỉ đáp án lúc huấn luyện và CV, nhưng lại không có mặt khi dự đoán ticket mới ngoài thực tế."
@@ -92,7 +92,7 @@ questions:
     en:
       prompt: "In 5-fold CV on the training split, `logreg` scores `0.709 +/- 0.092` F1 and `tree` scores `0.701 +/- 0.140` F1. Which conclusion is honest?"
       options:
-        - "Both models beat the `0.000` baseline, but their `0.008` gap is smaller than one std so neither is clearly better"
+        - "Both beat the `0.000` baseline; the `0.008` gap is too small to call a winner"
         - "`logreg` is statistically proven superior to `tree` across all future ticket batches"
         - "`tree` should be discarded because its standard deviation exceeds `0.10`"
         - "The dataset must contain target leakage because both F1 scores exceed `0.70`"
@@ -100,7 +100,7 @@ questions:
     vi:
       prompt: "Trong CV 5 fold trên tập train, `logreg` đạt F1 `0.709 +/- 0.092` còn `tree` đạt `0.701 +/- 0.140`. Kết luận nào là trung thực?"
       options:
-        - "Hai mô hình đều vượt baseline `0.000`, nhưng mức chênh `0.008` nhỏ hơn một độ lệch chuẩn nên chưa thể khẳng định mô hình nào tốt hơn"
+        - "Hai mô hình đều vượt baseline `0.000`, nhưng chênh `0.008` quá nhỏ để phân định"
         - "`logreg` đã được chứng minh vượt trội hoàn toàn so với `tree` trên mọi dữ liệu tương lai"
         - "Phải loại bỏ `tree` vì độ lệch chuẩn của nó lớn hơn `0.10`"
         - "Dữ liệu chắc chắn bị target leakage vì hai điểm F1 đều trên `0.70`"
@@ -138,16 +138,16 @@ questions:
         - "Because `cross_val_score` only supports regression metrics without `make_scorer`"
         - "Because `zero_division=0` forces `LogisticRegression` to balance class weights automatically"
         - "Because `StratifiedKFold` raises a `ValueError` unless F1 is wrapped in `make_scorer`"
-        - "To state explicitly that F1 returns `0.0` when its denominator is zero (e.g. a fold with no predicted positives) rather than relying on defaults"
-      explanation: "On imbalanced data that still contains positive true labels, an all-zero baseline already evaluates without warning; passing `zero_division=0` makes the intended `0.0` fallback explicit whenever the F1 denominator is zero."
+        - "To return `0.0` explicitly when the F1 denominator is zero, not rely on defaults"
+      explanation: "On imbalanced data that still contains positive true labels, an all-zero baseline already evaluates without warning; passing `zero_division=0` makes the intended `0.0` fallback explicit whenever the F1 denominator is zero (for example, a fold with no positive labels and no predicted positives)."
     vi:
       prompt: "Vì sao `evaluate_models` truyền `make_scorer(f1_score, zero_division=0)` vào `cross_val_score`?"
       options:
         - "Vì `cross_val_score` chỉ hỗ trợ metric hồi quy nếu không dùng `make_scorer`"
         - "Vì `zero_division=0` ép `LogisticRegression` tự động cân bằng trọng số lớp"
         - "Vì `StratifiedKFold` sẽ ném `ValueError` nếu F1 không được bọc bằng `make_scorer`"
-        - "Để ghi rõ ý định trả về `0.0` khi mẫu số bằng 0 (ví dụ một fold không có dự đoán dương) thay vì dựa vào mặc định"
-      explanation: "Trên dữ liệu lệch lớp vẫn có mẫu dương thật, mô hình đoán toàn `0` vốn không phát warning cho F1; truyền `zero_division=0` giúp ghi rõ quy ước trả về `0.0` mỗi khi mẫu số bằng 0."
+        - "Để ghi rõ F1 trả về `0.0` khi mẫu số bằng 0 thay vì dựa vào mặc định"
+      explanation: "Trên dữ liệu lệch lớp vẫn có mẫu dương thật, mô hình đoán toàn `0` vốn không phát warning cho F1; truyền `zero_division=0` giúp ghi rõ quy ước trả về `0.0` mỗi khi mẫu số bằng 0 (ví dụ một fold không có nhãn dương thật lẫn dự đoán dương nào)."
 
   - id: p5-05-q08
     type: fill
@@ -183,7 +183,7 @@ questions:
       options:
         - "Because `pandas.DataFrame.fillna` only works on string columns"
         - "Because `train_test_split` refuses to split arrays that have fewer than 250 rows"
-        - "Because dropping 2% of rows avoids inventing values and prevents full-dataset mean leakage across the train/test split"
+        - "Because dropping ~2% of rows avoids invented values and test-mean leakage"
         - "Because `DecisionTreeClassifier` ignores rows with integers and only reads `NaN`"
       explanation: "Computing a column mean over all rows before splitting leaks test-set statistics into training; when only ~2% of rows are incomplete, dropping them cleanly avoids both fabrication and leakage."
     vi:
@@ -191,8 +191,8 @@ questions:
       options:
         - "Vì `pandas.DataFrame.fillna` chỉ hoạt động trên cột chuỗi"
         - "Vì `train_test_split` từ chối chia các mảng có ít hơn 250 dòng"
-        - "Vì bỏ 2% số dòng vừa tránh bịa giá trị vừa tránh rò rỉ giá trị trung bình của tập test vào tập train"
-        - "Vì `DecisionTreeClassifier` bỏ qua số nguyên và chỉ đọc `NaN`"
+        - "Vì bỏ 2% dòng vừa tránh bịa số vừa tránh rò rỉ trung bình của test"
+        - "Vì `DecisionTreeClassifier` bỏ qua số nguyên và chỉ đọc giá trị `NaN`"
       explanation: "Tính trung bình trên toàn bộ dữ liệu trước lúc chia làm thống kê tập test lọt vào tập train; khi chỉ thiếu khoảng 2% số dòng, bỏ trực tiếp vừa gọn vừa sạch leakage."
 
   - id: p5-05-q10
@@ -221,7 +221,7 @@ questions:
       prompt: "Which summary is the most honest report for a classifier tested on 58 holdout tickets (14 urgent)?"
       options:
         - "\"Our ML model achieves 93% urgent-ticket detection across production logs!\""
-        - "\"On 58 holdout tickets (14 urgent), threshold 0.2 gives recall 0.929 and precision 0.500 vs baseline F1 0.000 (acc 0.759).\""
+        - "\"58 holdout tickets (14 urgent): at threshold 0.2, recall 0.929, precision 0.500; baseline F1 0.000.\""
         - "\"Logistic regression scored 0.759 accuracy, beating a random coin flip by 25.9 percentage points.\""
         - "\"We tested 12 thresholds on the test set and chose 0.25 because it scored 0.667 F1.\""
       explanation: "An honest report states the test sample size (`58`, `14` urgent), both recall and precision trade-offs, and the baseline on the same split without tuning on test."
@@ -229,7 +229,7 @@ questions:
       prompt: "Câu báo cáo nào trung thực nhất cho một bộ phân loại được kiểm tra trên 58 ticket test (14 ticket khẩn cấp)?"
       options:
         - "\"Mô hình ML của chúng tôi đạt 93% phát hiện ticket khẩn cấp trên toàn bộ hệ thống!\""
-        - "\"Trên 58 ticket test (14 khẩn cấp), ngưỡng 0.2 đạt recall 0.929 và precision 0.500 so với baseline F1 0.000 (acc 0.759).\""
+        - "\"58 ticket test (14 khẩn cấp): ngưỡng 0.2 cho recall 0.929, precision 0.500; baseline F1 0.000.\""
         - "\"Logistic regression đạt accuracy 0.759, vượt xa tung đồng xu 50% tới 25.9 điểm phần trăm.\""
         - "\"Chúng tôi thử 12 ngưỡng trên tập test và chọn 0.25 vì nó đạt F1 0.667.\""
       explanation: "Báo cáo trung thực nêu rõ cỡ mẫu test (`58`, `14` ca khẩn cấp), cả recall lẫn precision, so sánh với baseline và không chỉnh ngưỡng trên tập test."
@@ -245,15 +245,15 @@ questions:
         - "Because `.astype(str)` automatically removes commas and spaces at the same time"
         - "Because `pd.to_numeric` only accepts columns whose dtype is explicitly `str`"
         - "Because `.str.replace` converts `NaN` values into `0` automatically when `.astype(str)` is called"
-        - "Because if a new batch of tickets has only plain integers (no commas), pandas reads it as numeric and `.str` raises `AttributeError`"
+        - "Because a batch of plain integers loads as numeric, and `.str` then raises `AttributeError`"
       explanation: "Calling `.str` on a numeric column raises `AttributeError`; `.astype(str)` ensures string operations never crash on clean numeric batches."
     vi:
       prompt: "Khi làm sạch `tokens`, vì sao ta viết `df[\"tokens\"].astype(str).str.replace(\",\", \"\", regex=False)` thay vì gọi thẳng `df[\"tokens\"].str.replace(...)`?"
       options:
-        - "Vì `.astype(str)` tự động xóa luôn dấu phẩy và khoảng trắng"
-        - "Vì `pd.to_numeric` chỉ nhận cột có kiểu dữ liệu là `str`"
+        - "Vì `.astype(str)` tự động xóa luôn cả dấu phẩy lẫn khoảng trắng trong ô"
+        - "Vì `pd.to_numeric` chỉ nhận những cột có kiểu dữ liệu đúng là `str`"
         - "Vì `.str.replace` tự động đổi `NaN` thành `0` nếu gọi `.astype(str)` trước"
-        - "Vì nếu một lô dữ liệu mới toàn số nguyên trơn (không có dấu phẩy), pandas đọc thành cột số và gọi `.str` sẽ bị `AttributeError`"
+        - "Vì lô toàn số nguyên trơn bị đọc thành cột số, khi đó `.str` gây `AttributeError`"
       explanation: "Gọi `.str` trên cột số gây `AttributeError`; ép `.astype(str)` trước bảo đảm thao tác chuỗi không bao giờ văng lỗi dù lô mới không có chuỗi."
 
   - id: p5-05-q13
@@ -264,7 +264,7 @@ questions:
     en:
       prompt: "What happens if you sweep thresholds `[0.5, 0.4, 0.3, 0.25, 0.2]` on `X_test` to pick the one with the highest test F1 and report that score as your final performance?"
       options:
-        - "You leak test-set labels into the threshold choice, producing an optimistic score with no unseen data left to verify it"
+        - "Test labels leak into the threshold pick, leaving an optimistic, unverified score"
         - "Cross-validation automatically re-runs on `X_test` to correct the bias"
         - "Scikit-learn raises a `DataLeakageWarning` when `predict_proba` is called on `X_test`"
         - "Precision and recall become identical regardless of class imbalance"
@@ -272,7 +272,7 @@ questions:
     vi:
       prompt: "Điều gì xảy ra nếu bạn thử các ngưỡng `[0.5, 0.4, 0.3, 0.25, 0.2]` ngay trên `X_test` để chọn ngưỡng cho F1 cao nhất rồi báo cáo điểm đó làm kết quả cuối?"
       options:
-        - "Bạn làm rò rỉ nhãn tập test vào quyết định chọn ngưỡng, tạo con số lạc quan mà không còn dữ liệu chưa từng thấy để kiểm chứng"
+        - "Nhãn test rò rỉ vào việc chọn ngưỡng, cho con số lạc quan không thể kiểm chứng"
         - "Cross-validation sẽ tự động chạy lại trên `X_test` để khử sai lệch"
         - "Scikit-learn sẽ phát `DataLeakageWarning` khi gọi `predict_proba` trên `X_test`"
         - "Precision và recall sẽ tự động bằng nhau bất chấp độ lệch lớp"

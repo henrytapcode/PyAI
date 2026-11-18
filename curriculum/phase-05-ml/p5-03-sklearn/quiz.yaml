@@ -79,7 +79,7 @@ questions:
       options:
         - "Nó dự đoán số liên tục như giá nhà và chấm điểm bằng R^2"
         - "Nó chỉ chạy được khi có `StandardScaler` và sẽ lỗi trên dữ liệu thô"
-        - "Dù tên có chữ 'Regression', đây thực chất là một mô hình phân loại (classification)"
+        - "Dù tên có chữ 'Regression', đây là một mô hình phân loại"
         - "Nó xây dựng một cây các quy tắc rẽ nhánh if/else trên từng feature"
       explanation: "`LogisticRegression` là mô hình phân loại tuyến tính dự đoán nhãn lớp rời rạc (`0`, `1`, ...), dù tên lịch sử của nó có chữ 'Regression'."
 
@@ -108,7 +108,7 @@ questions:
     en:
       prompt: "Why do we pass `stratify=y` to `train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)`?"
       options:
-        - "To keep the same class proportions in both `y_train` and `y_test` as in `y`"
+        - "To keep the class ratio of `y` in both `y_train` and `y_test`"
         - "To scale every feature column to mean 0 and standard deviation 1"
         - "To train a `DecisionTreeClassifier` faster on large datasets"
         - "To disable random shuffling so the last 25% of rows become the test set"
@@ -116,7 +116,7 @@ questions:
     vi:
       prompt: "Vì sao ta truyền `stratify=y` vào `train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)`?"
       options:
-        - "Để giữ nguyên tỉ lệ các lớp trong cả `y_train` và `y_test` giống với `y` ban đầu"
+        - "Để `y_train` và `y_test` giữ đúng tỉ lệ lớp như `y` ban đầu"
         - "Để chuẩn hóa mọi cột feature về trung bình 0 và độ lệch chuẩn 1"
         - "Để huấn luyện `DecisionTreeClassifier` nhanh hơn trên dữ liệu lớn"
         - "Để tắt việc xáo trộn và lấy đúng 25% dòng cuối làm tập test"
@@ -183,7 +183,7 @@ questions:
         - "KNN tự động loại bỏ các cột có giá trị nhỏ hơn `1.0`"
         - "KNN ném lỗi `ValueError` khi các cột khác đơn vị đo"
         - "`tokens` chưa chuẩn hóa khiến `KNeighborsClassifier` tự chuyển sang chế độ regression"
-        - "Phép tính khoảng cách bị `tokens` lấn át hoàn toàn, làm mờ đi tín hiệu từ `error_rate`"
+        - "Khoảng cách bị `tokens` lấn át, làm chìm tín hiệu của `error_rate`"
       explanation: "KNN đo khoảng cách giữa các hàng: chênh lệch `500` ở `tokens` áp đảo hoàn toàn chênh lệch `0.2` ở `error_rate` nếu bạn không chuẩn hóa thang đo."
 
   - id: p5-03-q10
@@ -233,7 +233,7 @@ questions:
       prompt: "You pass a 1D NumPy array `np.array([1.0, 2.0, 3.0, 4.0])` as `X` into `LogisticRegression().fit(X, y)`. What happens and how do you fix it?"
       options:
         - "It raises `NotFittedError`; fix by calling `.score()` first"
-        - "It raises `ValueError`; fix by reshaping `X` to 2D with `.reshape(-1, 1)`"
+        - "It raises `ValueError`; fix it with `X.reshape(-1, 1)`"
         - "It raises `TypeError`; fix by converting `X` to a Python list"
         - "It silently trains normally and returns accuracy `1.0`"
       explanation: "`scikit-learn` requires `X` to be a 2D array of shape `(n_samples, n_features)`; a 1D array raises `ValueError`, which `.reshape(-1, 1)` fixes."
@@ -241,7 +241,7 @@ questions:
       prompt: "Bạn truyền mảng NumPy 1 chiều `np.array([1.0, 2.0, 3.0, 4.0])` làm `X` vào `LogisticRegression().fit(X, y)`. Điều gì xảy ra và sửa thế nào?"
       options:
         - "Báo lỗi `NotFittedError`; sửa bằng cách gọi `.score()` trước"
-        - "Báo lỗi `ValueError`; sửa bằng cách chuyển `X` sang 2 chiều với `.reshape(-1, 1)`"
+        - "Báo lỗi `ValueError`; sửa bằng `X.reshape(-1, 1)`"
         - "Báo lỗi `TypeError`; sửa bằng cách đổi `X` thành Python list"
         - "Mô hình vẫn tự chạy bình thường và trả về accuracy `1.0`"
       explanation: "`scikit-learn` yêu cầu `X` phải là mảng 2D có shape `(n_samples, n_features)`; mảng 1D gây `ValueError` và cần sửa bằng `.reshape(-1, 1)`."
@@ -303,7 +303,7 @@ questions:
       options:
         - "Scale the whole dataset with `StandardScaler().fit_transform(X)`, split 70/30, and pick the model with highest training accuracy"
         - "Give `LogisticRegression` `random_state=1` and `DecisionTreeClassifier` `random_state=2` in `train_test_split`, then compare held-out accuracy"
-        - "Split once with a fixed `random_state` and `stratify=y`, wrap each model in `make_pipeline(StandardScaler(), model)`, fit on train, and compare on the held-out split (never choosing by train accuracy)"
+        - "Split once with fixed `random_state` and `stratify=y`, fit each `make_pipeline(StandardScaler(), model)` on train, compare held-out"
         - "Fit an unrestricted tree (`max_depth=None`) and pick whichever model hits `1.0` on the training set first"
       explanation: "A fair comparison evaluates every candidate pipeline on the exact same held-out split and prevents scaling leakage via `Pipeline`, never selecting by train score. In `p5-04`, you will use cross-validation on train for reliable selection and keep the test set for one final evaluation in `p5-05`."
     vi:
@@ -311,7 +311,7 @@ questions:
       options:
         - "Chuẩn hóa toàn bộ `X` bằng `StandardScaler().fit_transform(X)`, chia 70/30 rồi chọn mô hình có train accuracy cao nhất"
         - "Dùng `random_state=1` cho `LogisticRegression` và `random_state=2` cho `DecisionTreeClassifier` trong `train_test_split`, rồi so sánh điểm held-out"
-        - "Chia dữ liệu một lần với `random_state` cố định và `stratify=y`, bọc từng mô hình trong `make_pipeline(StandardScaler(), model)`, fit trên train rồi so sánh trên phần held-out (không chọn theo train accuracy)"
+        - "Chia một lần với `random_state` cố định và `stratify=y`, fit từng `make_pipeline(StandardScaler(), model)` trên train rồi so trên held-out"
         - "Huấn luyện cây không giới hạn độ sâu (`max_depth=None`) và chọn mô hình nào đạt `1.0` trên tập train trước"
       explanation: "So sánh công bằng phải chấm mọi pipeline ứng viên trên cùng một phần held-out, tránh rò rỉ dữ liệu chuẩn hóa bằng `Pipeline`, và tuyệt đối không chọn theo điểm train. Sang `p5-04`, bạn sẽ dùng cross-validation trên train để chọn mô hình đáng tin cậy và giữ tập test để chấm một lần ở `p5-05`."
 

@@ -197,7 +197,7 @@ questions:
       prompt: "In `classification_report`, class `0` has `support = 90` (`F1 = 0.94`) and class `1` has `support = 10` (`F1 = 0.30`). Why is `weighted avg` F1 much higher than `macro avg` F1?"
       options:
         - "`weighted avg` ignores class `1` completely whenever its `support` is under 20"
-        - "`weighted avg` multiplies each class F1 by its `support`, so the 90 majority rows dominate"
+        - "`weighted avg` weights each F1 by `support`, so class `0` dominates"
         - "`macro avg` penalizes the majority class by dividing by `FP + FN`"
         - "`weighted avg` reports training F1 instead of test F1"
       explanation: "`macro avg` averages `(0.94 + 0.30) / 2 = 0.62` equally, whereas `weighted avg` computes `0.9 * 0.94 + 0.1 * 0.30 = 0.876`, dominated by the large majority class."
@@ -205,7 +205,7 @@ questions:
       prompt: "Trong `classification_report`, lớp `0` có `support = 90` (`F1 = 0.94`) và lớp `1` có `support = 10` (`F1 = 0.30`). Vì sao `weighted avg` F1 cao hơn hẳn `macro avg` F1?"
       options:
         - "`weighted avg` bỏ qua hoàn toàn lớp `1` khi `support` nhỏ hơn 20"
-        - "`weighted avg` nhân F1 của mỗi lớp với `support` của nó nên 90 mẫu đa số kéo điểm lên"
+        - "`weighted avg` nhân F1 mỗi lớp với `support` nên lớp `0` lấn át"
         - "`macro avg` phạt lớp đa số bằng cách chia cho `FP + FN`"
         - "`weighted avg` báo cáo điểm F1 trên tập train thay vì tập test"
       explanation: "`macro avg` lấy trung bình đều `(0.94 + 0.30) / 2 = 0.62`, còn `weighted avg` tính `0.9 * 0.94 + 0.1 * 0.30 = 0.876`, bị chi phối bởi lớp đa số."
@@ -278,7 +278,7 @@ questions:
     en:
       prompt: "Why should `StandardScaler()` be placed inside `make_pipeline(StandardScaler(), LogisticRegression())` before calling `cross_val_score`, rather than calling `StandardScaler().fit_transform(X)` once beforehand?"
       options:
-        - "Inside a pipeline, each CV fold fits the scaler only on its `k - 1` training folds, preventing validation fold leakage"
+        - "Each fold then fits the scaler on its `k - 1` training folds only, avoiding leakage"
         - "Because `cross_val_score` raises a `ValueError` if given a scaled NumPy array"
         - "Because `StandardScaler` inside a pipeline automatically changes `scoring` to F1"
         - "Because scaling before `cross_val_score` forces every fold to use identical test indices"
@@ -286,7 +286,7 @@ questions:
     vi:
       prompt: "Vì sao nên đặt `StandardScaler()` bên trong `make_pipeline(StandardScaler(), LogisticRegression())` trước khi gọi `cross_val_score`, thay vì gọi `StandardScaler().fit_transform(X)` một lần trên toàn bộ `X` trước đó?"
       options:
-        - "Khi nằm trong pipeline, mỗi fold chỉ fit scaler trên `k - 1` fold train của riêng nó, tránh rò rỉ dữ liệu từ fold test"
+        - "Mỗi fold khi đó chỉ fit scaler trên `k - 1` fold train của nó, tránh rò rỉ"
         - "Vì `cross_val_score` sẽ báo lỗi `ValueError` nếu nhận vào mảng NumPy đã chuẩn hóa"
         - "Vì `StandardScaler` trong pipeline tự động đổi `scoring` sang F1"
         - "Vì chuẩn hóa trước `cross_val_score` ép mọi fold dùng chung chỉ số test"

@@ -65,7 +65,7 @@ questions:
     en:
       prompt: "Which task is an example of **regression** rather than classification?"
       options:
-        - "Predicting how many seconds an API request will take to respond"
+        - "Predicting how many seconds an API request will take"
         - "Tagging a support ticket as `billing`, `bug`, or `feature`"
         - "Deciding whether an email is `spam` or `not spam`"
         - "Identifying whether a user prompt is `English` or `Vietnamese`"
@@ -125,15 +125,15 @@ questions:
         - "Underfitting — the model is too simple to fit the training data"
         - "Data leakage — the test set was copied into the training set"
         - "Perfect generalization — low train MSE guarantees a good model"
-        - "Overfitting — the model memorized noise in train and fails on unseen test data"
+        - "Overfitting — it memorized train noise and fails on new data"
       explanation: "A tiny training error paired with a much larger test error is the classic signature of overfitting."
     vi:
       prompt: "Mô hình đa thức của bạn đạt `train MSE = 0.001` nhưng `test MSE = 0.790`. Hiện tượng gì đang xảy ra?"
       options:
         - "Underfitting — mô hình quá đơn giản nên không khớp được tập train"
-        - "Data leakage — tập test đã bị chép vào tập train"
+        - "Data leakage — tập test đã bị chép lẫn vào trong tập train"
         - "Tổng quát hóa hoàn hảo — train MSE nhỏ là đủ đảm bảo mô hình tốt"
-        - "Overfitting — mô hình học thuộc nhiễu ở tập train và sai nặng trên tập test mới"
+        - "Overfitting — mô hình học thuộc nhiễu của train nên sai trên test"
       explanation: "Sai số train cực nhỏ đi kèm sai số test cao hơn hẳn là dấu hiệu kinh điển của overfitting."
 
   - id: p5-02-q08
@@ -187,16 +187,16 @@ questions:
       prompt: "Your dataset is sorted by label: 50 rows with `y = 0` followed by 50 rows with `y = 1`. What happens if you take the last 20 rows as the test set without shuffling?"
       options:
         - "NumPy raises a `ValueError` because labels are sorted"
-        - "The test set contains only class `1`, so it cannot measure how the model handles class `0`"
-        - "Training accuracy automatically becomes `0.0`"
+        - "The test set holds only class `1`, so class `0` goes untested"
+        - "Training accuracy automatically drops to exactly `0.0`"
         - "Each row in `X_test` loses its alignment with `y_test`"
       explanation: "Taking a slice from sorted data puts only one class in `test` (and skews `train`), so you must shuffle indices with `rng.permutation` before splitting."
     vi:
       prompt: "Bộ dữ liệu của bạn đang xếp theo nhãn: 50 dòng `y = 0` đứng trước, 50 dòng `y = 1` đứng sau. Điều gì xảy ra nếu bạn lấy 20 dòng cuối làm tập test mà không xáo trộn?"
       options:
         - "NumPy báo lỗi `ValueError` vì nhãn đã sắp xếp"
-        - "Tập test chỉ toàn lớp `1`, nên không đo được mô hình xử lý lớp `0` thế nào"
-        - "Accuracy trên tập train tự động tụt về `0.0`"
+        - "Tập test chỉ có lớp `1`, nên lớp `0` không được kiểm tra"
+        - "Accuracy trên tập train tự động tụt hẳn về `0.0`"
         - "Từng hàng trong `X_test` bị lệch khỏi nhãn `y_test`"
       explanation: "Cắt trực tiếp trên dữ liệu đã sắp theo nhãn khiến tập test chỉ chứa một lớp, nên bạn phải xáo chỉ số bằng `rng.permutation` trước khi chia."
 
@@ -247,17 +247,17 @@ questions:
     en:
       prompt: "Your model has **high error on train** and **high error on test**. Which diagnosis and fix make the most sense?"
       options:
-        - "Overfitting — remove half of your features"
+        - "Overfitting — remove half of your features to simplify"
         - "Data leakage — pass a different random seed to `default_rng`"
-        - "Underfitting — use a more flexible model or add more informative features"
+        - "Underfitting — use a more flexible model or richer features"
         - "Overfitting — collect more rows with the exact same straight-line model"
       explanation: "High error on both train and test means the model is underfitting (too simple for the pattern), so making the model more expressive or adding better features helps."
     vi:
       prompt: "Mô hình của bạn có **sai số cao trên train** lẫn **sai số cao trên test**. Chẩn đoán và cách sửa nào hợp lý nhất?"
       options:
-        - "Overfitting — bỏ bớt một nửa số feature"
+        - "Overfitting — bỏ bớt một nửa số feature cho mô hình gọn"
         - "Data leakage — đổi sang một random seed khác cho `default_rng`"
-        - "Underfitting — dùng mô hình linh hoạt hơn hoặc thêm feature giàu thông tin hơn"
+        - "Underfitting — dùng mô hình linh hoạt hơn hoặc feature tốt hơn"
         - "Overfitting — thu thập thêm dòng dữ liệu cho đúng mô hình đường thẳng cũ"
       explanation: "Sai số cao ở cả train và test là dấu hiệu underfitting (mô hình quá đơn giản so với quy luật), nên cần mô hình linh hoạt hơn hoặc feature tốt hơn."
 
@@ -289,7 +289,7 @@ questions:
     en:
       prompt: "You want to compare degree-1, degree-3, and degree-6 polynomials fairly. Which workflow prevents both overfitting traps and data leakage?"
       options:
-        - "Shuffle with a fixed seed, split train/test, fit scaling and `np.polyfit` on train only, then compare MSE on the held-out split"
+        - "Shuffle with a fixed seed, split, fit scaling and `np.polyfit` on train only, compare held-out MSE"
         - "Fit `min`/`max` scaling on all data first, split 80/20, and pick the degree with lowest train MSE"
         - "Pick the degree with lowest train MSE first, then re-split with a new seed until test MSE looks low"
         - "Fit `np.polyfit` on all rows, then evaluate accuracy on the last 20% of rows"
@@ -297,7 +297,7 @@ questions:
     vi:
       prompt: "Bạn muốn so sánh công bằng đa thức bậc 1, 3 và 6. Quy trình nào tránh được cả bẫy overfitting lẫn data leakage?"
       options:
-        - "Xáo bằng seed cố định, chia train/test, tính chuẩn hóa và `np.polyfit` chỉ trên train, rồi so sánh MSE trên phần held-out"
+        - "Xáo với seed cố định, chia train/test, chuẩn hóa và `np.polyfit` chỉ trên train, so MSE trên held-out"
         - "Tính chuẩn hóa `min`/`max` trên toàn bộ dữ liệu trước, chia 80/20, rồi chọn bậc có train MSE nhỏ nhất"
         - "Chọn bậc có train MSE nhỏ nhất trước, rồi đổi seed chia lại nhiều lần đến khi test MSE thấp"
         - "Khớp `np.polyfit` trên toàn bộ các hàng rồi đánh giá accuracy trên 20% hàng cuối"
