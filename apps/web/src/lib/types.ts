@@ -69,6 +69,7 @@ export interface Exercise {
   solution: string;
   tests: string;
   solution_unlock_attempts: number;
+  runner?: "local";
   alternatives: Alternative[];
 }
 
@@ -145,7 +146,7 @@ export interface Catalog {
   phases: Phase[];
   topics: Record<string, I18n>;
   exams: ExamSummary[];
-  capstones: { id: string; title: I18n }[];
+  capstones: LessonSummary[];
   furtherReading?: I18n<string[]>;
 }
 

@@ -123,6 +123,7 @@
     "quizBest": "Điểm cao nhất: {score}",
     "quizPass": "Đạt tối thiểu {score} ở quiz để hoàn thành bài.",
     "projectBadge": "Mini-project",
+    "capstoneBadge": "Capstone",
     "reviewBy": "Nội dung được rà soát tới {date}",
     "editor": "Editor",
     "content": "Nội dung",
@@ -336,6 +337,7 @@
     "notStarted": "Chưa hoàn thành",
     "keyProjects": "Mini-project trọng yếu",
     "capstones": "Capstone",
+    "capstoneLabel": "Capstone",
     "export": "Tải code"
   },
   "settings": {

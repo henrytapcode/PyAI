@@ -123,6 +123,7 @@
     "quizBest": "Best score: {score}",
     "quizPass": "Pass the quiz with at least {score} to complete the lesson.",
     "projectBadge": "Mini-project",
+    "capstoneBadge": "Capstone",
     "reviewBy": "Content reviewed until {date}",
     "editor": "Editor",
     "content": "Content",
@@ -336,6 +337,7 @@
     "notStarted": "Not completed yet",
     "keyProjects": "Key mini-projects",
     "capstones": "Capstones",
+    "capstoneLabel": "Capstone",
     "export": "Download code"
   },
   "settings": {

@@ -10,8 +10,17 @@ export const allLessons: (LessonSummary & { phaseId: string })[] = catalog.phase
 
 export const readyLessons = allLessons.filter((l) => l.ready);
 
+export const capstones: (LessonSummary & { phaseId: string })[] = catalog.capstones.map((c) => ({
+  ...c,
+  phaseId: "cap",
+}));
+
 export function findLesson(id: string) {
-  return allLessons.find((l) => l.id === id);
+  return allLessons.find((l) => l.id === id) ?? capstones.find((c) => c.id === id);
+}
+
+export function isCapstone(id: string): boolean {
+  return capstones.some((c) => c.id === id);
 }
 
 export function findPhase(id: string): Phase | undefined {

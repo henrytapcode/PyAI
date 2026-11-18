@@ -11,10 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { catalog } from "@/lib/content";
+import { capstones, catalog, findLesson } from "@/lib/content";
 import { Tx, useLoc } from "@/lib/i18n";
 import { useProgress } from "@/lib/progress";
-import { lessonParts, lessonStatus, nextLesson, phaseProgress } from "@/lib/selectors";
+import { isLessonComplete, lessonParts, lessonStatus, nextLesson, phaseProgress } from "@/lib/selectors";
 import { cn, percent } from "@/lib/utils";
 
 export default function LearnPage() {
@@ -246,14 +246,77 @@ export default function LearnPage() {
         <Card className="p-5">
           <h3 className="mb-3 text-base font-bold text-foreground">{t("capstones")}</h3>
           <ul className="space-y-2 text-sm">
-            {catalog.capstones.map((c) => (
-              <li key={c.id} className="flex items-center gap-2 text-foreground/80">
-                <Lock className="size-3.5 shrink-0" aria-hidden="true" />
-                <span>
-                  <Tx value={c.title} />
-                </span>
-              </li>
-            ))}
+            {capstones.map((c) => {
+              if (!c.ready) {
+                return (
+                  <li key={c.id} className="flex items-center gap-2 text-foreground/80">
+                    <Lock className="size-3.5 shrink-0" aria-hidden="true" />
+                    <span>
+                      <Tx value={c.title} />
+                    </span>
+                  </li>
+                );
+              }
+              const st = lessonStatus(p, c);
+              const parts = lessonParts(p, c);
+              const missing = c.prerequisites.filter((pre) => {
+                const pl = findLesson(pre);
+                return pl && pl.ready && !isLessonComplete(p, pl) && !p.skippedPhases.includes(pl.phaseId);
+              });
+              return (
+                <li key={c.id}>
+                  <Link
+                    href={`/lesson/${c.id}/`}
+                    data-lesson-row
+                    className="group flex items-center gap-3 rounded-md border border-border px-3 py-2.5 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2"
+                  >
+                    <div
+                      className={cn(
+                        "grid size-8 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums",
+                        trayCellClass(st, false),
+                      )}
+                    >
+                      {st === "completed" ? (
+                        <Check className="size-4" aria-hidden="true" />
+                      ) : (
+                        <Trophy className="size-4" aria-hidden="true" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-bold text-foreground">
+                        <Tx value={c.title} />
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/80">
+                        {c.duration && (
+                          <span className="flex items-center gap-1 whitespace-nowrap">
+                            <Clock className="size-3" aria-hidden="true" />
+                            <span>{tc("minutes", { count: c.duration })}</span>
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <BookOpen className="size-3" aria-hidden="true" />
+                          <span>{ts(st)}</span>
+                        </span>
+                        {st === "locked" && missing.length > 0 && (
+                          <span>
+                            {t("prereqWarning", {
+                              list: missing.map((id) => loc.t(findLesson(id)?.title) ?? id).join(", "),
+                            })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {parts.fraction > 0 && st !== "completed" && (
+                      <Progress value={parts.fraction} className="hidden w-20 sm:block" />
+                    )}
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
+                    />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </Card>
         {catalog.furtherReading && (

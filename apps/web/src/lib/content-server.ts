@@ -2,8 +2,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import type { Exam, Lesson } from "./types";
-import { readyLessons } from "./content";
-import { catalog } from "./content";
+import { capstones, catalog, readyLessons } from "./content";
 
 const GENERATED = path.join(process.cwd(), "src", "generated");
 
@@ -19,5 +18,8 @@ export function getExam(id: string): Exam {
   return readJson<Exam>("exams", `${id}.json`);
 }
 
-export const lessonIds = () => readyLessons.map((l) => l.id);
+export const lessonIds = () => [
+  ...readyLessons.map((l) => l.id),
+  ...capstones.filter((c) => c.ready).map((c) => c.id),
+];
 export const examIds = () => catalog.exams.map((e) => e.id);

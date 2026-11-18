@@ -61,6 +61,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
   const [celebrate, setCelebrate] = useState(false);
   const exercise = lesson.exercises.find((e) => e.id === exerciseId) ?? null;
   const editingExercise = tab === "exercises" && exercise;
+  const runner = editingExercise ? (exercise.runner ?? meta.runner) : meta.runner;
 
   useEffect(() => {
     visitLesson(meta.id);
@@ -124,7 +125,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
   };
 
   return (
-    <RunnerContext.Provider value={meta.runner}>
+    <RunnerContext.Provider value={runner}>
     <div className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col lg:h-dvh">
       {/* Lesson header */}
       <header className="flex h-12 items-center gap-3 border-b border-border bg-background px-4">
@@ -135,7 +136,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
         </Button>
         <div className="min-w-0 flex-1">
           <div className="truncate text-xs text-muted-foreground">
-            {loc.t(phase?.title)} · {meta.kind === "project" ? t("projectBadge") : `${summary.order}`}
+            {phase ? `${loc.t(phase.title)} · ${meta.kind === "project" ? t("projectBadge") : summary.order}` : t("capstoneBadge")}
           </div>
           <h1 className="truncate font-bold leading-tight">
             <Tx value={meta.title} />
@@ -342,7 +343,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                 if (window.confirm(te("resetConfirm"))) onExCode(exercise.starter);
               }}
               highlightBlanks={exercise.kind === "fill"}
-              runner={meta.runner}
+              runner={runner}
               className="h-full"
             />
           ) : (
@@ -354,7 +355,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
               }
               code={scratch}
               onCodeChange={setScratch}
-              runner={meta.runner}
+              runner={runner}
               className="h-full"
             />
           )}
