@@ -302,7 +302,7 @@ Capstone được chia thành ba bài tập chấm tự động. Mỗi bài tậ
 |---|---|---|---|
 | `ex01` `ChatBot` | `ChatBot.ask(question)` trả về `{"answer", "sources", "rewritten"}` | Viết lại câu nối tiếp, cắt lịch sử theo ngân sách token, từ chối **mà không gọi `chat()`** khi không có chunk vượt `min_score`, chỉ trả về trích dẫn `[n]` hợp lệ | Giữ nguyên thông điệp `system` khi cắt các lượt cũ hơn, và đóng gói toàn bộ quy trình vào lớp `ChatBot` có trạng thái |
 | `ex02` Eval hội thoại | `run_dialog_eval(make_bot, dialogs)` và `compare_to_baseline(current, baseline)` | Tạo bot mới cho từng dialog, chấm mọi lượt (`expected_source`, `expected_facts`, từ chối), trả `fixed`, `broken`, `pass_rate`, và fail cổng hồi quy nếu có `broken` hoặc `pass_rate` dưới ngưỡng | Khởi tạo bot tách biệt qua `make_bot()` cho từng dialog, báo rõ từng cặp `(dialog_id, turn_idx)` bị lỗi, và áp đặt cổng hồi quy |
-| `ex03` Dịch vụ phiên | `create_app(docs, client, clock, session_ttl, max_sessions)` | Mở các route FastAPI `POST /sessions`, `POST /sessions/{id}/messages`, `GET /sessions/{id}`; áp dụng TTL và giới hạn số phiên; trả mã HTTP `404` cho phiên thiếu hoặc đã hết hạn | Định tuyến FastAPI kèm schema Pydantic, đếm và giới hạn `max_sessions` qua các request HTTP, và trả `404` khi phiên không tồn tại hoặc hết hạn |
+| `ex03` Dịch vụ phiên | `create_app(make_bot, clock, session_ttl, max_sessions)` | Mở các route FastAPI `POST /sessions`, `POST /sessions/{id}/messages`, `GET /sessions/{id}`; áp dụng TTL và giới hạn số phiên; trả mã HTTP `404` cho phiên thiếu hoặc đã hết hạn | Định tuyến FastAPI kèm schema Pydantic, đếm và giới hạn `max_sessions` qua các request HTTP, và trả `404` khi phiên không tồn tại hoặc hết hạn |
 
 ## 8. Tiêu chí chấm điểm
 
