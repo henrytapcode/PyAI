@@ -17,5 +17,5 @@ top_k("affordable automobile", docs, client, k=1, min_score=0.3)
 - Embed `docs` trong một lần gọi lô duy nhất (có thể gọi `client.embed(docs)` cùng `client.embed([query])`, hoặc gộp chung một lần `client.embed([query, *docs])` — tuyệt đối không lặp để gọi `embed` cho từng tài liệu).
 - Trả về danh sách `(index, score)` sắp xếp theo điểm giảm dần; nếu điểm bằng nhau thì ưu tiên `index` nhỏ hơn đứng trước.
 - Làm tròn mỗi `score` đến 3 chữ số thập phân và chuyển sang `float` chuẩn của Python (không để NumPy scalar).
-- Loại bỏ mọi tài liệu có điểm nhỏ hơn hẳn `min_score`.
+- Loại bỏ mọi tài liệu có điểm nhỏ hơn `min_score` (nếu bằng `min_score` thì vẫn giữ).
 - Nếu `k` lớn hơn số tài liệu hiện có, trả về toàn bộ tài liệu đạt ngưỡng.

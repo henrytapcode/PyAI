@@ -196,7 +196,7 @@ questions:
     vi:
       prompt: "Cả 7 kịch bản dùng script đều đạt (`7/7`). Bạn vẫn cần gì thêm trước khi tin tưởng chạy agent với một LLM thật?"
       options:
-        - "Không cần gì thêm; script đã chứng minh độ chính xác"
+        - "Không cần gì thêm; script đã chứng minh tỉ lệ đoán đúng (accuracy) của model"
         - "Xóa bộ chặn `repeat` để model tự do thử lại"
         - "Chạy eval không dùng script trên nhiều tác vụ thật"
         - "Bỏ `max_steps` để các tác vụ dài không bị ngắt"

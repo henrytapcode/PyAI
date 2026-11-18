@@ -1,4 +1,4 @@
-Giả sử khách hàng nhắn `"I can't sign in"`, trong khi bài hướng dẫn của bạn lại viết `"reset your password"`. Tìm kiếm theo từ khóa thông thường chỉ soi từng chữ trùng nhau nên sẽ trượt hoàn toàn. **Embedding** giải quyết chuyện này bằng cách biến văn bản thành dãy số để tìm theo **ý nghĩa** — đây là nền tảng của **semantic search** (tìm kiếm ngữ nghĩa), hệ thống gợi ý và chữ `"R"` (Retrieval — truy xuất) trong RAG (`p7-05-rag`), ngay sau khi ta lưu các vector này vào vector database ở bài `p7-04-vector-db`.
+Giả sử khách hàng nhắn `"I can't sign in"`, trong khi bài hướng dẫn của bạn lại viết `"reset your password"`. Tìm kiếm theo từ khóa thông thường chỉ soi từng chữ trùng nhau nên sẽ trượt hoàn toàn. **Embedding** giải quyết chuyện này bằng cách biến văn bản thành dãy số để tìm theo **ý nghĩa** — đây là nền tảng của **semantic search** (tìm kiếm ngữ nghĩa), hệ thống gợi ý và chữ `"R"` (Retrieval — truy xuất) trong RAG (`p7-05-rag`), ngay sau khi bạn lưu các vector này vào vector database ở bài `p7-04-vector-db`.
 
 ## 1. Văn bản thành vector
 
@@ -27,14 +27,14 @@ print("first 5:", [round(x, 3) for x in vectors[0][:5]])
 # first 5: [0.0, 0.0, 0.0, 0.577, 0.0]
 ```
 
-Để ý mỗi vector có `64` con số (đa số bằng `0.0`), và `embed()` luôn đòi hỏi một **list** (hoặc dãy) chuỗi—nếu truyền nhầm một chuỗi đơn sẽ bị lỗi `TypeError` như ta sẽ thử ở §7.
+Để ý mỗi vector có `64` con số (đa số bằng `0.0`), và `embed()` luôn đòi hỏi một **list** (hoặc dãy) chuỗi—nếu truyền nhầm một chuỗi đơn sẽ bị lỗi `TypeError` như bạn sẽ thử ở §7.
 
 > [!NOTE]
-> Cần nói thật về cách client offline hoạt động bên trong: `FakeLLM().embed()` dùng bộ đếm bag-of-words kèm một bảng từ đồng nghĩa nhỏ (`car`/`automobile`, `cheap`/`affordable`, `refund`/`"money back"`, `laptop`/`notebook`, `error`/`bug`, v.v.), băm từng từ vào `embed_dim` ô rồi **normalize** (chuẩn hóa độ dài). Embedding neural thật (như các model transformer bạn đã gặp ở `p6-03-huggingface`) học ngữ nghĩa từ lượng dữ liệu khổng lồ nên hiểu được cách diễn đạt, ngữ pháp và ngữ cảnh rộng hơn rất nhiều — nhưng hình học vector và code NumPy bạn viết thì giống hệt nhau.
+> Cần nói rõ về cách client offline hoạt động bên trong: `FakeLLM().embed()` dùng bộ đếm bag-of-words tất định kèm một bảng từ đồng nghĩa nhỏ (`car`/`automobile`, `cheap`/`affordable`, `refund`/`"money back"`, `laptop`/`notebook`, `error`/`bug`, v.v.), băm từng từ vào `embed_dim` ô rồi **normalize** (chuẩn hóa độ dài). Embedding neural thật (như các model transformer bạn đã gặp ở `p6-03-huggingface`) học ngữ nghĩa từ lượng dữ liệu khổng lồ nên hiểu được cách diễn đạt, ngữ pháp và ngữ cảnh rộng hơn rất nhiều — nhưng hình học vector và code NumPy bạn viết thì giống hệt nhau.
 
 ## 2. Cosine similarity: đo độ gần
 
-Từ bài `p5-01-math-bridge`, **cosine similarity** (độ tương đồng cosine) đo góc giữa hai vector `a` và `b` bằng `(a @ b) / (norm(a) * norm(b))`, không bị ảnh hưởng bởi độ dài mũi tên. Trước tiên ta tính tay trên hai list Python 3 chiều nhỏ để bạn quan sát từng biến thay đổi.
+Từ bài `p5-01-math-bridge`, **cosine similarity** (độ tương đồng cosine) đo góc giữa hai vector `a` và `b` bằng `(a @ b) / (norm(a) * norm(b))`, không bị ảnh hưởng bởi độ dài mũi tên. Trước tiên hãy tính tay trên hai list Python 3 chiều nhỏ để bạn quan sát từng biến thay đổi.
 
 Hãy bấm **Visualize** ở khối code này để xem `dot`, `norm_a_sq` và `norm_b_sq` tăng dần qua từng bước.
 
@@ -87,7 +87,7 @@ Với model thật, hai văn bản không liên quan vẫn thường có cosine 
 
 Hàm tìm kiếm theo từ khóa đơn thuần chỉ đếm số từ trùng chính xác giữa câu hỏi và tài liệu, nên khi gặp từ đồng nghĩa nó cho `0` điểm. Hãy so sánh bộ đếm từ khóa với embedding trên câu truy vấn `"affordable automobile"` qua bốn tài liệu ngắn.
 
-Chú ý ở đây ta chuyển sang `FakeLLM(embed_dim=256)`: với `64` ô, hai từ khác hẳn nhau vẫn có thể rơi chung vào một ô (**va chạm băm** — hash collision) và tạo điểm giả, còn `256` ô giúp bảng xếp hạng sạch và hợp lý hơn (model embedding thật dùng vài trăm tới vài nghìn chiều).
+Chú ý ở đây chuyển sang `FakeLLM(embed_dim=256)`: với `64` ô, hai từ khác hẳn nhau vẫn có thể rơi chung vào một ô (**va chạm băm** — hash collision) và tạo điểm giả, còn `256` ô giúp bảng xếp hạng sạch và hợp lý hơn (model embedding thật dùng vài trăm tới vài nghìn chiều).
 
 ```python
 import numpy as np
@@ -126,7 +126,7 @@ Tìm theo từ khóa chấm mọi tài liệu `0` điểm, còn tìm theo ngữ 
 | cách tìm | tìm được | bỏ sót |
 |---|---|---|
 | keyword search | từ khớp chính xác, mã sản phẩm, mã lỗi | từ đồng nghĩa và cách diễn đạt khác |
-| semantic search | câu đồng nghĩa, khái niệm liên quan | mã linh kiện riêng hoặc ID hiếm không có trong dữ liệu |
+| semantic search | câu đồng nghĩa, khái niệm liên quan | mã linh kiện chính xác hoặc ID hiếm không có trong dữ liệu huấn luyện / bảng từ đồng nghĩa |
 
 ## 4. Xếp hạng tài liệu: top-k
 
@@ -142,7 +142,7 @@ flowchart LR
     S --> T["top-k"]
 ```
 
-Để lấy **top-k** (k kết quả đứng đầu) một cách tất định khi có hai tài liệu bằng điểm nhau, hãy sắp xếp `-scores` bằng `np.argsort(-scores, kind="stable")[:k]` (`kind="stable"` giữ nguyên thứ tự chỉ số nhỏ đứng trước).
+Để lấy **top-k** (k kết quả điểm cao nhất) một cách tất định khi có hai tài liệu bằng điểm nhau, hãy sắp xếp điểm đảo dấu `-scores` bằng `np.argsort(-scores, kind="stable")[:k]` (kiểu sắp xếp ổn định `stable` giữ chỉ số nhỏ hơn đứng trước).
 
 ```python
 import numpy as np
@@ -216,11 +216,11 @@ for query in ["fast refund for broken notebook", "spicy noodle soup recipe"]:
 # 'spicy noodle soup recipe' -> no good match (best=0.0)
 ```
 
-Khi làm thật, hãy chọn `min_score` bằng cách thử trên vài câu hỏi mẫu có gắn nhãn đúng/sai chứ đừng đoán mò—ta sẽ đo đạc phần truy xuất bài bản hơn ở bài `p7-08-evals`.
+Khi làm thật, hãy chọn `min_score` bằng cách thử trên vài câu hỏi mẫu có gắn nhãn đúng/sai chứ đừng đoán mò—bạn sẽ đo đạc phần truy xuất bài bản hơn ở bài `p7-08-evals`.
 
 ## 6. Chi phí và batch
 
-API embedding cũng tính phí theo **token** y như `chat()`, nên bạn có thể ước lượng trước bằng `count_tokens` của `pyai_llm`. Hãy gom cả danh sách vào một lần gọi `client.embed(docs)` theo lô (batch) thay vì gọi `client.embed([doc])` từng câu một trong vòng lặp để tránh tốn thời gian mạng và chạm giới hạn tốc độ (rate limit).
+API embedding cũng tính phí theo **token** y như `chat()`, nên bạn có thể ước lượng trước bằng `count_tokens` của `pyai_llm`. Hãy gom cả danh sách vào một lần gọi `client.embed(docs)` theo lô (batch) thay vì gọi `client.embed([doc])` từng câu một trong vòng lặp để tránh tốn nhiều lượt gửi nhận qua mạng và chạm giới hạn tốc độ (rate limit) nhanh hơn.
 
 ```python
 from pyai_llm import FakeLLM, count_tokens
@@ -288,7 +288,7 @@ Cách sửa: luôn dùng đúng một model và cùng `embed_dim` khi tạo ma t
 
 **3. Dùng tích vô hướng thô trên vector chưa chuẩn hóa**
 
-Nếu vector chưa được chuẩn hóa về độ dài `1.0`, vector dài hơn mang các số lớn hơn sẽ thắng về tích vô hướng dù hướng của nó lệch hơn.
+Nếu vector chưa được chuẩn hóa về độ dài `1.0`, vector dài hơn với các phần tử lớn hơn sẽ cho tích vô hướng cao hơn dù hướng của nó lệch hơn.
 
 ```python
 import numpy as np
@@ -307,7 +307,7 @@ print("cosine  -> aligned:", round(float(cos_aligned), 3), "longer:", round(floa
 # cosine  -> aligned: 0.8 longer: 0.447
 ```
 
-Cách sửa: luôn tính cosine similarity đầy đủ (hoặc chuẩn hóa mọi vector trước) để độ dài văn bản không làm méo bảng xếp hạng.
+Cách sửa: luôn tính cosine similarity đầy đủ (hoặc chuẩn hóa mọi vector trước) để độ dài vector không làm méo bảng xếp hạng.
 
 **4. Quên rằng `np.argsort` sắp xếp tăng dần**
 
@@ -333,4 +333,4 @@ Cách sửa: truyền `-scores` vào `np.argsort(-scores, kind="stable")[:k]` đ
 - **Cosine similarity** đo độ gần theo hướng trong đoạn `[-1, 1]`; khi vector đã được chuẩn hóa L2 (`norm == 1.0`), cosine rút gọn đúng bằng tích vô hướng `a @ b`.
 - Embed tài liệu **một lần** thành ma trận `D` giúp chấm điểm mọi tài liệu chỉ với `D @ q`, rồi lấy top-k bằng `np.argsort(-scores, kind="stable")[:k]`.
 - Đặt ngưỡng `min_score` để các câu hỏi lạc đề trả về `"no good match"` thay vì đưa tài liệu sai vào prompt.
-- Gọi `client.embed(docs)` một lần theo lô, ước lượng token bằng `count_tokens()` và luôn giữ đồng nhất model cùng số chiều vector.
+- Gọi `client.embed(docs)` một lần theo lô, ước lượng token bằng `count_tokens()` và không bao giờ trộn vector từ các model hoặc số chiều khác nhau.

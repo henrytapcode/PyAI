@@ -35,7 +35,7 @@ questions:
         - "To skip computing dot products during retrieval"
       explanation: "Without overlap, a sentence or key fact crossing a chunk boundary gets cut in half; repeating a few words at the start of the next chunk keeps that fact intact in at least one chunk."
     vi:
-      prompt: "Vì sao ta thêm chunk overlap (phần gối) khi cắt tài liệu dài?"
+      prompt: "Vì sao bạn cần thêm chunk overlap (phần gối) khi cắt tài liệu dài?"
       options:
         - "Để tăng gấp đôi số chiều của mỗi vector embedding"
         - "Để tự động xóa sạch mọi dấu câu trong từng đoạn"

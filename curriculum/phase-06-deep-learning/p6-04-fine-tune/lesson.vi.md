@@ -164,7 +164,7 @@ Vòng lặp training giữ nguyên khung của `p6-02`, chỉ khác ở hai đi�
 1. Truyền `labels=train_y` thẳng vào `model(**train_batch, labels=train_y)`: model tự tính cross-entropy loss và trả sẵn trong `out.loss`.
 2. Dùng `torch.optim.AdamW` với learning rate nhỏ (`lr=5e-4`), để đầu phân loại học nhanh mà không phá hỏng kiến thức tiếng Anh sẵn có trong phần thân model.
 
-`AdamW` = Adam + weight decay (tách rời), lựa chọn mặc định phổ biến khi fine-tune các model transformer. Ở đây ta quét từ epoch `1–10` và ghi lại cả validation accuracy lẫn validation loss ở từng mốc:
+`AdamW` = Adam + weight decay (tách rời), lựa chọn mặc định phổ biến khi fine-tune các model transformer. Ở đây bạn quét từ epoch `1–10` và ghi lại cả tỉ lệ đoán đúng (accuracy) trên validation lẫn validation loss ở từng mốc:
 
 ```python
 import torch
@@ -240,9 +240,9 @@ for epoch in range(1, 11):
 # epoch 10: loss=0.254  val_loss=0.211  val_acc=1.0
 ```
 
-Theo dõi train loss và validation loss giảm đều trong khoảng epoch `1–10`, còn validation accuracy vọt từ `0.5` lên `1.0`:
+Theo dõi train loss và validation loss giảm đều trong khoảng epoch `1–10`, còn tỉ lệ đoán đúng trên validation vọt từ `0.5` lên `1.0`:
 
-| epoch | train loss | val loss | val accuracy |
+| epoch | train loss | val loss | tỉ lệ đoán đúng (val) |
 |---|---|---|---|
 | `1` | `0.712` | `0.667` | `0.500` |
 | `2` | `0.665` | `0.654` | `0.438` |
@@ -270,11 +270,11 @@ print(f"best epoch: {best_epoch} (val_acc={best_val}, val_loss={best_loss})")
 # best epoch: 10 (val_acc=1.0, val_loss=0.211)
 ```
 
-Lưu ý `val_acc` đạt `1.000` từ epoch `6` và giữ vững trong khi `val_loss` tiếp tục giảm xuống `0.211` ở epoch `10`. Vì ở đây chỉ quét khoảng `1–10` epoch, ta chốt `10` epoch dựa hoàn toàn trên validation trước khi đụng vào tập test.
+Lưu ý `val_acc` đạt `1.000` từ epoch `6` và giữ vững trong khi `val_loss` tiếp tục giảm xuống `0.211` ở epoch `10`. Vì ở đây chỉ quét khoảng `1–10` epoch, bạn chốt `10` epoch dựa hoàn toàn trên validation trước khi đụng vào tập test.
 
 ## 5. Đánh giá cuối cùng trên tập test
 
-Khi đã chốt `10` epoch trên tập validation xong xuôi, ta mới dùng `16` ticket test giữ kín chỉ cho báo cáo kết quả cuối cùng — so sánh mốc trước khi fine-tune (`0.562`, chỉ dùng để tham khảo chứ không dùng ra bất kỳ quyết định nào) với kết quả sau khi fine-tune (`0.938`), đồng thời in ra những ticket bị đoán sai để xem model vấp ở đâu:
+Khi đã chốt `10` epoch trên tập validation xong xuôi, bạn mới dùng `16` ticket test giữ kín chỉ cho báo cáo kết quả cuối cùng — so sánh mốc trước khi fine-tune (`0.562`, chỉ dùng để tham khảo chứ không dùng ra bất kỳ quyết định nào) với kết quả sau khi fine-tune (`0.938`), đồng thời in ra những ticket bị đoán sai để xem model vấp ở đâu:
 
 ```python
 import torch
@@ -362,7 +362,7 @@ Model đoán đúng `15/16` ticket test (bao gồm cả câu dùng từ đồng 
 | số câu sai (trên 16) | `7` | `1` |
 
 > [!WARNING]
-> Khi tập test chỉ có 15–20 câu, mỗi câu đoán sai kéo accuracy tụt tới 5–7 điểm phần trăm (`6,25` điểm với `16` câu ở đây). Luôn báo kèm kích thước tập test và đừng khoe `"100%"` trên một tập test nhỏ.
+> Khi tập test chỉ có 15–20 câu, mỗi câu đoán sai kéo tỉ lệ đoán đúng tụt tới 5–7 điểm phần trăm (`6,25` điểm với `16` câu ở đây). Luôn báo kèm kích thước tập test và đừng khoe `"100%"` trên một tập test nhỏ.
 
 ## 6. Lưu, nạp lại và dự đoán ticket mới
 
@@ -450,7 +450,7 @@ Nhờ `id2label` đã lưu trong `config.json`, `pipeline` in ra nhãn chữ `"b
 
 **1. Quên `torch.manual_seed(0)` trước khi nạp model**
 
-Vì classification head mới được khởi tạo ngẫu nhiên, bỏ qua hoặc đổi seed sẽ làm accuracy trước fine-tune nhảy sang con số khác mỗi lần chạy.
+Vì classification head mới được khởi tạo ngẫu nhiên, bỏ qua hoặc đổi seed sẽ làm tỉ lệ đoán đúng trước fine-tune nhảy sang con số khác mỗi lần chạy.
 
 ```python
 import torch
@@ -574,7 +574,7 @@ Python không báo lỗi nếu bạn nhìn điểm test để chọn `epochs`, n
 
 - Để ý `val_loss` vẫn đang giảm ở epoch `10` (`0.211`), nên bạn có thể quét dài hơn khoảng `1–10` epoch để xem validation loss chạm đáy ở đâu.
 - Thêm lớp thứ ba như `"feature request"` bằng cách đặt `num_labels=3` và cập nhật `id2label` / `label2id`.
-- Thu thập thêm vài trăm ticket thật và đo **precision** (độ chuẩn khi báo dương) cùng **recall** (độ nhạy, tức tỉ lệ bắt được) cho từng lớp (bài `p5-04`) thay vì chỉ nhìn mỗi accuracy (tỉ lệ đoán đúng).
+- Thu thập thêm vài trăm ticket thật và đo **precision** (độ chuẩn khi báo dương) cùng **recall** (độ nhạy, tức tỉ lệ bắt được) cho từng lớp (bài `p5-04`) thay vì chỉ nhìn mỗi tỉ lệ đoán đúng (accuracy).
 - Thử model nền lớn hơn hoặc chuyển sang GPU khi tập dữ liệu vượt quá vài trăm câu.
 - Tìm hiểu kỹ thuật **LoRA** (Low-Rank Adaptation) khi fine-tune các model lớn hơn nhiều để chỉ phải cập nhật một phần nhỏ trọng số (xem mục Đọc thêm).
 

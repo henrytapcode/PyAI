@@ -1,4 +1,4 @@
-# Đo accuracy trước và sau khi fine-tune
+# Đo tỉ lệ đoán đúng (accuracy) trước và sau khi fine-tune
 
 **Bài này minh họa:** Chấm điểm bộ đầu phân loại (classification head) khởi tạo ngẫu nhiên của BERT-Tiny trên tập test (`0.562`), fine-tune 10 epoch full-batch bằng `AdamW` rồi đo mức tăng (`0.938`).
 
@@ -9,4 +9,4 @@
 
 **Lưu ý:** Đặt `torch.manual_seed(0)` ngay trước `from_pretrained()` giúp cả trọng số ngẫu nhiên của classification head lẫn dropout lúc train đều lặp lại được y hệt.
 
-**Tự thử:** Đổi `lr=5e-4` thành `lr=1e-1` rồi xem accuracy sau khi train không thể tăng ổn định như thế nào.
+**Tự thử:** Đổi `lr=5e-4` thành `lr=1e-1` rồi xem tỉ lệ đoán đúng sau khi train không thể tăng ổn định như thế nào.

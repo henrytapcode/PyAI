@@ -4,7 +4,7 @@ Bot RAG của bạn chạy êm ru suốt tuần đầu tiên. Sang tuần thứ 
 
 Hãy hình dung mỗi dòng **metric** (chỉ số đo lường) giống như hộp đen trên máy bay: chuyến bay nào cũng ghi đều đặn những con số gọn nhẹ để khi có sự cố là tra lại được ngay. Với dịch vụ LLM, mỗi request xuất ra một bản ghi phẳng gồm `request_id`, `route`, `model`, `latency_ms`, `prompt_tokens`, `completion_tokens`, `cost_usd`, `cache_hit` và `status` (`"ok"` hoặc `"error"`).
 
-Ở production, bạn truyền `time.perf_counter` hoặc `time.monotonic` làm `clock` ngay trước và sau lời gọi model—cả hai đồng hồ này đều không chạy lùi (`perf_counter` mịn hơn nên hợp đo độ trễ, còn `monotonic` đủ dùng cho TTL của cache), và cả hai đều truyền vào được như một hàm không tham số `clock`. Trong bài học này, chúng ta tiêm `FakeClock` từ bài `p8-03-caching` (gọi `clock()` được là nhờ `__call__`) để mọi ví dụ chạy tức thì và luôn ra cùng một kết quả.
+Ở production, bạn truyền `time.perf_counter` hoặc `time.monotonic` làm `clock` ngay trước và sau lời gọi model—cả hai đồng hồ này đều không chạy lùi (`perf_counter` mịn hơn nên hợp đo độ trễ, còn `monotonic` đủ dùng cho TTL của cache), và cả hai đều truyền vào được như một hàm không tham số `clock`. Trong bài học này, bạn tiêm `FakeClock` từ bài `p8-03-caching` (gọi `clock()` được là nhờ `__call__`) để mọi ví dụ chạy tức thì và luôn ra cùng một kết quả.
 
 ```python
 import json
@@ -91,7 +91,7 @@ Hãy để ý cả lần trượt cache lẫn lần trúng cache đều xuất r
 
 ## 2. Ghi log bằng `logging`, không phải `print`
 
-Ở bài `p3-03-logging`, bạn đã học cách dùng module `logging` của Python thay cho `print`. Ở đây ta cấu hình logger riêng tên `"app.metrics"` ghi các dòng JSON ra `sys.stdout` với `format="%(message)s"` để mỗi dòng xuất ra đều là JSON hợp lệ.
+Ở bài `p3-03-logging`, bạn đã học cách dùng module `logging` của Python thay cho `print`. Ở đây bạn cấu hình logger riêng tên `"app.metrics"` ghi các dòng JSON ra `sys.stdout` với `format="%(message)s"` để mỗi dòng xuất ra đều là JSON hợp lệ.
 
 ```python
 import json
@@ -121,7 +121,7 @@ print("collected:", len(collected))
 # collected: 2
 ```
 
-Ở production, các dòng log trên stdout này được gom về một nơi (ví dụ hệ thống log của cloud) để tìm kiếm và vẽ biểu đồ; trong bài này chúng ta giữ thêm bản ghi trong một list để tính toán tổng hợp trực tiếp.
+Ở production, các dòng log trên stdout này được gom về một nơi (ví dụ hệ thống log của cloud) để tìm kiếm và vẽ biểu đồ; trong bài này bạn giữ thêm bản ghi trong một list để tính toán tổng hợp trực tiếp.
 
 ## 3. Latency: vì sao trung bình đánh lừa bạn
 
@@ -136,7 +136,7 @@ index:           0    1    2    3    4    5    6    7    8    9
                                p50 (rank 5)             p95 (rank 10)
 ```
 
-Để tính percentile một cách rõ ràng, ta dùng phương pháp **nearest-rank** (hạng gần nhất): sắp xếp dãy tăng dần, tính `rank = math.ceil(p / 100 * n)` rồi lấy phần tử `ordered[rank - 1]`. Ta chọn nearest-rank vì công thức đơn giản và luôn trả về một giá trị có thật từng xảy ra trong list (trong khi `statistics.quantiles` dùng nội suy nên có thể cho ra con số nằm giữa hai giá trị, hơi khác một chút).
+Để tính percentile một cách rõ ràng, bài này dùng phương pháp **nearest-rank** (hạng gần nhất): sắp xếp dãy tăng dần, tính `rank = math.ceil(p / 100 * n)` rồi lấy phần tử `ordered[rank - 1]`. Phương pháp nearest-rank được chọn vì công thức đơn giản và luôn trả về một giá trị có thật từng xảy ra trong list (trong khi `statistics.quantiles` dùng nội suy nên có thể cho ra con số nằm giữa hai giá trị, hơi khác một chút).
 
 Bấm **Visualize** ở khối code này để xem `ordered` được sắp xếp và `rank` được tính cho `p=50` và `p=95`.
 

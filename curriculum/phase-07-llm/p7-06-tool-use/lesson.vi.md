@@ -98,7 +98,7 @@ Với mô tả mơ hồ, ba từ `"what"`, `"the"` và `"for"` giúp `search_log
 
 ## 3. Vòng tool hoàn chỉnh
 
-Một vòng gọi tool gồm 5 bước: (1) gọi `client.chat(messages, tools=tools)`; (2) nếu `finish_reason == "tool_calls"`, điều phối chạy hàm tương ứng; (3) nối thêm message `assistant` (có `tool_calls`) **và** message `tool` chứa kết quả; (4) gọi `client.chat(messages, tools=tools)` lần thứ hai; (5) trả về câu trả lời cuối. Nếu model không cần tool (`finish_reason == "stop"`), ta trả về `resp.content` ngay.
+Một vòng gọi tool gồm 5 bước: (1) gọi `client.chat(messages, tools=tools)`; (2) nếu `finish_reason == "tool_calls"`, điều phối chạy hàm tương ứng; (3) nối thêm message `assistant` (có `tool_calls`) **và** message `tool` chứa kết quả; (4) gọi `client.chat(messages, tools=tools)` lần thứ hai; (5) trả về câu trả lời cuối. Nếu model không cần tool (`finish_reason == "stop"`), bạn trả về `resp.content` ngay.
 
 ```mermaid
 flowchart LR
@@ -223,7 +223,7 @@ print(tool_messages)
 
 ## 5. Nhiều tool và giới hạn vòng
 
-Trợ lý thực tế thường có nhiều tool cùng lúc—như xem thời tiết, đổi tiền và tra đơn hàng—và bọc lời gọi `chat()` trong vòng lặp có giới hạn `for _ in range(max_rounds)`. Dù ở bài này ta chỉ cần một vòng tool, tham số `max_rounds` vẫn rất cần thiết để chặn chi phí và ngăn lặp vô hạn nếu model cứ gọi tool mãi (được mô phỏng bằng `FakeLLM(script=...)` bên dưới).
+Trợ lý thực tế thường có nhiều tool cùng lúc—như xem thời tiết, đổi tiền và tra đơn hàng—và bọc lời gọi `chat()` trong vòng lặp có giới hạn `for _ in range(max_rounds)`. Dù ở bài này bạn chỉ cần một vòng tool, tham số `max_rounds` vẫn rất cần thiết để chặn chi phí và ngăn lặp vô hạn nếu model cứ gọi tool mãi (được mô phỏng bằng `FakeLLM(script=...)` bên dưới).
 
 ```python
 import json

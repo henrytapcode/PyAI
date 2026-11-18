@@ -2,7 +2,7 @@ Nếu bạn hỏi bot hỗ trợ *"Đơn #1042 của tôi bao giờ tới, và n
 
 ## 1. Từ một lần gọi tool tới vòng lặp
 
-Ở bài `p7-06-tool-use`, bạn đã chạy vòng tool một bước: gửi prompt kèm `tools`, chạy một hàm model đề xuất rồi để model trả lời. Với `FakeLLM()`, một câu hỏi đơn vẫn tự chọn đúng tool dựa vào `description`:
+Ở bài `p7-06-tool-use`, bạn đã chạy vòng tool một bước: gửi prompt kèm `tools`, chạy hàm mà model đề xuất rồi để model trả lời. Với `FakeLLM()`, một câu hỏi đơn vẫn tự chọn đúng tool dựa vào `description`:
 
 ```python
 from pyai_llm import FakeLLM
@@ -238,7 +238,7 @@ for label, sc, cap, bgt in scenarios:
 # budget    -> reason=budget, steps=2, tokens=36
 ```
 
-Để quan sát biến thay đổi gọn gàng mà không gọi `FakeLLM`, ta dùng một agent đồ chơi lấy quyết định từ list viết tay. Bấm **Visualize** ở khối code này để xem `step`, `trace` và `stopped_reason` thay đổi qua từng bước:
+Để quan sát biến thay đổi gọn gàng mà không gọi `FakeLLM`, bạn dùng một agent đồ chơi lấy quyết định từ list viết tay. Bấm **Visualize** ở khối code này để xem `step`, `trace` và `stopped_reason` thay đổi qua từng bước:
 
 ```python
 decisions = [
@@ -329,7 +329,7 @@ print("answer:", answer)
 # answer: Found order 1042: shipped (FastPost).
 ```
 
-Giới hạn là rất rõ: nếu model cứ lặp lại đúng lời gọi lỗi đó ở bước sau, phanh `repeat` (hoặc `max_steps`) sẽ dừng vòng lặp lại ngay.
+Nếu ở bước 2 model lặp lại đúng lời gọi `lookup_order({'order_id': '9999'})` với cùng tham số như cũ, phanh `repeat` ở §4 sẽ dừng vòng lặp ngay lập tức thay vì để agent quay vòng tới `max_steps`.
 
 ## 6. An toàn khi agent có quyền hành động
 

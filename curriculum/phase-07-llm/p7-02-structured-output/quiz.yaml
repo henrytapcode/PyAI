@@ -13,7 +13,7 @@ questions:
         - "Free-form prose cannot be stored in Python strings"
       explanation: "Prose phrasing varies between calls and breaks string `.split()` logic, whereas JSON maps straight into Python dicts with predictable keys."
     vi:
-      prompt: "Vì sao khi xây ứng dụng ta cần yêu cầu LLM trả về JSON thay vì văn xuôi tự do?"
+      prompt: "Vì sao khi xây ứng dụng bạn cần yêu cầu LLM trả về JSON thay vì văn xuôi tự do?"
       options:
         - "Phản hồi JSON luôn miễn phí không bị tính tiền token"
         - "Code có thể parse các trường JSON thành dict ổn định"

@@ -191,7 +191,7 @@ flowchart LR
     L -- "không" --> E["raise lại lỗi"]
 ```
 
-Trong môi trường trình duyệt ta không dùng `time.sleep()`, nên đoạn code dưới đây chỉ in ra thời gian chờ thay vì ngủ thật. `FakeLLM(fail_times=2)` lỗi 2 lần đầu rồi thành công ở lần 3; `FakeLLM(fail_times=3)` dùng hết 3 lượt nên `RateLimitError` được raise lại ra ngoài:
+Trong môi trường trình duyệt bạn không dùng `time.sleep()`, nên đoạn code dưới đây chỉ in ra thời gian chờ thay vì ngủ thật. `FakeLLM(fail_times=2)` lỗi 2 lần đầu rồi thành công ở lần 3; `FakeLLM(fail_times=3)` dùng hết 3 lượt nên `RateLimitError` được raise lại ra ngoài:
 
 ```python
 from pyai_llm import FakeLLM, RateLimitError

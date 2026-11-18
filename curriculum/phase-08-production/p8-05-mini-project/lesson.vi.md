@@ -19,7 +19,7 @@ flowchart TD
 
 Từng phần trong mini-project này nối trực tiếp với các bài bạn đã học:
 
-| part | phần xây dựng | từ bài |
+| phần | phần xây dựng | từ bài |
 |---|---|---|
 | Part 1: App factory & chỉ mục | `create_app(docs, client, clock)` embed tài liệu một lần và `GET /health` | mới trong bài này (app factory), `p7-09-mini-project-rag` |
 | Part 2: Trích nguồn & từ chối | `POST /ask` với `AskRequest`, lọc `min_score`, prompt `[n]` và từ chối không gọi LLM | `p7-09-mini-project-rag`, `p8-01-fastapi` |
@@ -40,7 +40,7 @@ Dịch vụ hoàn chỉnh trong phần minh họa cung cấp ba endpoint:
 
 Viết `app = FastAPI()` ở cấp module làm các bài test dùng chung trạng thái và dễ làm hỏng nhau. Thay vào đó, hãy dùng **app factory** (hàm tạo app) `create_app(docs, client, clock)` trả về một `FastAPI()` mới mỗi lần gọi, giữ toàn bộ vector tài liệu, cache và danh sách metric bên trong closure. Việc truyền `client` và `clock` qua tham số chính là **dependency injection** (tiêm phụ thuộc) ở dạng đơn giản nhất: khi test bạn truyền `FakeLLM` và `FakeClock`, còn ở production bạn truyền API client thật và `time.monotonic` (truyền hàm, không gọi).
 
-Hãy embed toàn bộ tài liệu **một lần** ngay khi tạo app (nối lại bước nạp dữ liệu ở `p7-09-mini-project-rag`), thay vì embed lại ở mỗi request. Ta dùng lại `FakeClock` ở `p8-03-caching`: nhờ `__call__`, dịch vụ có thể gọi `clock()` giống hệt `time.monotonic`:
+Hãy embed toàn bộ tài liệu **một lần** ngay khi tạo app (nối lại bước nạp dữ liệu ở `p7-09-mini-project-rag`), thay vì embed lại ở mỗi request. Bạn dùng lại `FakeClock` ở `p8-03-caching`: nhờ `__call__`, dịch vụ có thể gọi `clock()` giống hệt `time.monotonic`:
 
 ```python
 from fastapi import FastAPI
@@ -251,7 +251,7 @@ t=10  ask("  How many days   do refunds take? ", top_k=2) -> HIT (10 < 300)
 t=400 ask("How many days do refunds take?", top_k=2) -> MISS (expired, 400 >= 300)
 ```
 
-Ở production bạn truyền `time.monotonic` làm `clock` (đồng hồ này không chạy lùi nên hợp kiểm tra TTL); ở đây ta tiêm `FakeClock` để nhảy trước 380 giây ngay lập tức:
+Ở production bạn truyền `time.monotonic` làm `clock` (đồng hồ này không chạy lùi nên hợp kiểm tra TTL); ở đây bạn truyền `FakeClock` để tua nhanh 380 giây ngay lập tức:
 
 ```python
 import hashlib
@@ -365,7 +365,7 @@ Bạn thấy ở `t=20`, việc đổi sang `top_k=1` gây trượt cache (`chat
 
 ## 5. Part 4: metric và `GET /metrics`
 
-Giờ đo `t0 = clock()` trước và `clock()` sau mỗi request `/ask` hợp lệ, ghi lại bản ghi gồm `latency_ms`, `cost` và `cached`. Lưu ý các request lỗi Pydantic (`422`) bị chặn trước khi vào hàm xử lý `/ask` nên không nằm trong `records`. Bản minh họa trong bài học tạm giả sử `client.chat` luôn thành công và chưa bắt lỗi model; ở Bài tập 2, bạn sẽ tự thêm nhánh bắt `RateLimitError` để trả `503` và ghi `status="error"`. Để mô phỏng độ trễ LLM tất định mà không cần ngủ thật, `SlowClient.chat` cộng thêm `0.2 + 0.002 * completion_tokens` giây vào `clock`, còn các lượt trúng cache bỏ qua `chat()` nên độ trễ là `0.0` ms và chi phí `$0.0000`.
+Giờ hãy bọc mỗi lần gọi `/ask` hợp lệ bằng `t0 = clock()` ở trước và `clock()` ở sau, lưu một bản ghi metric phẳng gồm `latency_ms`, `cost` và `cached`. Lưu ý các request lỗi Pydantic (`422`) bị chặn trước khi vào hàm xử lý `/ask` nên không nằm trong `records`. Bản minh họa trong bài học tạm giả sử `client.chat` luôn thành công và chưa bắt lỗi model; ở Bài tập 2, bạn sẽ tự thêm nhánh bắt `RateLimitError` để trả `503` và ghi `status="error"`. Để mô phỏng độ trễ LLM tất định mà không cần ngủ thật, `SlowClient.chat` cộng thêm `0.2 + 0.002 * completion_tokens` giây vào `clock`, còn các lượt trúng cache bỏ qua `chat()` nên độ trễ là `0.0` ms và chi phí `$0.0000`.
 
 Route `GET /metrics` tính `requests`, `cache_hit_rate`, `p50_ms` và `p95_ms` theo phương pháp **nearest-rank** (`p8-04-monitoring`), `total_cost` và danh sách `alerts`:
 
@@ -679,7 +679,7 @@ Bảng dưới đây cho thấy mỗi hàm test bảo vệ điều gì:
 
 ## 7. Part 6: đóng gói và chạy thật
 
-Khi chạy thật ngoài bài test, file `main.py` chỉ cần vài dòng nối dây khai báo `DOCS`, tạo `real_client`, và gọi `app = create_app(DOCS, real_client, time.monotonic)` (truyền thẳng hàm `time.monotonic` mà không gọi nó). Trên terminal, bạn bật server với `uvicorn` và gọi thử `/ask` bằng `curl`:
+Khi chạy thật ngoài bài test, file `main.py` chỉ cần vài dòng lắp ráp khai báo `DOCS`, tạo `real_client`, và gọi `app = create_app(DOCS, real_client, time.monotonic)` (truyền thẳng hàm `time.monotonic` mà không gọi nó). Trên terminal, bạn bật server với `uvicorn` và gọi thử `/ask` bằng `curl`:
 
 ```bash
 # main.py wires: app = create_app(DOCS, real_client, time.monotonic)

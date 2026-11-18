@@ -173,7 +173,7 @@ print("sources:", [h["source"] for h in hits])
 Để ý rằng `chunks` có `6` đoạn (`2` đoạn mỗi file) và `client.chat(messages)` trả về câu trả lời kèm nhãn `[1]`.
 
 > [!NOTE]
-> Nói thật về cách hoạt động bên dưới: `FakeLLM.chat()` bật chế độ RAG khi thấy dòng `Context:` theo sau bởi `[1] ...`, `[2] ...`, rồi chọn chunk có nhiều từ chữ thường trùng nhất với câu hỏi (từ ≥ 3 ký tự, không cắt gốc từ, giữ nguyên stopword) và trả về câu đầu tiên kèm `[n]` (hoặc `"I don't know based on the provided context."` nếu trùng dưới 2 từ). LLM thật biết đọc hiểu, suy luận và tổng hợp nhiều chunk, nhưng **hình dạng pipeline và cấu trúc prompt thì giống hệt**.
+> Nói rõ về cách hoạt động bên dưới: `FakeLLM.chat()` bật chế độ RAG khi thấy dòng `Context:` theo sau bởi `[1] ...`, `[2] ...`, rồi chọn chunk có nhiều từ chữ thường trùng nhất với câu hỏi (từ ≥ 3 ký tự, không cắt gốc từ, giữ nguyên stopword) và trả về câu đầu tiên kèm `[n]` (hoặc `"I don't know based on the provided context."` nếu trùng dưới 2 từ). LLM thật biết đọc hiểu, suy luận và tổng hợp nhiều chunk, nhưng **hình dạng pipeline và cấu trúc prompt thì giống hệt**.
 
 ## 4. Prompt có căn cứ
 
@@ -216,7 +216,7 @@ Tách phần hướng dẫn cùng `Context:` trong `system` khỏi câu hỏi th
 
 ## 5. Trích nguồn và kiểm trích dẫn
 
-Một **citation** (trích dẫn nguồn) như `[1]` giúp người dùng đối chiếu câu trả lời với file gốc. Trong biểu thức `re.findall(r"\[(\d+)\]", answer)`, `\[` và `\]` khớp hai dấu ngoặc vuông thật (phải escape vì `[...]` không có `\` là lớp ký tự regex), còn `(\d+)` bắt nhóm một hoặc nhiều chữ số (`0`–`9`). Vì `re.findall` trả về danh sách chuỗi (như `['1', '3']`), ta ép từng phần tử sang `int(...)`, kiểm tra số có nằm trong `1..len(hits)` không rồi ánh xạ sang `source`—nếu câu trả lời nhắc tới `[7]` khi context chỉ có 2 chunk thì đó là dấu hiệu bịa đặt.
+Một **citation** (trích dẫn nguồn) như `[1]` giúp người dùng đối chiếu câu trả lời với file gốc. Trong biểu thức `re.findall(r"\[(\d+)\]", answer)`, `\[` và `\]` khớp hai dấu ngoặc vuông thật (phải escape vì `[...]` không có `\` là lớp ký tự regex), còn `(\d+)` bắt nhóm một hoặc nhiều chữ số (`0`–`9`). Vì `re.findall` trả về danh sách chuỗi (như `['1', '3']`), bạn ép từng phần tử sang `int(...)`, kiểm tra số có nằm trong `1..len(hits)` không rồi ánh xạ sang `source`—nếu câu trả lời nhắc tới `[7]` khi context chỉ có 2 chunk thì đó là dấu hiệu bịa đặt.
 
 ```python
 import re
@@ -256,7 +256,7 @@ print("valid:", valid_sources, "invalid:", bad_refs)
 # valid: ['refunds.md'] invalid: [7]
 ```
 
-Theo dõi ba câu hỏi chính sách đi qua kho 6 chunk của chúng ta để thấy toàn bộ đường đi từ chunk đầu bảng tới `sources` đã kiểm:
+Theo dõi ba câu hỏi chính sách đi qua kho 6 chunk ở trên để thấy toàn bộ đường đi từ chunk đầu bảng tới `sources` đã kiểm:
 
 | question | top chunk | score | answer | sources |
 |---|---|---|---|---|

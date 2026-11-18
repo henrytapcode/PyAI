@@ -203,7 +203,7 @@ print("unchanged doc vector reused:", vecs_2[0] == vecs_1[0])
 # unchanged doc vector reused: True
 ```
 
-Bạn thấy ở lần chạy thứ hai, chỉ có `1` tài liệu thật sự được gửi tới `client.embed(...)`, trong khi danh sách trả về vẫn đủ `5` vector đúng thứ tự. Vì key đã chứa `model` rồi nên cache của model cũ sẽ không đụng hàng với model mới—tuy vậy, khi chuyển hẳn sang model embedding khác (nhớ lại bài `p7-03-embeddings` rằng vector giữa hai model không so sánh được với nhau), hãy xóa cache của model cũ để giải phóng RAM và embed lại bằng model mới.
+Bạn thấy ở lần chạy thứ hai, chỉ có `1` tài liệu thật sự được gửi tới `client.embed(...)`, trong khi danh sách trả về vẫn đủ `5` vector đúng thứ tự. Vì key đã chứa `model` rồi nên cache của model cũ sẽ không trùng với model mới—tuy vậy, khi chuyển hẳn sang model embedding khác (nhớ lại bài `p7-03-embeddings` rằng vector giữa hai model không so sánh được với nhau), hãy xóa cache của model cũ để giải phóng RAM và embed lại bằng model mới.
 
 ## 5. LRU: giới hạn bộ nhớ
 
@@ -323,7 +323,7 @@ print("t=61 get:", ttl_cache.get("faq:pw"))
 # t=61 get: None
 ```
 
-Quản lý thời điểm dữ liệu cũ mất hiệu lực gọi là **invalidation** (làm mất hiệu lực dữ liệu cũ), và có hai nguyên tắc thực tế bạn cần nhớ:
+Quản lý thời điểm dữ liệu cache hết hiệu lực gọi là **invalidation** (hủy hiệu lực bản lưu cũ), và có hai nguyên tắc thực tế bạn cần nhớ:
 - **Chọn TTL là sự đánh đổi:** TTL ngắn giúp dữ liệu tươi hơn nhưng hit rate thấp hơn, còn TTL dài tăng hit rate nhưng dễ trả về thông tin cũ.
 - **Đưa phiên bản vào key:** khi tài liệu nguồn của RAG hoặc system prompt thay đổi, hãy đưa `index_version` hoặc `prompt_version` vào cache key rồi tăng số phiên bản lên thay vì đi dò xóa từng entry cũ.
 
@@ -445,7 +445,7 @@ print("good keys equal:", gk_pirate == gk_formal, gk_pirate, gk_formal)
 
 **2. Cache cả khi `temperature > 0`**
 
-Cache một lời gọi có tính ngẫu nhiên sẽ đóng băng mẫu đầu tiên và bỏ qua việc gọi model ở mọi lượt lặp lại. Cách sửa: bỏ qua cache mỗi khi `temperature > 0` để mỗi request đều gọi model lấy câu trả lời mới.
+Cache một lời gọi có tính ngẫu nhiên sẽ giữ cứng câu trả lời ngẫu nhiên đầu tiên và bỏ qua việc gọi model ở mọi lượt lặp lại. Cách sửa: bỏ qua cache mỗi khi `temperature > 0` để mỗi request đều gọi model lấy câu trả lời mới.
 
 ```python
 from pyai_llm import FakeLLM
@@ -493,7 +493,7 @@ print("good calls:", good_calls)
 # good calls: 2
 ```
 
-Hãy để ý `ask_bad("hello", 0.8)` chỉ gọi model đúng 1 lần (`bad_calls == 1`) và đóng băng mẫu đầu tiên cho lần sau, còn `ask_good("hello", 0.8)` gọi model thật ở cả hai lần (`good_calls == 2`).
+Hãy để ý `ask_bad("hello", 0.8)` chỉ gọi model đúng 1 lần (`bad_calls == 1`) và giữ cứng câu trả lời ngẫu nhiên đầu tiên cho lần sau, còn `ask_good("hello", 0.8)` gọi model thật ở cả hai lần (`good_calls == 2`).
 
 **3. Dùng `str(dict)` làm key**
 

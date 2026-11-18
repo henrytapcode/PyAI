@@ -167,7 +167,7 @@ Cả hai cách đều chạy cùng một tokenizer và model ở bên dưới, n
 
 Model này được fine-tune trên đánh giá phim tiếng Anh (SST-2) với duy nhất hai nhãn: `NEGATIVE` và `POSITIVE`. Khi bạn đưa vào một câu trung tính, câu mỉa mai, dòng log lỗi kỹ thuật hay một ngôn ngữ khác, model không có nhãn `"NEUTRAL"` hay `"UNKNOWN"`, nên nó vẫn ép mọi đầu vào vào một trong hai lớp có sẵn — và thường kèm theo score rất cao.
 
-Hãy để ý trong ví dụ dưới đây ta nạp riêng `tokenizer` và `model` bằng `local_files_only=True` rồi truyền cả hai object vào `pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)` — đây là cách chắc chắn nhất để chạy offline khi bạn đã nạp sẵn object.
+Hãy để ý trong ví dụ dưới đây bạn nạp riêng `tokenizer` và `model` bằng `local_files_only=True` rồi truyền cả hai object vào `pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)` — đây là cách chắc chắn nhất để chạy offline khi bạn đã nạp sẵn object.
 
 ```python
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline

@@ -295,7 +295,7 @@ questions:
       prompt: "Chỉ mục Approximate Nearest Neighbor (ANN) khác gì với tìm kiếm vét cạn `matrix @ q`?"
       options:
         - "ANN bảo đảm chính xác 100% nhờ quét toàn bộ các hàng"
-        - "ANN đổi chút độ chính xác lấy tốc độ cao hơn"
+        - "ANN đổi chút độ nhạy (recall — có thể sót vài kết quả gần nhất) lấy tốc độ cao hơn"
         - "ANN bắt buộc lưu toàn bộ vector trong một chuỗi CSV"
         - "ANN giúp hệ thống RAG không cần tới bộ lọc metadata"
       explanation: "Phép vét cạn `matrix @ q` quét hết `n` vector (`O(n * dim)`), còn chỉ mục ANN bỏ qua vùng xa để chạy nhanh vượt trội trên hàng triệu vector dù đôi khi sót một láng giềng gần nhất."
@@ -385,7 +385,7 @@ flashcards:
       back: "Brute force checks all `n` vectors (`O(n · dim)`), exact but slow at millions of rows; ANN indexes (FAISS, HNSW, IVF) search promising regions much faster with a slight accuracy tradeoff."
     vi:
       front: "Tìm vét cạn `matrix @ q` và chỉ mục ANN khác gì nhau?"
-      back: "Vét cạn quét đủ `n` vector (`O(n · dim)`), chính xác tuyệt đối nhưng chậm ở quy mô triệu hàng; ANN (FAISS, HNSW, IVF) tìm vùng hứa hẹn nhanh hơn nhiều nhưng đánh đổi chút độ chính xác."
+      back: "Vét cạn quét đủ `n` vector (`O(n · dim)`), tìm đúng tuyệt đối nhưng chậm ở quy mô triệu hàng; ANN (FAISS, HNSW, IVF) tìm vùng hứa hẹn nhanh hơn nhiều nhưng đánh đổi chút độ nhạy (recall — có thể sót vài kết quả gần nhất)."
 
   - id: p7-04-f06
     tags: [llm]

@@ -171,9 +171,9 @@ Truy xuất đạt `4/5 = 0.8`: ngay cả `q2` cũng trúng vì `shipping.md` đ
 
 ## 4. Chấm câu trả lời: đúng fact và bám nguồn
 
-Sau khi truy xuất đưa các chunk vào prompt, ta chấm hai mặt của câu trả lời:
+Sau khi truy xuất đưa các chunk vào prompt, bạn chấm hai mặt của câu trả lời:
 1. **`facts` (`fact_score`)**: tỉ lệ `expected_facts` xuất hiện trong câu trả lời khi kiểm tra chuỗi con viết thường (`fact.lower() in answer.lower()`). Khi `expected_facts` rỗng (câu không trả lời được), điểm bằng `1.0` nếu `"i don't know"` có trong `answer.lower()`, ngược lại `0.0`. Cách so khớp chuỗi con này nhanh và tất định nhưng rất **thô**: nó bỏ sót câu diễn đạt khác đi như `"thirty days"` và có thể chấm đậu nhầm nếu `"30 days"` nằm trong một câu sai ngữ cảnh.
-2. **`faithful` (**faithfulness** / **groundedness** — độ trung thực bám nguồn)**: câu trả lời có bám sát ngữ cảnh đã truy xuất thay vì tự bịa thêm không. Heuristic tất định của chúng ta xóa các trích dẫn `[n]`, đổi sang chữ thường, tách từ `[a-z0-9]+` dài `>= 4` ký tự và kiểm tra mọi từ đó trong `answer` đều có mặt trong `context` (riêng câu trả lời chứa `"i don't know"` được coi là `faithful=True`).
+2. **`faithful` (**faithfulness** / **groundedness** — độ trung thực bám nguồn)**: câu trả lời có bám sát ngữ cảnh đã truy xuất thay vì tự bịa thêm không. Heuristic tất định ở đây xóa các trích dẫn `[n]`, đổi sang chữ thường, tách từ `[a-z0-9]+` dài `>= 4` ký tự và kiểm tra mọi từ đó trong `answer` đều có mặt trong `context` (riêng câu trả lời chứa `"i don't know"` được coi là `faithful=True`).
 
 ```mermaid
 flowchart TD
@@ -353,7 +353,7 @@ for a, b in zip(r1, r3, strict=True):
 # diff q6: k=1(hit=None, facts=1.0) -> k=3(hit=None, facts=0.0)
 ```
 
-Hãy đọc kỹ từng câu đổi trạng thái—đây chính là lý do ta không bao giờ chỉ nhìn bảng tổng:
+Hãy đọc kỹ từng câu đổi trạng thái—đây chính là lý do bạn không bao giờ chỉ nhìn bảng tổng:
 - **`q2` tốt lên**: với `k=1`, `loyalty.md` đứng trên `shipping.md` nên bot trả `"I don't know"`; sang `k=3`, `shipping.md` vào prompt và bot trả đúng `"Standard shipping arrives within 5 business days. [2]"`.
 - **`q5` chỉ tốt lên ở retrieval**: sang `k=3`, `refunds.md` vào được hạng 3 (`hit=True`), nhưng `facts` vẫn là `0.0` vì bước `embed` của `FakeLLM` hiểu `"money back"` là `"refund"`, còn `chat()` chỉ đếm từ thô trùng khớp (`>= 3` ký tự) nên vẫn rơi về `"I don't know"`.
 - **`q6` tệ đi**: với `k=1`, chỉ có `pickup.md` trong context và không trùng từ nào (`idk=1/1`); sang `k=3`, `payment.md` lọt vào hạng 2 và vô tình trùng hai từ `"for"`, `"orders"` với `"Can I pay with crypto for online orders?"`, khiến model trả lời sang Visa/Mastercard (`idk=0/1`).

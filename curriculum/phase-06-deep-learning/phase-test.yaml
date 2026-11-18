@@ -49,7 +49,7 @@ questions:
       explanation: "At `w = 2.0` and `b = 1.0`, `pred = 7.0` and `pred - 10.0 = -3.0`. The derivative of `(pred - 10.0) ** 2` with respect to `pred` is `2 * (-3.0) = -6.0`. By the chain rule, `w.grad = -6.0 * 3.0 = -18.0` and `b.grad = -6.0 * 1.0 = -6.0`."
     vi:
       prompt: "Đoạn code này in ra gì?"
-      explanation: "Tại `w = 2.0` và `b = 1.0`, ta có `pred = 7.0` và `pred - 10.0 = -3.0`. Đạo hàm của `(pred - 10.0) ** 2` theo `pred` bằng `2 * (-3.0) = -6.0`. Theo quy tắc dây chuyền, `w.grad = -6.0 * 3.0 = -18.0` và `b.grad = -6.0 * 1.0 = -6.0`."
+      explanation: "Tại `w = 2.0` và `b = 1.0`, có `pred = 7.0` và `pred - 10.0 = -3.0`. Đạo hàm của `(pred - 10.0) ** 2` theo `pred` bằng `2 * (-3.0) = -6.0`. Theo quy tắc dây chuyền, `w.grad = -6.0 * 3.0 = -18.0` và `b.grad = -6.0 * 1.0 = -6.0`."
 
   - id: p6-test-q03
     type: fill

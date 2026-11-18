@@ -273,13 +273,13 @@ questions:
         - "`torch.no_grad()` resets layer weights to zero and `model.eval()` shuffles validation batches"
       explanation: "`model.eval()` controls layer behaviour during inference and `torch.no_grad()` disables autograd tracking to save memory and time. Remember to call `model.train()` before resuming training."
     vi:
-      prompt: "Hai lệnh `model.eval()` và `with torch.no_grad():` làm gì khi đo validation accuracy?"
+      prompt: "Hai lệnh `model.eval()` và `with torch.no_grad():` làm gì khi đo tỉ lệ đoán đúng (accuracy) trên tập validation?"
       options:
         - "`model.eval()` lưu `state_dict` xuống đĩa còn `torch.no_grad()` gọi `optimizer.step()`"
         - "`model.eval()` ép kiểu nhãn về `int64` còn `torch.no_grad()` bắt lỗi nhãn `float32`"
         - "`model.eval()` đặt dropout về chế độ đánh giá; `torch.no_grad()` tắt dựng đồ thị"
         - "`torch.no_grad()` đặt lại trọng số về 0 và `model.eval()` xáo trộn các batch validation"
-      explanation: "`model.eval()` điều chỉnh hành vi của các tầng khi suy đoán và `torch.no_grad()` tắt theo dõi autograd để tiết kiệm bộ nhớ và thời gian. Nhớ gọi `model.train()` trước khi quay lại train tiếp."
+      explanation: "`model.eval()` điều chỉnh hành vi của các tầng khi suy luận và `torch.no_grad()` tắt theo dõi autograd để tiết kiệm bộ nhớ và thời gian. Nhớ gọi `model.train()` trước khi quay lại train tiếp."
 
   - id: p6-02-q14
     type: fill
@@ -324,7 +324,7 @@ questions:
     vi:
       prompt: "Bạn muốn so sánh `lr=0.05` với `lr=0.2` và chọn giữa 20 hoặc 40 epoch. Bạn nên dùng tập test như thế nào?"
       options:
-        - "Tính test accuracy sau mỗi epoch và dừng ngay khi điểm test lên đỉnh"
+        - "Tính tỉ lệ đoán đúng (accuracy) trên tập test sau mỗi epoch và dừng ngay khi điểm test lên đỉnh"
         - "Chọn `lr` và số epoch bằng validation, rồi chấm test **một lần** cuối"
         - "Gộp toàn bộ tập test vào `DataLoader` huấn luyện trong vài epoch cuối"
         - "Chấm điểm test cho từng mức learning rate rồi chọn mức có điểm test cao"

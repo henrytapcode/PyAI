@@ -130,7 +130,7 @@ questions:
         - "Because there is no target document to count as a hit"
       explanation: "An unanswerable question has no correct document in the corpus, so counting it in `hit_rate` would guarantee a miss and artificially lower the retrieval score."
     vi:
-      prompt: "Vì sao ta bỏ câu `expected_source=None` khỏi mẫu số của `hit_rate`?"
+      prompt: "Vì sao cần bỏ câu `expected_source=None` khỏi mẫu số của `hit_rate`?"
       options:
         - "Vì Python sẽ báo lỗi KeyError khi cắt lát giá trị None"
         - "Vì câu không trả lời được luôn có danh sách retrieved rỗng"

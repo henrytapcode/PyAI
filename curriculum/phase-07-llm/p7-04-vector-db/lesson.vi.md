@@ -35,7 +35,7 @@ id    | text                          | metadata                           | vec
 
 ## 2. Xây VectorStore tối giản
 
-Ta có thể biểu diễn một kết quả tìm kiếm bằng `@dataclass` (`Hit`) rồi gói các bản ghi cùng ma trận NumPy vào class `VectorStore`. Phương thức `add()` embed cả lô một lần qua `client.embed(texts)`, báo `ValueError` nếu trùng ID và nối thêm các dòng mới bằng `np.vstack`.
+Bạn có thể biểu diễn một kết quả tìm kiếm bằng `@dataclass` (`Hit`) rồi gói các bản ghi cùng ma trận NumPy vào class `VectorStore`. Phương thức `add()` embed cả lô một lần qua `client.embed(texts)`, báo `ValueError` nếu trùng ID và nối thêm các dòng mới bằng `np.vstack`.
 
 ```mermaid
 flowchart LR
@@ -495,4 +495,4 @@ Cách sửa: kiểm tra `if self._matrix is None or k <= 0: return []` ngay đ�
 - Embed cả lô tài liệu một lần qua `client.embed(texts)`, nối hàng bằng `np.vstack`, rồi trả về các bản ghi `Hit` xếp hạng qua `np.argsort(-scores, kind="stable")[:k]`.
 - Luôn **lọc trước (pre-filter)** theo metadata trước khi lấy top-k để bản ghi không khớp không chiếm mất suất kết quả hợp lệ.
 - Giữ vector và danh sách bản ghi đồng bộ khi `delete()` (`np.delete(..., axis=0)`) và `upsert()`, đồng thời tuần tự hóa trạng thái (`to_json()` / `from_json()`) để không phải embed lại khi khởi động.
-- Phép vét cạn `matrix @ q` (`O(n · dim)`) chạy ổn tới vài nghìn vector; ở quy mô lớn hơn, các DB thật dùng chỉ mục **ANN** (FAISS, Chroma, pgvector, Qdrant) đánh đổi một chút độ chính xác để truy vấn trong vài mili-giây.
+- Phép vét cạn `matrix @ q` (`O(n · dim)`) chạy ổn tới vài nghìn vector; ở quy mô lớn hơn, các DB thật dùng chỉ mục **ANN** (FAISS, Chroma, pgvector, Qdrant) đánh đổi một chút độ nhạy (recall — có thể sót vài kết quả gần nhất) để truy vấn trong vài mili-giây.

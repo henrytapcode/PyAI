@@ -1,10 +1,10 @@
-Mọi mô hình deep learning — từ mạng nhỏ trong bài này cho tới một LLM — đều được huấn luyện bằng đúng cùng một vòng lặp năm dòng. Ở bài `p6-01-tensors`, bạn đã viết tay từng bước cho một tham số `w` duy nhất. Bài này dạy cách PyTorch đóng gói từng phần để vòng lặp đó chạy gọn cho mô hình có hàng nghìn tham số.
+Mọi mô hình deep learning — từ mạng nhỏ trong bài này cho tới một LLM — đều được huấn luyện bằng cùng một vòng lặp năm dòng. Ở bài `p6-01-tensors`, bạn đã viết tay từng bước cho một tham số `w` duy nhất. Bài này dạy cách PyTorch đóng gói từng phần để vòng lặp đó chạy gọn cho mô hình có hàng nghìn tham số.
 
 ## 1. Model là một `nn.Module`
 
 `nn.Linear(in_features, out_features)` tính `x @ W.T + b`, tự tạo ma trận trọng số và vector bias với `requires_grad=True` đã bật sẵn. Để ghép nhiều tầng thành một mô hình, bạn viết class kế thừa `nn.Module` — đúng kiểu OOP (lập trình hướng đối tượng) bạn đã học ở phase 2 — nhờ đó PyTorch tự động theo dõi mọi tham số bên trong.
 
-Giữa hai tầng tuyến tính, ta đặt `nn.ReLU()`, một lớp giữ nguyên số dương và biến số âm thành `0`, giúp mô hình học được đường ranh giới cong thay vì chỉ đường thẳng.
+Giữa hai tầng tuyến tính, bạn đặt `nn.ReLU()`, một lớp giữ nguyên số dương và biến số âm thành `0`, giúp mô hình học được đường ranh giới cong thay vì chỉ đường thẳng.
 
 ```text
 (N, 2) → Linear(2, 8) → (N, 8) → ReLU → (N, 8) → Linear(8, 2) → (N, 2)
@@ -56,7 +56,7 @@ Với bài toán phân loại, `nn.CrossEntropyLoss()` nhận **logits** (điể
 | Tự viết công thức MSE | `nn.MSELoss()` hoặc `nn.CrossEntropyLoss()` |
 | `w * x + b` | `model(x)` |
 
-PyTorch cũng cung cấp `torch.optim.Adam`, một optimizer thích nghi thường hội tụ nhanh hơn trên bài toán thực tế — và biến thể tách rời weight decay của nó là `AdamW` sẽ được bạn dùng khi fine-tune ở bài `p6-04-fine-tune`.
+PyTorch cũng cung cấp `torch.optim.Adam`, một optimizer thích nghi thường hội tụ nhanh hơn trên bài toán thực tế — và bạn sẽ dùng biến thể tách rời weight decay của nó là `AdamW` khi fine-tune ở bài `p6-04-fine-tune`.
 
 ```python
 import torch
@@ -200,7 +200,7 @@ for epoch in range(1, 4):
 # epoch=3  loss=0.032
 ```
 
-Hãy chú ý `loss` giảm vọt từ `35.093` xuống `0.032` chỉ sau ba bước cập nhật.
+Hãy chú ý `loss` tụt mạnh từ `35.093` xuống `0.032` chỉ sau ba bước cập nhật.
 
 ## 4. Epoch, batch và `DataLoader`
 
@@ -308,7 +308,7 @@ print("test_acc:", eval_accuracy(model, X_test, y_test))
 # test_acc: 0.975
 ```
 
-Ở epoch 1, `val_acc` mới là `0.1` (thấp hơn cả đoán bừa 50/50) vì trọng số khởi tạo ngẫu nhiên và SGD mới đi được vài bước mini-batch trước khi xoay được ranh giới phân loại. Từ epoch 15, tỉ lệ đoán đúng trên validation chững lại ở `0.925`, và ta chỉ đo `X_test` đúng một lần ở cuối cùng (`0.975`).
+Ở epoch 1, `val_acc` mới là `0.1` (thấp hơn cả đoán bừa 50/50) vì trọng số khởi tạo ngẫu nhiên và SGD mới đi được vài bước mini-batch trước khi xoay được ranh giới phân loại. Từ epoch 15, tỉ lệ đoán đúng trên validation chững lại ở `0.925`, và bạn chỉ đo `X_test` đúng một lần ở cuối cùng (`0.975`).
 
 ## 6. Lưu và nạp model
 
@@ -368,7 +368,7 @@ print("acc original:", acc_a, "reloaded:", acc_b)  # acc original: 0.962 reloade
 print("same predictions:", torch.equal(pred_a, pred_b))  # same predictions: True
 ```
 
-Hãy chú ý `weights_only=True` giúp nạp các tensor trọng số an toàn, và `torch.equal(pred_a, pred_b)` xác nhận hai model dự đoán giống hệt nhau (`True`). Ở đây ta đo accuracy trên `X_train` chỉ để đối chiếu model gốc với model nạp lại; muốn biết model tốt đến đâu thì vẫn phải dùng tập validation và test như ở §5.
+Hãy chú ý `weights_only=True` giúp nạp các tensor trọng số an toàn, và `torch.equal(pred_a, pred_b)` xác nhận hai model dự đoán giống hệt nhau (`True`). Ở đây chỉ đo tỉ lệ đoán đúng trên `X_train` để đối chiếu model gốc với model nạp lại; muốn biết model tốt đến đâu thì vẫn phải dùng tập validation và test như ở §5.
 
 ## 7. Lỗi thường gặp
 
@@ -433,7 +433,7 @@ Cách sửa: lưu nhãn phân loại dưới dạng tensor 1D `torch.int64` (`y.
 
 **3. Đánh giá mà quên `torch.no_grad()`**
 
-Quên `with torch.no_grad():` không làm sai số dự đoán nên thoạt nhìn tưởng bình thường — nhưng PyTorch vẫn âm thầm dựng computation graph (`requires_grad=True`), gây tốn bộ nhớ không cần thiết.
+Quên `with torch.no_grad():` khi đánh giá không làm đổi các con số dự đoán nên thoạt nhìn tưởng vô hại — cho tới khi một lượt validation lớn bị hết bộ nhớ vì PyTorch vẫn âm thầm dựng computation graph (`requires_grad=True`).
 
 ```python
 import torch
@@ -456,7 +456,7 @@ Cách sửa: luôn bọc phần đánh giá trên validation và test bằng `mo
 
 **4. Dùng test set để chọn số epoch**
 
-Python không hề báo lỗi nếu bạn xem test accuracy sau mỗi epoch rồi dừng ở epoch có điểm test cao nhất — nhưng đây là lỗi tư duy (rò rỉ dữ liệu) đã học ở phase 5 (`p5-02-supervised`, `p5-04-evaluation`). Khi đã dùng test set để chỉnh số epoch hay learning rate, điểm test không còn phản ánh trung thực hiệu năng trên dữ liệu mới; hãy luôn chọn tham số bằng validation và chỉ chấm test một lần ở cuối.
+Python không hề báo lỗi nếu bạn xem tỉ lệ đoán đúng trên tập test sau mỗi epoch rồi dừng ở epoch có điểm test cao nhất — nhưng đây là lỗi tư duy (rò rỉ dữ liệu) đã học ở phase 5 (`p5-02-supervised`, `p5-04-evaluation`). Khi đã dùng test set để chỉnh số epoch hay learning rate, điểm test không còn phản ánh trung thực hiệu năng trên dữ liệu mới; hãy luôn chọn tham số bằng validation và chỉ chấm test một lần ở cuối.
 
 ## Tóm tắt
 

@@ -13,7 +13,7 @@ questions:
         - "`AdamW` freezes the encoder weights before training begins"
       explanation: "The pretrained BERT-Tiny body understands English, but the 2-class `classifier` head was newly created with random weights, so before fine-tuning its predictions are essentially random guesses (~0.5 on two balanced classes)."
     vi:
-      prompt: "Điều gì khiến BERT-Tiny chỉ đạt accuracy khoảng `0.5` ngay sau khi nạp với `num_labels=2`?"
+      prompt: "Điều gì khiến BERT-Tiny chỉ đạt tỉ lệ đoán đúng (accuracy) khoảng `0.5` ngay sau khi nạp với `num_labels=2`?"
       options:
         - "`local_files_only=True` chỉ nạp đúng một nửa số tầng encoder"
         - "Tokenizer bỏ qua một nửa số token cho tới khi fine-tune xong"
@@ -81,7 +81,7 @@ questions:
       explanation: "Fine-tuning transformers commonly uses `torch.optim.AdamW` with a small learning rate such as `0.0005` (`5e-4`)."
     vi:
       prompt: "Điền tên lớp optimizer thường dùng khi fine-tune và learning rate nhỏ `0.0005`."
-      explanation: "Khi fine-tune transformer ta thường dùng `torch.optim.AdamW` với learning rate nhỏ như `0.0005` (`5e-4`)."
+      explanation: "Khi fine-tune transformer, bạn thường dùng `torch.optim.AdamW` với learning rate nhỏ như `0.0005` (`5e-4`)."
 
   - id: p6-04-q05
     type: parsons
@@ -219,7 +219,7 @@ questions:
     vi:
       prompt: "Bạn nên chọn số epoch khi fine-tune bộ phân loại như thế nào?"
       options:
-        - "Thử nhiều số epoch rồi chọn mức cho accuracy cao nhất trên tập test"
+        - "Thử nhiều số epoch rồi chọn mức cho tỉ lệ đoán đúng (accuracy) cao nhất trên tập test"
         - "Chọn epoch qua điểm validation, rồi chỉ chấm test một lần cuối"
         - "Luôn dừng sau đúng 1 epoch để các trọng số nền không bị dịch chuyển"
         - "Train tiếp cho tới khi train loss đạt `0.000` bất chấp validation"
@@ -285,9 +285,9 @@ questions:
     vi:
       prompt: "Giả sử tập test có 16 ticket và model sau fine-tune đạt `100%` (16/16) so với `93.8%` (15/16). Điều gì khiến việc khoe `100%` mà thiếu kích thước tập test trở nên dễ gây hiểu nhầm?"
       options:
-        - "Chỉ số accuracy không thể đạt `1.0` trừ khi model được chạy trên GPU"
-        - "`save_pretrained()` làm tụt 5% accuracy mỗi khi nạp lại từ ổ đĩa"
-        - "Chỉ một câu lật nhãn đã làm accuracy nhảy 6,25 điểm phần trăm"
+        - "Chỉ số tỉ lệ đoán đúng (accuracy) không thể đạt `1.0` trừ khi model được chạy trên GPU"
+        - "`save_pretrained()` làm tụt 5% tỉ lệ đoán đúng mỗi khi nạp lại từ ổ đĩa"
+        - "Chỉ một câu lật nhãn đã làm tỉ lệ đoán đúng nhảy 6,25 điểm phần trăm"
         - "`id2label` luôn làm tròn mọi điểm xác suất lên `1.0` với batch nhỏ"
       explanation: "Khi tập test chỉ có 15–20 mẫu, mỗi câu đoán sai kéo tỉ lệ đúng đi 5–7 điểm phần trăm, nên `100%` trên 16 câu nhỏ dao động rất mạnh và không bảo chứng cho dữ liệu thật."
 
@@ -325,7 +325,7 @@ questions:
       prompt: "Arrange these lines to select the epoch with the highest validation accuracy from `history` and print `(best_epoch, best_val)`."
       explanation: "Define `history`, initialise `best_epoch` and `best_val` from `history[0]`, loop over `history[1:]`, update whenever `val_acc > best_val`, and print the winner."
     vi:
-      prompt: "Sắp xếp các dòng sau để chọn ra epoch có validation accuracy cao nhất từ `history` và in `(best_epoch, best_val)`."
+      prompt: "Sắp xếp các dòng sau để chọn ra epoch có tỉ lệ đoán đúng (accuracy) trên validation cao nhất từ `history` và in `(best_epoch, best_val)`."
       explanation: "Khai báo `history`, khởi tạo `best_epoch` và `best_val` từ `history[0]`, duyệt `history[1:]`, cập nhật khi `val_acc > best_val`, rồi in kết quả."
 
 flashcards:
@@ -396,4 +396,4 @@ flashcards:
       back: "Transformers contain dropout layers; without `model.eval()`, dropout stays active and two identical evaluation runs produce different logits and accuracies."
     vi:
       front: "Vì sao phải gọi `model.eval()` trước khi đánh giá hoặc dự đoán bằng transformer?"
-      back: "Transformer có các tầng dropout; nếu quên `model.eval()`, dropout vẫn bật khiến hai lần đánh giá cùng một dữ liệu ra logits và accuracy khác nhau."
+      back: "Transformer có các tầng dropout; nếu quên `model.eval()`, dropout vẫn bật khiến hai lần đánh giá cùng một dữ liệu ra logits và tỉ lệ đoán đúng (accuracy) khác nhau."

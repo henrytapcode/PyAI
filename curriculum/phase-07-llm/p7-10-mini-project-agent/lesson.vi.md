@@ -231,7 +231,7 @@ print("deep kept orig      :", schemas[0]["parameters"]["required"])
 
 ## 4. Phần 2: vòng agent có giới hạn
 
-Mở rộng vòng một bước thành vòng lặp có giới hạn như ở `p7-07-agents`, kiểm tra điều kiện dừng theo thứ tự mỗi lượt: `budget` (`tokens > token_budget`), `final` (`not resp.tool_calls`), `repeat` (gọi lại đúng tool và tham số như bước trước), và `max_steps` (hết số bước). Ta kiểm tra `budget` ngay sau `client.chat(...)` vì lượng token của lượt gọi đó đã tiêu tốn rồi (kiểm tra `final` trước là lựa chọn hợp lệ khác nếu muốn ưu tiên trả về câu trả lời cuối đã trả tiền xong trước khi dừng vì vượt ngân sách). Chạy kịch bản 3 bước bằng `script` (tra đơn → tra chính sách → trả lời cuối) rồi in **trace** (nhật ký từng bước):
+Mở rộng vòng một bước thành vòng lặp có giới hạn như ở `p7-07-agents`, kiểm tra điều kiện dừng theo thứ tự mỗi lượt: `budget` (`tokens > token_budget`), `final` (`not resp.tool_calls`), `repeat` (gọi lại đúng tool và tham số như bước trước), và `max_steps` (hết số bước). Ở đây kiểm tra `budget` ngay sau `client.chat(...)` vì lượng token của lượt gọi đó đã tiêu tốn rồi (kiểm tra `final` trước là lựa chọn hợp lệ khác nếu muốn ưu tiên trả về câu trả lời cuối đã trả tiền xong trước khi dừng vì vượt ngân sách). Chạy kịch bản 3 bước bằng `script` (tra đơn → tra chính sách → trả lời cuối) rồi in **trace** (nhật ký từng bước):
 
 ```python
 import json
@@ -719,7 +719,7 @@ Trong kết quả in ở trên, số trong ngoặc (ví dụ `final(2)`) là s�
 | `refund_rejected` | `rejected` `['lookup_order']` | `rejected` `['lookup_order']` | PASS |
 | `budget_stop` | `budget` `[]` | `budget` `[]` | PASS |
 
-Để theo dõi bộ kịch bản chạy từng bước mà không dính code của `FakeLLM`, ta dùng một bộ kịch bản đồ chơi với danh sách quyết định viết tay. Bấm **Visualize** ở khối code này để xem `tools`, `reason` và `passed` tăng dần qua từng ca:
+Để theo dõi bộ kịch bản chạy từng bước mà không dính code của `FakeLLM`, bạn dùng một bộ kịch bản đồ chơi với danh sách quyết định viết tay. Bấm **Visualize** ở khối code này để xem `tools`, `reason` và `passed` tăng dần qua từng ca:
 
 ```python
 toy_scenarios = [
