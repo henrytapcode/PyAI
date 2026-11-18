@@ -21,23 +21,26 @@ Each part of this mini-project builds on an earlier lesson:
 
 | part | builds | from lesson |
 |---|---|---|
-| Part 1: App factory & index | `create_app(docs, client, clock)` with one-time doc embeddings and `GET /health` | `p7-09-mini-project-rag`, `p8-01-fastapi` |
+| Part 1: App factory & index | `create_app(docs, client, clock)` with one-time doc embeddings and `GET /health` | new here (app factory), `p7-09-mini-project-rag` |
 | Part 2: Citations & refusals | `POST /ask` with `AskRequest`, `min_score` filtering, `[n]` context, and no-LLM refusal | `p7-09-mini-project-rag`, `p8-01-fastapi` |
 | Part 3: Response caching | In-memory TTL cache keyed by normalized question and `top_k` using `clock()` | `p8-03-caching` |
 | Part 4: Metrics & alerts | Per-request latency/cost tracking, `GET /metrics` (`p50_ms`, `p95_ms`), and alerts | `p8-04-monitoring` |
 | Part 5: Service tests | Deterministic `pytest`-style tests with `TestClient`, `FakeClock`, and `SpyClient` | `p8-01-fastapi`, `p8-03-caching` |
-| Part 6: Packaging & running | Single-line `main.py` wiring, `uvicorn`, `curl`, and a production `Dockerfile` | `p8-01-fastapi`, `p8-02-docker` |
+| Part 6: Packaging & running | Minimal `main.py` wiring, `uvicorn`, `curl`, and a production `Dockerfile` | `p8-01-fastapi`, `p8-02-docker` |
 
-The finished service exposes three endpoints:
+The finished service in this walkthrough exposes three endpoints:
 - `GET /health` → `{"status": "ok", "docs": <int>}`
 - `POST /ask` → `{"answer": str, "sources": [id, ...], "usage": {...}, "cached": bool}`
 - `GET /metrics` → `{"requests": int, "cache_hit_rate": float, "p50_ms": float, "p95_ms": float, "total_cost": float, "alerts": [...]}`
+
+> [!NOTE]
+> `p50_ms` and `alerts` belong to the lesson's walkthrough version of `GET /metrics`. The two exercises extend `/ask` and use a slightly different `/metrics` schema (`error_rate` and `?last=N`).
 
 ## 2. Part 1: app factory and index
 
 A module-level `app = FastAPI()` mixes shared state across every test that imports it. Instead, write an **app factory** `create_app(docs, client, clock)` that builds a brand-new `FastAPI()` instance each time it is called, keeping its document vectors, cache, and metric records inside the factory closure. Passing `client` and `clock` as parameters is **dependency injection** in its simplest form: tests pass `FakeLLM` and `FakeClock`, while production passes a real API client and `time.monotonic` (passed as a function object, without calling it).
 
-Embed all documents **once** when `create_app` runs (just like ingestion in `p7-09-mini-project-rag`), rather than on every incoming request:
+Embed all documents **once** when `create_app` runs (just like ingestion in `p7-09-mini-project-rag`), rather than on every incoming request. We also reuse `FakeClock` from `p8-03-caching`, where `__call__` lets the service call `clock()` just like `time.monotonic`:
 
 ```python
 from fastapi import FastAPI
@@ -56,13 +59,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SpyClient:
@@ -81,7 +84,7 @@ def create_app(docs: list[dict], client: SpyClient, clock: FakeClock) -> FastAPI
 
     @app.get("/health")
     def health() -> dict[str, object]:
-        return {"status": "ok", "docs": len(doc_vecs), "t": clock()}
+        return {"status": "ok", "docs": len(doc_vecs)}
 
     return app
 
@@ -92,16 +95,16 @@ http = TestClient(create_app(DOCS, spy, clock))
 for _ in range(3):
     r = http.get("/health")
 print("health:", r.status_code, r.json())
-# health: 200 {'status': 'ok', 'docs': 6, 't': 0.0}
+# health: 200 {'status': 'ok', 'docs': 6}
 print("embed_calls after 3 requests:", spy.embed_calls)
 # embed_calls after 3 requests: 1
 
 other = TestClient(create_app(DOCS[:2], SpyClient(FakeLLM(embed_dim=256)), FakeClock(10.0)))
 print("other app:", other.get("/health").json())
-# other app: {'status': 'ok', 'docs': 2, 't': 10.0}
+# other app: {'status': 'ok', 'docs': 2}
 ```
 
-Notice that `embed_calls` stays `1` after 3 requests, and `other` runs with its own `docs=2` and `t=10.0` without touching `http`.
+Notice that `embed_calls` stays `1` after 3 requests, and `other` runs with its own `docs=2` completely isolated from `http`.
 
 Inside retrieval, the service ranks those pre-embedded vectors against the query vector using cosine similarity. Press **Visualize** on this short block (with pure-Python vectors and no FastAPI) to watch `scored` build up before sorting the top 2 matches:
 
@@ -192,7 +195,7 @@ def create_app(docs: list[dict], client: SpyClient, min_score: float = 0.2) -> F
     def ask(body: AskRequest) -> dict[str, object]:
         q_vec = client.embed([body.question])[0]
         scored = sorted(
-            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
             key=lambda item: (-item[0], item[1]),
         )
         hits = [d for score, _, d in scored[: body.top_k] if score >= min_score]
@@ -233,11 +236,11 @@ print("422:", r3.status_code, errs)
 # 422: 422 [(['body', 'question'], 'string_too_short')]
 ```
 
-Notice that `r2` returned `sources: []` while `chat_calls` stayed at `1`—the `min_score` gate saved an unnecessary LLM call—and `r3` failed at Pydantic validation with `422`.
+Notice that `r2` returned `sources: []` while `chat_calls` stayed at `1`—the `min_score` gate saved an unnecessary LLM call—and `r3` failed at Pydantic validation with `422`. Passing `strict=True` to `zip(...)` ensures Python raises `ValueError` right away if `docs` and `doc_vecs` ever have mismatched lengths.
 
 ## 4. Part 3: response caching
 
-Next, add an in-memory **TTL cache** inside `create_app` (connecting back to `p8-03-caching`). Normalize the question by stripping outer spaces and collapsing internal whitespace (`" ".join(q.strip().split())`), then build the cache key as the SHA-256 hex digest of `json.dumps({"question": clean, "top_k": body.top_k}, sort_keys=True)`. You can also add an `index_version` field to that JSON payload to invalidate old cached answers whenever your document corpus changes.
+Next, add an in-memory **TTL cache** inside `create_app` (connecting back to `p8-03-caching`). Normalize the question by stripping outer spaces and collapsing internal whitespace (`" ".join(q.strip().split())`), then build the cache key as the SHA-256 hex digest of `json.dumps({"question": clean, "top_k": body.top_k}, sort_keys=True)`. The key only needs `question` and `top_k` because the model, prompt template, and `min_score` stay fixed inside a single app instance; if you change any of those, add it to the key or bump an `index_version` field to invalidate older cached entries.
 
 A lookup hits when `now < expires_at`, returning `cached: True` with zero token usage; once `now >= expires_at`, the entry expires and triggers a fresh retrieval:
 
@@ -248,7 +251,7 @@ t=10  ask("  How many days   do refunds take? ", top_k=2) -> HIT (10 < 300)
 t=400 ask("How many days do refunds take?", top_k=2) -> MISS (expired, 400 >= 300)
 ```
 
-In production you pass `time.monotonic` as `clock`; here we pass `FakeClock` so we can jump forward 380 seconds in zero real time:
+In production you pass `time.monotonic` as `clock` (it never steps backward and is ideal for TTL checks); here we pass `FakeClock` so we can jump forward 380 seconds in zero real time:
 
 ```python
 import hashlib
@@ -270,13 +273,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SpyClient:
@@ -318,7 +321,7 @@ def create_app(docs: list[dict], client: SpyClient, clock: FakeClock, ttl: float
 
         q_vec = client.embed([body.question])[0]
         scored = sorted(
-            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
             key=lambda item: (-item[0], item[1]),
         )
         hits = [d for score, _, d in scored[: body.top_k] if score >= 0.2]
@@ -362,7 +365,7 @@ Notice how `top_k=1` at `t=20` produced a miss (`chat_calls=2`) because `top_k` 
 
 ## 5. Part 4: metrics and `GET /metrics`
 
-Now wrap every accepted `/ask` call with `t0 = clock()` before and `clock()` after, storing a flat metric record with `latency_ms`, token counts, `cost`, `cached`, and `status`. Note that requests failing Pydantic validation (`422`) are rejected before `/ask` executes, so they do not enter `records`. To model LLM delay deterministically without sleeping, `SlowClient.chat` advances `clock` by `0.2 + 0.002 * completion_tokens` seconds, while cache hits skip `chat()` and finish in `0.0` ms at `$0.0000` cost.
+Now wrap every accepted `/ask` call with `t0 = clock()` before and `clock()` after, storing a flat metric record with `latency_ms`, `cost`, and `cached`. Note that requests failing Pydantic validation (`422`) are rejected before `/ask` executes, so they do not enter `records`. This lesson walkthrough assumes `client.chat` succeeds and does not handle model errors yet; in Exercise 2, you will add a `RateLimitError` → `503` branch that records `status="error"`. To model LLM delay deterministically without sleeping, `SlowClient.chat` advances `clock` by `0.2 + 0.002 * completion_tokens` seconds, while cache hits skip `chat()` and finish in `0.0` ms at `$0.0000` cost.
 
 `GET /metrics` computes `requests`, `cache_hit_rate`, nearest-rank `p50_ms` and `p95_ms` (`p8-04-monitoring`), `total_cost`, and threshold `alerts`:
 
@@ -387,13 +390,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SlowClient:
@@ -439,7 +442,7 @@ def create_app(docs: list[dict], client: SlowClient, clock: FakeClock, ttl: floa
             cached = False
             q_vec = client.embed([body.question])[0]
             scored = sorted(
-                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
                 key=lambda item: (-item[0], item[1]),
             )
             hits = [d for score, _, d in scored[: body.top_k] if score >= 0.2]
@@ -458,7 +461,7 @@ def create_app(docs: list[dict], client: SlowClient, clock: FakeClock, ttl: floa
 
         latency_ms = round((clock() - t0) * 1000.0, 2)
         cost = (p_tok / 1000.0) * 0.0005 + (c_tok / 1000.0) * 0.0015
-        records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached, "status": "ok"})
+        records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached})
         return {**payload, "usage": {"prompt_tokens": p_tok, "completion_tokens": c_tok}, "cached": cached}
 
     @app.get("/metrics")
@@ -531,13 +534,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SlowSpyClient:
@@ -583,7 +586,7 @@ def create_app(docs: list[dict], client: SlowSpyClient, clock: FakeClock, ttl: f
             cached = False
             q_vec = client.embed([body.question])[0]
             scored = sorted(
-                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
                 key=lambda item: (-item[0], item[1]),
             )
             hits = [d for score, _, d in scored[: body.top_k] if score >= 0.2]
@@ -661,23 +664,22 @@ print("ok: 5 tests passed")
 # ok: 5 tests passed
 ```
 
-The table below maps each test case to the regression it guards against:
+The table below maps each test function to the regression it guards against:
 
 | test | what it protects |
 |---|---|
-| `health` | Startup document indexing finished and `/health` reports the expected doc count |
-| `422` | Pydantic rejects empty questions or out-of-range `top_k` before retrieval runs |
-| `refusal skips LLM` | Low-score queries return `"I don't know..."` and `sources: []` with zero `chat` calls |
-| `cache hit skips second LLM call` | Repeated normalized questions reuse the cached answer without paying for `chat` twice |
-| `TTL expiry` | Stale entries expire when `clock() >= expires_at` instead of serving forever |
-| `metrics count accurately` | `/metrics` sums requests, `cache_hit_rate`, `p95_ms`, and `total_cost` across hits and misses |
+| `test_health_reports_doc_count` | Startup document indexing finished and `/health` reports the expected doc count |
+| `test_invalid_payload_returns_422` | Pydantic rejects empty questions or out-of-range `top_k` before retrieval runs |
+| `test_refusal_skips_llm_call` | Low-score queries return `"I don't know..."` and `sources: []` with zero `chat` calls |
+| `test_cache_hit_and_ttl_expiry` | Repeated normalized questions hit cache without `chat()`, and expire once `clock() >= expires_at` |
+| `test_metrics_counts_and_cost` | `/metrics` sums requests, `cache_hit_rate`, and `total_cost` across hits and misses |
 
 > [!TIP]
 > Put your `create_app(...)` setup inside a `@pytest.fixture` in `test_app.py` so every test receives a clean `TestClient` with an empty cache and zero metrics, regardless of test execution order.
 
 ## 7. Part 6: packaging and running for real
 
-To run the service outside tests, `main.py` only needs a single wiring line: `app = create_app(DOCS, real_client, time.monotonic)`, passing `time.monotonic` as the clock callable without calling it. In your terminal, start `uvicorn` and test `/ask` with `curl`:
+To run the service outside tests, `main.py` only needs a few wiring lines defining `DOCS`, creating `real_client`, and calling `app = create_app(DOCS, real_client, time.monotonic)`, passing `time.monotonic` as the clock callable without calling it. In your terminal, start `uvicorn` and test `/ask` with `curl`:
 
 ```bash
 # main.py wires: app = create_app(DOCS, real_client, time.monotonic)
@@ -851,7 +853,7 @@ print("fixed top_k=1 hit?:", good_key("Refunds?", 1) in good_cache)
 
 **4. Skipping cache hits or errors when recording metrics**
 
-Logging metrics only after a fresh, successful LLM call hides cache hits (`hit_rate` drops to `0.0`) and hides slow failures (`p95` misses the `1500.0` ms spike). Fix: record every accepted `/ask` request, including cache hits and errors.
+Logging metrics only after a fresh, successful LLM call hides cache hits (`hit_rate` drops to `0.0`) and hides slow failures (`p95` misses the `1500.0` ms spike). Fix: record every accepted `/ask` request, including cache hits and errors. You will implement this exact pattern in Exercise 2 by recording `status="error"` whenever `RateLimitError` triggers a `503`.
 
 ```python
 import math
@@ -888,7 +890,7 @@ print(f"fixed count={len(events)} hit_rate={fixed_hit} p95={fixed_p95}")
 - An **app factory** (`create_app(docs, client, clock)`) keeps index, cache, and metrics local to each instance and injects the LLM client and clock so tests run deterministically in any order.
 - Embed the document corpus **once** at startup, and short-circuit low-similarity queries (`score < min_score`) with `"I don't know..."` and `sources: []` before calling `chat()`.
 - Key the TTL cache on `sha256` of sorted JSON containing both the normalized question and `top_k` (and `index_version` when docs change), expiring entries when `clock() >= expires_at`.
-- Record latency, token cost, and `cached` for every accepted `/ask` request (never logging raw user questions) so `GET /metrics` computes accurate `cache_hit_rate`, `p50_ms`, `p95_ms`, `total_cost`, and `alerts`.
+- Record latency, token cost, and `cached` for every accepted `/ask` request (never logging raw user questions) so `GET /metrics` computes accurate `cache_hit_rate` and `p95_ms`—in this walkthrough, `/metrics` also returns `p50_ms` and `alerts`, while Exercise 2 extends `/metrics` with `error_rate` and `?last=N`.
 - Ship the service by wiring `main.py` with `time.monotonic`, serving with `uvicorn`, and building a layered `Dockerfile` that never bakes `.env` secrets into the image.
 
 ## Take it further

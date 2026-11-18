@@ -29,7 +29,9 @@ def test_percentile_100_returns_max():
 def test_empty_list_raises_value_error():
     with pytest.raises(ValueError):
         exercise.percentile([], 50)
+
+
+@pytest.mark.parametrize("bad_p", [0, -5, 101])
+def test_invalid_percentile_raises_value_error(bad_p):
     with pytest.raises(ValueError):
-        exercise.percentile([100.0], 0)
-    with pytest.raises(ValueError):
-        exercise.percentile([100.0], 101)
+        exercise.percentile([100.0], bad_p)

@@ -8,6 +8,6 @@ latency_report([100, 200, 300])    # {"p50": 200.0, "p95": 300.0, "max": 300.0}
 ```
 
 **Quy tắc**
-- `percentile(values, p)` sắp xếp `values` không làm đổi list đầu vào, tính `rank = math.ceil(p / 100 * len(ordered))`, rồi trả về `float(ordered[rank - 1])`.
+- `percentile(values, p)` sắp xếp `values` không làm đổi list đầu vào, dùng nearest-rank (rank là trần của `p / 100 × n`, chỉ số bắt đầu từ 1), rồi trả về phần tử tương ứng kiểu `float`.
 - `percentile` ném `ValueError` khi `values` rỗng hoặc `p` nằm ngoài `(0, 100]`.
 - `latency_report(values)` trả về `{"p50": ..., "p95": ..., "max": ...}` với các giá trị kiểu `float`.

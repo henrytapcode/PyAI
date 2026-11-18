@@ -24,14 +24,20 @@ def summarize(records: list[dict]) -> dict:
     }
 
 
-def check_alerts(summary: dict, max_p95_ms: float, budget: float, max_error_rate: float) -> list[str]:
+def check_alerts(
+    summary: dict,
+    max_p95_ms: float,
+    budget: float,
+    max_error_rate: float,
+    warn_ratio: float = 0.8,
+) -> list[str]:
     alerts: list[str] = []
     if summary["p95_ms"] > max_p95_ms:
         alerts.append(f"p95 latency {summary['p95_ms']}ms > {max_p95_ms}ms")
     ratio = summary["total_cost"] / budget
     if summary["total_cost"] > budget:
         alerts.append(f"budget exceeded: ${summary['total_cost']:.2f} > ${budget:.2f}")
-    elif ratio >= 0.8:
+    elif ratio >= warn_ratio:
         pct = round(ratio * 100)
         alerts.append(f"budget warning: {pct}% of budget used (${summary['total_cost']:.2f}/${budget:.2f})")
     if summary["error_rate"] > max_error_rate:
@@ -42,22 +48,22 @@ def check_alerts(summary: dict, max_p95_ms: float, budget: float, max_error_rate
 def main() -> None:
     days = {
         "day_1": [
-            {"latency_ms": 210, "cost_usd": 2.10, "cache_hit": True, "status": "ok"},
-            {"latency_ms": 240, "cost_usd": 3.40, "cache_hit": False, "status": "ok"},
-            {"latency_ms": 195, "cost_usd": 1.80, "cache_hit": True, "status": "ok"},
-            {"latency_ms": 310, "cost_usd": 4.20, "cache_hit": False, "status": "ok"},
+            {"latency_ms": 210, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
+            {"latency_ms": 240, "cost_usd": 5.50, "cache_hit": False, "status": "ok"},
+            {"latency_ms": 195, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
+            {"latency_ms": 310, "cost_usd": 6.00, "cache_hit": False, "status": "ok"},
         ],
         "day_2": [
-            {"latency_ms": 220, "cost_usd": 6.50, "cache_hit": False, "status": "ok"},
+            {"latency_ms": 220, "cost_usd": 11.00, "cache_hit": False, "status": "ok"},
             {"latency_ms": 1650, "cost_usd": 14.00, "cache_hit": False, "status": "ok"},
-            {"latency_ms": 290, "cost_usd": 8.00, "cache_hit": False, "status": "error"},
-            {"latency_ms": 260, "cost_usd": 5.50, "cache_hit": False, "status": "ok"},
+            {"latency_ms": 290, "cost_usd": 0.0, "cache_hit": False, "status": "error"},
+            {"latency_ms": 260, "cost_usd": 9.00, "cache_hit": False, "status": "ok"},
         ],
         "day_3": [
-            {"latency_ms": 230, "cost_usd": 4.25, "cache_hit": True, "status": "ok"},
-            {"latency_ms": 280, "cost_usd": 5.10, "cache_hit": False, "status": "ok"},
-            {"latency_ms": 260, "cost_usd": 4.00, "cache_hit": True, "status": "ok"},
-            {"latency_ms": 310, "cost_usd": 3.65, "cache_hit": False, "status": "ok"},
+            {"latency_ms": 230, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
+            {"latency_ms": 280, "cost_usd": 9.25, "cache_hit": False, "status": "ok"},
+            {"latency_ms": 260, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
+            {"latency_ms": 310, "cost_usd": 7.75, "cache_hit": False, "status": "ok"},
         ],
     }
 

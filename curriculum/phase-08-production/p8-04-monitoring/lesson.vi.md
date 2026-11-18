@@ -4,7 +4,7 @@ Bot RAG của bạn chạy êm ru suốt tuần đầu tiên. Sang tuần thứ 
 
 Hãy hình dung mỗi dòng **metric** (chỉ số đo lường) giống như hộp đen trên máy bay: chuyến bay nào cũng ghi đều đặn những con số gọn nhẹ để khi có sự cố là tra lại được ngay. Với dịch vụ LLM, mỗi request xuất ra một bản ghi phẳng gồm `request_id`, `route`, `model`, `latency_ms`, `prompt_tokens`, `completion_tokens`, `cost_usd`, `cache_hit` và `status` (`"ok"` hoặc `"error"`).
 
-Ở production, bạn đo `latency_ms` (độ trễ tính bằng mili-giây) bằng cách gọi `time.perf_counter()` ngay trước và ngay sau lời gọi model. Trong bài học này, chúng ta tiêm một `FakeClock` tất định để mọi ví dụ chạy tức thì và luôn ra cùng một kết quả.
+Ở production, bạn truyền `time.perf_counter` hoặc `time.monotonic` làm `clock` ngay trước và sau lời gọi model—cả hai đồng hồ này đều không chạy lùi (`perf_counter` mịn hơn nên hợp đo độ trễ, còn `monotonic` đủ dùng cho TTL của cache), và cả hai đều truyền vào được như một hàm không tham số `clock`. Trong bài học này, chúng ta tiêm `FakeClock` từ bài `p8-03-caching` (gọi `clock()` được là nhờ `__call__`) để mọi ví dụ chạy tức thì và luôn ra cùng một kết quả.
 
 ```python
 import json
@@ -12,15 +12,18 @@ from pyai_llm import FakeLLM, RateLimitError
 
 
 class FakeClock:
-    def __init__(self, start_ms: float = 0.0) -> None:
-        self.now_ms = start_ms
+    def __init__(self, start: float = 0.0) -> None:
+        self.t = start
 
-    def advance(self, ms: float) -> None:
-        self.now_ms += ms
+    def __call__(self) -> float:
+        return self.t
+
+    def advance(self, seconds: float) -> None:
+        self.t += seconds
 
 
-PRICE_IN_PER_1K = 0.0005
-PRICE_OUT_PER_1K = 0.0015
+PRICE_IN_PER_1K = 0.002
+PRICE_OUT_PER_1K = 0.006
 client = FakeLLM()
 clock = FakeClock()
 
@@ -30,32 +33,33 @@ def tracked_chat(
     route: str,
     model: str,
     messages: list[dict],
+    clock,
     cache_hit: bool = False,
     cached_reply: str = "",
 ) -> tuple[str, dict]:
-    start_ms = clock.now_ms
+    start = clock()
     if cache_hit:
-        clock.advance(2.0)
+        clock.advance(0.002)
         reply = cached_reply
         prompt_tokens, completion_tokens, status = 0, 0, "ok"
     else:
+        status, reply, prompt_tokens, completion_tokens = "error", "", 0, 0
         try:
             resp = client.chat(messages, temperature=0.0)
-            clock.advance(200.0 + 3.0 * resp.usage.completion_tokens)
+            clock.advance(0.2 + 0.003 * resp.usage.completion_tokens)
             reply = resp.content or ""
             prompt_tokens = resp.usage.prompt_tokens
             completion_tokens = resp.usage.completion_tokens
             status = "ok"
         except RateLimitError:
-            clock.advance(150.0)
-            reply, prompt_tokens, completion_tokens, status = "", 0, 0, "error"
+            clock.advance(0.15)
 
     cost = (prompt_tokens / 1000) * PRICE_IN_PER_1K + (completion_tokens / 1000) * PRICE_OUT_PER_1K
     record = {
         "request_id": request_id,
         "route": route,
         "model": model,
-        "latency_ms": round(clock.now_ms - start_ms, 1),
+        "latency_ms": round((clock() - start) * 1000, 1),
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
         "cost_usd": round(cost, 6),
@@ -65,10 +69,10 @@ def tracked_chat(
     return reply, record
 
 
-reply1, rec1 = tracked_chat("req-01", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}])
-_, rec2 = tracked_chat("req-02", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}], cache_hit=True, cached_reply=reply1)
+reply1, rec1 = tracked_chat("req-01", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}], clock)
+_, rec2 = tracked_chat("req-02", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}], clock, cache_hit=True, cached_reply=reply1)
 print(json.dumps(rec1, sort_keys=True))
-# {"cache_hit": false, "completion_tokens": 21, "cost_usd": 3.6e-05, "latency_ms": 263.0, "model": "fake-mini", "prompt_tokens": 8, "request_id": "req-01", "route": "/ask", "status": "ok"}
+# {"cache_hit": false, "completion_tokens": 21, "cost_usd": 0.000142, "latency_ms": 263.0, "model": "fake-mini", "prompt_tokens": 8, "request_id": "req-01", "route": "/ask", "status": "ok"}
 print(json.dumps(rec2, sort_keys=True))
 # {"cache_hit": true, "completion_tokens": 0, "cost_usd": 0.0, "latency_ms": 2.0, "model": "fake-mini", "prompt_tokens": 0, "request_id": "req-02", "route": "/ask", "status": "ok"}
 ```
@@ -103,16 +107,16 @@ logging.basicConfig(
 logger = logging.getLogger("app.metrics")
 
 records = [
-    {"request_id": "req-01", "route": "/ask", "latency_ms": 263.0, "cost_usd": 0.0004, "cache_hit": False, "status": "ok"},
-    {"request_id": "req-02", "route": "/ask", "latency_ms": 2.0, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
+    {"request_id": "req-03", "route": "/ask", "latency_ms": 263.0, "cost_usd": 0.0004, "cache_hit": False, "status": "ok"},
+    {"request_id": "req-04", "route": "/ask", "latency_ms": 2.0, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
 ]
 
 collected = []
 for rec in records:
     logger.info(json.dumps(rec, sort_keys=True))
     collected.append(rec)
-# {"cache_hit": false, "cost_usd": 0.0004, "latency_ms": 263.0, "request_id": "req-01", "route": "/ask", "status": "ok"}
-# {"cache_hit": true, "cost_usd": 0.0, "latency_ms": 2.0, "request_id": "req-02", "route": "/ask", "status": "ok"}
+# {"cache_hit": false, "cost_usd": 0.0004, "latency_ms": 263.0, "request_id": "req-03", "route": "/ask", "status": "ok"}
+# {"cache_hit": true, "cost_usd": 0.0, "latency_ms": 2.0, "request_id": "req-04", "route": "/ask", "status": "ok"}
 print("collected:", len(collected))
 # collected: 2
 ```
@@ -168,7 +172,7 @@ Bạn thấy `p50` vẫn ở mức `210` ms (người dùng thông thường) tr
 
 ## 4. Chi phí: từ token ra tiền
 
-Các nhà cung cấp LLM tính giá token đầu vào (`prompt_tokens`) và token đầu ra (`completion_tokens`) khác nhau—token đầu ra thường đắt gấp 3–4 lần vì mỗi token sinh ra đều cần chạy qua model. Với đơn giá giả định ghi rõ trong code (`PRICE_IN_PER_1K = 0.0005`, `PRICE_OUT_PER_1K = 0.0015`), bạn tính chi phí từng request, cộng theo từng `route` và ước lượng ngân sách tháng theo lưu lượng ngày.
+Các nhà cung cấp LLM tính giá token đầu vào (`prompt_tokens`) và token đầu ra (`completion_tokens`) khác nhau—token đầu ra thường đắt hơn vài lần vì model phải sinh tuần tự từng token một. Với đơn giá giả định ghi rõ trong code (`PRICE_IN_PER_1K = 0.0005`, `PRICE_OUT_PER_1K = 0.0015`), bạn tính chi phí từng request, cộng theo từng `route` và ước lượng ngân sách tháng theo lưu lượng ngày.
 
 ```python
 from collections import defaultdict
@@ -332,6 +336,7 @@ latencies = [160, 170, 175, 180, 185, 190, 190, 195, 200, 205, 210, 215, 220, 22
 # sai: chỉ nhìn mean khiến dịch vụ trông vẫn nhanh
 print("mean only:", round(statistics.mean(latencies), 1))
 # mean only: 414.7
+
 # đã sửa: kiểm tra p50 và p95 để bắt phần đuôi chậm
 print("p50:", percentile(latencies, 50), "p95:", percentile(latencies, 95))
 # p50: 195 p95: 3500
@@ -379,7 +384,7 @@ print("fixed_cost:", round(fixed_cost, 4))
 
 **4. Không ghi record khi request bị lỗi**
 
-Nếu chỉ tạo và ghi log sau khi `client.chat(...)` thành công, mọi lỗi rate-limit hay timeout đều biến mất khỏi log và `error_rate` mãi bằng `0.0`. Cách sửa: dùng `try / except / finally` để request nào cũng ghi bản ghi với trạng thái `"ok"` hoặc `"error"`.
+Nếu chỉ tạo và ghi log sau khi `client.chat(...)` thành công, mọi lỗi rate-limit hay timeout đều biến mất khỏi log và `error_rate` mãi bằng `0.0`. Tệ hơn, nếu gán sẵn `status = "ok"` trước `try`, một lỗi lạ như `ValueError` cũng bị ghi nhầm thành `"ok"`. Cách sửa: khởi tạo `status = "error"` trước `try`, chỉ gán `status = "ok"` sau khi `chat()` thành công, và ghi bản ghi trong `finally`.
 
 ```python
 from pyai_llm import FakeLLM, RateLimitError
@@ -401,15 +406,24 @@ def bad_run() -> list[dict]:
 def good_run() -> list[dict]:
     client = FakeLLM(fail_times=1)
     records = []
-    for i in range(3):
-        status, tokens = "ok", 0
+    payloads = [
+        [{"role": "user", "content": "hi"}],
+        [{"role": "invalid", "content": "hi"}],
+        [{"role": "user", "content": "ping"}],
+    ]
+    for i, msgs in enumerate(payloads):
+        status, tokens = "error", 0
         try:
-            resp = client.chat([{"role": "user", "content": "hi"}])
-            tokens = resp.usage.total_tokens
-        except RateLimitError:
-            status = "error"
-        finally:
-            records.append({"id": i, "tokens": tokens, "status": status})
+            try:
+                resp = client.chat(msgs)
+                tokens = resp.usage.total_tokens
+                status = "ok"
+            except RateLimitError:
+                pass
+            finally:
+                records.append({"id": i, "tokens": tokens, "status": status})
+        except ValueError:
+            pass
     return records
 
 
@@ -417,8 +431,10 @@ bad = bad_run()
 good = good_run()
 print("bad error_rate:", sum(r["status"] != "ok" for r in bad) / len(bad))
 # bad error_rate: 0.0
+print("good statuses:", [r["status"] for r in good])
+# good statuses: ['error', 'error', 'ok']
 print("good error_rate:", round(sum(r["status"] != "ok" for r in good) / len(good), 2))
-# good error_rate: 0.33
+# good error_rate: 0.67
 ```
 
 ## Tóm tắt

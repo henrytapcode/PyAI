@@ -8,17 +8,17 @@ questions:
       prompt: "Why does `create_app(docs, client, clock)` return a new `FastAPI()` inside a function instead of creating `app = FastAPI()` at module level?"
       options:
         - "Each test gets isolated state and injected dependencies"
-        - "FastAPI refuses to register routes at module level"
-        - "A module-level `app` cannot handle `POST` JSON bodies"
-        - "Creating `app` inside a function runs `uvicorn` automatically"
+        - "Module-level apps share one global lock across routes"
+        - "A factory function restarts the Python process per test"
+        - "FastAPI caches route responses globally without factories"
       explanation: "An app factory keeps the index, cache, and metrics inside the factory closure and lets tests inject `FakeLLM` and `FakeClock` without sharing state across tests."
     vi:
       prompt: "Vì sao nên viết `create_app(docs, client, clock)` trả về `FastAPI()` mới bên trong hàm thay vì tạo `app = FastAPI()` ở cấp module?"
       options:
         - "Mỗi test nhận trạng thái cô lập và phụ thuộc riêng"
-        - "FastAPI không cho phép đăng ký route ở cấp module"
-        - "Một `app` ở cấp module không nhận được body JSON `POST`"
-        - "Tạo `app` trong hàm sẽ tự động bật server `uvicorn`"
+        - "App ở cấp module dùng chung một khóa toàn cục giữa các route"
+        - "Hàm factory khởi động lại tiến trình Python cho mỗi test"
+        - "FastAPI tự động cache phản hồi toàn cục nếu không có factory"
       explanation: "App factory giữ chỉ mục, cache và metric nằm riêng trong closure của hàm tạo và cho phép bài test tiêm `FakeLLM` cùng `FakeClock` mà không bị rò rỉ trạng thái giữa các test."
 
   - id: p8-05-q02
@@ -130,7 +130,7 @@ questions:
       ordered = ___(latencies)
       rank = math.ceil(___ / 100 * len(ordered))
       print(ordered[rank - 1])
-    answer: ["sorted", "95"]
+    answer: ["sorted", ["95", "95.0"]]
     en:
       prompt: "Fill in the two blanks to compute the nearest-rank `p95` latency (printing `320.0`)."
       explanation: "Nearest-rank percentiles sort the latencies ascending with `sorted(...)`, compute `math.ceil(95 / 100 * n)`, and read `ordered[rank - 1]`."
@@ -297,18 +297,18 @@ questions:
     tags: [rag, production]
     difficulty: 3
     lines:
-      - "from pyai_llm import FakeLLM"
+      - "from pyai_llm import FakeLLM, cosine"
       - "client = FakeLLM()"
-      - "vec = client.embed(['Refunds take 5 days.'])[0]"
-      - "ctx = f'[1] Refunds take 5 days. ({round(vec[0], 2)})'"
+      - "q_vec, d_vec = client.embed(['How many days do refunds take?', 'Refunds take 5 days.'])"
+      - "ctx = '[1] Refunds take 5 days.' if cosine(q_vec, d_vec) >= 0.2 else ''"
       - "resp = client.chat([{'role': 'system', 'content': 'Context:\\n' + ctx}, {'role': 'user', 'content': 'How many days do refunds take?'}])"
       - "print(resp.content)"
     en:
-      prompt: "Arrange the lines in strict dependency order to embed a chunk, build a numbered `Context:` prompt, call `FakeLLM.chat`, and print the cited answer."
-      explanation: "Import `FakeLLM`, instantiate `client`, embed the chunk into `vec`, format `ctx` using `vec[0]`, pass `ctx` into `client.chat(...)`, and finally print `resp.content`."
+      prompt: "Arrange the lines in strict dependency order to embed the query and chunk, gate context with cosine similarity, call `FakeLLM.chat`, and print the cited answer."
+      explanation: "Import `FakeLLM` and `cosine`, create `client`, embed the question and document chunk, build `ctx` only if `cosine(q_vec, d_vec) >= 0.2`, pass `ctx` into `client.chat(...)`, and print `resp.content`."
     vi:
-      prompt: "Sắp xếp các dòng theo đúng thứ tự phụ thuộc để embed một chunk, dựng prompt `Context:` đánh số, gọi `FakeLLM.chat` và in câu trả lời có trích nguồn."
-      explanation: "Import `FakeLLM`, khởi tạo `client`, embed chunk thành `vec`, định dạng `ctx` có dùng `vec[0]`, truyền `ctx` vào `client.chat(...)`, rồi in `resp.content`."
+      prompt: "Sắp xếp các dòng theo đúng thứ tự phụ thuộc để embed câu hỏi và chunk, kiểm tra ngưỡng cosine, gọi `FakeLLM.chat` và in câu trả lời có trích nguồn."
+      explanation: "Import `FakeLLM` và `cosine`, khởi tạo `client`, embed câu hỏi và đoạn tài liệu, tạo `ctx` khi `cosine(q_vec, d_vec) >= 0.2`, truyền `ctx` vào `client.chat(...)` rồi in `resp.content`."
 
   - id: p8-05-q15
     type: mcq

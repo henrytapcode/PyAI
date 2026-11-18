@@ -21,23 +21,26 @@ Từng phần trong mini-project này nối trực tiếp với các bài bạn 
 
 | part | phần xây dựng | từ bài |
 |---|---|---|
-| Part 1: App factory & chỉ mục | `create_app(docs, client, clock)` embed tài liệu một lần và `GET /health` | `p7-09-mini-project-rag`, `p8-01-fastapi` |
+| Part 1: App factory & chỉ mục | `create_app(docs, client, clock)` embed tài liệu một lần và `GET /health` | mới trong bài này (app factory), `p7-09-mini-project-rag` |
 | Part 2: Trích nguồn & từ chối | `POST /ask` với `AskRequest`, lọc `min_score`, prompt `[n]` và từ chối không gọi LLM | `p7-09-mini-project-rag`, `p8-01-fastapi` |
 | Part 3: Cache phản hồi | TTL cache trong bộ nhớ dùng key gồm câu hỏi chuẩn hóa và `top_k` với `clock()` | `p8-03-caching` |
 | Part 4: Metric & cảnh báo | Đo độ trễ/chi phí từng request, `GET /metrics` (`p50_ms`, `p95_ms`) và cảnh báo | `p8-04-monitoring` |
 | Part 5: Kiểm thử dịch vụ | Các bài test tất định kiểu `pytest` với `TestClient`, `FakeClock` và `SpyClient` | `p8-01-fastapi`, `p8-03-caching` |
-| Part 6: Đóng gói & chạy thật | File `main.py` một dòng, `uvicorn`, `curl` và `Dockerfile` chuẩn production | `p8-01-fastapi`, `p8-02-docker` |
+| Part 6: Đóng gói & chạy thật | File `main.py` gọn nhẹ, `uvicorn`, `curl` và `Dockerfile` chuẩn production | `p8-01-fastapi`, `p8-02-docker` |
 
-Dịch vụ hoàn chỉnh cung cấp ba endpoint:
+Dịch vụ hoàn chỉnh trong phần minh họa cung cấp ba endpoint:
 - `GET /health` → `{"status": "ok", "docs": <int>}`
 - `POST /ask` → `{"answer": str, "sources": [id, ...], "usage": {...}, "cached": bool}`
 - `GET /metrics` → `{"requests": int, "cache_hit_rate": float, "p50_ms": float, "p95_ms": float, "total_cost": float, "alerts": [...]}`
 
+> [!NOTE]
+> `p50_ms` và `alerts` là của bản minh họa trong bài học. Hai bài tập mở rộng `/ask` và dùng bộ chỉ số `/metrics` hơi khác (như `error_rate` và `?last=N`).
+
 ## 2. Part 1: app factory và chỉ mục
 
-Viết `app = FastAPI()` ở cấp module làm các bài test dùng chung trạng thái và dễ làm hỏng nhau. Thay vào đó, hãy dùng **app factory** (hàm tạo app) `create_app(docs, client, clock)` trả về một `FastAPI()` mới mỗi lần gọi, giữ toàn bộ vector tài liệu, cache và danh sách metric bên trong closure. Việc truyền `client` và `clock` qua tham số chính là **dependency injection** (tiêm phụ thuộc) ở dạng đơn giản nhất: khi test ta truyền `FakeLLM` và `FakeClock`, còn ở production bạn truyền API client thật và `time.monotonic` (truyền hàm, không gọi).
+Viết `app = FastAPI()` ở cấp module làm các bài test dùng chung trạng thái và dễ làm hỏng nhau. Thay vào đó, hãy dùng **app factory** (hàm tạo app) `create_app(docs, client, clock)` trả về một `FastAPI()` mới mỗi lần gọi, giữ toàn bộ vector tài liệu, cache và danh sách metric bên trong closure. Việc truyền `client` và `clock` qua tham số chính là **dependency injection** (tiêm phụ thuộc) ở dạng đơn giản nhất: khi test bạn truyền `FakeLLM` và `FakeClock`, còn ở production bạn truyền API client thật và `time.monotonic` (truyền hàm, không gọi).
 
-Hãy embed toàn bộ tài liệu **một lần** ngay khi tạo app (nối lại bước nạp dữ liệu ở `p7-09-mini-project-rag`), thay vì embed lại ở mỗi request:
+Hãy embed toàn bộ tài liệu **một lần** ngay khi tạo app (nối lại bước nạp dữ liệu ở `p7-09-mini-project-rag`), thay vì embed lại ở mỗi request. Ta dùng lại `FakeClock` ở `p8-03-caching`: nhờ `__call__`, dịch vụ có thể gọi `clock()` giống hệt `time.monotonic`:
 
 ```python
 from fastapi import FastAPI
@@ -56,13 +59,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SpyClient:
@@ -81,7 +84,7 @@ def create_app(docs: list[dict], client: SpyClient, clock: FakeClock) -> FastAPI
 
     @app.get("/health")
     def health() -> dict[str, object]:
-        return {"status": "ok", "docs": len(doc_vecs), "t": clock()}
+        return {"status": "ok", "docs": len(doc_vecs)}
 
     return app
 
@@ -92,16 +95,16 @@ http = TestClient(create_app(DOCS, spy, clock))
 for _ in range(3):
     r = http.get("/health")
 print("health:", r.status_code, r.json())
-# health: 200 {'status': 'ok', 'docs': 6, 't': 0.0}
+# health: 200 {'status': 'ok', 'docs': 6}
 print("embed_calls after 3 requests:", spy.embed_calls)
 # embed_calls after 3 requests: 1
 
 other = TestClient(create_app(DOCS[:2], SpyClient(FakeLLM(embed_dim=256)), FakeClock(10.0)))
 print("other app:", other.get("/health").json())
-# other app: {'status': 'ok', 'docs': 2, 't': 10.0}
+# other app: {'status': 'ok', 'docs': 2}
 ```
 
-Bạn thấy `embed_calls` vẫn là `1` sau 3 request, và `other` chạy với `docs=2`, `t=10.0` hoàn toàn tách biệt khỏi `http`.
+Bạn thấy `embed_calls` vẫn là `1` sau 3 request, và `other` chạy với `docs=2` hoàn toàn tách biệt khỏi `http`.
 
 Ở bước truy xuất, dịch vụ xếp hạng các vector đã embed sẵn theo độ tương đồng cosine với vector câu hỏi. Bấm **Visualize** ở khối code ngắn này (chỉ dùng vector viết tay, không dùng FastAPI) để xem `scored` được tạo trước khi cắt top 2:
 
@@ -192,7 +195,7 @@ def create_app(docs: list[dict], client: SpyClient, min_score: float = 0.2) -> F
     def ask(body: AskRequest) -> dict[str, object]:
         q_vec = client.embed([body.question])[0]
         scored = sorted(
-            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
             key=lambda item: (-item[0], item[1]),
         )
         hits = [d for score, _, d in scored[: body.top_k] if score >= min_score]
@@ -233,11 +236,11 @@ print("422:", r3.status_code, errs)
 # 422: 422 [(['body', 'question'], 'string_too_short')]
 ```
 
-Để ý `r2` trả `sources: []` mà `chat_calls` vẫn là `1`—ngưỡng `min_score` đã chặn được một lượt gọi LLM thừa—còn `r3` bị Pydantic trả lỗi `422` ngay ở cửa vào.
+Để ý `r2` trả `sources: []` mà `chat_calls` vẫn là `1`—ngưỡng `min_score` đã chặn được một lượt gọi LLM thừa—còn `r3` bị Pydantic trả lỗi `422` ngay ở cửa vào. Việc truyền `strict=True` cho `zip(...)` bảo đảm Python báo `ValueError` ngay nếu `docs` và `doc_vecs` lệch độ dài.
 
 ## 4. Part 3: cache phản hồi
 
-Tiếp theo, thêm một **TTL cache** (bộ nhớ đệm có thời hạn) trong `create_app` (nối với `p8-03-caching`). Chuẩn hóa câu hỏi bằng cách bỏ khoảng trắng đầu/cuối và gộp khoảng trắng liên tiếp (`" ".join(q.strip().split())`), rồi tạo cache key bằng mã băm SHA-256 của `json.dumps({"question": clean, "top_k": body.top_k}, sort_keys=True)`. Bạn cũng có thể thêm `index_version` vào key để vô hiệu hóa toàn bộ cache cũ ngay khi bộ tài liệu thay đổi.
+Tiếp theo, thêm một **TTL cache** (bộ nhớ đệm có thời hạn) trong `create_app` (nối với `p8-03-caching`). Chuẩn hóa câu hỏi bằng cách bỏ khoảng trắng đầu/cuối và gộp khoảng trắng liên tiếp (`" ".join(q.strip().split())`), rồi tạo cache key bằng mã băm SHA-256 của `json.dumps({"question": clean, "top_k": body.top_k}, sort_keys=True)`. Key chỉ cần `question` và `top_k` vì model, mẫu prompt và `min_score` đều cố định trong một app; nếu bạn thay đổi bất kỳ thứ nào trong số đó, hãy đưa vào key hoặc tăng trường `index_version` để làm mới các mục cache cũ.
 
 Lần tra cứu trúng cache (**cache hit**) khi `now < expires_at`, trả về `cached: True` với usage `0/0`; khi `now >= expires_at`, mục cũ hết hạn và hệ thống truy xuất lại từ đầu:
 
@@ -248,7 +251,7 @@ t=10  ask("  How many days   do refunds take? ", top_k=2) -> HIT (10 < 300)
 t=400 ask("How many days do refunds take?", top_k=2) -> MISS (expired, 400 >= 300)
 ```
 
-Ở production bạn truyền `time.monotonic` làm `clock`; ở đây ta tiêm `FakeClock` để nhảy trước 380 giây ngay lập tức:
+Ở production bạn truyền `time.monotonic` làm `clock` (đồng hồ này không chạy lùi nên hợp kiểm tra TTL); ở đây ta tiêm `FakeClock` để nhảy trước 380 giây ngay lập tức:
 
 ```python
 import hashlib
@@ -270,13 +273,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SpyClient:
@@ -318,7 +321,7 @@ def create_app(docs: list[dict], client: SpyClient, clock: FakeClock, ttl: float
 
         q_vec = client.embed([body.question])[0]
         scored = sorted(
-            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+            [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
             key=lambda item: (-item[0], item[1]),
         )
         hits = [d for score, _, d in scored[: body.top_k] if score >= 0.2]
@@ -362,7 +365,7 @@ Bạn thấy ở `t=20`, việc đổi sang `top_k=1` gây trượt cache (`chat
 
 ## 5. Part 4: metric và `GET /metrics`
 
-Giờ đo `t0 = clock()` trước và `clock()` sau mỗi request `/ask` hợp lệ, ghi lại bản ghi gồm `latency_ms`, số token, `cost`, `cached` và `status`. Lưu ý các request lỗi Pydantic (`422`) bị chặn trước khi vào hàm xử lý `/ask` nên không nằm trong `records`. Để mô phỏng độ trễ LLM tất định mà không cần ngủ thật, `SlowClient.chat` cộng thêm `0.2 + 0.002 * completion_tokens` giây vào `clock`, còn các lượt trúng cache bỏ qua `chat()` nên độ trễ là `0.0` ms và chi phí `$0.0000`.
+Giờ đo `t0 = clock()` trước và `clock()` sau mỗi request `/ask` hợp lệ, ghi lại bản ghi gồm `latency_ms`, `cost` và `cached`. Lưu ý các request lỗi Pydantic (`422`) bị chặn trước khi vào hàm xử lý `/ask` nên không nằm trong `records`. Bản minh họa trong bài học tạm giả sử `client.chat` luôn thành công và chưa bắt lỗi model; ở Bài tập 2, bạn sẽ tự thêm nhánh bắt `RateLimitError` để trả `503` và ghi `status="error"`. Để mô phỏng độ trễ LLM tất định mà không cần ngủ thật, `SlowClient.chat` cộng thêm `0.2 + 0.002 * completion_tokens` giây vào `clock`, còn các lượt trúng cache bỏ qua `chat()` nên độ trễ là `0.0` ms và chi phí `$0.0000`.
 
 Route `GET /metrics` tính `requests`, `cache_hit_rate`, `p50_ms` và `p95_ms` theo phương pháp **nearest-rank** (`p8-04-monitoring`), `total_cost` và danh sách `alerts`:
 
@@ -387,13 +390,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SlowClient:
@@ -439,7 +442,7 @@ def create_app(docs: list[dict], client: SlowClient, clock: FakeClock, ttl: floa
             cached = False
             q_vec = client.embed([body.question])[0]
             scored = sorted(
-                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
                 key=lambda item: (-item[0], item[1]),
             )
             hits = [d for score, _, d in scored[: body.top_k] if score >= 0.2]
@@ -458,7 +461,7 @@ def create_app(docs: list[dict], client: SlowClient, clock: FakeClock, ttl: floa
 
         latency_ms = round((clock() - t0) * 1000.0, 2)
         cost = (p_tok / 1000.0) * 0.0005 + (c_tok / 1000.0) * 0.0015
-        records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached, "status": "ok"})
+        records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached})
         return {**payload, "usage": {"prompt_tokens": p_tok, "completion_tokens": c_tok}, "cached": cached}
 
     @app.get("/metrics")
@@ -531,13 +534,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SlowSpyClient:
@@ -583,7 +586,7 @@ def create_app(docs: list[dict], client: SlowSpyClient, clock: FakeClock, ttl: f
             cached = False
             q_vec = client.embed([body.question])[0]
             scored = sorted(
-                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs))],
+                [(cosine(q_vec, dv), idx, d) for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))],
                 key=lambda item: (-item[0], item[1]),
             )
             hits = [d for score, _, d in scored[: body.top_k] if score >= 0.2]
@@ -661,23 +664,22 @@ print("ok: 5 tests passed")
 # ok: 5 tests passed
 ```
 
-Bảng dưới đây cho thấy mỗi test bảo vệ điều gì:
+Bảng dưới đây cho thấy mỗi hàm test bảo vệ điều gì:
 
 | test | điều được bảo vệ |
 |---|---|
-| `health` | Bước index tài liệu lúc khởi động hoàn tất và `/health` báo đúng số doc |
-| `422` | Pydantic chặn câu hỏi rỗng hoặc `top_k` ngoài ngưỡng trước khi truy xuất |
-| `refusal skips LLM` | Câu hỏi điểm thấp trả `"I don't know..."` và `sources: []`, không tốn lượt gọi `chat` |
-| `cache hit skips second LLM call` | Câu hỏi lặp lại sau chuẩn hóa dùng lại đáp án cache mà không gọi `chat` lần hai |
-| `TTL expiry` | Mục quá hạn bị loại khi `clock() >= expires_at` thay vì trả dữ liệu cũ mãi mãi |
-| `metrics count accurately` | `/metrics` cộng đúng tổng request, `cache_hit_rate`, `p95_ms` và `total_cost` |
+| `test_health_reports_doc_count` | Bước index tài liệu lúc khởi động hoàn tất và `/health` báo đúng số doc |
+| `test_invalid_payload_returns_422` | Pydantic chặn câu hỏi rỗng hoặc `top_k` ngoài ngưỡng trước khi truy xuất |
+| `test_refusal_skips_llm_call` | Câu hỏi điểm thấp trả `"I don't know..."` và `sources: []`, không tốn lượt gọi `chat` |
+| `test_cache_hit_and_ttl_expiry` | Câu hỏi lặp lại sau chuẩn hóa dùng lại đáp án cache, và hết hạn khi `clock() >= expires_at` |
+| `test_metrics_counts_and_cost` | `/metrics` cộng đúng tổng request, `cache_hit_rate` và `total_cost` |
 
 > [!TIP]
 > Hãy đặt bước khởi tạo `create_app(...)` vào một `@pytest.fixture` trong file `test_app.py` để mỗi bài test nhận một `TestClient` mới với cache rỗng và metric bằng 0, bất kể thứ tự chạy.
 
 ## 7. Part 6: đóng gói và chạy thật
 
-Khi chạy thật ngoài bài test, file `main.py` chỉ cần một dòng nối dây: `app = create_app(DOCS, real_client, time.monotonic)`, truyền thẳng hàm `time.monotonic` mà không gọi nó. Trên terminal, bạn bật server với `uvicorn` và gọi thử `/ask` bằng `curl`:
+Khi chạy thật ngoài bài test, file `main.py` chỉ cần vài dòng nối dây khai báo `DOCS`, tạo `real_client`, và gọi `app = create_app(DOCS, real_client, time.monotonic)` (truyền thẳng hàm `time.monotonic` mà không gọi nó). Trên terminal, bạn bật server với `uvicorn` và gọi thử `/ask` bằng `curl`:
 
 ```bash
 # main.py wires: app = create_app(DOCS, real_client, time.monotonic)
@@ -851,7 +853,7 @@ print("fixed top_k=1 hit?:", good_key("Refunds?", 1) in good_cache)
 
 **4. Bỏ qua request lỗi hoặc cache hit khi ghi metric**
 
-Chỉ ghi metric sau khi gọi LLM thành công làm `hit_rate` tụt về `0.0` và làm `p95` bỏ sót hẳn các request lỗi chậm (`1500.0` ms). Cách sửa: ghi metric cho mọi request `/ask` được chấp nhận, kể cả cache hit và request lỗi.
+Chỉ ghi metric sau khi gọi LLM thành công làm `hit_rate` tụt về `0.0` và làm `p95` bỏ sót hẳn các request lỗi chậm (`1500.0` ms). Cách sửa: ghi metric cho mọi request `/ask` được chấp nhận, kể cả cache hit và request lỗi. Bạn sẽ tự cài đặt chính mẫu này trong Bài tập 2 bằng cách ghi `status="error"` mỗi khi `RateLimitError` làm dịch vụ trả `503`.
 
 ```python
 import math
@@ -888,7 +890,7 @@ print(f"fixed count={len(events)} hit_rate={fixed_hit} p95={fixed_p95}")
 - **App factory** (`create_app(docs, client, clock)`) giữ chỉ mục, cache và metric riêng cho từng instance, đồng thời tiêm LLM client và đồng hồ để test chạy tất định theo mọi thứ tự.
 - Embed toàn bộ tài liệu **một lần** lúc khởi tạo, và chặn sớm câu hỏi có điểm thấp (`score < min_score`) bằng `"I don't know..."` cùng `sources: []` trước khi gọi `chat()`.
 - Tạo cache key bằng `sha256` của JSON `sort_keys` gồm câu hỏi chuẩn hóa và `top_k` (thêm `index_version` khi dữ liệu đổi), cho hết hạn khi `clock() >= expires_at`.
-- Ghi nhận độ trễ, chi phí token và `cached` cho mọi request `/ask` hợp lệ (không lưu câu hỏi gốc của người dùng) để `GET /metrics` tính đúng `cache_hit_rate`, `p50_ms`, `p95_ms`, `total_cost` và `alerts`.
+- Ghi nhận độ trễ, chi phí token và `cached` cho mọi request `/ask` hợp lệ (không lưu câu hỏi gốc của người dùng) để `GET /metrics` tính đúng `cache_hit_rate` và `p95_ms`—trong bản minh họa bài học `/metrics` trả thêm `p50_ms` và `alerts`, còn Bài tập 2 mở rộng thêm `error_rate` và `?last=N`.
 - Đưa dịch vụ lên production bằng file `main.py` dùng `time.monotonic`, chạy qua `uvicorn` và đóng gói bằng `Dockerfile` không chứa file bí mật `.env`.
 
 ## Mở rộng thêm

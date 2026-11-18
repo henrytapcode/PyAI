@@ -75,6 +75,17 @@ def test_health_reports_ok_and_doc_count(harness):
     assert r.json() == {"status": "ok", "docs": len(DOCS)}
 
 
+def test_get_document_found_and_missing(harness):
+    client, _ = harness
+    ok = client.get("/documents/refunds")
+    assert ok.status_code == 200
+    assert ok.json() == DOCS[0]
+
+    missing = client.get("/documents/unknown-id")
+    assert missing.status_code == 404
+    assert missing.json() == {"detail": "document not found"}
+
+
 def test_embed_called_once_for_corpus_despite_many_requests(harness):
     client, spy = harness
     assert len(spy.embed_batches) == 1
@@ -92,22 +103,34 @@ def test_embed_called_once_for_corpus_despite_many_requests(harness):
     assert len(doc_batches) == 1, "documents must be embedded only once in create_app"
 
 
-def test_ask_returns_answer_and_ordered_sources(harness):
+def test_ask_returns_answer_ordered_sources_and_rounded_scores(harness):
     client, _ = harness
     r = client.post("/ask", json={"question": "How many days do refunds take?"})
     assert r.status_code == 200
     data = r.json()
-    assert data["sources"][0] == "refunds"
+    assert data["sources"] == ["refunds"]
+    assert data["scores"] == [0.387]
     assert "5 business days" in data["answer"]
 
 
-def test_ask_respects_top_k_limit(harness):
-    client, _ = harness
-    r1 = client.post("/ask", json={"question": "How are invoices emailed?", "top_k": 1})
-    r3 = client.post("/ask", json={"question": "How are invoices emailed?", "top_k": 3})
-    assert len(r1.json()["sources"]) <= 1
-    assert len(r3.json()["sources"]) <= 3
-    assert r1.json()["sources"] == ["billing"]
+def test_ask_respects_top_k_and_exact_non_alphabetical_order():
+    spy = SpyClient(FakeLLM(embed_dim=256))
+    client = TestClient(exercise.create_app(DOCS, spy, min_score=0.0))
+
+    r3 = client.post(
+        "/ask",
+        json={"question": "Express shipping costs 12 dollars?", "top_k": 3},
+    )
+    assert r3.status_code == 200
+    data = r3.json()
+    assert data["sources"] == ["shipping", "warranty", "support"]
+    assert data["scores"] == [0.683, 0.129, 0.1]
+    assert len(data["sources"]) == 3
+
+    combined = "\n".join(m["content"] for m in spy.last_messages)
+    assert f"[1] {DOCS[1]['text']}" in combined
+    assert f"[2] {DOCS[2]['text']}" in combined
+    assert f"[3] {DOCS[3]['text']}" in combined
 
 
 def test_ask_refusal_below_min_score_skips_chat(harness):
@@ -117,20 +140,41 @@ def test_ask_refusal_below_min_score_skips_chat(harness):
     assert r.json() == {
         "answer": "I don't know based on the provided context.",
         "sources": [],
+        "scores": [],
         "usage": {"prompt_tokens": 0, "completion_tokens": 0},
     }
     assert spy.chat_calls == 0
 
 
-def test_ask_passes_numbered_context_and_returns_usage(harness):
-    client, spy = harness
+def test_ask_clears_sources_and_scores_when_model_refuses():
+    spy = SpyClient(
+        FakeLLM(
+            embed_dim=256,
+            script=["I don't know based on the provided context."],
+        )
+    )
+    client = TestClient(exercise.create_app(DOCS, spy, min_score=0.2))
+    r = client.post("/ask", json={"question": "How many days do refunds take?"})
+    assert r.status_code == 200
+    data = r.json()
+    assert spy.chat_calls == 1
+    assert data["answer"] == "I don't know based on the provided context."
+    assert data["sources"] == []
+    assert data["scores"] == []
+    assert data["usage"] == spy.last_usage
+
+
+def test_ask_passes_numbered_context_and_returns_usage():
+    spy = SpyClient(FakeLLM(embed_dim=256))
+    client = TestClient(exercise.create_app(DOCS, spy, min_score=0.0))
     r = client.post("/ask", json={"question": "How long is hardware warranty?", "top_k": 2})
     assert r.status_code == 200
     data = r.json()
     assert spy.chat_calls == 1
     combined = "\n".join(m["content"] for m in spy.last_messages)
     assert "Context:" in combined
-    assert "[1] " in combined
+    assert f"[1] {DOCS[2]['text']}" in combined
+    assert f"[2] {DOCS[0]['text']}" in combined
     assert data["usage"] == spy.last_usage
 
 
@@ -143,7 +187,9 @@ def test_ask_tie_breaks_by_original_doc_order():
     client = TestClient(exercise.create_app(tied_docs, spy, min_score=0.2))
     r = client.post("/ask", json={"question": "Warranty covers defects?", "top_k": 2})
     assert r.status_code == 200
-    assert r.json()["sources"] == ["first", "second"]
+    data = r.json()
+    assert data["sources"] == ["first", "second"]
+    assert data["scores"] == [1.0, 1.0]
 
 
 @pytest.mark.parametrize(

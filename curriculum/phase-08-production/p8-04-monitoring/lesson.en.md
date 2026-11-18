@@ -4,7 +4,7 @@ Your RAG bot ran smoothly during week one. By week three, the API bill has tripl
 
 Think of per-request metrics like an airplane's black box: every flight records the same compact measurements so investigators can trace an issue afterward. For an LLM service, each request emits one flat record with `request_id`, `route`, `model`, `latency_ms`, `prompt_tokens`, `completion_tokens`, `cost_usd`, `cache_hit`, and `status` (`"ok"` or `"error"`).
 
-In production, you measure `latency_ms` by calling `time.perf_counter()` right before and right after the model call. In this lesson, we inject a deterministic `FakeClock` so every example runs instantly and gives repeatable numbers.
+In production, you pass `time.perf_counter` or `time.monotonic` as `clock` right before and right after the model call—neither clock ever steps backward (`perf_counter` has finer resolution for latency, while `monotonic` is plenty for cache TTL), and both can be passed in just like `clock`. In this lesson, we inject `FakeClock` from `p8-03-caching` (calling `clock()` works because it defines `__call__`) so every example runs instantly and gives repeatable numbers.
 
 ```python
 import json
@@ -12,15 +12,18 @@ from pyai_llm import FakeLLM, RateLimitError
 
 
 class FakeClock:
-    def __init__(self, start_ms: float = 0.0) -> None:
-        self.now_ms = start_ms
+    def __init__(self, start: float = 0.0) -> None:
+        self.t = start
 
-    def advance(self, ms: float) -> None:
-        self.now_ms += ms
+    def __call__(self) -> float:
+        return self.t
+
+    def advance(self, seconds: float) -> None:
+        self.t += seconds
 
 
-PRICE_IN_PER_1K = 0.0005
-PRICE_OUT_PER_1K = 0.0015
+PRICE_IN_PER_1K = 0.002
+PRICE_OUT_PER_1K = 0.006
 client = FakeLLM()
 clock = FakeClock()
 
@@ -30,32 +33,33 @@ def tracked_chat(
     route: str,
     model: str,
     messages: list[dict],
+    clock,
     cache_hit: bool = False,
     cached_reply: str = "",
 ) -> tuple[str, dict]:
-    start_ms = clock.now_ms
+    start = clock()
     if cache_hit:
-        clock.advance(2.0)
+        clock.advance(0.002)
         reply = cached_reply
         prompt_tokens, completion_tokens, status = 0, 0, "ok"
     else:
+        status, reply, prompt_tokens, completion_tokens = "error", "", 0, 0
         try:
             resp = client.chat(messages, temperature=0.0)
-            clock.advance(200.0 + 3.0 * resp.usage.completion_tokens)
+            clock.advance(0.2 + 0.003 * resp.usage.completion_tokens)
             reply = resp.content or ""
             prompt_tokens = resp.usage.prompt_tokens
             completion_tokens = resp.usage.completion_tokens
             status = "ok"
         except RateLimitError:
-            clock.advance(150.0)
-            reply, prompt_tokens, completion_tokens, status = "", 0, 0, "error"
+            clock.advance(0.15)
 
     cost = (prompt_tokens / 1000) * PRICE_IN_PER_1K + (completion_tokens / 1000) * PRICE_OUT_PER_1K
     record = {
         "request_id": request_id,
         "route": route,
         "model": model,
-        "latency_ms": round(clock.now_ms - start_ms, 1),
+        "latency_ms": round((clock() - start) * 1000, 1),
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
         "cost_usd": round(cost, 6),
@@ -65,10 +69,10 @@ def tracked_chat(
     return reply, record
 
 
-reply1, rec1 = tracked_chat("req-01", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}])
-_, rec2 = tracked_chat("req-02", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}], cache_hit=True, cached_reply=reply1)
+reply1, rec1 = tracked_chat("req-01", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}], clock)
+_, rec2 = tracked_chat("req-02", "/ask", "fake-mini", [{"role": "user", "content": "What is RAG?"}], clock, cache_hit=True, cached_reply=reply1)
 print(json.dumps(rec1, sort_keys=True))
-# {"cache_hit": false, "completion_tokens": 21, "cost_usd": 3.6e-05, "latency_ms": 263.0, "model": "fake-mini", "prompt_tokens": 8, "request_id": "req-01", "route": "/ask", "status": "ok"}
+# {"cache_hit": false, "completion_tokens": 21, "cost_usd": 0.000142, "latency_ms": 263.0, "model": "fake-mini", "prompt_tokens": 8, "request_id": "req-01", "route": "/ask", "status": "ok"}
 print(json.dumps(rec2, sort_keys=True))
 # {"cache_hit": true, "completion_tokens": 0, "cost_usd": 0.0, "latency_ms": 2.0, "model": "fake-mini", "prompt_tokens": 0, "request_id": "req-02", "route": "/ask", "status": "ok"}
 ```
@@ -103,16 +107,16 @@ logging.basicConfig(
 logger = logging.getLogger("app.metrics")
 
 records = [
-    {"request_id": "req-01", "route": "/ask", "latency_ms": 263.0, "cost_usd": 0.0004, "cache_hit": False, "status": "ok"},
-    {"request_id": "req-02", "route": "/ask", "latency_ms": 2.0, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
+    {"request_id": "req-03", "route": "/ask", "latency_ms": 263.0, "cost_usd": 0.0004, "cache_hit": False, "status": "ok"},
+    {"request_id": "req-04", "route": "/ask", "latency_ms": 2.0, "cost_usd": 0.0, "cache_hit": True, "status": "ok"},
 ]
 
 collected = []
 for rec in records:
     logger.info(json.dumps(rec, sort_keys=True))
     collected.append(rec)
-# {"cache_hit": false, "cost_usd": 0.0004, "latency_ms": 263.0, "request_id": "req-01", "route": "/ask", "status": "ok"}
-# {"cache_hit": true, "cost_usd": 0.0, "latency_ms": 2.0, "request_id": "req-02", "route": "/ask", "status": "ok"}
+# {"cache_hit": false, "cost_usd": 0.0004, "latency_ms": 263.0, "request_id": "req-03", "route": "/ask", "status": "ok"}
+# {"cache_hit": true, "cost_usd": 0.0, "latency_ms": 2.0, "request_id": "req-04", "route": "/ask", "status": "ok"}
 print("collected:", len(collected))
 # collected: 2
 ```
@@ -168,7 +172,7 @@ Notice how `p50` stays at `210` ms (typical user) while `p95` catches the `3000`
 
 ## 4. Cost: turning tokens into dollars
 
-LLM providers bill input (`prompt_tokens`) and output (`completion_tokens`) at different rates—output tokens are typically 3× to 4× more expensive because generating each token runs a full forward pass. Using explicit assumed prices (`PRICE_IN_PER_1K = 0.0005`, `PRICE_OUT_PER_1K = 0.0015`), you compute per-request cost, sum it by `route`, and project monthly spend from daily traffic.
+LLM providers bill input (`prompt_tokens`) and output (`completion_tokens`) at different rates—output tokens are typically several times more expensive because the model generates them sequentially one token at a time. Using explicit assumed prices (`PRICE_IN_PER_1K = 0.0005`, `PRICE_OUT_PER_1K = 0.0015`), you compute per-request cost, sum it by `route`, and project monthly spend from daily traffic.
 
 ```python
 from collections import defaultdict
@@ -332,6 +336,7 @@ latencies = [160, 170, 175, 180, 185, 190, 190, 195, 200, 205, 210, 215, 220, 22
 # wrong: checking only mean makes the service look fast
 print("mean only:", round(statistics.mean(latencies), 1))
 # mean only: 414.7
+
 # fixed: check p50 and p95 to spot the slow tail
 print("p50:", percentile(latencies, 50), "p95:", percentile(latencies, 95))
 # p50: 195 p95: 3500
@@ -379,7 +384,7 @@ print("fixed_cost:", round(fixed_cost, 4))
 
 **4. Skipping failed requests in the metric log**
 
-If you only build and log the metric record after `client.chat(...)` succeeds, crashes and rate-limit errors disappear from the logs and `error_rate` stays `0.0` forever. Fix: use `try / except / finally` so every request writes a record with `"ok"` or `"error"`.
+If you only build and log the metric record after `client.chat(...)` succeeds, crashes and rate-limit errors disappear from the logs and `error_rate` stays `0.0` forever. Worse, initializing `status = "ok"` before `try` would record an unexpected `ValueError` as `"ok"` too. Fix: initialize `status = "error"` before `try`, set `status = "ok"` only after `chat()` succeeds, and write the record in `finally`.
 
 ```python
 from pyai_llm import FakeLLM, RateLimitError
@@ -401,15 +406,24 @@ def bad_run() -> list[dict]:
 def good_run() -> list[dict]:
     client = FakeLLM(fail_times=1)
     records = []
-    for i in range(3):
-        status, tokens = "ok", 0
+    payloads = [
+        [{"role": "user", "content": "hi"}],
+        [{"role": "invalid", "content": "hi"}],
+        [{"role": "user", "content": "ping"}],
+    ]
+    for i, msgs in enumerate(payloads):
+        status, tokens = "error", 0
         try:
-            resp = client.chat([{"role": "user", "content": "hi"}])
-            tokens = resp.usage.total_tokens
-        except RateLimitError:
-            status = "error"
-        finally:
-            records.append({"id": i, "tokens": tokens, "status": status})
+            try:
+                resp = client.chat(msgs)
+                tokens = resp.usage.total_tokens
+                status = "ok"
+            except RateLimitError:
+                pass
+            finally:
+                records.append({"id": i, "tokens": tokens, "status": status})
+        except ValueError:
+            pass
     return records
 
 
@@ -417,8 +431,10 @@ bad = bad_run()
 good = good_run()
 print("bad error_rate:", sum(r["status"] != "ok" for r in bad) / len(bad))
 # bad error_rate: 0.0
+print("good statuses:", [r["status"] for r in good])
+# good statuses: ['error', 'error', 'ok']
 print("good error_rate:", round(sum(r["status"] != "ok" for r in good) / len(good), 2))
-# good error_rate: 0.33
+# good error_rate: 0.67
 ```
 
 ## Recap

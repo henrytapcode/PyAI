@@ -8,69 +8,93 @@ tags: [production, rag, apis, testing]
 hints:
   en:
     - |
-      Follow Parts 1 and 2 of the lesson: embed all `docs` once inside `create_app`, validate `/ask` with an `AskRequest(BaseModel)`, and skip `client.chat` whenever no document clears `min_score`. For `GET /health` on 6 docs, return `{"status": "ok", "docs": 6}`.
+      Follow §2 (Part 1) and §3 (Part 2) of the lesson, then extend them with `GET /documents/{doc_id}`, rounded `scores`, and empty citations if the model itself refuses. For `GET /health` on 6 docs, return `{"status": "ok", "docs": 6}`; for an unknown document id, raise a `404` `HTTPException`.
     - |
       The plan:
-      1. Inside `create_app(docs, client, min_score=0.2)`, embed `[d["text"] for d in docs]` once into `doc_vecs` and create `app = FastAPI()`.
-      2. Define `AskRequest(BaseModel)` with `question: str = Field(min_length=1, max_length=300)` and `top_k: int = Field(default=2, ge=1, le=5)`.
-      3. Register `@app.get("/health")` returning `{"status": "ok", "docs": len(docs)}`.
-      4. In `@app.post("/ask")`, embed `[body.question]`, rank docs by `(-cosine(q_vec, d_vec), idx)`, slice `[:body.top_k]`, and filter `score >= min_score`. Return the refusal with zero usage if empty; otherwise format `Context:\n[1] ...`, call `client.chat(...)`, and return `answer`, `sources`, and `usage`.
+      1. Inside `create_app`, embed all document texts once and build a lookup dictionary keyed by document id.
+      2. Define the request schema with `question` length bounds and `top_k` integer bounds.
+      3. Register the health route and the document lookup route, raising a 404 error with `"document not found"` when an id is missing.
+      4. In `/ask`, embed the question, sort documents by descending cosine similarity with original-index tie-breaking, keep up to `top_k` entries meeting `min_score`, and short-circuit on empty hits.
+      5. Otherwise format numbered context chunks for `client.chat`, and clear `sources` and `scores` if the model replies with the exact refusal sentence; round remaining scores to 3 decimal places.
     - |
-      The shape of the solution:
+      Follow this route and refusal-gating skeleton inside `create_app`:
       ```python
+      class AskRequest(BaseModel):
+          question: str = Field(min_length=1, max_length=300)
+          top_k: int = Field(default=2, ge=1, le=5)
+
+
       def create_app(docs: list[dict], client, min_score: float = 0.2) -> FastAPI:
           app = FastAPI()
-          doc_vecs = ...
+          docs_by_id = {d["id"]: d for d in docs}
+          doc_vecs = client.embed([d["text"] for d in docs])
 
-          @app.get("/health")
-          def health() -> dict[str, object]:
-              return {"status": "ok", "docs": len(docs)}
+          @app.get("/documents/{doc_id}")
+          def get_document(doc_id: str) -> dict[str, str]:
+              ...
 
           @app.post("/ask")
           def ask(body: AskRequest) -> dict[str, object]:
-              q_vec = client.embed([body.question])[0]
-              scored = ...
-              hits = [d for score, _, d in scored[: body.top_k] if score >= min_score]
-              if not hits:
-                  return {"answer": "I don't know based on the provided context.", "sources": [], "usage": {"prompt_tokens": 0, "completion_tokens": 0}}
-              ctx = ...
-              resp = client.chat([{"role": "system", "content": "Context:\n" + ctx}, {"role": "user", "content": body.question}])
-              return {"answer": resp.content or "", "sources": [d["id"] for d in hits], "usage": {"prompt_tokens": resp.usage.prompt_tokens, "completion_tokens": resp.usage.completion_tokens}}
+              # rank and filter hits, short-circuiting with REFUSAL and [] if empty
+              ...
+              resp = client.chat(...)
+              answer = resp.content or ""
+              if answer == REFUSAL:
+                  sources, scores = [], []
+              else:
+                  ...
+              return {
+                  "answer": answer,
+                  "sources": sources,
+                  "scores": scores,
+                  "usage": {"prompt_tokens": resp.usage.prompt_tokens, "completion_tokens": resp.usage.completion_tokens},
+              }
 
           return app
       ```
-      Remember to pass `key=lambda item: (-item[0], item[1])` when sorting `scored` so cosine ties preserve the original document order.
   vi:
     - |
-      Làm theo Part 1 và Part 2 của bài học: embed toàn bộ `docs` một lần trong `create_app`, kiểm tra `/ask` bằng `AskRequest(BaseModel)`, và bỏ qua `client.chat` nếu không có tài liệu nào đạt `min_score`. Với `GET /health` trên 6 tài liệu, trả về `{"status": "ok", "docs": 6}`.
+      Làm theo §2 (Part 1) và §3 (Part 2) trong bài học, rồi mở rộng thêm `GET /documents/{doc_id}`, trường `scores` làm tròn 3 chữ số và xóa nguồn khi chính model từ chối. Với `GET /health` trên 6 tài liệu, trả `{"status": "ok", "docs": 6}`; với `doc_id` không tồn tại, ném `HTTPException` mã `404`.
     - |
       Kế hoạch:
-      1. Trong `create_app(docs, client, min_score=0.2)`, gọi `client.embed([d["text"] for d in docs])` đúng một lần để lưu `doc_vecs` và tạo `app = FastAPI()`.
-      2. Định nghĩa `AskRequest(BaseModel)` với `question: str = Field(min_length=1, max_length=300)` và `top_k: int = Field(default=2, ge=1, le=5)`.
-      3. Đăng ký `@app.get("/health")` trả về `{"status": "ok", "docs": len(docs)}`.
-      4. Trong `@app.post("/ask")`, embed `[body.question]`, xếp hạng theo `(-cosine(q_vec, d_vec), idx)`, cắt `[:body.top_k]` rồi lọc `score >= min_score`. Nếu rỗng thì trả câu từ chối và usage `0/0`; ngược lại dựng `Context:\n[1] ...`, gọi `client.chat(...)`, trả về `answer`, `sources` và `usage`.
+      1. Trong `create_app`, embed toàn bộ văn bản tài liệu đúng một lần và dựng dictionary tra cứu theo id.
+      2. Định nghĩa schema request với giới hạn độ dài `question` và khoảng số nguyên `top_k`.
+      3. Đăng ký route kiểm tra sức khỏe và route lấy tài liệu theo id, trả lỗi 404 với chi tiết `"document not found"` nếu thiếu.
+      4. Trong `/ask`, embed câu hỏi, xếp hạng tài liệu theo cosine giảm dần (hòa thì giữ thứ tự gốc), lấy tối đa `top_k` mục đạt `min_score` và trả từ chối ngay nếu rỗng.
+      5. Ngược lại dựng các đoạn context đánh số cho `client.chat`, rồi xóa `sources` và `scores` về rỗng nếu câu trả lời của model trùng đúng câu từ chối; nếu có nguồn thì làm tròn điểm tới 3 chữ số thập phân.
     - |
-      Hình dạng của lời giải:
+      Dùng bộ khung route và kiểm tra từ chối sau trong `create_app`:
       ```python
+      class AskRequest(BaseModel):
+          question: str = Field(min_length=1, max_length=300)
+          top_k: int = Field(default=2, ge=1, le=5)
+
+
       def create_app(docs: list[dict], client, min_score: float = 0.2) -> FastAPI:
           app = FastAPI()
-          doc_vecs = ...
+          docs_by_id = {d["id"]: d for d in docs}
+          doc_vecs = client.embed([d["text"] for d in docs])
 
-          @app.get("/health")
-          def health() -> dict[str, object]:
-              return {"status": "ok", "docs": len(docs)}
+          @app.get("/documents/{doc_id}")
+          def get_document(doc_id: str) -> dict[str, str]:
+              ...
 
           @app.post("/ask")
           def ask(body: AskRequest) -> dict[str, object]:
-              q_vec = client.embed([body.question])[0]
-              scored = ...
-              hits = [d for score, _, d in scored[: body.top_k] if score >= min_score]
-              if not hits:
-                  return {"answer": "I don't know based on the provided context.", "sources": [], "usage": {"prompt_tokens": 0, "completion_tokens": 0}}
-              ctx = ...
-              resp = client.chat([{"role": "system", "content": "Context:\n" + ctx}, {"role": "user", "content": body.question}])
-              return {"answer": resp.content or "", "sources": [d["id"] for d in hits], "usage": {"prompt_tokens": resp.usage.prompt_tokens, "completion_tokens": resp.usage.completion_tokens}}
+              # xếp hạng và lọc hits, trả sớm REFUSAL và [] nếu rỗng
+              ...
+              resp = client.chat(...)
+              answer = resp.content or ""
+              if answer == REFUSAL:
+                  sources, scores = [], []
+              else:
+                  ...
+              return {
+                  "answer": answer,
+                  "sources": sources,
+                  "scores": scores,
+                  "usage": {"prompt_tokens": resp.usage.prompt_tokens, "completion_tokens": resp.usage.completion_tokens},
+              }
 
           return app
       ```
-      Nhớ truyền `key=lambda item: (-item[0], item[1])` khi sắp xếp `scored` để khi điểm cosine bằng nhau thì giữ nguyên thứ tự gốc của `docs`.

@@ -8,15 +8,15 @@ tags: [production, performance, classes]
 hints:
   en:
     - |
-      Store each request in `record(...)` regardless of `ok`, compute its token cost as `(prompt_tokens / 1000) * price_in + (completion_tokens / 1000) * price_out`, and return that cost. On an empty tracker, `summary()` must return `{"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+      Combine the token cost formula from §4, log aggregation from §5, and threshold rules from §6 inside `MetricsTracker`. Every call to `record(...)`—even when `ok=False`—must be saved and its cost returned (`record(250.0, 1000, 500)` returns `0.002` at prices `0.001` and `0.002`).
     - |
       The plan:
-      1. In `__init__`, save the two prices and initialize storage for recorded entries.
-      2. In `record`, compute `cost`, store `(latency_ms, cost, ok)` even when `ok=False`, and return `cost`.
-      3. In `summary`, return zeroed metrics when empty; otherwise compute `error_rate`, nearest-rank `p95_ms` (`math.ceil(0.95 * count) - 1`), and `round(total_cost, 6)`.
-      4. In `alerts`, check `p95_ms > max_p95_ms`, then `total_cost > budget` (`elif total_cost >= warn_ratio * budget`), then `error_rate > 0.05`, appending codes in that exact order.
+      1. Store the two token prices and an empty list for incoming request metrics during initialization.
+      2. In `record`, compute the request's dollar cost from prompt and completion token counts, append the latency, cost, and status flag, and return that cost.
+      3. In `summary`, return the zeroed dictionary when nothing is recorded yet; otherwise sort latencies for the nearest-rank 95th percentile, divide failed count by total count for error rate, and round total cost to six decimal places.
+      4. In `alerts`, fetch the summary and append matching alert codes in fixed order, keeping budget exceeded and budget warning mutually exclusive.
     - |
-      Use this skeleton for the empty guard and alert order:
+      Follow this control-flow skeleton inside `MetricsTracker` and fill in the core computations:
       ```python
       class MetricsTracker:
           def __init__(self, price_in_per_1k: float, price_out_per_1k: float) -> None:
@@ -27,27 +27,38 @@ hints:
           def summary(self) -> dict[str, float | int]:
               if not self._records:
                   return {"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
-              # sort latencies for nearest-rank p95_ms, count ok=False for error_rate, round total_cost to 6 decimals
+              # compute error_rate, nearest-rank p95_ms, and total_cost rounded to 6 decimals
               ...
 
-          def alerts(self, max_p95_ms: float, budget: float, warn_ratio: float = 0.8) -> list[str]:
-              s = self.summary()
+          def alerts(
+              self,
+              max_p95_ms: float,
+              budget: float,
+              warn_ratio: float = 0.8,
+          ) -> list[str]:
+              stats = self.summary()
               triggered: list[str] = []
-              # check p95-latency, budget-exceeded / budget-warning (mutually exclusive), and error-rate
-              ...
+              if stats["p95_ms"] > max_p95_ms:
+                  triggered.append("p95-latency")
+              if stats["total_cost"] > budget:
+                  triggered.append("budget-exceeded")
+              elif ...:
+                  triggered.append("budget-warning")
+              if ...:
+                  triggered.append("error-rate")
               return triggered
       ```
   vi:
     - |
-      Trong `record(...)`, hãy lưu mọi request bất kể `ok` là `True` hay `False`, tính chi phí `(prompt_tokens / 1000) * price_in + (completion_tokens / 1000) * price_out` rồi trả về số đó. Khi chưa có bản ghi nào, `summary()` phải trả về `{"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+      Kết hợp công thức tính chi phí ở §4, tổng hợp log ở §5 và kiểm tra ngưỡng ở §6 bên trong `MetricsTracker`. Mọi lời gọi `record(...)`—kể cả khi `ok=False`—đều phải được lưu lại và trả về chi phí (`record(250.0, 1000, 500)` trả `0.002` với đơn giá `0.001` và `0.002`).
     - |
       Kế hoạch:
-      1. Trong `__init__`, lưu hai đơn giá và khởi tạo danh sách chứa các bản ghi.
-      2. Trong `record`, tính `cost`, lưu `(latency_ms, cost, ok)` kể cả khi `ok=False`, rồi trả về `cost`.
-      3. Trong `summary`, trả về toàn số 0 nếu rỗng; ngược lại tính `error_rate`, `p95_ms` theo nearest-rank (`math.ceil(0.95 * count) - 1`) và `round(total_cost, 6)`.
-      4. Trong `alerts`, kiểm tra lần lượt `p95_ms > max_p95_ms`, rồi `total_cost > budget` (`elif total_cost >= warn_ratio * budget`), rồi `error_rate > 0.05` theo đúng thứ tự đó.
+      1. Lưu hai đơn giá token và khởi tạo một danh sách rỗng để chứa bản ghi các request.
+      2. Trong `record`, tính chi phí từ số token đầu vào/đầu ra, lưu bộ ba độ trễ, chi phí và cờ trạng thái rồi trả về chi phí đó.
+      3. Trong `summary`, trả về dictionary toàn số 0 nếu chưa có bản ghi; ngược lại sắp xếp độ trễ để lấy phân vị 95 theo nearest-rank, chia số lỗi cho tổng số request, và làm tròn tổng chi phí tới 6 chữ số thập phân.
+      4. Trong `alerts`, gọi `summary()` và nối các mã cảnh báo theo đúng thứ tự quy định, đảm bảo cảnh báo vượt ngân sách và cảnh báo sắp hết ngân sách loại trừ lẫn nhau.
     - |
-      Dùng bộ khung sau cho nhánh rỗng và thứ tự cảnh báo:
+      Dùng bộ khung luồng điều khiển sau cho `MetricsTracker` và tự hoàn thiện phần tính toán lõi:
       ```python
       class MetricsTracker:
           def __init__(self, price_in_per_1k: float, price_out_per_1k: float) -> None:
@@ -58,13 +69,24 @@ hints:
           def summary(self) -> dict[str, float | int]:
               if not self._records:
                   return {"count": 0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
-              # sắp xếp latency để lấy p95_ms nearest-rank, đếm ok=False cho error_rate, làm tròn total_cost 6 chữ số
+              # tính error_rate, p95_ms theo nearest-rank và total_cost làm tròn 6 chữ số
               ...
 
-          def alerts(self, max_p95_ms: float, budget: float, warn_ratio: float = 0.8) -> list[str]:
-              s = self.summary()
+          def alerts(
+              self,
+              max_p95_ms: float,
+              budget: float,
+              warn_ratio: float = 0.8,
+          ) -> list[str]:
+              stats = self.summary()
               triggered: list[str] = []
-              # kiểm tra p95-latency, budget-exceeded / budget-warning (không trùng nhau), và error-rate
-              ...
+              if stats["p95_ms"] > max_p95_ms:
+                  triggered.append("p95-latency")
+              if stats["total_cost"] > budget:
+                  triggered.append("budget-exceeded")
+              elif ...:
+                  triggered.append("budget-warning")
+              if ...:
+                  triggered.append("error-rate")
               return triggered
       ```

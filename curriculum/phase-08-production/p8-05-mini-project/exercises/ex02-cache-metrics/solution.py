@@ -1,8 +1,8 @@
 import hashlib
 import json
 import math
-from fastapi import FastAPI
-from pyai_llm import cosine
+from fastapi import FastAPI, HTTPException, Query
+from pyai_llm import RateLimitError, cosine
 from pydantic import BaseModel, Field
 
 REFUSAL = "I don't know based on the provided context."
@@ -16,16 +16,53 @@ class AskRequest(BaseModel):
     top_k: int = Field(default=2, ge=1, le=5)
 
 
-def _make_cache_key(question: str, top_k: int) -> str:
-    clean = " ".join(question.strip().split())
-    raw = json.dumps({"question": clean, "top_k": top_k}, sort_keys=True)
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+def _digest_cache_key(question: str, top_k: int) -> str:
+    normalized = " ".join(question.strip().split())
+    serialized = json.dumps({"question": normalized, "top_k": top_k}, sort_keys=True)
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
-def _nearest_rank(values: list[float], p: float) -> float:
-    ordered = sorted(values)
-    rank = math.ceil(p / 100 * len(ordered))
-    return ordered[rank - 1]
+def _percentile_nearest_rank(values: list[float], p: float) -> float:
+    sorted_vals = sorted(values)
+    idx = math.ceil((p / 100.0) * len(sorted_vals)) - 1
+    return sorted_vals[idx]
+
+
+def _retrieve_hits(
+    docs: list[dict],
+    doc_vecs: list[list[float]],
+    query_vec: list[float],
+    top_k: int,
+) -> list[dict]:
+    candidates: list[tuple[float, int, dict]] = []
+    for idx, doc in enumerate(docs):
+        score = cosine(query_vec, doc_vecs[idx])
+        candidates.append((score, idx, doc))
+    candidates.sort(key=lambda row: (-row[0], row[1]))
+    return [doc for score, _, doc in candidates[:top_k] if score >= MIN_SCORE]
+
+
+def _summarize_window(records: list[dict]) -> dict[str, object]:
+    count = len(records)
+    if count == 0:
+        return {
+            "requests": 0,
+            "cache_hit_rate": 0.0,
+            "error_rate": 0.0,
+            "p95_ms": 0.0,
+            "total_cost": 0.0,
+        }
+    hit_count = sum(1 for item in records if item["cached"])
+    err_count = sum(1 for item in records if item["status"] != "ok")
+    p95 = _percentile_nearest_rank([item["latency_ms"] for item in records], 95)
+    cost_sum = round(sum(item["cost"] for item in records), 6)
+    return {
+        "requests": count,
+        "cache_hit_rate": hit_count / count,
+        "error_rate": err_count / count,
+        "p95_ms": p95,
+        "total_cost": cost_sum,
+    }
 
 
 def create_app(
@@ -36,78 +73,91 @@ def create_app(
     price_in_per_1k: float = 0.0005,
     price_out_per_1k: float = 0.0015,
 ) -> FastAPI:
-    """Build a RAG FastAPI service with TTL caching and /metrics tracking."""
+    """Build a RAG FastAPI service with TTL caching, 503 error handling, and /metrics."""
     app = FastAPI()
-    doc_vecs = client.embed([d["text"] for d in docs])
-    cache: dict[str, tuple[dict, float]] = {}
-    records: list[dict] = []
+    corpus_vecs = client.embed([item["text"] for item in docs])
+    ttl_store: dict[str, tuple[dict, float]] = {}
+    metric_log: list[dict] = []
 
     @app.get("/health")
     def health() -> dict[str, object]:
-        return {"status": "ok", "docs": len(docs)}
+        return {"status": "ok", "docs": len(corpus_vecs)}
 
     @app.post("/ask")
-    def ask(body: AskRequest) -> dict[str, object]:
-        t0 = clock()
-        key = _make_cache_key(body.question, body.top_k)
-        entry = cache.get(key)
+    def ask(req: AskRequest) -> dict[str, object]:
+        started = clock()
+        cache_key = _digest_cache_key(req.question, req.top_k)
+        cached_item = ttl_store.get(cache_key)
 
-        if entry is not None and t0 < entry[1]:
-            payload = {"answer": entry[0]["answer"], "sources": list(entry[0]["sources"])}
-            cached = True
-            prompt_tokens = 0
-            completion_tokens = 0
-        else:
-            cached = False
-            q_vec = client.embed([body.question])[0]
-            scored = sorted(
-                [
-                    (cosine(q_vec, dv), idx, d)
-                    for idx, (d, dv) in enumerate(zip(docs, doc_vecs, strict=True))
-                ],
-                key=lambda item: (-item[0], item[1]),
-            )
-            hits = [doc for score, _, doc in scored[: body.top_k] if score >= MIN_SCORE]
-            if not hits:
-                payload = {"answer": REFUSAL, "sources": []}
-                prompt_tokens = 0
-                completion_tokens = 0
+        status = "error"
+        cost = 0.0
+        cached = False
+        prompt_tokens = 0
+        completion_tokens = 0
+        payload: dict[str, object] = {}
+
+        try:
+            if cached_item is not None and started < cached_item[1]:
+                stored_payload = cached_item[0]
+                payload = {
+                    "answer": stored_payload["answer"],
+                    "sources": list(stored_payload["sources"]),
+                }
+                cached = True
             else:
-                ctx = "\n".join(f"[{n}] {doc['text']}" for n, doc in enumerate(hits, 1))
-                resp = client.chat([
-                    {"role": "system", "content": f"Answer from context only.\n\nContext:\n{ctx}"},
-                    {"role": "user", "content": body.question},
-                ])
-                payload = {"answer": resp.content or "", "sources": [doc["id"] for doc in hits]}
-                prompt_tokens = resp.usage.prompt_tokens
-                completion_tokens = resp.usage.completion_tokens
-            cache[key] = (payload, clock() + cache_ttl)
+                query_vec = client.embed([req.question])[0]
+                hits = _retrieve_hits(docs, corpus_vecs, query_vec, req.top_k)
+                if not hits:
+                    payload = {"answer": REFUSAL, "sources": []}
+                else:
+                    context_block = "\n".join(
+                        f"[{rank}] {doc['text']}" for rank, doc in enumerate(hits, 1)
+                    )
+                    reply = client.chat([
+                        {
+                            "role": "system",
+                            "content": f"Answer from context only.\n\nContext:\n{context_block}",
+                        },
+                        {"role": "user", "content": req.question},
+                    ])
+                    payload = {
+                        "answer": reply.content or "",
+                        "sources": [doc["id"] for doc in hits],
+                    }
+                    prompt_tokens = reply.usage.prompt_tokens
+                    completion_tokens = reply.usage.completion_tokens
+                ttl_store[cache_key] = (payload, clock() + cache_ttl)
 
-        latency_ms = (clock() - t0) * 1000.0
-        cost = (
-            (prompt_tokens / 1000.0) * price_in_per_1k
-            + (completion_tokens / 1000.0) * price_out_per_1k
-        )
-        records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached})
+            cost = (
+                (prompt_tokens / 1000.0) * price_in_per_1k
+                + (completion_tokens / 1000.0) * price_out_per_1k
+            )
+            status = "ok"
+        except RateLimitError as exc:
+            raise HTTPException(status_code=503, detail="model busy, retry later") from exc
+        finally:
+            elapsed_ms = (clock() - started) * 1000.0
+            metric_log.append(
+                {
+                    "latency_ms": elapsed_ms,
+                    "cost": cost,
+                    "cached": cached,
+                    "status": status,
+                }
+            )
+
         return {
             **payload,
-            "usage": {"prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens},
+            "usage": {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+            },
             "cached": cached,
         }
 
     @app.get("/metrics")
-    def metrics() -> dict[str, object]:
-        total = len(records)
-        if total == 0:
-            return {"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
-        hits = sum(1 for rec in records if rec["cached"])
-        p95_ms = _nearest_rank([rec["latency_ms"] for rec in records], 95)
-        total_cost = round(sum(rec["cost"] for rec in records), 6)
-        return {
-            "requests": total,
-            "cache_hit_rate": hits / total,
-            "p95_ms": p95_ms,
-            "total_cost": total_cost,
-        }
+    def metrics(last: int | None = Query(default=None, ge=1)) -> dict[str, object]:
+        window = metric_log if last is None else metric_log[-last:]
+        return _summarize_window(window)
 
     return app

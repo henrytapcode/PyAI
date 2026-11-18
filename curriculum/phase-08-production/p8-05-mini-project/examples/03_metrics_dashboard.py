@@ -19,13 +19,13 @@ DOCS = [
 
 class FakeClock:
     def __init__(self, start: float = 0.0) -> None:
-        self.now = start
+        self.t = start
 
     def __call__(self) -> float:
-        return self.now
+        return self.t
 
     def advance(self, seconds: float) -> None:
-        self.now += seconds
+        self.t += seconds
 
 
 class SlowClient:

@@ -8,47 +8,41 @@ tags: [production, performance, lists]
 hints:
   en:
     - |
-      Review the nearest-rank formula in §3: sort the input values first, compute `rank = math.ceil(p / 100 * n)`, and convert the 1-based `rank` into a 0-based list index. For `[10, 20, 30, 40]` with `p=50`, `rank = 2` so `ordered[1]` is `20.0`.
+      Review nearest-rank percentiles in §3: sort a copy of the list first, find the 1-based rank by rounding `p / 100 * n` up, and read the corresponding element from the sorted list. For `[10, 20, 30, 40]` with `p=50`, the rank is `2`, so the result is `20.0`.
     - |
       The plan:
-      1. Sort `values` into a new list using `sorted(values)` so the original list stays untouched.
-      2. Round `p / 100 * len(ordered)` up with `math.ceil(...)`.
-      3. Index `ordered` at `rank - 1`, and compute `"p95"` in `latency_report` by calling `percentile(values, 95)`.
+      1. Build a sorted copy of `values` so the caller's original list stays untouched.
+      2. Compute the integer 1-based rank by taking the ceiling of the percentage fraction times the list length.
+      3. Convert that 1-based rank to a 0-based index to look up the element in the sorted list.
+      4. In `latency_report`, reuse `percentile` to compute the 95th percentile alongside `p50` and `max`.
     - |
-      Keep the structure below and replace the remaining blanks:
+      Focus on converting the 1-based rank into a 0-based index in `percentile`:
       ```python
       def percentile(values: list[float], p: float) -> float:
-          ordered = sorted(values)
+          ordered = ...(values)
           if not values or p <= 0 or p > 100:
               raise ValueError("values must be non-empty and p must be in (0, 100]")
-          # compute 1-based rank with math.ceil and return float at 0-based index
-          ...
-
-
-      def latency_report(values: list[float]) -> dict[str, float]:
-          # call percentile for 50 and 95, plus max
-          ...
+          rank = math....(p / 100 * len(ordered))
+          # rank is 1-based; Python list indices start at 0
+          return float(ordered[...])
       ```
   vi:
     - |
-      Xem lại công thức nearest-rank ở §3: sắp xếp danh sách trước, tính `rank = math.ceil(p / 100 * n)` rồi đổi hạng bắt đầu từ 1 sang chỉ số bắt đầu từ 0. Với `[10, 20, 30, 40]` và `p=50`, `rank = 2` nên `ordered[1]` là `20.0`.
+      Xem lại phần nearest-rank ở §3: sắp xếp thành một bản sao trước, tính hạng bắt đầu từ 1 bằng cách làm tròn lên `p / 100 * n`, rồi lấy phần tử tương ứng trong danh sách đã sắp xếp. Với `[10, 20, 30, 40]` và `p=50`, hạng là `2` nên kết quả là `20.0`.
     - |
       Kế hoạch:
-      1. Sắp xếp `values` thành list mới bằng `sorted(values)` để không làm đổi list gốc.
-      2. Làm tròn lên `p / 100 * len(ordered)` bằng `math.ceil(...)`.
-      3. Truy cập `ordered` ở chỉ số `rank - 1`, và tính `"p95"` trong `latency_report` bằng cách gọi `percentile(values, 95)`.
+      1. Tạo một bản sao đã sắp xếp của `values` để không làm đổi danh sách gốc của người gọi.
+      2. Tính hạng nguyên bắt đầu từ 1 bằng cách làm tròn lên tỉ lệ phần trăm nhân với độ dài danh sách.
+      3. Đổi hạng bắt đầu từ 1 sang chỉ số bắt đầu từ 0 để truy cập phần tử trong danh sách đã sắp xếp.
+      4. Trong `latency_report`, gọi lại `percentile` cho mốc 95 bên cạnh `p50` và `max`.
     - |
-      Giữ bộ khung dưới đây và điền các chỗ còn trống:
+      Tập trung vào bước đổi hạng 1-based sang chỉ số 0-based trong `percentile`:
       ```python
       def percentile(values: list[float], p: float) -> float:
-          ordered = sorted(values)
+          ordered = ...(values)
           if not values or p <= 0 or p > 100:
               raise ValueError("values must be non-empty and p must be in (0, 100]")
-          # tính rank bắt đầu từ 1 bằng math.ceil rồi trả về float ở chỉ số 0-based
-          ...
-
-
-      def latency_report(values: list[float]) -> dict[str, float]:
-          # gọi percentile cho 50 và 95 cùng với max
-          ...
+          rank = math....(p / 100 * len(ordered))
+          # rank bắt đầu từ 1; chỉ số list trong Python bắt đầu từ 0
+          return float(ordered[...])
       ```

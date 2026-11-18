@@ -6,16 +6,19 @@ import sys
 
 from pyai_llm import FakeLLM, RateLimitError
 
-PRICE_IN_PER_1K = 0.0005
-PRICE_OUT_PER_1K = 0.0015
+PRICE_IN_PER_1K = 0.002
+PRICE_OUT_PER_1K = 0.006
 
 
 class FakeClock:
-    def __init__(self, start_ms: float = 0.0) -> None:
-        self.now_ms = start_ms
+    def __init__(self, start: float = 0.0) -> None:
+        self.t = start
 
-    def advance(self, ms: float) -> None:
-        self.now_ms += ms
+    def __call__(self) -> float:
+        return self.t
+
+    def advance(self, seconds: float) -> None:
+        self.t += seconds
 
 
 def main() -> None:
@@ -44,34 +47,34 @@ def main() -> None:
     ]
 
     for req_id, route, question in requests:
-        start_ms = clock.now_ms
+        start = clock()
         if question in cache:
-            clock.advance(2.0)
+            clock.advance(0.002)
             prompt_tokens = 0
             completion_tokens = 0
             cache_hit = True
             status = "ok"
         else:
             cache_hit = False
+            prompt_tokens = 0
+            completion_tokens = 0
+            status = "error"
             try:
                 resp = client.chat([{"role": "user", "content": question}], temperature=0.0)
-                clock.advance(200.0 + 3.0 * resp.usage.completion_tokens)
+                clock.advance(0.2 + 0.003 * resp.usage.completion_tokens)
                 prompt_tokens = resp.usage.prompt_tokens
                 completion_tokens = resp.usage.completion_tokens
                 cache[question] = resp.content or ""
                 status = "ok"
             except RateLimitError:
-                clock.advance(150.0)
-                prompt_tokens = 0
-                completion_tokens = 0
-                status = "error"
+                clock.advance(0.15)
 
         cost = (prompt_tokens / 1000) * PRICE_IN_PER_1K + (completion_tokens / 1000) * PRICE_OUT_PER_1K
         record = {
             "request_id": req_id,
             "route": route,
             "model": "fake-mini",
-            "latency_ms": round(clock.now_ms - start_ms, 1),
+            "latency_ms": round((clock() - start) * 1000, 1),
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
             "cost_usd": round(cost, 6),

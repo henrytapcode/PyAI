@@ -8,6 +8,6 @@ latency_report([100, 200, 300])    # {"p50": 200.0, "p95": 300.0, "max": 300.0}
 ```
 
 **Rules**
-- `percentile(values, p)` sorts `values` without mutating the input, computes `rank = math.ceil(p / 100 * len(ordered))`, and returns `float(ordered[rank - 1])`.
+- `percentile(values, p)` sorts `values` without mutating the input, computes the nearest-rank position (rank is the ceiling of `(p / 100) × n`, 1-based), and returns the matching element as a `float`.
 - `percentile` raises `ValueError` when `values` is empty or when `p` is outside `(0, 100]`.
 - `latency_report(values)` returns `{"p50": ..., "p95": ..., "max": ...}` with `float` values.

@@ -1,86 +1,76 @@
 id: p8-05-ex02
 kind: project
 title:
-  en: "Extend: add TTL cache and metrics"
-  vi: "Mở rộng: thêm TTL cache và metric"
+  en: "Extend: add TTL cache, error handling, and metrics"
+  vi: "Mở rộng: thêm TTL cache, xử lý lỗi và metric"
 difficulty: 3
 tags: [production, rag, apis, testing, performance]
 hints:
   en:
     - |
-      Combine Parts 3 and 4 of the lesson on top of the working RAG starter: hash normalized question + `top_k`, check `now < expires_at`, measure `clock()` before and after each `/ask`, and aggregate `records` in `GET /metrics`. For 0 requests, `GET /metrics` returns `{"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+      Combine §4 (Part 3: response caching) and §5 (Part 4: metrics) of this lesson with the `try / except / finally` error-recording pattern from `p8-04-monitoring` §7. On 0 records, `GET /metrics` returns `{"requests": 0, "cache_hit_rate": 0.0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
     - |
       The plan:
-      1. Inside `create_app`, initialize `cache: dict[str, tuple[dict, float]] = {}` and `records: list[dict] = []`.
-      2. Build `_cache_key(question, top_k)` from `" ".join(question.strip().split())` and `top_k` using `json.dumps(..., sort_keys=True)` + `hashlib.sha256`.
-      3. At the start of `ask(body)`, capture `t0 = clock()`, check if `key` is in `cache` and `t0 < expires_at`. On hit, set `cached=True`, zero usage, and skip `embed` and `chat`; on miss, retrieve and answer (including refusals), then save `(payload, clock() + cache_ttl)` in `cache`.
-      4. Before returning from `ask`, compute `latency_ms = (clock() - t0) * 1000.0` and `cost = (p_tok / 1000.0) * price_in_per_1k + (c_tok / 1000.0) * price_out_per_1k`, append to `records`, and include `"cached": cached` in the JSON response.
-      5. Implement `@app.get("/metrics")` with nearest-rank `p95_ms` (`ordered[math.ceil(0.95 * len(ordered)) - 1]`) and `round(total_cost, 6)`.
+      1. Inside `create_app`, initialize the in-memory TTL store and the list of metric records alongside the pre-embedded corpus vectors.
+      2. Build a cache key by normalizing whitespace in the question, pairing it with `top_k` in sorted JSON, and hashing with SHA-256.
+      3. In `ask`, record the start time from `clock()`, initialize `status` to `"error"` and `cost` to `0.0`, and run cache lookup / retrieval / generation inside a `try / except / finally` block.
+      4. On `RateLimitError`, skip storing anything in the cache and raise an HTTP `503` `HTTPException`, while `finally` still appends the latency and `"error"` status to the metric records.
+      5. In `metrics`, accept an optional integer `last` validated with `Query(default=None, ge=1)`, slice the tail records when given, and compute `requests`, `cache_hit_rate`, `error_rate`, nearest-rank `p95_ms`, and rounded `total_cost` in that exact order.
     - |
-      The shape of the solution:
+      Follow this error-safe control-flow skeleton inside `create_app`:
       ```python
       @app.post("/ask")
       def ask(body: AskRequest) -> dict[str, object]:
           t0 = clock()
-          key = _cache_key(body.question, body.top_k)
-          entry = cache.get(key)
-          if entry is not None and t0 < entry[1]:
-              payload, cached, p_tok, c_tok = dict(entry[0]), True, 0, 0
-          else:
-              cached = False
-              payload, p_tok, c_tok = _run_rag(body.question, body.top_k)
-              cache[key] = ...
-
-          latency_ms = ...
-          cost = ...
-          records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached})
+          status, cost, cached = "error", 0.0, False
+          try:
+              # check TTL cache; on miss run embed/retrieval/chat and store in cache
+              ...
+              status = "ok"
+          except RateLimitError as exc:
+              raise HTTPException(status_code=503, detail="model busy, retry later") from exc
+          finally:
+              records.append({"latency_ms": ..., "cost": cost, "cached": cached, "status": status})
           return {**payload, "usage": {"prompt_tokens": p_tok, "completion_tokens": c_tok}, "cached": cached}
 
       @app.get("/metrics")
-      def metrics() -> dict[str, object]:
-          if not records:
-              return {"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
-          ordered = sorted(r["latency_ms"] for r in records)
-          p95_ms = ...
-          return {"requests": len(records), "cache_hit_rate": sum(r["cached"] for r in records) / len(records), "p95_ms": p95_ms, "total_cost": round(sum(r["cost"] for r in records), 6)}
+      def metrics(last: int | None = Query(default=None, ge=1)) -> dict[str, object]:
+          window = records if last is None else records[-last:]
+          if not window:
+              return {"requests": 0, "cache_hit_rate": 0.0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
+          ...
       ```
-      Remember that refusals (`sources=[]`) are also stored in `cache` on a miss so repeating an unanswerable question hits the cache without re-embedding.
   vi:
     - |
-      Kết hợp Part 3 và Part 4 của bài học trên nền RAG đã chạy sẵn trong starter: băm câu hỏi chuẩn hóa + `top_k`, kiểm tra `now < expires_at`, đo `clock()` trước và sau mỗi `/ask`, và tổng hợp `records` trong `GET /metrics`. Khi chưa có request nào, `GET /metrics` trả `{"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
+      Kết hợp §4 (Part 3: cache phản hồi) và §5 (Part 4: metric) trong bài này với mẫu `try / except / finally` ghi nhận lỗi ở `p8-04-monitoring` §7. Khi chưa có bản ghi nào, `GET /metrics` trả về `{"requests": 0, "cache_hit_rate": 0.0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}`.
     - |
       Kế hoạch:
-      1. Trong `create_app`, khởi tạo `cache: dict[str, tuple[dict, float]] = {}` và `records: list[dict] = []`.
-      2. Viết `_cache_key(question, top_k)` từ `" ".join(question.strip().split())` và `top_k` bằng `json.dumps(..., sort_keys=True)` + `hashlib.sha256`.
-      3. Đầu hàm `ask(body)`, lưu `t0 = clock()`, kiểm tra `key` trong `cache` và `t0 < expires_at`. Nếu trúng cache thì đặt `cached=True`, usage `0/0` và bỏ qua `embed`/`chat`; nếu trượt thì chạy RAG (kể cả câu từ chối), rồi lưu `(payload, clock() + cache_ttl)` vào `cache`.
-      4. Trước khi trả về từ `ask`, tính `latency_ms = (clock() - t0) * 1000.0` và `cost = (p_tok / 1000.0) * price_in_per_1k + (c_tok / 1000.0) * price_out_per_1k`, thêm vào `records`, và trả thêm `"cached": cached`.
-      5. Viết `@app.get("/metrics")` tính `p95_ms` theo nearest-rank (`ordered[math.ceil(0.95 * len(ordered)) - 1]`) và `round(total_cost, 6)`.
+      1. Trong `create_app`, khởi tạo bộ lưu trữ TTL trong RAM và danh sách bản ghi metric bên cạnh các vector tài liệu đã embed sẵn.
+      2. Tạo cache key bằng cách chuẩn hóa khoảng trắng câu hỏi, ghép cùng `top_k` thành JSON đã sắp xếp khóa rồi băm SHA-256.
+      3. Trong `ask`, lấy mốc thời gian đầu bằng `clock()`, đặt sẵn `status` là `"error"` và `cost` là `0.0`, rồi bọc phần tra cache / truy xuất / sinh câu trả lời trong `try / except / finally`.
+      4. Khi gặp `RateLimitError`, không ghi vào cache mà ném `HTTPException` mã `503`, trong khi nhánh `finally` vẫn lưu độ trễ và trạng thái `"error"` vào danh sách metric.
+      5. Trong `metrics`, nhận tham số tùy chọn `last` kiểm tra bằng `Query(default=None, ge=1)`, cắt phần đuôi danh sách khi có tham số, rồi tính `requests`, `cache_hit_rate`, `error_rate`, `p95_ms` theo nearest-rank và `total_cost` làm tròn đúng theo thứ tự khóa đó.
     - |
-      Hình dạng của lời giải:
+      Dùng bộ khung luồng điều khiển an toàn trước lỗi sau đây trong `create_app`:
       ```python
       @app.post("/ask")
       def ask(body: AskRequest) -> dict[str, object]:
           t0 = clock()
-          key = _cache_key(body.question, body.top_k)
-          entry = cache.get(key)
-          if entry is not None and t0 < entry[1]:
-              payload, cached, p_tok, c_tok = dict(entry[0]), True, 0, 0
-          else:
-              cached = False
-              payload, p_tok, c_tok = _run_rag(body.question, body.top_k)
-              cache[key] = ...
-
-          latency_ms = ...
-          cost = ...
-          records.append({"latency_ms": latency_ms, "cost": cost, "cached": cached})
+          status, cost, cached = "error", 0.0, False
+          try:
+              # kiểm tra TTL cache; nếu trượt thì embed/truy xuất/chat và lưu vào cache
+              ...
+              status = "ok"
+          except RateLimitError as exc:
+              raise HTTPException(status_code=503, detail="model busy, retry later") from exc
+          finally:
+              records.append({"latency_ms": ..., "cost": cost, "cached": cached, "status": status})
           return {**payload, "usage": {"prompt_tokens": p_tok, "completion_tokens": c_tok}, "cached": cached}
 
       @app.get("/metrics")
-      def metrics() -> dict[str, object]:
-          if not records:
-              return {"requests": 0, "cache_hit_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
-          ordered = sorted(r["latency_ms"] for r in records)
-          p95_ms = ...
-          return {"requests": len(records), "cache_hit_rate": sum(r["cached"] for r in records) / len(records), "p95_ms": p95_ms, "total_cost": round(sum(r["cost"] for r in records), 6)}
+      def metrics(last: int | None = Query(default=None, ge=1)) -> dict[str, object]:
+          window = records if last is None else records[-last:]
+          if not window:
+              return {"requests": 0, "cache_hit_rate": 0.0, "error_rate": 0.0, "p95_ms": 0.0, "total_cost": 0.0}
+          ...
       ```
-      Nhớ rằng câu từ chối (`sources=[]`) cũng được lưu vào `cache` khi trượt để khi hỏi lặp lại sẽ trúng cache mà không cần embed lại.

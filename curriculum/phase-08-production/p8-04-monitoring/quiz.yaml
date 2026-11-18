@@ -50,18 +50,18 @@ questions:
     en:
       prompt: "What is the main advantage of logging one JSON object per request instead of free-text sentences?"
       options:
-        - "JSON lines prevent `RateLimitError` during model calls"
-        - "JSON formatting runs without importing any stdlib module"
+        - "JSON lines compress numbers to save disk space"
+        - "JSON records automatically hide sensitive user prompts"
         - "Fixed keys let scripts parse and sum metrics cleanly"
-        - "Free-text sentences cannot be sent to `sys.stdout`"
+        - "JSON formatting skips `logging` and writes faster"
       explanation: "Structured JSON logs give every metric a consistent key and type, so downstream scripts can call `json.loads()` to filter by route or sum costs without fragile regex."
     vi:
       prompt: "Ưu điểm chính của việc ghi mỗi request một JSON object thay cho câu văn tự do là gì?"
       options:
-        - "Dòng JSON giúp ngăn `RateLimitError` khi gọi model"
-        - "Định dạng JSON chạy được mà không cần import thư viện chuẩn"
+        - "Dòng JSON nén các con số để tiết kiệm dung lượng đĩa"
+        - "Bản ghi JSON tự động ẩn prompt nhạy cảm của người dùng"
         - "Tên trường cố định giúp lọc và cộng metric dễ dàng"
-        - "Câu chữ tự do không thể xuất ra kênh `sys.stdout`"
+        - "Định dạng JSON bỏ qua `logging` để ghi ra nhanh hơn"
       explanation: "Log JSON có cấu trúc giữ tên trường và kiểu dữ liệu nhất quán, nên script phía sau chỉ cần gọi `json.loads()` để lọc theo route hoặc cộng chi phí mà không phải viết regex dễ hỏng."
 
   - id: p8-04-q04
@@ -111,17 +111,17 @@ questions:
       prompt: "Why should your cost calculation multiply `prompt_tokens` and `completion_tokens` by separate rates?"
       options:
         - "Output tokens are typically billed much higher per 1K"
-        - "Prompt tokens are excluded from `response.usage`"
-        - "Input tokens are billed only when `cache_hit` is True"
-        - "Output tokens are always counted in bytes instead"
+        - "Prompt tokens are only charged once per conversation"
+        - "Cache hits still charge full output token prices"
+        - "Completion tokens are rounded up to the nearest 1,000"
       explanation: "LLM APIs almost always charge more per 1,000 completion tokens than per 1,000 prompt tokens, so applying one flat rate underestimates generation-heavy endpoints."
     vi:
       prompt: "Vì sao công thức tính chi phí phải nhân `prompt_tokens` và `completion_tokens` với hai đơn giá riêng?"
       options:
         - "Token đầu ra thường có đơn giá mỗi 1K cao hơn nhiều"
-        - "Token đầu vào không nằm trong `response.usage`"
-        - "Token đầu vào chỉ bị tính tiền khi `cache_hit` là True"
-        - "Token đầu ra luôn được tính theo số byte thay vì token"
+        - "Token đầu vào chỉ bị tính phí một lần cho mỗi hội thoại"
+        - "Lượt trúng cache vẫn bị tính đủ giá token đầu ra"
+        - "Token sinh ra luôn được làm tròn lên theo từng 1.000"
       explanation: "Các nhà cung cấp LLM thường tính giá mỗi 1.000 token đầu ra cao hơn hẳn token đầu vào, nên dùng một mức giá chung sẽ ước lượng sai chi phí của các endpoint sinh chữ dài."
 
   - id: p8-04-q07
@@ -177,7 +177,7 @@ questions:
           return ordered[___]
 
       print(nearest_rank([500, 100, 300, 200], 50))
-    answer: ["sorted", "ceil", "rank - 1"]
+    answer: ["sorted", "ceil", ["rank - 1", "rank-1"]]
     en:
       prompt: "Fill in the three blanks so `nearest_rank` sorts `values`, computes the 1-based rank, and returns `200`."
       explanation: "`sorted(values)` orders `[100, 200, 300, 500]`, `math.ceil(0.5 * 4)` gives `rank = 2`, and `ordered[rank - 1]` returns `ordered[1] = 200`."
@@ -238,18 +238,18 @@ questions:
     en:
       prompt: "Why do teams trigger a budget warning at **80%** of the daily limit instead of waiting for **100%**?"
       options:
-        - "Python floats cannot compare values above `1.0`"
-        - "Warning at 80% automatically raises the API quota"
+        - "Budget checks only run once at midnight each day"
+        - "The 80% check stops all incoming user requests"
         - "It gives time to act before hitting the cap"
-        - "Cost per token drops after passing 80% spend"
+        - "Token counts under 80% are excluded from totals"
       explanation: "Alerting at 80% gives engineers room to spot a runaway retry loop or cache outage and fix it before the service hits the hard spending cap."
     vi:
       prompt: "Vì sao các nhóm thường bật cảnh báo ngân sách ở mốc **80%** hạn mức ngày thay vì đợi chạm **100%**?"
       options:
-        - "Số float của Python không so sánh được giá trị lớn hơn `1.0`"
-        - "Cảnh báo ở 80% giúp tự động nâng hạn mức API lên"
-        - "Nó chừa thời gian xử lý sự cố trước khi chạm trần chi tiêu"
-        - "Đơn giá mỗi token được giảm sau khi vượt mốc 80%"
+        - "Kiểm tra ngân sách chỉ chạy một lần vào nửa đêm"
+        - "Mốc 80% sẽ tự động chặn toàn bộ request người dùng"
+        - "Nó chừa thời gian xử lý sự cố trước khi chạm trần"
+        - "Số token dưới mốc 80% không được cộng vào tổng chi"
       explanation: "Cảnh báo sớm ở mốc 80% cho kỹ sư đủ thời gian phát hiện vòng lặp retry lỗi hay sự cố tụt cache trước khi tài khoản bị khóa vì chạm trần."
 
   - id: p8-04-q13
@@ -281,17 +281,17 @@ questions:
       prompt: "What happens when latency and error alert thresholds are set way too tight on a live service?"
       options:
         - "False alarms train staff to ignore real issues"
-        - "Python raises `ValueError` inside `math.ceil()`"
-        - "Structured logs automatically drop `'ok'` requests"
-        - "Cache hit rate drops because alerts clear the dict"
+        - "Alerts automatically throttle incoming user requests"
+        - "Percentiles switch from `p95` back to `mean` values"
+        - "Old metric logs get deleted after each alert fires"
       explanation: "Overly tight thresholds fire false alarms during normal traffic fluctuations, causing alert fatigue so engineers start ignoring notifications when a real outage hits."
     vi:
       prompt: "Chuyện gì xảy ra khi các ngưỡng cảnh báo độ trễ và tỉ lệ lỗi bị đặt quá chặt trên dịch vụ đang chạy?"
       options:
         - "Báo động giả khiến mọi người quen lờ đi sự cố"
-        - "Python ném lỗi `ValueError` ngay trong hàm `math.ceil()`"
-        - "Log có cấu trúc tự động bỏ qua các request `'ok'`"
-        - "Cache hit rate tụt vì cảnh báo tự động xóa sạch dict"
+        - "Cảnh báo sẽ tự động bóp băng thông các request đến"
+        - "Phép đo tự chuyển từ `p95` về lại giá trị `mean`"
+        - "Log metric cũ bị xóa sạch mỗi khi cảnh báo kêu"
       explanation: "Ngưỡng quá chặt khiến cảnh báo reo liên tục mỗi khi lưu lượng dao động nhẹ, tạo mệt mỏi cảnh báo (alert fatigue) và làm người trực bỏ sót sự cố thật."
 
   - id: p8-04-q15
@@ -324,23 +324,24 @@ questions:
 
       client = FakeLLM(fail_times=1)
       records = []
-      for idx in range(3):
-          status = "ok"
+      for role in ("user", "bad", "user"):
+          status = "error"
           try:
-              client.chat([{"role": "user", "content": "ping"}])
-          except RateLimitError:
-              status = "error"
+              client.chat([{"role": role, "content": "ping"}])
+              status = "ok"
+          except (RateLimitError, ValueError):
+              pass
           finally:
               records.append(status)
       errs = records.count("error")
       print(len(records), round(errs / len(records), 2))
-    answer: "3 0.33"
+    answer: "3 0.67"
     en:
       prompt: "What does this `try / except / finally` tracking loop print?"
-      explanation: "With `fail_times=1`, the first call raises `RateLimitError` (`status = 'error'`) and the next two succeed (`'ok'`). `finally` logs all 3 attempts, giving `3` records and `1 / 3 -> 0.33`."
+      explanation: "Initializing `status = 'error'` before `try` and setting `'ok'` only after `chat()` succeeds ensures both the first `RateLimitError` and the second `ValueError` are recorded as `'error'`, giving `3` records and `2 / 3 -> 0.67`."
     vi:
       prompt: "Vòng lặp theo dõi dùng `try / except / finally` này in ra gì?"
-      explanation: "Với `fail_times=1`, lần gọi đầu ném `RateLimitError` (`status = 'error'`) và hai lần sau thành công (`'ok'`). Khối `finally` ghi cả 3 lượt, cho `3` bản ghi và `1 / 3 -> 0.33`."
+      explanation: "Khởi tạo `status = 'error'` trước `try` và chỉ gán `'ok'` sau khi `chat()` thành công giúp cả lỗi `RateLimitError` đầu tiên lẫn `ValueError` thứ hai đều được ghi là `'error'`, cho `3` bản ghi và `2 / 3 -> 0.67`."
 
 flashcards:
   - id: p8-04-f01
@@ -387,10 +388,10 @@ flashcards:
     tags: [production, exceptions]
     en:
       front: "Logging failed requests"
-      back: "Always emit a metric record in `try / except / finally` with `status='error'` when a call fails; logging only on success makes `error_rate` read `0.0` forever."
+      back: "Initialize `status = 'error'` before `try`, set `status = 'ok'` only after the call succeeds, and emit the metric record in `finally` so neither rate limits nor unexpected errors get logged as `'ok'`."
     vi:
       front: "Ghi metric cho request bị lỗi"
-      back: "Luôn ghi bản ghi trong `try / except / finally` với `status='error'` khi lời gọi thất bại; chỉ ghi ở nhánh thành công sẽ làm `error_rate` mãi bằng `0.0`."
+      back: "Khởi tạo `status = 'error'` trước `try`, chỉ gán `status = 'ok'` sau khi gọi thành công và ghi bản ghi trong `finally` để cả rate limit lẫn lỗi bất ngờ không bị ghi nhầm là `'ok'`."
 
   - id: p8-04-f06
     tags: [production]

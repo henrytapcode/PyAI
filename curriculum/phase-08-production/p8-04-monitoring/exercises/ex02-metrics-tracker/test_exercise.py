@@ -104,3 +104,37 @@ def test_alerts_preserve_fixed_order_when_multiple_fire():
         "budget-warning",
         "error-rate",
     ]
+
+
+@pytest.mark.parametrize(
+    "latency_ms,prompt_tokens,ok_count,fail_count,expected",
+    [
+        # exact p95 boundary (500.0 == 500.0) must not alert
+        (500.0, 100, 1, 0, []),
+        # just above p95 boundary (500.01 > 500.0) must alert
+        (500.01, 100, 1, 0, ["p95-latency"]),
+        # exact budget boundary (0.01 == 0.01) fires only budget-warning, not budget-exceeded
+        (100.0, 10000, 1, 0, ["budget-warning"]),
+        # just above budget boundary (0.010001 > 0.01) fires budget-exceeded
+        (100.0, 10001, 1, 0, ["budget-exceeded"]),
+        # exact error_rate boundary (1/20 == 0.05) must not alert
+        (100.0, 10, 19, 1, []),
+        # just above error_rate boundary (1/19 > 0.05) must alert
+        (100.0, 10, 18, 1, ["error-rate"]),
+    ],
+)
+def test_alerts_strict_boundaries(latency_ms, prompt_tokens, ok_count, fail_count, expected):
+    tracker = exercise.MetricsTracker(price_in_per_1k=0.001, price_out_per_1k=0.002)
+    for _ in range(ok_count):
+        tracker.record(latency_ms, prompt_tokens, 0, ok=True)
+    for _ in range(fail_count):
+        tracker.record(latency_ms, prompt_tokens, 0, ok=False)
+    assert tracker.alerts(max_p95_ms=500.0, budget=0.01, warn_ratio=0.8) == expected
+
+
+def test_summary_rounds_total_cost_to_six_decimals():
+    tracker = exercise.MetricsTracker(price_in_per_1k=0.000123, price_out_per_1k=0.000456)
+    tracker.record(100.0, 100, 100)
+    summary = tracker.summary()
+    assert summary is not None
+    assert summary["total_cost"] == 0.000058
