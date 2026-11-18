@@ -1,0 +1,94 @@
+id: cap-01-ex02
+kind: project
+title:
+  en: "Build the golden dialog evaluator and regression gate"
+  vi: "Xây dựng bộ đánh giá hội thoại chuẩn và cổng hồi quy"
+difficulty: 3
+tags: [evaluation, rag]
+hints:
+  en:
+    - |
+      Extend the baseline comparison idea from §5 into turn-level scoring and a strict regression gate. For example, if `expected_source="shipping.md"` and `result={"answer": "I don't know based on the provided context.", "sources": []}`, `score_turn` must return `"refused"` (checked before `"wrong_source"`). And if `current` has 4 passes out of 5 with 0 `broken` turns, `compare_to_baseline(..., min_pass_rate=0.8)` returns `pass_rate=0.8` and `gate_ok=True`.
+    - |
+      Step-by-step plan:
+      1. In `score_turn(result, turn)`: if `turn["expected_source"] is None`, return `None` only when `result["answer"] == REFUSAL` and `result["sources"] == []` (else `"no_refusal"`).
+      2. Otherwise check in order: `result["answer"] == REFUSAL` -> `"refused"`, `turn["expected_source"] not in result["sources"]` -> `"wrong_source"`, and any `fact.lower() not in result["answer"].lower()` -> `"missing_fact"`; return `None` if all pass.
+      3. In `run_dialog_eval(make_bot, dialogs)`: for each dialog, call `make_bot()` once to get an isolated bot, loop `enumerate(dialog["turns"], 1)`, call `bot.ask(turn["question"])`, score it, and append `{"dialog": dialog["id"], "turn": n, "ok": reason is None, "reason": reason}`.
+      4. In `compare_to_baseline(current, baseline, min_pass_rate=0.8)`: raise `ValueError` if `current` is empty, index `baseline` by `(dialog, turn)`, iterate `current` in order to build `fixed`, `broken`, `new`, and `failures`, compute `pass_rate = round(passed / len(current), 3)`, and set `gate_ok = not broken and pass_rate >= min_pass_rate`.
+    - |
+      Function skeletons:
+      ```python
+      def score_turn(result: dict, turn: dict) -> str | None:
+          answer, sources = result["answer"], result["sources"]
+          exp = turn["expected_source"]
+          if exp is None:
+              return None if (answer == REFUSAL and sources == []) else "no_refusal"
+          if answer == REFUSAL:
+              return "refused"
+          if exp not in sources:
+              return "wrong_source"
+          if any(f.lower() not in answer.lower() for f in turn["expected_facts"]):
+              return "missing_fact"
+          return None
+
+
+      def compare_to_baseline(current: list[dict], baseline: list[dict], min_pass_rate: float = 0.8) -> dict:
+          if not current:
+              raise ValueError("current must not be empty")
+          base = {(r["dialog"], r["turn"]): r["ok"] for r in baseline}
+          fixed, broken, new, failures = [], [], [], []
+          passed = 0
+          for r in current:
+              key = (r["dialog"], r["turn"])
+              if r["ok"]:
+                  passed += 1
+              else:
+                  failures.append((r["dialog"], r["turn"], r["reason"]))
+              ...  # classify key into new, fixed, or broken using base
+          pass_rate = round(passed / len(current), 3)
+          gate_ok = ...  # True only when broken is empty and pass_rate >= min_pass_rate
+          return {"pass_rate": pass_rate, "fixed": fixed, "broken": broken, "new": new, "failures": failures, "gate_ok": gate_ok}
+      ```
+  vi:
+    - |
+      Mở rộng ý tưởng so sánh với baseline ở §5 thành bộ chấm từng lượt hội thoại và cổng chặn hồi quy chặt chẽ. Ví dụ, nếu `expected_source="shipping.md"` và `result={"answer": "I don't know based on the provided context.", "sources": []}`, hàm `score_turn` phải trả về `"refused"` (kiểm tra trước `"wrong_source"`). Và nếu `current` đạt 4/5 lượt với 0 ca `broken`, `compare_to_baseline(..., min_pass_rate=0.8)` trả `pass_rate=0.8` và `gate_ok=True`.
+    - |
+      Kế hoạch từng bước:
+      1. Trong `score_turn(result, turn)`: nếu `turn["expected_source"] is None`, chỉ trả `None` khi `result["answer"] == REFUSAL` và `result["sources"] == []` (ngược lại trả `"no_refusal"`).
+      2. Ngược lại, kiểm tra lần lượt: `result["answer"] == REFUSAL` -> `"refused"`, `turn["expected_source"] not in result["sources"]` -> `"wrong_source"`, và có `fact.lower() not in result["answer"].lower()` -> `"missing_fact"`; đạt hết thì trả `None`.
+      3. Trong `run_dialog_eval(make_bot, dialogs)`: với mỗi dialog, gọi `make_bot()` đúng một lần để tạo bot tách biệt, lặp `enumerate(dialog["turns"], 1)`, gọi `bot.ask(turn["question"])`, chấm điểm rồi thêm `{"dialog": dialog["id"], "turn": n, "ok": reason is None, "reason": reason}`.
+      4. Trong `compare_to_baseline(current, baseline, min_pass_rate=0.8)`: raise `ValueError` nếu `current` rỗng, lập bảng tra `baseline` theo khóa `(dialog, turn)`, duyệt `current` theo thứ tự để gom `fixed`, `broken`, `new`, `failures`, tính `pass_rate = round(passed / len(current), 3)` và `gate_ok = not broken and pass_rate >= min_pass_rate`.
+    - |
+      Khung code gợi ý:
+      ```python
+      def score_turn(result: dict, turn: dict) -> str | None:
+          answer, sources = result["answer"], result["sources"]
+          exp = turn["expected_source"]
+          if exp is None:
+              return None if (answer == REFUSAL and sources == []) else "no_refusal"
+          if answer == REFUSAL:
+              return "refused"
+          if exp not in sources:
+              return "wrong_source"
+          if any(f.lower() not in answer.lower() for f in turn["expected_facts"]):
+              return "missing_fact"
+          return None
+
+
+      def compare_to_baseline(current: list[dict], baseline: list[dict], min_pass_rate: float = 0.8) -> dict:
+          if not current:
+              raise ValueError("current must not be empty")
+          base = {(r["dialog"], r["turn"]): r["ok"] for r in baseline}
+          fixed, broken, new, failures = [], [], [], []
+          passed = 0
+          for r in current:
+              key = (r["dialog"], r["turn"])
+              if r["ok"]:
+                  passed += 1
+              else:
+                  failures.append((r["dialog"], r["turn"], r["reason"]))
+              ...  # phân loại key vào new, fixed hoặc broken dựa theo base
+          pass_rate = round(passed / len(current), 3)
+          gate_ok = ...  # True chỉ khi broken rỗng và pass_rate >= min_pass_rate
+          return {"pass_rate": pass_rate, "fixed": fixed, "broken": broken, "new": new, "failures": failures, "gate_ok": gate_ok}
+      ```

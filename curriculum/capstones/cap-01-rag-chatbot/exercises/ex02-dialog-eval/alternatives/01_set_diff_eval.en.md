@@ -1,0 +1,3 @@
+# Key-indexed dicts and set intersections ordered by `current`
+
+This alternative indexes both `current` and `baseline` into `{(dialog, turn): ...}` dictionaries via comprehensions, computes `fixed`, `broken`, and `new` with set intersections and differences, and restores the `current` run order with list comprehensions. In `score_turn`, the prioritized checks are expressed as a small ordered table evaluated with `next(...)` instead of chained `if` statements. Set algebra makes the diff rules declarative and concise, while the single-pass loop in `solution.py` avoids building intermediate sets on large evaluation suites.

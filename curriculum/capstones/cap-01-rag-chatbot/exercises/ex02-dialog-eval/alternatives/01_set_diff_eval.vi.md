@@ -1,0 +1,3 @@
+# Lập chỉ mục bằng dict comprehension và phép giao tập hợp theo thứ tự `current`
+
+Cách tiếp cận này lập chỉ mục cả `current` lẫn `baseline` thành các dict dạng `{(dialog, turn): ...}` bằng comprehension, tính `fixed`, `broken` và `new` bằng phép giao/hiệu tập hợp (`set`), rồi khôi phục lại thứ tự của `current` bằng list comprehension. Ở hàm `score_turn`, các điều kiện kiểm tra ưu tiên được gom thành một bảng tuần tự và lấy phần tử đầu tiên qua `next(...)` thay cho chuỗi câu lệnh `if`. Phép toán tập hợp giúp logic so sánh khai báo ngắn gọn và trực quan, trong khi vòng lặp một lượt ở `solution.py` đỡ tốn bộ nhớ tạo các tập trung gian khi bộ đánh giá lớn.
