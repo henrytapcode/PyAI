@@ -1,0 +1,3 @@
+# Pure module-level helpers with `collections.deque` and pure-Python `cosine()`
+
+This alternative moves `rewrite_followup`, `extract_citations`, and `trim_history_deque` out of `ChatBot` into pure module-level functions, leaving `ChatBot` as a thin stateful shell around `self.index` and `self.history`. Trimming uses `collections.deque.popleft()` so evicting old turns stays `O(1)`, and `retrieve` ranks embeddings with `pyai_llm.cosine()` instead of NumPy matrix multiplication. Pure helpers are easier to unit-test in isolation and avoid NumPy overhead on small FAQ corpora, while the NumPy dot product in `solution.py` scales better when the chunk index grows large.

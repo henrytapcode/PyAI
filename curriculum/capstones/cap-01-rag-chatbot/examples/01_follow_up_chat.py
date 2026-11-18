@@ -29,7 +29,7 @@ def rewrite_query(question: str, history: list[dict]) -> str:
     if not prev_user:
         return question
     low = question.lower().strip()
-    if len(question.split()) <= 4 or low.startswith(("what about", "and", "how about")):
+    if len(question.split()) <= 4 or low.startswith(("what about ", "and ", "how about ")):
         return f"{prev_user} {question}"
     return question
 

@@ -1,0 +1,3 @@
+# Tách hàm thuần cấp module kết hợp `collections.deque` và `cosine()` thuần Python
+
+Cách tiếp cận này tách `rewrite_followup`, `extract_citations` và `trim_history_deque` ra khỏi `ChatBot` thành các hàm thuần ở cấp module, giữ `ChatBot` như một lớp vỏ mỏng quản lý `self.index` và `self.history`. Việc cắt bớt dùng `collections.deque.popleft()` để loại bỏ lượt cũ theo độ phức tạp `O(1)`, còn `retrieve` xếp hạng vector bằng `pyai_llm.cosine()` thay cho phép nhân ma trận NumPy. Các hàm thuần dễ kiểm thử đơn vị độc lập và gọn nhẹ với kho FAQ nhỏ, trong khi tích vô hướng bằng NumPy ở `solution.py` mở rộng tốt hơn khi số lượng chunk tăng lớn.

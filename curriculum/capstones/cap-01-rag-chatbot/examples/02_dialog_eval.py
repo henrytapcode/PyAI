@@ -48,7 +48,7 @@ def eval_dialogs(rewrite: bool, min_score: float) -> dict[str, bool]:
         for idx, turn in enumerate(dlg["turns"], 1):
             q = turn["question"]
             low = q.lower().strip()
-            if rewrite and prev_user and (len(q.split()) <= 4 or low.startswith(("what about", "and", "how about"))):
+            if rewrite and prev_user and (len(q.split()) <= 4 or low.startswith(("what about ", "and ", "how about "))):
                 query = f"{prev_user} {q}"
             else:
                 query = q
