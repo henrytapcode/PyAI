@@ -1,0 +1,431 @@
+id: p8-phase-test
+kind: phase_test
+phase: p8
+title:
+  en: "Phase 8 test: Production"
+  vi: "Bài kiểm tra Phase 8: Production"
+description:
+  en: "16 questions covering FastAPI endpoints and validation, Docker packaging and layer caching, prompt and TTL/LRU caching, monitoring with percentiles and cost alerts, and the end-to-end RAG service mini-project."
+  vi: "16 câu hỏi về endpoint và kiểm tra dữ liệu FastAPI, đóng gói Docker và build cache theo layer, caching prompt cùng TTL/LRU, monitoring với percentile và cảnh báo chi phí, cùng mini-project dịch vụ RAG hoàn chỉnh."
+duration_min: 25
+pass_score: 0.7
+questions:
+  # ---- fastapi
+  - id: p8-test-q01
+    type: mcq
+    tags: [apis, testing]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "How does `TestClient(app)` test FastAPI endpoints inside a `pytest` suite?"
+      options:
+        - "It launches `uvicorn` on port `8000` in a background thread"
+        - "It calls the FastAPI app in-process without opening a port"
+        - "It skips Pydantic validation and invokes handlers directly"
+        - "It turns every `POST` JSON body into URL query parameters"
+      explanation: "`TestClient(app)` executes requests against your FastAPI application directly in Python memory without starting `uvicorn` or binding a network port, while still running full routing, Pydantic validation, and status-code handling."
+    vi:
+      prompt: "`TestClient(app)` kiểm thử các endpoint FastAPI trong bộ test `pytest` bằng cách nào?"
+      options:
+        - "Khởi chạy `uvicorn` ở cổng `8000` trên một luồng chạy ngầm"
+        - "Gọi trực tiếp app FastAPI trong cùng process không mở cổng"
+        - "Bỏ qua bước kiểm tra Pydantic và gọi thẳng hàm xử lý"
+        - "Chuyển mọi JSON body của `POST` thành query parameter trên URL"
+      explanation: "`TestClient(app)` gửi request tới app FastAPI ngay trong bộ nhớ Python mà không cần bật `uvicorn` hay mở cổng mạng, nhưng vẫn chạy đầy đủ định tuyến, kiểm tra Pydantic và trả mã trạng thái."
+
+  - id: p8-test-q02
+    type: output
+    tags: [apis, production]
+    difficulty: 2
+    code: |
+      from fastapi import FastAPI, HTTPException
+      from fastapi.testclient import TestClient
+
+      app = FastAPI()
+      seen = []
+      docs = {10: "intro", 20: "rag"}
+
+
+      @app.get("/documents/{doc_id}")
+      def read_doc(doc_id: int):
+          seen.append(doc_id)
+          if doc_id not in docs:
+              raise HTTPException(status_code=404, detail="missing")
+          return {"title": docs[doc_id]}
+
+
+      c = TestClient(app)
+      codes = [c.get(u).status_code for u in ("/documents/x", "/documents/5", "/documents/20")]
+      print(codes, seen)
+    answer: "[422, 404, 200] [5, 20]"
+    en:
+      prompt: "What does this FastAPI path-parameter test print?"
+      explanation: "`/documents/x` fails `doc_id: int` validation with `422` before `read_doc` runs (`'x'` is absent from `seen`). `/documents/5` enters `read_doc(5)` and raises `HTTPException(404)`, while `/documents/20` succeeds with `200`, leaving `seen == [5, 20]`."
+    vi:
+      prompt: "Đoạn kiểm thử path parameter FastAPI này in ra gì?"
+      explanation: "`/documents/x` sai kiểu `doc_id: int` nên bị trả `422` trước khi vào `read_doc` (`'x'` không có trong `seen`). `/documents/5` chạy `read_doc(5)` và ném `HTTPException(404)`, còn `/documents/20` trả `200`, nên `seen == [5, 20]`."
+
+  - id: p8-test-q03
+    type: fill
+    tags: [apis, testing]
+    difficulty: 2
+    code: |
+      from fastapi import FastAPI
+      from fastapi.testclient import TestClient
+      from pydantic import BaseModel, Field
+
+      app = FastAPI()
+      ran = []
+
+
+      class SearchIn(BaseModel):
+          query: str = Field(___=3)
+          limit: int = Field(default=2, ge=1, ___=4)
+
+
+      @app.post("/search")
+      def search(body: SearchIn):
+          ran.append(body.query)
+          return {"limit": body.limit}
+
+
+      c = TestClient(app)
+      r1 = c.post("/search", json={"query": "ai", "limit": 2})
+      r2 = c.post("/search", json={"query": "rag", "limit": 5})
+      r3 = c.post("/search", json={"query": "rag"})
+      print(r1.status_code, r2.status_code, r3.status_code, ran)
+    answer: ["min_length", "le"]
+    en:
+      prompt: "Fill in the two `Field` argument names so `query` requires at least 3 characters and `limit` is at most 4, rejecting the first two calls with `422` before `search` runs (`422 422 200 ['rag']`)."
+      explanation: "`min_length=3` rejects `'ai'` with `422`, and `le=4` rejects `limit=5` with `422` before `search` executes, so `ran` records only `'rag'` from the valid third request."
+    vi:
+      prompt: "Điền hai tên tham số của `Field` để `query` có ít nhất 3 ký tự và `limit` tối đa là 4, chặn hai request đầu với mã `422` trước khi vào `search` (`422 422 200 ['rag']`)."
+      explanation: "`min_length=3` chặn `'ai'` với mã `422` và `le=4` chặn `limit=5` với mã `422` trước khi hàm `search` chạy, nên `ran` chỉ ghi nhận `'rag'` từ request thứ ba hợp lệ."
+
+  # ---- docker
+  - id: p8-test-q04
+    type: fill
+    tags: [production, packaging]
+    difficulty: 2
+    code: |
+      def is_ignored(path: str, pat: str) -> bool:
+          parts = path.split("/")
+          p = pat.strip("/").split("/")
+          if p[0] == "**":
+              sub = p[1:]
+              return any(parts[i : i + len(sub)] == sub for i in range(len(parts)))
+          return parts[: len(p)] == p
+
+
+      paths = ["rag/__pycache__/a.pyc", "api/__pycache__/b.py"]
+      print([is_ignored(x, "__pycache__/") for x in paths], [is_ignored(x, "___") for x in paths])
+    answer: [["**/__pycache__", "**/__pycache__/"]]
+    en:
+      prompt: "Fill in the `.dockerignore` pattern that matches `__pycache__` directories at any depth from the build context root so the second list prints `[True, True]`."
+      explanation: "Docker evaluates `.dockerignore` patterns from the build context root, so `__pycache__/` misses nested folders like `rag/__pycache__`. Prefixing `**/` (`**/__pycache__`) matches `__pycache__` at any nesting depth."
+    vi:
+      prompt: "Điền mẫu `.dockerignore` khớp thư mục `__pycache__` ở mọi độ sâu tính từ gốc build context để danh sách thứ hai in `[True, True]`."
+      explanation: "Docker đối chiếu `.dockerignore` từ gốc build context, nên `__pycache__/` bỏ sót thư mục lồng như `rag/__pycache__`. Thêm tiền tố `**/` (`**/__pycache__`) giúp khớp `__pycache__` ở mọi cấp thư mục."
+
+  - id: p8-test-q05
+    type: mcq
+    tags: [production, packaging]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which Docker setup packages a FastAPI service safely and lets your host reach port `8000` via `-p 8000:8000`?"
+      options:
+        - "`FROM python:latest`, `CMD` `--host 127.0.0.1`, and `COPY .env .`"
+        - "`FROM python:3.13-slim`, `CMD` `--host 0.0.0.0`, and `--env-file .env`"
+        - "`FROM python:3.13-slim`, `CMD` `--host 127.0.0.1`, and `ENV SECRET=1`"
+        - "`FROM python:latest`, `CMD` `--host 0.0.0.0`, and `ENV SECRET=1`"
+      explanation: "Pinning `python:3.13-slim` keeps builds reproducible, `--host 0.0.0.0` lets `uvicorn` accept host traffic forwarded by `-p 8000:8000` instead of restricting to container loopback `127.0.0.1`, and `--env-file .env` injects secrets at runtime rather than baking them into image layers."
+    vi:
+      prompt: "Cấu hình Docker nào đóng gói dịch vụ FastAPI an toàn và cho phép máy host truy cập cổng `8000` qua `-p 8000:8000`?"
+      options:
+        - "`FROM python:latest`, `CMD` `--host 127.0.0.1`, và `COPY .env .`"
+        - "`FROM python:3.13-slim`, `CMD` `--host 0.0.0.0`, và `--env-file .env`"
+        - "`FROM python:3.13-slim`, `CMD` `--host 127.0.0.1`, và `ENV SECRET=1`"
+        - "`FROM python:latest`, `CMD` `--host 0.0.0.0`, và `ENV SECRET=1`"
+      explanation: "Ghim tag `python:3.13-slim` giúp build ổn định giữa các lần chạy, `--host 0.0.0.0` giúp `uvicorn` nhận kết nối từ host qua `-p 8000:8000` thay vì chỉ nghe `127.0.0.1` nội bộ, còn `--env-file .env` nạp secret lúc chạy thay vì nhúng vào layer của image."
+
+  - id: p8-test-q06
+    type: mcq
+    tags: [production, packaging]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "A Dockerfile has `FROM python:latest`, `WORKDIR /app`, `COPY . .`, `RUN pip install -r requirements.txt`, and `CMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\"]`. You edit one line in `main.py` and rebuild. Why does `pip install` still re-run?"
+      options:
+        - "Editing `main.py` invalidated `COPY . .` and all later layers"
+        - "`FROM python:latest` disables Docker build caching completely"
+        - "Omitting `--no-cache-dir` forces `pip install` to re-run always"
+        - "`--host 0.0.0.0` in `CMD` invalidates every earlier `RUN` layer"
+      explanation: "Docker invalidates its build cache from the first changed layer downward. Because `COPY . .` sits before `RUN pip install`, changing `main.py` invalidates `COPY . .` and forces `pip install` below it to rebuild—even though `requirements.txt` never changed."
+    vi:
+      prompt: "Một Dockerfile gồm `FROM python:latest`, `WORKDIR /app`, `COPY . .`, `RUN pip install -r requirements.txt`, và `CMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\"]`. Bạn sửa một dòng trong `main.py` rồi build lại. Vì sao bước `pip install` vẫn chạy lại?"
+      options:
+        - "Sửa `main.py` làm mất cache `COPY . .` và mọi layer phía sau"
+        - "`FROM python:latest` vô hiệu hóa toàn bộ build cache của Docker"
+        - "Thiếu `--no-cache-dir` khiến `pip install` luôn phải cài lại gói"
+        - "`--host 0.0.0.0` trong `CMD` làm hỏng cache các layer `RUN` trước"
+      explanation: "Docker hủy build cache từ layer đầu tiên thay đổi trở xuống. Vì `COPY . .` đặt trước `RUN pip install`, sửa `main.py` làm trượt cache ở `COPY . .` và ép `pip install` bên dưới phải chạy lại dù `requirements.txt` không đổi."
+
+  # ---- caching
+  - id: p8-test-q07
+    type: parsons
+    tags: [production, performance]
+    difficulty: 2
+    lines:
+      - "import hashlib, json"
+      - 'raw = json.dumps({"model": "mini", "messages": [{"role": "user", "content": "Hi"}], "temperature": 0.0, "max_tokens": 64}, sort_keys=True)'
+      - 'key = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:8]'
+      - 'cache = {key: "cached-reply"}'
+      - "print(key, cache.get(key))"
+    en:
+      prompt: "Arrange these lines in order to serialize all output-affecting prompt inputs with sorted keys, hash with SHA-256, store a reply, and print the 8-character key prefix with the cached reply."
+      explanation: "Import `hashlib, json`, serialize the full payload (`model`, `messages` with `role`, `temperature`, `max_tokens`) using `sort_keys=True`, compute the 8-character `sha256` prefix `key`, store the reply in `cache`, and print `key` and `cache.get(key)`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tuần tự hóa mọi tham số ảnh hưởng output theo khóa đã sắp xếp, băm SHA-256, lưu câu trả lời vào cache rồi in 8 ký tự đầu của key cùng giá trị đọc ra."
+      explanation: "Import `hashlib, json`, tạo chuỗi JSON chuẩn hóa với `sort_keys=True` gồm `model`, `messages` (có `role`), `temperature` và `max_tokens`, lấy 8 ký tự đầu của `sha256` làm `key`, lưu vào `cache` rồi in `key` cùng `cache.get(key)`."
+
+  - id: p8-test-q08
+    type: fill
+    tags: [production, performance]
+    difficulty: 2
+    code: |
+      class FakeClock:
+          def __init__(self, start: float = 0.0) -> None:
+              self.t = start
+
+          def __call__(self) -> float:
+              return self.t
+
+          def advance(self, seconds: float) -> None:
+              self.t += seconds
+
+
+      clock = FakeClock(10.0)
+      entry = ("ok", clock() + 30.0)
+      clock.___(30.0)
+      hit = None if clock() ___ entry[1] else entry[0]
+      print(clock(), hit)
+    answer: ["advance", ">="]
+    en:
+      prompt: "Fill in the two blanks so `clock` moves forward 30 seconds and the entry expires at the exact TTL boundary `clock() == expires_at`, printing `40.0 None`."
+      explanation: "`FakeClock` defines `__call__` so `clock()` acts just like `time.monotonic` in production; `clock.advance(30.0)` moves time to `40.0`, and `clock() >= entry[1]` treats `40.0 >= 40.0` as expired (`None`)."
+    vi:
+      prompt: "Điền vào hai chỗ trống để `clock` tăng thêm 30 giây và mục cache hết hạn ngay tại mốc `clock() == expires_at`, in ra `40.0 None`."
+      explanation: "`FakeClock` cài đặt `__call__` để `clock()` hoạt động giống `time.monotonic` ở production; `clock.advance(30.0)` đưa thời gian lên `40.0`, còn `clock() >= entry[1]` coi `40.0 >= 40.0` là đã hết hạn (`None`)."
+
+  - id: p8-test-q09
+    type: output
+    tags: [production, performance, llm]
+    difficulty: 2
+    code: |
+      from collections import OrderedDict
+
+      cache = OrderedDict()
+      log = []
+
+
+      def run(key, temp=0.0):
+          if temp > 0.0:
+              log.append(key)
+              return
+          if key in cache:
+              cache.move_to_end(key)
+              return
+          log.append(key)
+          cache[key] = len(log)
+          if len(cache) > 2:
+              cache.popitem(last=False)
+
+
+      for k, t in [("k1", 0.0), ("k2", 0.0), ("k1", 0.0), ("k1", 0.7), ("k3", 0.0)]:
+          run(k, t)
+      print(len(log), list(cache.items()))
+    answer: "4 [('k1', 1), ('k3', 4)]"
+    en:
+      prompt: "What does this `OrderedDict` LRU and `temperature` gating snippet print?"
+      explanation: "`k1` and `k2` miss and fill `cache` (`len(log) == 2`). Repeating `k1` at `temp=0.0` hits and calls `move_to_end('k1')`. Calling `k1` with `temp=0.7` bypasses the cache (`len(log) == 3`). Finally `k3` misses (`len(log) == 4`) and `popitem(last=False)` evicts `'k2'`, leaving `[('k1', 1), ('k3', 4)]`."
+    vi:
+      prompt: "Đoạn code kết hợp LRU bằng `OrderedDict` và kiểm tra `temperature` này in ra gì?"
+      explanation: "`k1` và `k2` trượt cache (`len(log) == 2`). Gọi lại `k1` với `temp=0.0` trúng cache và gọi `move_to_end('k1')`. Gọi `k1` với `temp=0.7` bỏ qua cache (`len(log) == 3`). Cuối cùng `k3` trượt (`len(log) == 4`) và `popitem(last=False)` đẩy `'k2'` ra, còn lại `[('k1', 1), ('k3', 4)]`."
+
+  - id: p8-test-q10
+    type: mcq
+    tags: [production, llm]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "An app hashes `model`, `messages` (with `role`), and `temperature=0.0` for its cache key, but omits `max_tokens`. Request 1 runs with `max_tokens=16` and returns a cut-off reply; Request 2 sends the exact same prompt with `max_tokens=500`. What happens?"
+      options:
+        - "Request 2 hits the cache and gets the 16-token cut-off reply"
+        - "Request 2 misses the cache and receives a 500-token reply"
+        - "The cache automatically expands the stored reply to 500 tokens"
+        - "FastAPI returns `422` because `max_tokens` changed on Request 2"
+      explanation: "Every parameter that changes the model output—including `model`, full `messages` with `role`, `temperature`, and `max_tokens`—belongs in the cache key. Without `max_tokens`, both calls hash to the same key and Request 2 replays the truncated reply."
+    vi:
+      prompt: "Một app băm `model`, `messages` (gồm cả `role`), và `temperature=0.0` làm cache key nhưng bỏ sót `max_tokens`. Request 1 gửi `max_tokens=16` và nhận câu trả lời bị cắt cụt; Request 2 gửi y hệt prompt đó với `max_tokens=500`. Điều gì xảy ra?"
+      options:
+        - "Request 2 trúng cache và nhận lại câu trả lời 16 token bị cụt"
+        - "Request 2 trượt cache và tạo ra câu trả lời dài 500 token"
+        - "Cache tự động nối dài câu trả lời đã lưu lên đủ 500 token"
+        - "FastAPI trả mã `422` do `max_tokens` đã đổi ở Request 2"
+      explanation: "Mọi tham số làm thay đổi đầu ra của model—gồm `model`, toàn bộ `messages` kèm `role`, `temperature` và `max_tokens`—đều phải nằm trong cache key. Thiếu `max_tokens`, hai request ra cùng một key nên Request 2 nhận lại bản bị cắt cụt."
+
+  # ---- monitoring
+  - id: p8-test-q11
+    type: parsons
+    tags: [production, logging, performance]
+    difficulty: 1
+    lines:
+      - "tokens = [(1000, 500), (1000, 500)]"
+      - "cost = sum((p / 1000) * 0.001 + (c / 1000) * 0.003 for p, c in tokens)"
+      - "budget = cost"
+      - 'alert = "budget-exceeded" if cost > budget else "budget-warning" if cost >= 0.8 * budget else "ok"'
+      - "print(round(cost, 4), alert)"
+    en:
+      prompt: "Arrange these lines in order to compute total input/output token cost, compare it with `budget` using strict `>` for `budget-exceeded`, and print `0.005 budget-warning`."
+      explanation: "Define `tokens`, sum `(p / 1000) * 0.001 + (c / 1000) * 0.003` into `cost = 0.005`, set `budget = cost`, evaluate `alert` (`cost > budget` is `False`, while `cost >= 0.8 * budget` yields `'budget-warning'`), and print the result."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để tính tổng chi phí token vào/ra, so với `budget` bằng phép `>` chặt cho `budget-exceeded` và in ra `0.005 budget-warning`."
+      explanation: "Khai báo `tokens`, cộng `(p / 1000) * 0.001 + (c / 1000) * 0.003` thành `cost = 0.005`, gán `budget = cost`, xét `alert` (`cost > budget` là `False` còn `cost >= 0.8 * budget` ra `'budget-warning'`) rồi in kết quả."
+
+  - id: p8-test-q12
+    type: output
+    tags: [production, performance]
+    difficulty: 2
+    code: |
+      import math
+      import statistics
+
+      lats = [900, 200] + [100] * 18
+      ordered = sorted(lats)
+      p95 = ordered[math.ceil(95 / 100 * len(ordered)) - 1]
+      mean_ms = round(statistics.mean(ordered), 1)
+      alert = p95 > 200
+      print(mean_ms, p95, alert)
+    answer: "145 200 False"
+    en:
+      prompt: "What does this latency summary and threshold check print?"
+      explanation: "The 20 sorted latencies have `mean_ms = 145` (hiding the 900 ms tail), and nearest-rank `p95` takes `ceil(0.95 * 20) - 1 = 18`, which is `200` (not the max `900`). Because alerts trigger strictly on `>`, `200 > 200` is `False`."
+    vi:
+      prompt: "Đoạn tổng hợp độ trễ và kiểm tra ngưỡng cảnh báo này in ra gì?"
+      explanation: "20 độ trễ đã sắp xếp có `mean_ms = 145` (che mất phần đuôi 900 ms), còn `p95` nearest-rank lấy chỉ số `ceil(0.95 * 20) - 1 = 18` tức `200` (khác với giá trị lớn nhất `900`). Vì cảnh báo dùng dấu `>`, `200 > 200` là `False`."
+
+  - id: p8-test-q13
+    type: mcq
+    tags: [production, logging]
+    difficulty: 3
+    answer: 2
+    code: |
+      status = "ok"
+      try:
+          resp = client.chat(msgs)
+      except RateLimitError:
+          status = "error"
+          raise
+      finally:
+          records.append({"status": status})
+    en:
+      prompt: "During a request, `client.chat(msgs)` raises `ValueError` (not `RateLimitError`). What does the `finally` block append to `records`?"
+      options:
+        - "Nothing, because `finally` does not run on uncaught errors"
+        - "A record with `status: 'error'` before propagating the error"
+        - "A record with `status: 'ok'`, masking the failed request"
+        - "Two records: one with `'ok'` and another with `'error'`"
+      explanation: "Initializing `status = 'ok'` before `try` leaves `status` at `'ok'` whenever an unhandled exception like `ValueError` skips `except RateLimitError`, so `finally` records the crash as a success. Always initialize `status = 'error'` before `try` and set `'ok'` only after the call succeeds."
+    vi:
+      prompt: "Trong một request, `client.chat(msgs)` ném ra `ValueError` (không phải `RateLimitError`). Khối `finally` sẽ thêm gì vào `records`?"
+      options:
+        - "Không thêm gì khi lỗi không khớp `except` bị văng ra ngoài"
+        - "Một bản ghi `status: 'error'` trước khi văng lỗi ra ngoài"
+        - "Một bản ghi `status: 'ok'`, làm che mất request bị lỗi"
+        - "Hai bản ghi: một bản ghi `'ok'` và một bản ghi `'error'`"
+      explanation: "Khởi tạo `status = 'ok'` trước `try` khiến `status` giữ nguyên `'ok'` khi một lỗi chưa bắt như `ValueError` bỏ qua `except RateLimitError`, làm `finally` ghi nhầm ca lỗi thành thành công. Luôn khởi tạo `status = 'error'` trước `try` và chỉ gán `'ok'` sau khi gọi thành công."
+
+  # ---- mini-project-rag
+  - id: p8-test-q14
+    type: mcq
+    tags: [production, testing, apis]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "You deploy `create_app(docs, client, clock)` to production and mistakenly pass `clock=time.monotonic()` (with parentheses) instead of `clock=time.monotonic`. What happens on the first `POST /ask` call?"
+      options:
+        - "FastAPI returns `422` before the `/ask` handler runs"
+        - "TTL entries expire correctly using the startup float"
+        - "Calling `clock()` raises `TypeError` on the `float` value"
+        - "`/ask` returns `503` and logs `status='error'` to metrics"
+      explanation: "`create_app` expects `clock` to be a callable (such as `FakeClock()` via `__call__` in tests, or the function object `time.monotonic` in production). Calling `time.monotonic()` early passes a fixed `float`, so `clock()` inside `/ask` fails with `TypeError: 'float' object is not callable`."
+    vi:
+      prompt: "Khi đưa `create_app(docs, client, clock)` lên production, bạn lỡ truyền `clock=time.monotonic()` (có ngoặc tròn) thay vì `clock=time.monotonic`. Điều gì xảy ra ở lần gọi `POST /ask` đầu tiên?"
+      options:
+        - "FastAPI trả mã `422` trước khi hàm `/ask` kịp chạy"
+        - "Các mục TTL hết hạn bình thường theo mốc thời gian khởi động"
+        - "Lệnh gọi `clock()` ném ra `TypeError` trên giá trị `float`"
+        - "`/ask` trả mã `503` và ghi `status='error'` vào metric"
+      explanation: "`create_app` kỳ vọng `clock` là một callable (như `FakeClock()` qua `__call__` khi test, hoặc object hàm `time.monotonic` ở production). Gọi sẵn `time.monotonic()` truyền vào một số `float` cố định, nên `clock()` trong `/ask` bị lỗi `TypeError: 'float' object is not callable`."
+
+  - id: p8-test-q15
+    type: output
+    tags: [rag, production, llm]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM, RateLimitError
+
+      client = FakeLLM(script=["5 days"], fail_times=1)
+      cache, metrics = {}, []
+
+
+      def ask(q, score):
+          if q in cache:
+              metrics.append(("ok", True, 0.0))
+              return
+          if score < 0.2:
+              metrics.append(("ok", False, 0.0))
+              return
+          status, cost = "error", 0.0
+          try:
+              cache[q] = client.chat([{"role": "user", "content": q}]).content
+              cost, status = 0.01, "ok"
+          except RateLimitError:
+              pass
+          finally:
+              metrics.append((status, False, cost))
+
+
+      for q, s in [("refund", 0.8), ("refund", 0.8), ("crypto", 0.1), ("refund", 0.8)]:
+          ask(q, s)
+      print([(m[0], m[1]) for m in metrics], round(sum(m[2] for m in metrics), 2))
+    answer: "[('error', False), ('ok', False), ('ok', False), ('ok', True)] 0.01"
+    en:
+      prompt: "What does this simplified RAG `/ask` pipeline print?"
+      explanation: "Call 1 hits `RateLimitError`, skips caching, and logs `('error', False)` with cost `0.0`. Call 2 retries, calls `client.chat` once (`0.01`), caches `'refund'`, and logs `('ok', False)`. Call 3 refuses (`score < 0.2`) without calling `chat`, and Call 4 hits cache with cost `0.0` (`('ok', True)`)."
+    vi:
+      prompt: "Pipeline `/ask` rút gọn của dịch vụ RAG này in ra gì?"
+      explanation: "Lần 1 gặp `RateLimitError`, không cache và ghi `('error', False)` với chi phí `0.0`. Lần 2 retry gọi `client.chat` một lần (`0.01`), lưu cache `'refund'` và ghi `('ok', False)`. Lần 3 từ chối (`score < 0.2`) không gọi `chat`, còn lần 4 trúng cache với chi phí `0.0` (`('ok', True)`)."
+
+  - id: p8-test-q16
+    type: mcq
+    tags: [production, rag]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "During a brief `RateLimitError`, `/ask` stores the fallback error response inside `cache[key]` before returning `503`. What happens when a client retries 5 seconds later after the LLM recovers?"
+      options:
+        - "The retry bypasses `cache[key]` and returns a `200` answer"
+        - "FastAPI rejects the retry with `422` until the TTL expires"
+        - "`GET /metrics` deletes the earlier `status='error'` entry"
+        - "The retry hits `cache[key]` and keeps returning the error"
+      explanation: "Only successful responses (including valid no-LLM refusals) should be written to the cache. Storing a `RateLimitError` fallback in `cache[key]` turns a transient outage into repeated cached failures until the TTL expires."
+    vi:
+      prompt: "Trong lúc gặp `RateLimitError` thoáng qua, `/ask` lại lưu phản hồi lỗi dự phòng vào `cache[key]` trước khi trả `503`. Điều gì xảy ra khi client retry sau 5 giây lúc LLM đã ổn định?"
+      options:
+        - "Lượt retry bỏ qua `cache[key]` và trả câu trả lời `200`"
+        - "FastAPI chặn lượt retry với mã `422` tới khi hết TTL"
+        - "`GET /metrics` tự xóa bản ghi `status='error'` trước đó"
+        - "Lượt retry trúng `cache[key]` và tiếp tục nhận lỗi cũ"
+      explanation: "Chỉ những phản hồi thành công (bao gồm câu từ chối hợp lệ không gọi LLM) mới được ghi vào cache. Lưu lỗi `RateLimitError` vào `cache[key]` biến sự cố tạm thời thành lỗi lặp lại cho tới khi hết hạn TTL."
