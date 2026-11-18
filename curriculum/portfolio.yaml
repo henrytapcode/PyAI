@@ -88,12 +88,12 @@ projects:
     tags: [rag, llm]
     title: { en: "Documentation Q&A with RAG", vi: "Hỏi đáp tài liệu bằng RAG" }
     pitch:
-      en: "Answer questions about a set of documents with an LLM that cites its sources. Chunking, embeddings, vector search and grounded prompts: the most requested skill in AI engineering job posts."
-      vi: "Trả lời câu hỏi về một bộ tài liệu bằng LLM có trích dẫn nguồn. Chia đoạn, embedding, tìm kiếm vector và prompt có căn cứ: kỹ năng được tuyển nhiều nhất trong các tin tuyển AI Engineer."
+      en: "Answer questions about a set of FAQ documents with an LLM that cites its sources and refuses when context is missing. Chunking, embeddings, vector search and grounded prompts: the most requested skill in AI engineering job posts."
+      vi: "Trả lời câu hỏi về một bộ tài liệu FAQ bằng LLM có trích dẫn nguồn và từ chối khi thiếu thông tin. Chia đoạn, embedding, tìm kiếm vector và prompt có căn cứ: kỹ năng được tuyển nhiều nhất trong các tin tuyển AI Engineer."
     cv_bullet:
-      en: "Built a retrieval-augmented Q&A system over technical documentation: chunking, embeddings, vector search and grounded answers with source citations, measured on a small eval set."
-      vi: "Xây dựng hệ thống hỏi đáp tăng cường truy xuất (RAG) trên tài liệu kỹ thuật: chia đoạn, embedding, tìm kiếm vector và câu trả lời có trích dẫn nguồn, đo chất lượng trên bộ eval nhỏ."
-    skills: ["embeddings", "vector database", "prompting", "RAG", "evals"]
+      en: "Built a retrieval-augmented Q&A system over FAQ documents: chunking, embeddings, in-memory NumPy vector search, grounded answers with [n] citations and refusals, evaluated across dev and held-out test splits."
+      vi: "Xây dựng hệ thống hỏi đáp tăng cường truy xuất (RAG) trên tài liệu FAQ: chia đoạn, embedding, tìm kiếm vector trong RAM bằng NumPy, trả lời có trích dẫn [n] và từ chối khi thiếu căn cứ, được đánh giá trên tập dev và held-out test."
+    skills: ["embeddings", "NumPy vector search", "prompting", "RAG", "evals"]
 
   - id: tool-agent
     lesson: p7-10-mini-project-agent
@@ -102,12 +102,35 @@ projects:
     tags: [agents, llm]
     title: { en: "Tool-using assistant agent", vi: "Agent trợ lý dùng tool" }
     pitch:
-      en: "An LLM that decides when to call a calculator, a search function or a file reader, with step limits and logged traces so you can debug it."
-      vi: "Một LLM tự quyết khi nào gọi máy tính, hàm tìm kiếm hay đọc file, có giới hạn số bước và log lại từng bước để debug."
+      en: "An order-support agent that looks up orders, tracks shipments, checks refund policy and gates side-effect refunds behind an approval callback, with step, repeat and token-budget limits plus scenario tests."
+      vi: "Một agent hỗ trợ đơn hàng biết tra cứu đơn, theo dõi vận chuyển, kiểm tra chính sách hoàn tiền và chặn lệnh hoàn tiền qua cổng duyệt, có giới hạn số bước, chống lặp, ngân sách token và bộ kịch bản kiểm thử."
     cv_bullet:
-      en: "Implemented a tool-using LLM agent with structured tool calls, input validation, step limits and traced execution logs for debugging and evaluation."
-      vi: "Triển khai agent LLM dùng tool với lời gọi tool có cấu trúc, kiểm tra đầu vào, giới hạn số bước và log thực thi để debug và đánh giá."
-    skills: ["tool use", "structured output", "agent loops", "logging & tracing"]
+      en: "Implemented a bounded tool-using support agent with an allowlisted toolbox, input validation, step/repeat/budget limits, code-controlled approval gates with audit logs, and deterministic scenario tests."
+      vi: "Triển khai agent hỗ trợ dùng tool có giới hạn an toàn: toolbox theo allowlist, kiểm tra đầu vào, giới hạn bước/chống lặp/ngân sách token, cổng duyệt cho thao tác có tác dụng phụ kèm nhật ký kiểm tra và bộ kịch bản test tất định."
+    skills: ["tool use", "allowlisted toolbox", "agent loops", "approval gates", "scenario testing"]
+
+  - id: rag-service
+    lesson: p8-05-mini-project
+    phase: p8
+    difficulty: 5
+    tags: [rag, production, apis, testing]
+    title: { en: "Production RAG service with FastAPI", vi: "Dịch vụ RAG với FastAPI chuẩn production" }
+    pitch:
+      en: "Wrap your RAG pipeline in a testable FastAPI service with an app factory, /ask citations and refusals, an in-memory TTL cache, RateLimitError 503 handling, /metrics (p95 latency, cost, hit rate, error rate), and a Dockerfile—verified with TestClient and FakeClock."
+      vi: "Đưa pipeline RAG thành dịch vụ FastAPI kiểm thử được với app factory, /ask có trích dẫn và từ chối, TTL cache trong RAM, xử lý RateLimitError trả 503, /metrics (độ trễ p95, chi phí, tỉ lệ cache hit, tỉ lệ lỗi) và Dockerfile—kiểm chứng bằng TestClient và FakeClock."
+    cv_bullet:
+      en: "Built a FastAPI RAG service via an isolated app factory with one-time document indexing, cited /ask responses and low-score refusals, TTL response caching, 503 RateLimitError handling, /metrics tracking (p95 latency, cost, cache hit rate, error rate), a Dockerfile, and deterministic TestClient + FakeClock tests."
+      vi: "Xây dựng dịch vụ RAG bằng FastAPI qua app factory cô lập trạng thái: đánh chỉ mục tài liệu một lần, /ask có trích dẫn và từ chối khi điểm thấp, TTL cache phản hồi, xử lý RateLimitError trả 503, /metrics (độ trễ p95, chi phí, tỉ lệ cache hit, tỉ lệ lỗi), Dockerfile và bộ test tất định bằng TestClient cùng FakeClock."
+    skills: ["FastAPI", "app factory", "TTL caching", "monitoring & metrics", "TestClient & FakeClock", "Dockerfile"]
+    stretch:
+      en:
+        - "Swap FakeLLM for a real LLM client loading API keys from .env via pydantic-settings"
+        - "Move the in-memory TTL cache to Redis so multiple uvicorn workers share hits"
+        - "Export latency and token metrics to OpenTelemetry"
+      vi:
+        - "Thay FakeLLM bằng client LLM thật đọc API key từ .env qua pydantic-settings"
+        - "Chuyển TTL cache từ RAM sang Redis để nhiều worker uvicorn dùng chung cache"
+        - "Xuất các metric độ trễ và token sang OpenTelemetry"
 
   - id: cap-rag-chatbot
     phase: p8
