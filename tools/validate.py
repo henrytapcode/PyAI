@@ -4,6 +4,9 @@ Checks (see docs/DESIGN.md section 9, step 4):
   * JSON Schema for meta.yaml, exercise.yaml, quiz.yaml, exams, glossary, interview bank
   * IDs are unique, lessons are listed in syllabus.yaml, prerequisites and tags exist
   * VI/EN parity: both files/fields exist, same structure, same code (comments may differ)
+  * lesson python blocks: `# ...` comment lines right under a print are expected output and
+    must appear, in order, in the block's real stdout+stderr (`...` matches anything)
+  * warning: an exercise solution.py copies 5+ consecutive lines verbatim from the lesson
   * examples run and print exactly their .out file, have an EN+VI explanation, and the
     step-through tracer (tools/pyrunner/tracer.py) handles them
   * every exercise: starter FAILS and solution PASSES, both with pytest and with the
@@ -242,6 +245,123 @@ def check_examples(rep: Report, lesson_dir: Path, args, timeout: int = 15) -> No
             if traced["error"]:
                 rep.error(py, f"step-through tracer fails: {traced['error']}")
         rep.count("examples")
+
+
+def expected_output_lines(code: str) -> list[tuple[int, str]]:
+    """``(line_no, text)`` of the ``# ...`` comment lines right after a line with ``print(``.
+
+    Lessons write the expected output of a print as comments directly below it. A blank line
+    (or any non-``# `` line) ends the run, so an explanation separated by a blank line or
+    placed above the print is not treated as output. A commented-out ``# print(...)`` line
+    ends it too.
+    """
+    out: list[tuple[int, str]] = []
+    lines = code.splitlines()
+    for i, line in enumerate(lines):
+        if "print(" not in line or line.lstrip().startswith("#"):
+            continue
+        j = i + 1
+        while j < len(lines) and lines[j].startswith("# ") and "print(" not in lines[j]:
+            out.append((j + 1, lines[j][2:].rstrip()))
+            j += 1
+    return out
+
+
+def missing_output_line(expected: list[tuple[int, str]], output: str) -> tuple[int, str] | None:
+    """First expected line not found, in order, in ``output`` (trailing whitespace ignored).
+
+    ``...`` in an expected line matches any text, for values that change per run such as
+    ``<generator object f at 0x...>`` or ``File "...", line 8``.
+    """
+    real = [ln.rstrip() for ln in output.splitlines()]
+    pos = 0
+    for line_no, text in expected:
+        pat = re.compile(".*".join(map(re.escape, text.split("..."))))
+        pos = next((i + 1 for i in range(pos, len(real)) if pat.fullmatch(real[i])), -1)
+        if pos < 0:
+            return line_no, text
+    return None
+
+
+def check_lesson_outputs(rep: Report, lesson_dir: Path, timeout: int = 15) -> None:
+    """Every ``# ...`` output comment under a print in a lesson python block must be real output.
+
+    Output is stdout followed by stderr, because lessons also show the final traceback line
+    (``# TypeError: ...``) the learner sees in the console.
+    """
+    runs: dict[str, tuple[int, str, str]] = {}  # EN and VI share code; run each block once
+    for lang in LANGS:
+        md = lesson_dir / f"lesson.{lang}.md"
+        if not md.exists():
+            continue
+        text = md.read_text("utf-8")
+        n = 0
+        for m in FENCE.finditer(text):
+            if m.group(1) not in ("python", "py"):
+                continue
+            n += 1
+            code = m.group(2)
+            expected = expected_output_lines(code)
+            if not expected:
+                continue
+            key = "\n".join(t for t in (code_tokens(code) or [code]))
+            if key not in runs:
+                try:
+                    runs[key] = run_python(code, cwd=lesson_dir, timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    runs[key] = (-1, "", f"timed out after {timeout}s")
+            rc, out, err = runs[key]
+            miss = missing_output_line(expected, out + "\n" + err)
+            if miss:
+                block_line = text.count("\n", 0, m.start(2)) + 1
+                md_line = block_line + miss[0] - 1
+                detail = f"; exit {rc}: {err.strip()[-300:]}" if rc != 0 else ""
+                rep.error(
+                    f"{_rel(md)}:{md_line}",
+                    f"python block #{n}: output comment {miss[1]!r} is not in the block's real output "
+                    f"(in order){detail}\n--- real stdout ---\n{out.rstrip()[-800:]}",
+                )
+            rep.count("lesson output blocks")
+
+
+def _overlap_lines(text: str) -> list[str]:
+    """Stripped code lines, without blanks, comments, imports and docstring delimiters."""
+    out = []
+    for raw in text.splitlines():
+        s = raw.strip()
+        if not s or s.startswith("#") or s.startswith(("import ", "from ", '"""', "'''")):
+            continue
+        out.append(s)
+    return out
+
+
+def copied_runs(solution: str, lesson_md: str, min_run: int = 5) -> list[tuple[int, list[str]]]:
+    """Runs of >= ``min_run`` consecutive solution lines that appear verbatim in lesson code."""
+    lesson_set: set[str] = set()
+    for lang, code in FENCE.findall(lesson_md):
+        if lang in ("python", "py"):
+            lesson_set.update(_overlap_lines(code))
+    lines = _overlap_lines(solution)
+    runs, start = [], None
+    for i, line in enumerate([*lines, None]):
+        if line is not None and line in lesson_set:
+            start = i if start is None else start
+            continue
+        if start is not None and i - start >= min_run:
+            runs.append((start, lines[start:i]))
+        start = None
+    return runs
+
+
+def check_solution_overlap(rep: Report, lesson_dir: Path, min_run: int = 5) -> None:
+    """Warn when an exercise solution copies a long run of lines straight from the lesson."""
+    md = lesson_dir / "lesson.en.md"
+    if not md.exists():
+        return
+    lesson_md = md.read_text("utf-8")
+    for sol in sorted(lesson_dir.glob("exercises/*/solution.py")):
+        for _, run in copied_runs(sol.read_text("utf-8"), lesson_md, min_run):
+            rep.warn(sol, f"{len(run)} consecutive lines copied from lesson code: {run[0]!r} .. {run[-1]!r}")
 
 
 def check_exercise(rep: Report, ex_dir: Path, validators, ids: set, topics: set, args) -> None:
@@ -547,6 +667,8 @@ def main() -> int:
             check_md_parity(rep, lesson_dir / "lesson.en.md", lesson_dir / "lesson.vi.md", args.allow_missing_vi)
             if not skip_code:
                 check_examples(rep, lesson_dir, args, timeout=code_timeout)
+                check_lesson_outputs(rep, lesson_dir, timeout=code_timeout)
+            check_solution_overlap(rep, lesson_dir)
             ex_root = lesson_dir / "exercises"
             ex_dirs = sorted(p for p in ex_root.iterdir() if p.is_dir()) if ex_root.exists() else []
             if not ex_dirs:
