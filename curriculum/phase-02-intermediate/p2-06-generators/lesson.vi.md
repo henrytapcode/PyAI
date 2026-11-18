@@ -51,6 +51,7 @@ while True:
     except StopIteration:
         break
     print(color)
+
 # cả hai đều in: red, rồi green
 ```
 

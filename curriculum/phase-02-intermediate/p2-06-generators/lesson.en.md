@@ -51,6 +51,7 @@ while True:
     except StopIteration:
         break
     print(color)
+
 # both print: red, then green
 ```
 

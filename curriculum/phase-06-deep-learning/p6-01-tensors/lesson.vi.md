@@ -192,7 +192,9 @@ for _ in range(2):
     loss.backward()
     print("w.grad =", round(w.grad.item(), 3))
 # w.grad = -36.0
-# w.grad = -72.0  (sai: bị cộng dồn; sửa: gọi w.grad.zero_() sau mỗi lần cập nhật)
+# w.grad = -72.0
+
+# Sai: bị cộng dồn; sửa: gọi w.grad.zero_() sau mỗi lần cập nhật
 ```
 
 **2. Cập nhật `w` tại chỗ bên ngoài `torch.no_grad()`**

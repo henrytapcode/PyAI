@@ -225,8 +225,10 @@ y_train, y_test = y[idx[:8]], y[idx[8:]]
 c6 = np.polyfit(x_train, y_train, 6)
 print("train MSE:", round(float(np.mean((np.polyval(c6, x_train) - y_train) ** 2)), 3))
 print("test MSE:", round(float(np.mean((np.polyval(c6, x_test) - y_test) ** 2)), 3))
-# train MSE: 0.001  (misleading if reported alone)
-# test MSE: 0.79    (fix: always evaluate on held-out test data)
+# train MSE: 0.001
+# test MSE: 0.79
+
+# Train MSE alone is misleading. Fix: always evaluate on held-out test data
 ```
 
 **2. Data leakage: scaling before splitting**

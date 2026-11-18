@@ -192,7 +192,9 @@ for _ in range(2):
     loss.backward()
     print("w.grad =", round(w.grad.item(), 3))
 # w.grad = -36.0
-# w.grad = -72.0  (wrong: accumulated; fix: call w.grad.zero_() after each update)
+# w.grad = -72.0
+
+# Wrong: accumulated; fix: call w.grad.zero_() after each update
 ```
 
 **2. Updating `w` in place outside `torch.no_grad()`**

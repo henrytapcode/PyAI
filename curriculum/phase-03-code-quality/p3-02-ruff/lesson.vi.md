@@ -210,6 +210,7 @@ def to_int(text):
 
 print(to_int("12"))    # 12
 print(to_int("abc"))   # -1
+
 # to_int(None) giờ ném ra TypeError, nên lỗi lộ ra thay vì bị giấu
 ```
 

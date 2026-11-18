@@ -254,6 +254,7 @@ import pandas as pd
 
 df = pd.DataFrame({"Model ": ["gpt-4o", "claude"], "score": [0.9, 0.88]})
 print(list(df.columns))     # ['Model ', 'score']
+
 # Sai: df["model"] -> KeyError: 'model'
 print(list(df["Model "]))   # ['gpt-4o', 'claude']
 ```

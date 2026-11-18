@@ -225,8 +225,10 @@ y_train, y_test = y[idx[:8]], y[idx[8:]]
 c6 = np.polyfit(x_train, y_train, 6)
 print("train MSE:", round(float(np.mean((np.polyval(c6, x_train) - y_train) ** 2)), 3))
 print("test MSE:", round(float(np.mean((np.polyval(c6, x_test) - y_test) ** 2)), 3))
-# train MSE: 0.001  (gây hiểu nhầm nếu chỉ nhìn mỗi số này)
-# test MSE: 0.79    (cách sửa: luôn đánh giá trên tập test tách riêng)
+# train MSE: 0.001
+# test MSE: 0.79
+
+# Chỉ nhìn train MSE sẽ bị hiểu nhầm. Cách sửa: luôn đánh giá trên tập test tách riêng
 ```
 
 **2. Data leakage (rò rỉ dữ liệu): chuẩn hóa trước khi chia train/test**

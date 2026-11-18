@@ -311,6 +311,7 @@ y_pred = np.array([0, 0, 1, 0, 0, 1])
 
 # Sai: đảo đối số làm FP (1) và FN (2) đổi chỗ cho nhau
 print("swapped:", confusion_matrix(y_pred, y_true).tolist())  # swapped: [[2, 2], [1, 1]]
+
 # Sửa: y_true trước, y_pred sau
 print("correct:", confusion_matrix(y_true, y_pred).tolist())  # correct: [[2, 1], [2, 1]]
 ```

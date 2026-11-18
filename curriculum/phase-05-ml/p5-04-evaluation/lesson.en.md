@@ -311,6 +311,7 @@ y_pred = np.array([0, 0, 1, 0, 0, 1])
 
 # Wrong: swapped arguments transpose FP (1) and FN (2)
 print("swapped:", confusion_matrix(y_pred, y_true).tolist())  # swapped: [[2, 2], [1, 1]]
+
 # Fix: y_true first, y_pred second
 print("correct:", confusion_matrix(y_true, y_pred).tolist())  # correct: [[2, 1], [2, 1]]
 ```

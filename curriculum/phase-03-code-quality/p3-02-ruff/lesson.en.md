@@ -210,6 +210,7 @@ def to_int(text):
 
 print(to_int("12"))    # 12
 print(to_int("abc"))   # -1
+
 # to_int(None) now raises a TypeError, so the bug shows up instead of hiding
 ```
 

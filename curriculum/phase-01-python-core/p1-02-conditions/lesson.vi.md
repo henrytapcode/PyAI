@@ -190,6 +190,7 @@ has_id = True
 if age >= 18:
     if has_id:
         print("Enter")
+
 # (không in gì: age là 16)
 ```
 

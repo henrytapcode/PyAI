@@ -631,6 +631,7 @@ def eval_test(rewrite: bool) -> int:
 
 print("honest test pass:", eval_test(rewrite=False), "of", len(test_set))
 # honest test pass: 1 of 2
+
 # Wrong: peeking at t3 and patching only "notebooks" -> "laptops"
 print("peeked test pass:", eval_test(rewrite=True), "of", len(test_set))
 # peeked test pass: 2 of 2
