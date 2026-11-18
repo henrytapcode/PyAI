@@ -125,103 +125,141 @@ def build_lesson(lesson_dir: Path) -> dict:
     }
 
 
-def main() -> int:
-    if OUT.exists():
-        shutil.rmtree(OUT)
-    syllabus = load_yaml(CURRICULUM / "syllabus.yaml")
-    topics = load_yaml(CURRICULUM / "topics.yaml")["topics"]
+def lesson_groups(syllabus: dict) -> list[dict]:
+    """Return syllabus phases followed by a synthetic 'cap' group for capstones."""
+    return [
+        *syllabus["phases"],
+        {"id": "cap", "dir": "capstones", "lessons": syllabus.get("capstones") or []},
+    ]
+
+
+def build_lesson_summary(
+    item: dict, order: int, group_dir: Path, out: Path, review: dict
+) -> tuple[dict, bool]:
+    """Build one lesson/capstone summary and write its lesson JSON when ready."""
+    lesson_dir = group_dir / item["id"]
+    ready = (lesson_dir / "meta.yaml").exists()
+    summary = {
+        "id": item["id"],
+        "order": order,
+        "kind": item.get("kind", "lesson"),
+        "title": item["title"],
+        "outcomes": item.get("outcomes"),
+        "prerequisites": item.get("prerequisites", []),
+        "ready": ready,
+    }
+    if item.get("runner"):
+        summary["runner"] = item["runner"]
+    if not ready:
+        return summary, False
+    try:
+        lesson = build_lesson(lesson_dir)
+    except Exception as exc:  # noqa: BLE001 - half-written lesson: skip, don't break the app
+        print(f"WARN skipping {item['id']}: {exc}", file=sys.stderr)
+        summary["ready"] = False
+        return summary, False
+    if item.get("runner"):
+        lesson["meta"]["runner"] = item["runner"]
+    write_json(out / "lessons" / f"{item['id']}.json", lesson)
+    meta = lesson["meta"]
+    summary.update(
+        title=meta["title"],
+        summary=meta["summary"],
+        outcomes=meta["outcomes"],
+        prerequisites=meta.get("prerequisites", []),
+        duration=meta["duration_min"],
+        tags=meta["tags"],
+        exerciseIds=[e["id"] for e in lesson["exercises"]],
+        questionCount=len(lesson["quiz"]["questions"]),
+    )
+    for card in lesson["quiz"]["flashcards"]:
+        review["flashcards"].append({**card, "lessonId": item["id"]})
+    for q in lesson["quiz"]["questions"]:
+        review["questions"].append({**q, "lessonId": item["id"]})
+    return summary, True
+
+
+def main(curriculum: Path = CURRICULUM, out: Path = OUT, web: Path | None = WEB) -> int:
+    if out.exists():
+        shutil.rmtree(out)
+    syllabus = load_yaml(curriculum / "syllabus.yaml")
+    topics_path = curriculum / "topics.yaml"
+    topics = load_yaml(topics_path)["topics"] if topics_path.exists() else []
 
     review = {"flashcards": [], "questions": []}
     phases = []
+    capstones = []
     lesson_count = 0
-    for phase in syllabus["phases"]:
-        phase_dir = CURRICULUM / phase["dir"]
-        lessons = []
-        for order, item in enumerate(phase["lessons"], 1):
-            lesson_dir = phase_dir / item["id"]
-            ready = (lesson_dir / "meta.yaml").exists()
-            summary = {
-                "id": item["id"],
-                "order": order,
-                "kind": item.get("kind", "lesson"),
-                "title": item["title"],
-                "outcomes": item.get("outcomes"),
-                "prerequisites": item.get("prerequisites", []),
-                "ready": ready,
-            }
-            if item.get("runner"):
-                summary["runner"] = item["runner"]
-            if ready:
-                try:
-                    lesson = build_lesson(lesson_dir)
-                except Exception as exc:  # noqa: BLE001 - half-written lesson: skip, don't break the app
-                    print(f"WARN skipping {item['id']}: {exc}", file=sys.stderr)
-                    summary["ready"] = False
-                    lessons.append(summary)
-                    continue
-                if item.get("runner"):
-                    lesson["meta"]["runner"] = item["runner"]
-                write_json(OUT / "lessons" / f"{item['id']}.json", lesson)
+    for group in lesson_groups(syllabus):
+        group_dir = curriculum / group["dir"]
+        summaries = []
+        for order, item in enumerate(group["lessons"], 1):
+            summary, built = build_lesson_summary(item, order, group_dir, out, review)
+            if built:
                 lesson_count += 1
-                meta = lesson["meta"]
-                summary.update(
-                    title=meta["title"],
-                    summary=meta["summary"],
-                    outcomes=meta["outcomes"],
-                    prerequisites=meta.get("prerequisites", []),
-                    duration=meta["duration_min"],
-                    tags=meta["tags"],
-                    exerciseIds=[e["id"] for e in lesson["exercises"]],
-                    questionCount=len(lesson["quiz"]["questions"]),
-                )
-                for card in lesson["quiz"]["flashcards"]:
-                    review["flashcards"].append({**card, "lessonId": item["id"]})
-                for q in lesson["quiz"]["questions"]:
-                    review["questions"].append({**q, "lessonId": item["id"]})
-            lessons.append(summary)
-        phase_meta = {k: v for k, v in phase.items() if k not in ("lessons", "dir", "runner")}
-        phases.append(phase_meta | {"lessons": lessons})
+            summaries.append(summary)
+        if group["id"] == "cap":
+            capstones = summaries
+        else:
+            phase_meta = {k: v for k, v in group.items() if k not in ("lessons", "dir", "runner")}
+            phases.append(phase_meta | {"lessons": summaries})
 
     exams = []
-    exam_files = sorted(CURRICULUM.glob("*/phase-test.yaml")) + sorted((CURRICULUM / "placement").glob("*.yaml")) \
-        + sorted((CURRICULUM / "exams").glob("*.yaml"))
+    exam_files = (
+        sorted(curriculum.glob("*/phase-test.yaml"))
+        + sorted((curriculum / "placement").glob("*.yaml"))
+        + sorted((curriculum / "exams").glob("*.yaml"))
+    )
     for path in exam_files:
         exam = load_yaml(path)
         attach_question_runners(exam.get("questions", []))
-        write_json(OUT / "exams" / f"{exam['id']}.json", exam)
+        write_json(out / "exams" / f"{exam['id']}.json", exam)
         exams.append({
-            "id": exam["id"], "kind": exam["kind"], "phase": exam.get("phase"), "title": exam["title"],
-            "description": exam.get("description"), "duration_min": exam["duration_min"],
-            "pass_score": exam["pass_score"], "questionCount": len(exam["questions"]),
+            "id": exam["id"], "kind": exam["kind"], "phase": exam.get("phase"),
+            "title": exam["title"], "description": exam.get("description"),
+            "duration_min": exam["duration_min"], "pass_score": exam["pass_score"],
+            "questionCount": len(exam["questions"]),
             "skips_phases": exam.get("skips_phases", []),
         })
 
-    write_json(OUT / "catalog.json", {
+    write_json(out / "catalog.json", {
         "phases": phases,
         "topics": topics,
         "exams": exams,
-        "capstones": syllabus.get("capstones", []),
+        "capstones": capstones,
         "furtherReading": syllabus.get("further_reading"),
     })
-    write_json(OUT / "review.json", review)
-    glossary = load_yaml(CURRICULUM / "glossary.yaml") if (CURRICULUM / "glossary.yaml").exists() else {"terms": []}
-    write_json(OUT / "glossary.json", glossary)
-    interview_path = CURRICULUM / "interview" / "questions.yaml"
-    write_json(OUT / "interview.json", load_yaml(interview_path) if interview_path.exists() else {"questions": []})
-    portfolio_path = CURRICULUM / "portfolio.yaml"
-    write_json(OUT / "portfolio.json", load_yaml(portfolio_path) if portfolio_path.exists() else {"projects": []})
+    write_json(out / "review.json", review)
+    glossary_path = curriculum / "glossary.yaml"
+    glossary = load_yaml(glossary_path) if glossary_path.exists() else {"terms": []}
+    write_json(out / "glossary.json", glossary)
+    interview_path = curriculum / "interview" / "questions.yaml"
+    write_json(
+        out / "interview.json",
+        load_yaml(interview_path) if interview_path.exists() else {"questions": []},
+    )
+    portfolio_path = curriculum / "portfolio.yaml"
+    write_json(
+        out / "portfolio.json",
+        load_yaml(portfolio_path) if portfolio_path.exists() else {"projects": []},
+    )
     # Keep lessons/ and exams/ importable even when empty.
-    (OUT / "lessons").mkdir(parents=True, exist_ok=True)
-    (OUT / "exams").mkdir(parents=True, exist_ok=True)
+    (out / "lessons").mkdir(parents=True, exist_ok=True)
+    (out / "exams").mkdir(parents=True, exist_ok=True)
 
-    runner_dir = WEB / "public" / "pyrunner"
-    runner_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("runner.py", "tracer.py"):
-        shutil.copyfile(ROOT / "tools" / "pyrunner" / name, runner_dir / name)
-    shutil.copyfile(ROOT / "packages" / "pyai_llm" / "pyai_llm.py", runner_dir / "llm.py")
+    if web is not None:
+        runner_dir = web / "public" / "pyrunner"
+        runner_dir.mkdir(parents=True, exist_ok=True)
+        for name in ("runner.py", "tracer.py"):
+            shutil.copyfile(ROOT / "tools" / "pyrunner" / name, runner_dir / name)
+        shutil.copyfile(ROOT / "packages" / "pyai_llm" / "pyai_llm.py", runner_dir / "llm.py")
 
-    print(f"Built {lesson_count} lessons, {len(exams)} exams, "
-          f"{len(review['flashcards'])} flashcards, {len(review['questions'])} questions -> {OUT.relative_to(ROOT)}")
+    out_label = out.relative_to(ROOT) if out.is_relative_to(ROOT) else out
+    print(
+        f"Built {lesson_count} lessons, {len(exams)} exams, "
+        f"{len(review['flashcards'])} flashcards, {len(review['questions'])} questions "
+        f"-> {out_label}"
+    )
     return 0
 
 

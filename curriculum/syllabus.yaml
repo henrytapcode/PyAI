@@ -461,8 +461,10 @@ phases:
 capstones:
   - id: cap-01-rag-chatbot
     title: { en: "Capstone: RAG chatbot with evals", vi: "Capstone: RAG chatbot có eval" }
+    prerequisites: [p7-08-evals, p7-09-mini-project-rag, p8-05-mini-project]
   - id: cap-02-tool-agent
     title: { en: "Capstone: tool-using agent", vi: "Capstone: agent dùng tool" }
+    prerequisites: [p7-07-agents, p7-10-mini-project-agent, p8-04-monitoring]
 
 further_reading:
   en: ["Advanced asyncio", "Metaclasses", "C extensions", "Proof-based math", "Kubernetes", "Deep profiling"]

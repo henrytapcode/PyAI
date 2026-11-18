@@ -56,6 +56,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools" / "pyrunner"))
 from runner import run_tests  # noqa: E402
+from tools.build_content import lesson_groups  # noqa: E402
 from tools.localrunner.models import MODELS, model_path  # noqa: E402
 from tracer import trace  # noqa: E402
 
@@ -364,7 +365,20 @@ def check_solution_overlap(rep: Report, lesson_dir: Path, min_run: int = 5) -> N
             rep.warn(sol, f"{len(run)} consecutive lines copied from lesson code: {run[0]!r} .. {run[-1]!r}")
 
 
-def check_exercise(rep: Report, ex_dir: Path, validators, ids: set, topics: set, args) -> None:
+def exercise_timeout(meta: dict, lesson_timeout: int = 15) -> int:
+    """Return 60s timeout when an exercise or its lesson uses the local runner."""
+    return 60 if meta.get("runner") == "local" else lesson_timeout
+
+
+def check_exercise(
+    rep: Report,
+    ex_dir: Path,
+    validators,
+    ids: set,
+    topics: set,
+    args,
+    timeout: int = 15,
+) -> None:
     meta_path = ex_dir / "exercise.yaml"
     if not meta_path.exists():
         rep.error(ex_dir, "missing exercise.yaml")
@@ -373,6 +387,7 @@ def check_exercise(rep: Report, ex_dir: Path, validators, ids: set, topics: set,
     if check_schema(rep, validators["exercise"], meta, meta_path):
         _unique(rep, ids, meta["id"], meta_path)
         _check_tags(rep, meta_path, meta["tags"], topics)
+    ex_timeout = exercise_timeout(meta, timeout)
     check_i18n_obj(rep, meta_path, meta, "", args.allow_missing_vi)
     check_md_parity(rep, ex_dir / "prompt.en.md", ex_dir / "prompt.vi.md", args.allow_missing_vi)
     files = {n: ex_dir / f"{n}.py" for n in ("starter", "solution", "test_exercise")}
@@ -410,7 +425,8 @@ def check_exercise(rep: Report, ex_dir: Path, validators, ids: set, topics: set,
             proc = subprocess.run(
                 [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "--rootdir", str(CURRICULUM),
                  str(files["test_exercise"])],
-                capture_output=True, text=True, encoding="utf-8", env=env, cwd=ROOT, timeout=120,
+                capture_output=True, text=True, encoding="utf-8", env=env, cwd=ROOT,
+                timeout=max(120, ex_timeout),
             )
             passed = proc.returncode == 0
             if passed != should_pass:
@@ -453,21 +469,23 @@ def lessons_needing_models(
     return needed
 
 
-def check_missing_models(rep: Report, syllabus: dict, scope: Path) -> set[Path]:
+def check_missing_models(
+    rep: Report, syllabus: dict, scope: Path, curriculum: Path = CURRICULUM
+) -> set[Path]:
     """Check cached models needed by ready local-runner lessons in scope.
 
     Reports one error per missing model and returns lesson directories whose code
     execution should be skipped to avoid cascading errors.
     """
     local_lesson_dirs: list[Path] = []
-    for phase in syllabus["phases"]:
-        phase_dir = CURRICULUM / phase["dir"]
-        if not phase_dir.exists():
+    for group in lesson_groups(syllabus):
+        group_dir = curriculum / group["dir"]
+        if not group_dir.exists():
             continue
-        for les in phase["lessons"]:
+        for les in group["lessons"]:
             if les.get("runner") != "local":
                 continue
-            lesson_dir = phase_dir / les["id"]
+            lesson_dir = group_dir / les["id"]
             if not (lesson_dir.is_dir() and (lesson_dir / "meta.yaml").exists()):
                 continue
             if scope in (lesson_dir, *lesson_dir.parents) or lesson_dir in scope.parents:
@@ -609,7 +627,9 @@ def main() -> int:
     syllabus_path = CURRICULUM / "syllabus.yaml"
     syllabus = load_yaml(syllabus_path)
     topics = set(load_yaml(CURRICULUM / "topics.yaml")["topics"])
-    lesson_index = {les["id"]: (ph, les) for ph in syllabus["phases"] for les in ph["lessons"]}
+    lesson_index = {
+        les["id"]: (grp, les) for grp in lesson_groups(syllabus) for les in grp["lessons"]
+    }
     check_i18n_obj(rep, syllabus_path, syllabus, "", args.allow_missing_vi)
     for ph in syllabus["phases"]:
         if "runner" in ph:
@@ -637,11 +657,13 @@ def main() -> int:
     ids: set[str] = set()
     skip_code_lessons = check_missing_models(rep, syllabus, scope)
 
-    for phase in syllabus["phases"]:
-        phase_dir = CURRICULUM / phase["dir"]
-        if not phase_dir.exists():
+    for group in lesson_groups(syllabus):
+        group_dir = CURRICULUM / group["dir"]
+        if not group_dir.exists():
             continue
-        for lesson_dir in sorted(p for p in phase_dir.iterdir() if p.is_dir() and (p / "meta.yaml").exists()):
+        for lesson_dir in sorted(
+            p for p in group_dir.iterdir() if p.is_dir() and (p / "meta.yaml").exists()
+        ):
             in_scope = scope in (lesson_dir, *lesson_dir.parents) or lesson_dir in scope.parents
             meta_path = lesson_dir / "meta.yaml"
             meta = load_yaml(meta_path)
@@ -675,7 +697,9 @@ def main() -> int:
                 rep.error(lesson_dir, "lesson has no exercises")
             if not skip_code:
                 for ex_dir in ex_dirs:
-                    check_exercise(rep, ex_dir, validators, ids, topics, args)
+                    check_exercise(
+                        rep, ex_dir, validators, ids, topics, args, timeout=code_timeout
+                    )
             quiz_path = lesson_dir / "quiz.yaml"
             if not quiz_path.exists():
                 rep.error(lesson_dir, "missing quiz.yaml")
