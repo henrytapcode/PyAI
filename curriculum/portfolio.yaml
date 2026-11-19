@@ -133,17 +133,27 @@ projects:
         - "Xuất các metric độ trễ và token sang OpenTelemetry"
 
   - id: cap-rag-chatbot
+    lesson: cap-01-rag-chatbot
     phase: p8
     difficulty: 5
-    tags: [rag, production, evaluation]
+    tags: [rag, evaluation, production, apis, testing]
     title: { en: "Capstone: RAG chatbot with evals", vi: "Capstone: RAG chatbot có eval" }
     pitch:
-      en: "Your RAG system as a real service: a FastAPI endpoint, caching, cost and latency tracking, and an evaluation suite that runs on every change."
-      vi: "Đưa hệ thống RAG thành dịch vụ thật: endpoint FastAPI, cache, theo dõi chi phí và độ trễ, và bộ eval chạy mỗi lần thay đổi."
+      en: "Upgrade single-turn FAQ RAG into a stateful multi-turn chatbot: rewrite follow-up queries, keep history inside a token budget, enforce [n] citations and refusals, guard changes with a golden dialog eval regression gate, and serve isolated sessions over FastAPI with TTL expiry, LRU eviction, and 404 handling—tested with TestClient and FakeClock."
+      vi: "Nâng cấp RAG hỏi-đáp một lượt thành chatbot nhiều lượt có trạng thái: viết lại câu hỏi nối tiếp, giữ lịch sử trong ngân sách token, bắt buộc trích dẫn [n] và từ chối an toàn, chặn hồi quy bằng bộ eval golden dialog so baseline, rồi phục vụ các phiên tách biệt qua FastAPI với hết hạn TTL, loại bỏ LRU và mã 404—kiểm chứng bằng TestClient và FakeClock."
     cv_bullet:
-      en: "Shipped a RAG chatbot as a FastAPI service with caching, cost/latency monitoring and an automated evaluation suite guarding answer quality."
-      vi: "Triển khai RAG chatbot thành dịch vụ FastAPI có cache, theo dõi chi phí/độ trễ và bộ eval tự động bảo vệ chất lượng câu trả lời."
-    skills: ["FastAPI", "Docker", "caching", "monitoring", "evals"]
+      en: "Built a multi-turn FastAPI RAG chatbot with deterministic follow-up query rewriting, token-budgeted history keeping the system prompt pinned, [n] citation validation and unanswerable refusals, a golden dialog regression gate (fixed/broken vs. baseline), and isolated TTL/LRU session management verified with TestClient and FakeClock."
+      vi: "Xây dựng chatbot RAG nhiều lượt bằng FastAPI với viết lại câu hỏi nối tiếp tất định, lịch sử giới hạn ngân sách token giữ cố định system prompt, kiểm tra trích dẫn [n] và từ chối ngoài phạm vi, cổng chống hồi quy bằng golden dialog (fixed/broken so baseline), và quản lý phiên tách biệt theo TTL/LRU được kiểm thử bằng TestClient cùng FakeClock."
+    skills: ["multi-turn RAG", "query rewriting", "token budgeting", "dialog evals", "FastAPI sessions", "TestClient & FakeClock"]
+    stretch:
+      en:
+        - "Swap the deterministic rewriter for an LLM contextualizer using an API key loaded from .env to resolve pronoun follow-ups"
+        - "Persist sessions in Redis hashes with EXPIRE TTL so multiple uvicorn workers share session state"
+        - "Stream tokens over Server-Sent Events (SSE) from POST /sessions/{id}/messages"
+      vi:
+        - "Thay bộ viết lại tất định bằng LLM viết lại ngữ cảnh đọc API key từ .env để xử lý các câu hỏi nối tiếp dùng đại từ"
+        - "Lưu phiên vào Redis hash kèm lệnh EXPIRE để nhiều worker uvicorn dùng chung trạng thái phiên"
+        - "Stream từng token qua Server-Sent Events (SSE) từ endpoint POST /sessions/{id}/messages"
 
   - id: cap-tool-agent
     phase: p8

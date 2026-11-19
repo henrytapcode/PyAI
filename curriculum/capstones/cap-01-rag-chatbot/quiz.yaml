@@ -1,0 +1,434 @@
+questions:
+  - id: cap-01-q01
+    type: mcq
+    tags: [llm, rag]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Why must the `system` prompt stay pinned outside `self.history` when trimming to `max_history_tokens`?"
+      options:
+        - "Because `count_tokens` raises `ValueError` on `system` role strings"
+        - "Because `pop(0)` always removes the newest element from the right end"
+        - "So dropping old turns never erases the grounding instructions"
+        - "So `FakeLLM` automatically translates `system` text into citations"
+      explanation: "Putting `system` at index `0` inside the trimmed list causes `pop(0)` to delete your grounding instructions once the conversation exceeds the token budget."
+    vi:
+      prompt: "Vì sao phải giữ `system` prompt cố định bên ngoài `self.history` khi cắt lịch sử theo `max_history_tokens`?"
+      options:
+        - "Vì `count_tokens` báo `ValueError` khi gặp chuỗi có vai trò `system`"
+        - "Vì `pop(0)` luôn xóa phần tử mới nhất nằm ở cuối danh sách"
+        - "Để việc bỏ lượt cũ không xóa mất chỉ dẫn bám nguồn của bot"
+        - "Để `FakeLLM` tự động chuyển nội dung `system` thành trích dẫn"
+      explanation: "Nếu đặt `system` ở vị trí `0` trong cùng danh sách bị cắt, lệnh `pop(0)` sẽ xóa mất chỉ dẫn bám nguồn ngay khi hội thoại vượt ngân sách token."
+
+  - id: cap-01-q02
+    type: output
+    tags: [llm, lists]
+    difficulty: 2
+    code: |
+      from pyai_llm import count_tokens
+
+      sys_msg = {"role": "system", "content": "Answer from FAQ only."}
+      turns = [
+          {"role": "user", "content": "How long do refunds take?"},
+          {"role": "assistant", "content": "Refunds take 30 days."},
+          {"role": "user", "content": "What about express?"},
+      ]
+      rest = list(turns)
+      while rest and count_tokens(sys_msg["content"]) + sum(count_tokens(m["content"]) for m in rest) > 16:
+          rest.pop(0)
+      kept = [sys_msg, *rest]
+      print([m["role"] for m in kept], sum(count_tokens(m["content"]) for m in kept))
+    answer: "['system', 'assistant', 'user'] 14"
+    en:
+      prompt: "What does this pinned-system history trimming snippet print?"
+      explanation: "`sys_msg` (`4` tokens) stays pinned; dropping the oldest user turn (`5` tokens) brings `4 + 5 + 5 = 14 <= 16`, leaving `['system', 'assistant', 'user']` and `14`."
+    vi:
+      prompt: "Đoạn code cắt lịch sử có ghim `system` này in ra gì?"
+      explanation: "`sys_msg` (`4` token) được giữ cố định; bỏ lượt user cũ nhất (`5` token) đưa tổng về `4 + 5 + 5 = 14 <= 16`, còn lại `['system', 'assistant', 'user']` và `14`."
+
+  - id: cap-01-q03
+    type: fill
+    tags: [llm, rag]
+    difficulty: 2
+    code: |
+      from pyai_llm import count_tokens
+
+
+      def trim_turns(system_prompt: str, history: list[dict], budget: int) -> list[dict]:
+          kept = list(history)
+          sys_tokens = count_tokens(system_prompt)
+          while len(kept) > ___ and sys_tokens + sum(count_tokens(m["content"]) for m in kept) > budget:
+              kept.pop(___)
+          return kept
+
+
+      turns = [
+          {"role": "user", "content": "How long do refunds take?"},
+          {"role": "assistant", "content": "Refunds take 30 days."},
+          {"role": "user", "content": "What about opened software?"},
+          {"role": "assistant", "content": "Opened software is not eligible."},
+      ]
+      trimmed = trim_turns("Answer from FAQ.", turns, budget=18)
+      print(len(trimmed), trimmed[0]["role"])
+    answer: ["2", "0"]
+    en:
+      prompt: "Fill in the blanks to keep at least the latest user/assistant turn pair while dropping the oldest message from the front."
+      explanation: "`len(kept) > 2` preserves the newest pair of turns even under a tight budget, and `kept.pop(0)` removes the oldest message from the front."
+    vi:
+      prompt: "Điền vào chỗ trống để luôn giữ lại ít nhất cặp lượt hỏi/đáp mới nhất và xóa tin nhắn cũ nhất ở đầu danh sách."
+      explanation: "`len(kept) > 2` bảo toàn cặp lượt mới nhất dù ngân sách hẹp, còn `kept.pop(0)` loại bỏ tin nhắn cũ nhất ở đầu danh sách."
+
+  - id: cap-01-q04
+    type: mcq
+    tags: [rag, production]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "In `ChatBot.ask`, what happens when `retrieve` returns `[]` because no chunk clears `min_score`?"
+      options:
+        - "Call `client.chat` once to confirm refusal and skip updating history"
+        - "Skip `client.chat`, return `REFUSAL` with `[]`, and record both turns"
+        - "Return `REFUSAL` with the top raw chunk source and empty history"
+        - "Raise `ValueError` so the HTTP endpoint converts it into status `404`"
+      explanation: "When retrieval finds no chunk >= `min_score`, refusing before calling `client.chat` saves a wasted LLM call, sets `sources = []`, and still appends the user/assistant pair to `self.history`."
+    vi:
+      prompt: "Trong `ChatBot.ask`, điều gì xảy ra khi `retrieve` trả về `[]` vì không có chunk nào đạt `min_score`?"
+      options:
+        - "Gọi `client.chat` một lần để xác nhận từ chối và bỏ qua lưu lịch sử"
+        - "Không gọi `client.chat`, trả `REFUSAL` kèm `[]` và vẫn lưu cặp lượt"
+        - "Trả `REFUSAL` kèm nguồn của chunk đầu bảng và để trống lịch sử"
+        - "Raise `ValueError` để endpoint HTTP chuyển thành mã lỗi `404`"
+      explanation: "Khi không có chunk nào đạt `min_score`, từ chối ngay trước khi gọi `client.chat` giúp tránh gọi LLM thừa, đặt `sources = []` và vẫn ghi nhận cặp lượt vào `self.history`."
+
+  - id: cap-01-q05
+    type: mcq
+    tags: [rag, llm]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why does `ChatBot` rewrite `\"What about express?\"` with the previous user question before calling `retrieve` and `chat`?"
+      options:
+        - "Raw follow-ups lack topic words for retrieval and overlap checks"
+        - "Because `FakeLLM.embed` rejects every query under five words"
+        - "Because `client.chat` raises an error on strings ending with `?`"
+        - "To strip punctuation so `count_tokens` returns zero tokens"
+      explanation: "Short follow-ups omit nouns like `'delivery'` or `'shipping'`, so embedding search scores poorly or pulls the wrong document and `FakeLLM.chat` fails its 2-word overlap check."
+    vi:
+      prompt: "Vì sao `ChatBot` viết lại `\"What about express?\"` cùng câu hỏi người dùng trước đó trước khi gọi `retrieve` và `chat`?"
+      options:
+        - "Câu nối tiếp thô thiếu từ khóa chủ đề cho truy xuất và kiểm tra trùng"
+        - "Vì `FakeLLM.embed` từ chối mọi câu truy vấn có ít hơn năm từ tiếng Anh"
+        - "Vì `client.chat` sẽ báo lỗi ngay với chuỗi kết thúc bằng dấu chấm hỏi `?`"
+        - "Để xóa toàn bộ dấu câu giúp `count_tokens` đếm về giá trị không token"
+      explanation: "Câu nối tiếp ngắn thiếu danh từ chủ đề như `'delivery'` hay `'shipping'`, khiến tìm kiếm embedding chấm điểm thấp hoặc kéo nhầm tài liệu và `FakeLLM.chat` trượt ngưỡng trùng 2 từ."
+
+  - id: cap-01-q06
+    type: output
+    tags: [rag, strings]
+    difficulty: 2
+    code: |
+      def rewrite_query(question, history):
+          prev = next((m["content"] for m in reversed(history) if m["role"] == "user"), "")
+          if not prev:
+              return question
+          low = question.lower().strip()
+          if len(question.split()) <= 4 or low.startswith(("what about ", "and ", "how about ")):
+              return f"{prev} {question}"
+          return question
+
+
+      hist = [{"role": "user", "content": "How much is shipping?"}]
+      print(rewrite_query("And express?", hist), "|", rewrite_query("Does hardware warranty cover water damage?", hist))
+    answer: "How much is shipping? And express? | Does hardware warranty cover water damage?"
+    en:
+      prompt: "What does this deterministic follow-up rewriter print for a short follow-up and a standalone question?"
+      explanation: "`'And express?'` has 2 words and starts with `'and '`, so it prepends `'How much is shipping?'`; the 6-word warranty question is not a follow-up and stays unchanged."
+    vi:
+      prompt: "Hàm viết lại câu nối tiếp tất định này in ra gì cho một câu nối tiếp ngắn và một câu hỏi độc lập?"
+      explanation: "`'And express?'` chỉ có 2 từ và bắt đầu bằng `'and '` nên được ghép `'How much is shipping?'` vào trước; câu hỏi bảo hành 6 từ không phải câu nối tiếp nên giữ nguyên."
+
+  - id: cap-01-q07
+    type: parsons
+    tags: [rag, functions]
+    difficulty: 2
+    lines:
+      - "def rewrite_query(question, prev_user):"
+      - "    low = question.lower().strip()"
+      - '    is_followup = low.startswith("what about ") or len(low.split()) <= 4'
+      - "    if prev_user and is_followup:"
+      - '        return f"{prev_user} {question}"'
+      - "    return question"
+      - 'print(rewrite_query("What about express?", "Delivery cost?"))'
+    en:
+      prompt: "Arrange these lines to define a follow-up rewriter and print the rewritten result for `\"What about express?\"`."
+      explanation: "Define `rewrite_query`, normalize `low` first so `is_followup` can inspect it, check `if prev_user and is_followup:` to prepend `prev_user`, fallback to `return question`, then call `print(...)`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để định nghĩa hàm viết lại câu nối tiếp và in kết quả cho `\"What about express?\"`."
+      explanation: "Định nghĩa `rewrite_query`, chuẩn hóa `low` trước để `is_followup` sử dụng, kiểm tra `if prev_user and is_followup:` để ghép `prev_user`, trả về `question` ở nhánh còn lại, rồi gọi `print(...)`."
+
+  - id: cap-01-q08
+    type: mcq
+    tags: [rag, debugging]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "What goes wrong over 3+ turns if `ChatBot.ask` appends `rewritten` instead of the raw `question` to `self.history`?"
+      options:
+        - "`FakeLLM.chat` raises `IndexError` when a turn has two question marks"
+        - "`retrieve` refuses to score any query that matches two FAQ pages"
+        - "`trim_history` counts only the first sentence of every user turn"
+        - "Later turns prepend stale concatenated queries and waste tokens"
+      explanation: "Storing `rewritten` in `self.history` causes each new follow-up to prepend all earlier rewritten questions, snowballing unrelated topic words into retrieval and filling the token budget."
+    vi:
+      prompt: "Lỗi gì xảy ra qua từ 3 lượt trở lên nếu `ChatBot.ask` lưu `rewritten` thay vì `question` gốc vào `self.history`?"
+      options:
+        - "`FakeLLM.chat` báo `IndexError` ngay khi một lượt có hai dấu chấm hỏi"
+        - "`retrieve` từ chối chấm điểm mọi truy vấn khớp với từ hai trang FAQ"
+        - "`trim_history` chỉ đếm mỗi câu đầu tiên của từng lượt người dùng hỏi"
+        - "Lượt sau ghép dây chuyền các câu cũ làm nhiễu truy xuất và tốn token"
+      explanation: "Nếu lưu `rewritten` vào `self.history`, mỗi câu nối tiếp mới sẽ nối thêm cả chuỗi câu đã ghép từ trước, làm loãng từ khóa truy xuất và nhanh chóng ngốn hết ngân sách token."
+
+  - id: cap-01-q09
+    type: mcq
+    tags: [evaluation, testing]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Why must `run_dialog_eval(make_bot, dialogs)` instantiate a fresh bot via `make_bot()` for each dialog?"
+      options:
+        - "Because `ChatBot.ask` locks its vector index after two turns"
+        - "So history and rewrites from one dialog never leak into another"
+        - "Because `make_bot()` deletes and rebuilds the entire source FAQ list"
+        - "So `FakeLLM` resets every embedding vector to zeros per turn"
+      explanation: "Each golden dialog simulates an independent conversation; reusing one `ChatBot` across dialogs would contaminate turn 1 of dialog 2 with history from dialog 1."
+    vi:
+      prompt: "Vì sao `run_dialog_eval(make_bot, dialogs)` phải gọi `make_bot()` tạo bot mới cho từng dialog?"
+      options:
+        - "Vì `ChatBot.ask` khóa cứng chỉ mục vector sau đúng hai lượt hỏi đáp"
+        - "Để lịch sử và câu viết lại của dialog trước không rò sang dialog sau"
+        - "Vì `make_bot()` tự động xóa và tạo lại toàn bộ danh sách tài liệu FAQ"
+        - "Để `FakeLLM` đặt lại toàn bộ vector embedding về không sau mỗi lượt"
+      explanation: "Mỗi golden dialog mô phỏng một cuộc trò chuyện độc lập; dùng chung một `ChatBot` sẽ làm lượt 1 của dialog sau bị nhiễu bởi lịch sử của dialog trước."
+
+  - id: cap-01-q10
+    type: mcq
+    tags: [evaluation, production]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "A candidate run scores `pass_rate = 0.75` (matching baseline `0.75`), with `fixed = [('d1', 2)]` and `broken = [('d2', 2)]`. Why must the regression gate fail?"
+      options:
+        - "Because `fixed` must be empty before any release can pass"
+        - "Because `pass_rate` below `0.8` converts fixed turns into broken"
+        - "Because `pass_rate` hides that `('d2', 2)` regressed to failing"
+        - "Because `compare_to_baseline` only passes when `pass_rate` is `1.0`"
+      explanation: "Equal aggregate `pass_rate` masks regressions whenever one fix cancels out a newly broken turn; the gate fails whenever `broken` is non-empty."
+    vi:
+      prompt: "Lần chạy mới đạt `pass_rate = 0.75` (bằng baseline `0.75`), với `fixed = [('d1', 2)]` và `broken = [('d2', 2)]`. Vì sao cổng hồi quy phải đánh trượt?"
+      options:
+        - "Vì danh sách `fixed` bắt buộc phải rỗng trước khi bản phát hành đạt"
+        - "Vì `pass_rate` dưới `0.8` sẽ tự chuyển mọi ca `fixed` thành `broken`"
+        - "Vì `pass_rate` che mất việc `('d2', 2)` đã bị hỏng từ đạt sang trượt"
+        - "Vì `compare_to_baseline` chỉ cho qua khi `pass_rate` đạt đúng `1.0`"
+      explanation: "Tỉ lệ `pass_rate` tổng bằng nhau sẽ che giấu lỗi hồi quy khi một ca sửa được bù cho một ca hỏng mới; cổng luôn trượt khi `broken` khác rỗng."
+
+  - id: cap-01-q11
+    type: fill
+    tags: [evaluation, testing]
+    difficulty: 2
+    code: |
+      def compare_runs(
+          current: dict[tuple[str, int], bool],
+          baseline: dict[tuple[str, int], bool],
+          min_pass_rate: float = 0.8,
+      ) -> dict:
+          fixed = [k for k, ok in current.items() if k in baseline and ok and not baseline[k]]
+          broken = [k for k, ok in current.items() if k in baseline and not ok and baseline[k]]
+          pass_rate = round(sum(current.values()) / len(current), 3)
+          gate_ok = not ___ and pass_rate >= ___
+          return {"pass_rate": pass_rate, "fixed": fixed, "broken": broken, "gate_ok": gate_ok}
+
+
+      cur = {("d1", 1): True, ("d1", 2): False, ("d2", 1): True}
+      base = {("d1", 1): True, ("d1", 2): True}
+      print(compare_runs(cur, base))
+    answer: ["broken", "min_pass_rate"]
+    en:
+      prompt: "Fill in the blanks to enforce the regression gate: zero broken turns and `pass_rate` at least `min_pass_rate`."
+      explanation: "`gate_ok` requires `not broken` (zero baseline regressions) and `pass_rate >= min_pass_rate`, while new turns absent from `baseline` stay out of `fixed`/`broken`."
+    vi:
+      prompt: "Điền vào chỗ trống để kiểm tra cổng hồi quy: không có ca hỏng mới và `pass_rate` đạt ít nhất `min_pass_rate`."
+      explanation: "`gate_ok` đòi hỏi `not broken` (không có ca hồi quy so với baseline) và `pass_rate >= min_pass_rate`, còn ca mới chưa có trong `baseline` không tính vào `fixed`/`broken`."
+
+  - id: cap-01-q12
+    type: parsons
+    tags: [evaluation, functions]
+    difficulty: 2
+    lines:
+      - "def score_answerable(answer, sources, expected_src):"
+      - '    if answer == "I don''t know":'
+      - '        return "refused"'
+      - "    if expected_src not in sources:"
+      - '        return "wrong_source"'
+      - '    return "ok"'
+      - 'print(score_answerable("I don''t know", [], "a.md"), score_answerable("Yes", ["b.md"], "a.md"))'
+    en:
+      prompt: "Arrange these lines to score an answerable turn in priority order (`refused` before `wrong_source`) and print two checks."
+      explanation: "Check `answer == \"I don't know\"` first so false refusals return `'refused'` instead of `'wrong_source'`, then check `expected_src not in sources`, then fallback to `'ok'`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để chấm lượt cần trả lời theo đúng thứ tự ưu tiên (`refused` trước `wrong_source`) và in hai phép thử."
+      explanation: "Kiểm tra `answer == \"I don't know\"` trước để bắt lỗi từ chối nhầm thành `'refused'` thay vì `'wrong_source'`, sau đó kiểm tra `expected_src not in sources`, cuối cùng trả về `'ok'`."
+
+  - id: cap-01-q13
+    type: mcq
+    tags: [production, debugging]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "What bug happens when two user sessions share the same `history = []` list reference?"
+      options:
+        - "Python raises `TypeError` when two keys point to one list"
+        - "`pop(0)` freezes both session histories at length zero"
+        - "Appending a message to `s1` leaks it into `s2`'s history"
+        - "`FakeClock` expires both sessions immediately at `t=0`"
+      explanation: "Because lists are mutable, aliasing one list object across `s1` and `s2` means `s1['history'].append(...)` mutates `s2['history']` as well."
+    vi:
+      prompt: "Lỗi gì xảy ra khi hai phiên người dùng trỏ chung một tham chiếu list `history = []`?"
+      options:
+        - "Python báo `TypeError` khi hai khóa dict trỏ tới cùng một list"
+        - "Lệnh `pop(0)` làm lịch sử của hai phiên bị đóng băng ở độ dài không"
+        - "Thêm tin nhắn vào `s1` làm lộ nội dung sang lịch sử của `s2`"
+        - "`FakeClock` làm hai phiên hết hạn ngay lập tức tại thời điểm `t=0`"
+      explanation: "Do list có thể thay đổi tại chỗ, gán chung một đối tượng list cho `s1` và `s2` khiến `s1['history'].append(...)` làm biến đổi cả `s2['history']`."
+
+  - id: cap-01-q14
+    type: output
+    tags: [production, dicts]
+    difficulty: 2
+    code: |
+      class FakeClock:
+          def __init__(self, start: float = 0.0) -> None:
+              self.t = start
+
+          def __call__(self) -> float:
+              return self.t
+
+          def advance(self, seconds: float) -> None:
+              self.t += seconds
+
+
+      def purge_expired(sessions: dict[str, dict], now: float, ttl: float) -> None:
+          for sid in [k for k, v in sessions.items() if now - v["last_seen"] >= ttl]:
+              del sessions[sid]
+
+
+      clock = FakeClock()
+      sessions = {"s1": {"last_seen": clock()}}
+      clock.advance(20.0)
+      sessions["s2"] = {"last_seen": clock()}
+      clock.advance(40.0)
+      purge_expired(sessions, clock(), ttl=60.0)
+      print(clock(), sorted(sessions))
+    answer: "60.0 ['s2']"
+    en:
+      prompt: "What does this `FakeClock` TTL expiration snippet print at `t=60.0`?"
+      explanation: "At `t=60.0`, `s1` has age `60.0 - 0.0 >= 60.0` so it expires and is deleted, while `s2` (`last_seen=20.0`, age `40.0 < 60.0`) remains active."
+    vi:
+      prompt: "Đoạn code hết hạn TTL dùng `FakeClock` này in ra gì tại `t=60.0`?"
+      explanation: "Tại `t=60.0`, `s1` có tuổi `60.0 - 0.0 >= 60.0` nên hết hạn và bị xóa, còn `s2` (`last_seen=20.0`, tuổi `40.0 < 60.0`) vẫn còn hiệu lực."
+
+  - id: cap-01-q15
+    type: parsons
+    tags: [production, dicts]
+    difficulty: 2
+    lines:
+      - "def evict_lru(sessions, max_sessions):"
+      - "    if len(sessions) >= max_sessions:"
+      - '        victim = min(sessions, key=lambda k: sessions[k]["last_seen"])'
+      - "        del sessions[victim]"
+      - "    return sorted(sessions)"
+      - 'print(evict_lru({"s1": {"last_seen": 10.0}, "s2": {"last_seen": 25.0}}, 2))'
+    en:
+      prompt: "Arrange these lines to evict the least recently used session when `sessions` is at capacity and print the remaining keys."
+      explanation: "Check `len(sessions) >= max_sessions`, find the key with the smallest `last_seen`, delete that victim before inserting a new session, return `sorted(sessions)`, and print `['s2']`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để loại phiên ít dùng gần nhất khi `sessions` đầy dung lượng và in ra các khóa còn lại."
+      explanation: "Kiểm tra `len(sessions) >= max_sessions`, tìm khóa có `last_seen` nhỏ nhất, xóa phiên đó trước khi mở phiên mới, trả về `sorted(sessions)` rồi in `['s2']`."
+
+  - id: cap-01-q16
+    type: mcq
+    tags: [apis, production]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "In the FastAPI session service (`session_ttl=60.0`), `s1` opens at `t=0` and is idle until `t=60.0`, when a client posts to `/sessions/s1/messages`. What must happen?"
+      options:
+        - "Purge `s1` (`60.0 - 0.0 >= 60.0`) and return `404` without `bot.ask`"
+        - "Keep `s1` alive because `60.0 - 0.0 > 60.0` is false and return `200`"
+        - "Refresh `s1` `last_seen` to `60.0` first, then reply with `200`"
+        - "Evict `s1` only if `max_sessions` is full, else return `422`"
+      explanation: "Expiration runs at the start of every request using `clock() - last_seen >= session_ttl`; at `t=60.0`, `s1` is purged first and the route returns HTTP `404`."
+    vi:
+      prompt: "Trong dịch vụ phiên FastAPI (`session_ttl=60.0`), `s1` mở ở `t=0` và không hoạt động tới `t=60.0`, khi client gửi `POST /sessions/s1/messages`. Điều gì phải xảy ra?"
+      options:
+        - "Xóa `s1` (`60.0 - 0.0 >= 60.0`) và trả `404`, không gọi `bot.ask`"
+        - "Giữ `s1` sống vì `60.0 - 0.0 > 60.0` là sai rồi trả về mã `200`"
+        - "Cập nhật `last_seen` của `s1` thành `60.0` trước rồi trả về mã `200`"
+        - "Chỉ xóa `s1` nếu chạm `max_sessions`, nếu không thì trả về mã `422`"
+      explanation: "Bước dọn phiên hết hạn chạy đầu mỗi request với điều kiện `clock() - last_seen >= session_ttl`; ở `t=60.0`, `s1` bị xóa trước khi tra cứu nên route trả HTTP `404`."
+
+flashcards:
+  - id: cap-01-f01
+    tags: [llm, rag]
+    en:
+      front: "Token-budgeted history with pinned system"
+      back: "Keep the system prompt outside self.history; append each user/assistant turn pair and pop oldest turns from index 0 while total tokens exceed max_history_tokens and len(history) > 2."
+    vi:
+      front: "Lịch sử theo ngân sách token và ghim system"
+      back: "Giữ system prompt bên ngoài self.history; thêm từng cặp lượt user/assistant và pop(0) lượt cũ nhất khi tổng token vượt max_history_tokens và len(history) > 2."
+
+  - id: cap-01-f02
+    tags: [rag, llm]
+    en:
+      front: "Deterministic follow-up rewriting"
+      back: "Prepend the previous original user question before retrieval when a new query has <= 4 words or starts with 'what about', 'and', or 'how about'. Never store rewritten text as prev_user."
+    vi:
+      front: "Viết lại câu hỏi nối tiếp tất định"
+      back: "Ghép câu hỏi gốc của lượt user trước đó vào trước khi truy xuất nếu câu mới có <= 4 từ hoặc mở đầu bằng 'what about', 'and', 'how about'. Không lưu chuỗi đã viết lại làm prev_user."
+
+  - id: cap-01-f03
+    tags: [rag, production]
+    en:
+      front: "Pre-LLM refusal gate"
+      back: "When retrieve() returns no chunks >= min_score, return REFUSAL with sources=[] without calling client.chat(), and still record the turn pair in self.history."
+    vi:
+      front: "Cổng từ chối trước khi gọi LLM"
+      back: "Khi retrieve() không trả về chunk nào đạt >= min_score, trả về REFUSAL với sources=[] mà không gọi client.chat(), đồng thời vẫn ghi cặp lượt vào self.history."
+
+  - id: cap-01-f04
+    tags: [evaluation, testing]
+    en:
+      front: "Golden dialog eval & turn priority"
+      back: "Call make_bot() once per dialog to isolate history. Score each turn in order: no_refusal (when expected_source is None), else refused -> wrong_source -> missing_fact -> None."
+    vi:
+      front: "Eval golden dialog & thứ tự chấm lượt"
+      back: "Gọi make_bot() một lần cho mỗi dialog để cô lập lịch sử. Chấm từng lượt theo thứ tự: no_refusal (khi expected_source là None), hoặc refused -> wrong_source -> missing_fact -> None."
+
+  - id: cap-01-f05
+    tags: [evaluation, production]
+    en:
+      front: "Baseline diff & regression gate"
+      back: "Match turns by (dialog, turn) to compute fixed, broken, new, and pass_rate. Fail gate_ok whenever broken is non-empty or pass_rate < min_pass_rate."
+    vi:
+      front: "Đối chiếu baseline & cổng hồi quy"
+      back: "Khớp các lượt theo (dialog, turn) để tính fixed, broken, new và pass_rate. Đánh trượt gate_ok bất cứ khi nào broken khác rỗng hoặc pass_rate < min_pass_rate."
+
+  - id: cap-01-f06
+    tags: [apis, production]
+    en:
+      front: "TTL & LRU session store"
+      back: "Give each session its own bot/history and last_seen; purge now - last_seen >= session_ttl at the start of every request, evict smallest last_seen at max_sessions, and return 404 when missing/expired."
+    vi:
+      front: "Kho phiên TTL & LRU"
+      back: "Cấp cho mỗi phiên bot/lịch sử và last_seen riêng; dọn now - last_seen >= session_ttl ở đầu mỗi request, loại phiên có last_seen nhỏ nhất khi chạm max_sessions và trả 404 khi thiếu hoặc hết hạn."
