@@ -12,36 +12,44 @@ hints:
       Combine the TTL and LRU session store from §6 with the FastAPI app factory pattern from `p8-05`. For example, `POST /sessions` calls `make_bot()` once, returns status `201` with `{"session_id": "s1"}`, and after `clock.advance(session_ttl)`, `GET /sessions/s1` returns `404` because `clock() - last_seen >= session_ttl`.
     - |
       Step-by-step plan:
-      1. Validate `max_sessions >= 1` and `session_ttl > 0` up front (raise `ValueError`), and keep `sessions` plus an incrementing counter inside `create_app`.
+      1. Validate `max_sessions >= 1` and `session_ttl > 0` up front (raise `ValueError`), and keep `sessions` plus a mutable counter dict like `state = {"next_id": 1}` inside `create_app`.
       2. Write a helper that deletes every session where `clock() - entry["last_seen"] >= session_ttl`, and call it at the start of every route handler.
-      3. In `POST /sessions` (`status_code=201`), purge expired sessions first, evict the entry with the lowest `(last_seen, created)` if `len(sessions) >= max_sessions`, create `f"s{counter}"` with `make_bot()`, and return `{"session_id": sid}`.
+      3. In `POST /sessions` (`status_code=201`), purge expired sessions first, evict the entry with the lowest `(last_seen, created)` if `len(sessions) >= max_sessions`, create `f"s{num}"` with `make_bot()`, and return `{"session_id": sid}`.
       4. In `POST /sessions/{sid}/messages` and `GET /sessions/{sid}`, purge expired sessions, return `404` (`"session not found"`) if missing, refresh `last_seen`, and record/return turns (1-based `turn` index).
     - |
-      Fill in the expiration check, eviction, and turn update inside `create_app`:
+      Fill in the expiration check, eviction key, and message route inside `create_app`:
       ```python
       def create_app(make_bot, clock, session_ttl: float = 600.0, max_sessions: int = 100) -> FastAPI:
           if max_sessions < 1 or session_ttl <= 0:
               raise ValueError("max_sessions must be >= 1 and session_ttl > 0")
           app = FastAPI()
           sessions: dict[str, dict] = {}
-          counter = 0
+          state = {"next_id": 1}
 
           def purge(now: float) -> None:
               expired = [sid for sid, item in sessions.items() if ...]
               for sid in expired:
                   del sessions[sid]
 
+          def require_session(sid: str, now: float) -> dict:
+              purge(now)
+              item = sessions.get(sid)
+              if item is None:
+                  raise HTTPException(status_code=404, detail="session not found")
+              item["last_seen"] = now
+              return item
+
           @app.post("/sessions", status_code=201)
           def create_session() -> dict[str, str]:
-              nonlocal counter
               now = clock()
               purge(now)
               if len(sessions) >= max_sessions:
-                  victim = min(sessions, key=lambda k: (sessions[k]["last_seen"], sessions[k]["created"]))
+                  victim = min(sessions, key=...)  # smallest (last_seen, created)
                   del sessions[victim]
-              counter += 1
-              sid = f"s{counter}"
-              sessions[sid] = {"bot": make_bot(), "turns": [], "last_seen": now, "created": counter}
+              num = state["next_id"]
+              state["next_id"] += 1
+              sid = f"s{num}"
+              sessions[sid] = {"bot": make_bot(), "turns": [], "last_seen": now, "created": num}
               return {"session_id": sid}
 
           @app.post("/sessions/{sid}/messages")
@@ -53,36 +61,44 @@ hints:
       Kết hợp kho phiên có TTL và loại bỏ LRU ở §6 với mẫu app factory FastAPI ở `p8-05`. Ví dụ, `POST /sessions` gọi `make_bot()` đúng một lần, trả về mã `201` với `{"session_id": "s1"}`, và sau khi gọi `clock.advance(session_ttl)`, `GET /sessions/s1` trả `404` vì `clock() - last_seen >= session_ttl`.
     - |
       Kế hoạch từng bước:
-      1. Kiểm tra ngay đầu `create_app`: nếu `max_sessions < 1` hoặc `session_ttl <= 0` thì raise `ValueError`, rồi giữ dict `sessions` cùng bộ đếm tăng dần bên trong closure của `create_app`.
+      1. Kiểm tra ngay đầu `create_app`: nếu `max_sessions < 1` hoặc `session_ttl <= 0` thì raise `ValueError`, rồi giữ dict `sessions` cùng dict bộ đếm tăng dần như `state = {"next_id": 1}` bên trong closure của `create_app`.
       2. Viết hàm dọn các phiên thỏa `clock() - entry["last_seen"] >= session_ttl` và gọi ở đầu mọi route handler.
-      3. Trong `POST /sessions` (`status_code=201`), dọn phiên hết hạn trước, nếu `len(sessions) >= max_sessions` thì xóa phiên có `(last_seen, created)` nhỏ nhất, tạo `f"s{counter}"` với `make_bot()`, rồi trả `{"session_id": sid}`.
+      3. Trong `POST /sessions` (`status_code=201`), dọn phiên hết hạn trước, nếu `len(sessions) >= max_sessions` thì xóa phiên có `(last_seen, created)` nhỏ nhất, tạo `f"s{num}"` với `make_bot()`, rồi trả `{"session_id": sid}`.
       4. Trong `POST /sessions/{sid}/messages` và `GET /sessions/{sid}`, dọn phiên hết hạn, trả `404` (`"session not found"`) nếu thiếu, cập nhật `last_seen`, và lưu/trả danh sách lượt (chỉ số `turn` đếm từ 1).
     - |
-      Điền điều kiện hết hạn, loại phiên cũ và cập nhật lượt trong `create_app`:
+      Điền điều kiện hết hạn, khóa chọn phiên bị loại và route nhắn tin trong `create_app`:
       ```python
       def create_app(make_bot, clock, session_ttl: float = 600.0, max_sessions: int = 100) -> FastAPI:
           if max_sessions < 1 or session_ttl <= 0:
               raise ValueError("max_sessions must be >= 1 and session_ttl > 0")
           app = FastAPI()
           sessions: dict[str, dict] = {}
-          counter = 0
+          state = {"next_id": 1}
 
           def purge(now: float) -> None:
               expired = [sid for sid, item in sessions.items() if ...]
               for sid in expired:
                   del sessions[sid]
 
+          def require_session(sid: str, now: float) -> dict:
+              purge(now)
+              item = sessions.get(sid)
+              if item is None:
+                  raise HTTPException(status_code=404, detail="session not found")
+              item["last_seen"] = now
+              return item
+
           @app.post("/sessions", status_code=201)
           def create_session() -> dict[str, str]:
-              nonlocal counter
               now = clock()
               purge(now)
               if len(sessions) >= max_sessions:
-                  victim = min(sessions, key=lambda k: (sessions[k]["last_seen"], sessions[k]["created"]))
+                  victim = min(sessions, key=...)  # (last_seen, created) nhỏ nhất
                   del sessions[victim]
-              counter += 1
-              sid = f"s{counter}"
-              sessions[sid] = {"bot": make_bot(), "turns": [], "last_seen": now, "created": counter}
+              num = state["next_id"]
+              state["next_id"] += 1
+              sid = f"s{num}"
+              sessions[sid] = {"bot": make_bot(), "turns": [], "last_seen": now, "created": num}
               return {"session_id": sid}
 
           @app.post("/sessions/{sid}/messages")

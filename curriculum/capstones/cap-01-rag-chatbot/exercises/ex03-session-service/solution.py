@@ -21,7 +21,7 @@ def create_app(
 
     app = FastAPI()
     sessions: dict[str, dict] = {}
-    seq = 0
+    state = {"next_id": 1}
 
     def evict_expired(now: float) -> None:
         stale = [
@@ -47,7 +47,6 @@ def create_app(
 
     @app.post("/sessions", status_code=201)
     def start_session() -> dict[str, str]:
-        nonlocal seq
         now = clock()
         evict_expired(now)
         if len(sessions) >= max_sessions:
@@ -56,7 +55,8 @@ def create_app(
                 key=lambda key: (sessions[key]["last_seen"], sessions[key]["created"]),
             )
             del sessions[victim]
-        seq += 1
+        seq = state["next_id"]
+        state["next_id"] += 1
         sid = f"s{seq}"
         sessions[sid] = {
             "bot": make_bot(),

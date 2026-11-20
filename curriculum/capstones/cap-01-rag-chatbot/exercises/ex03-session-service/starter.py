@@ -1,12 +1,8 @@
 from fastapi import FastAPI, HTTPException  # noqa: F401
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field  # noqa: F401
 
-
-class MessageRequest(BaseModel):
-    """Validated JSON body for POST /sessions/{sid}/messages."""
-
-    model_config = ConfigDict(str_strip_whitespace=True)
-    question: str = Field(min_length=1)
+# TODO: define a Pydantic request body model for POST /sessions/{sid}/messages
+# that strips whitespace and enforces min_length=1 on `question` (returning 422 on blanks).
 
 
 def create_app(
@@ -27,7 +23,7 @@ def create_app(
     """
     app = FastAPI()
     # TODO: raise ValueError if max_sessions < 1 or session_ttl <= 0
-    # TODO: keep sessions dict and counter inside create_app (no module-level state)
+    # TODO: keep sessions dict and state = {"next_id": 1} inside create_app (no module state)
     # TODO: at the start of every request, remove sessions with clock() - last_seen >= session_ttl
     # TODO: register GET /health -> {"status": "ok", "active_sessions": len(sessions)}
     # TODO: register POST /sessions (201) -> evict LRU (tie-break by created) if full,

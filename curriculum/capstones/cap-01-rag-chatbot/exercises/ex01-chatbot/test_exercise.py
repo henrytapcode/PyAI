@@ -10,16 +10,21 @@ class SpyClient:
         self.embed_batch_sizes: list[int] = []
         self.chat_calls = 0
         self.last_messages: list[dict] | None = None
+        self.chat_kwargs: list[dict] = []
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         self.embed_calls += 1
         self.embed_batch_sizes.append(len(texts))
         return self._inner.embed(texts)
 
-    def chat(self, messages: list[dict], temperature: float = 0.0, **kwargs):
+    def chat(self, messages: list[dict], *args, **kwargs):
         self.chat_calls += 1
         self.last_messages = [dict(msg) for msg in messages]
-        return self._inner.chat(messages, temperature=temperature, **kwargs)
+        recorded = dict(kwargs)
+        if args:
+            recorded["temperature"] = args[0]
+        self.chat_kwargs.append(recorded)
+        return self._inner.chat(messages, *args, **kwargs)
 
 
 @pytest.fixture
@@ -113,8 +118,20 @@ def test_out_of_faq_refuses_without_calling_chat(faq_docs):
     assert len(bot.history) == 2, "refused turns must still be recorded in history"
 
 
+def test_chat_called_once_with_temperature_zero_on_hit(faq_docs):
+    spy = SpyClient()
+    bot = ChatBot(faq_docs, spy)
+    res = bot.ask("How many days are refunds issued within?")
+    assert res["sources"] == ["refunds.md"]
+    assert spy.chat_calls == 1
+    assert spy.chat_kwargs == [{"temperature": 0.0}], (
+        "chat must be called once with temperature=0.0 when retrieval returns hits"
+    )
+
+
 def test_followup_what_about_express_rewrites_and_returns_shipping(faq_docs):
     bot = ChatBot(faq_docs, SpyClient())
+    # Turn 1 is refused by FakeLLM, yet still enters history for turn 2 rewriting
     bot.ask("How much does delivery cost?")
     res = bot.ask("What about express?")
     assert isinstance(res, dict)
@@ -125,6 +142,7 @@ def test_followup_what_about_express_rewrites_and_returns_shipping(faq_docs):
 
 def test_consecutive_followups_rewrite_from_original_user_question(faq_docs):
     bot = ChatBot(faq_docs, SpyClient())
+    # Turn 1 is refused, yet still enters history as the original user question
     bot.ask("How much does delivery cost?")
     r2 = bot.ask("What about express?")
     r3 = bot.ask("And free shipping?")
@@ -136,21 +154,50 @@ def test_consecutive_followups_rewrite_from_original_user_question(faq_docs):
     assert r3["sources"] == ["shipping.md"]
 
 
-def test_long_question_and_android_prefix_are_not_rewritten(faq_docs):
+def test_long_standalone_and_android_prefix_are_not_rewritten(faq_docs):
     bot = ChatBot(faq_docs, SpyClient())
-    bot.ask("How much does delivery cost?")
+    bot.ask("How long are store pickup orders held?")
     r_android = bot.ask("Android app discounts apply on laptops?")
     r_long = bot.ask("How long is hardware warranty for factory defects?")
-    r_and_long = bot.ask("And does express delivery arrive the next day?")
-    assert isinstance(r_android, dict) and isinstance(r_long, dict) and isinstance(r_and_long, dict)
+    assert isinstance(r_android, dict) and isinstance(r_long, dict)
     assert r_android["rewritten"] == "Android app discounts apply on laptops?", (
         "words starting with 'and' like 'Android' must not trigger follow-up rewriting"
     )
     assert r_long["rewritten"] == "How long is hardware warranty for factory defects?"
-    assert r_and_long["rewritten"] == (
-        "How long is hardware warranty for factory defects? "
+
+
+def test_long_questions_with_followup_prefixes_are_rewritten(faq_docs):
+    bot = ChatBot(faq_docs, SpyClient())
+    bot.ask("How long are store pickup orders held?")
+    r_what_about = bot.ask("What about the photo ID needed at the counter?")
+    r_how_about = bot.ask("How about unclaimed orders after order confirmation?")
+    r_and = bot.ask("And does express delivery arrive the next day?")
+    assert r_what_about["rewritten"] == (
+        "How long are store pickup orders held? What about the photo ID needed at the counter?"
+    )
+    assert r_what_about["sources"] == ["pickup.md"]
+    assert r_how_about["rewritten"] == (
+        "What about the photo ID needed at the counter? "
+        "How about unclaimed orders after order confirmation?"
+    )
+    assert r_and["rewritten"] == (
+        "How about unclaimed orders after order confirmation? "
         "And does express delivery arrive the next day?"
     )
+
+
+def test_followup_prefix_matching_is_case_insensitive(faq_docs):
+    bot = ChatBot(faq_docs, SpyClient())
+    bot.ask("How long are store pickup orders held?")
+    r_what = bot.ask("WHAT ABOUT the photo ID needed at the counter?")
+    r_and = bot.ask("AND is a photo ID required at pickup?")
+    assert r_what["rewritten"] == (
+        "How long are store pickup orders held? WHAT ABOUT the photo ID needed at the counter?"
+    )
+    assert r_and["rewritten"] == (
+        "WHAT ABOUT the photo ID needed at the counter? AND is a photo ID required at pickup?"
+    )
+    assert r_and["sources"] == ["pickup.md"]
 
 
 def test_trims_oldest_turns_within_token_budget_and_pins_system(faq_docs):

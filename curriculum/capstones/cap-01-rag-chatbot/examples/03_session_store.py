@@ -25,7 +25,10 @@ class SessionStore:
 
     def create(self, sid: str) -> None:
         self._purge_expired()
-        if sid not in self.sessions and len(self.sessions) >= self.max_sessions:
+        if sid in self.sessions:
+            self.sessions[sid]["last_seen"] = self.clock()
+            return
+        if len(self.sessions) >= self.max_sessions:
             oldest = min(self.sessions, key=lambda k: self.sessions[k]["last_seen"])
             del self.sessions[oldest]
         self.sessions[sid] = {"history": [], "last_seen": self.clock()}

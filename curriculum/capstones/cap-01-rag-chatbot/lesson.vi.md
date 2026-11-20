@@ -6,7 +6,7 @@ Capstone này nâng cấp script một lượt đó thành một **chatbot** RAG
 
 Đội sản phẩm cần một lõi chatbot dùng chung đáp ứng ba kịch bản người dùng (**user story**):
 
-- **Kịch bản 1 (Khách hàng hỏi nhiều lượt):** Khách hỏi `"How much does delivery cost?"` rồi hỏi tiếp `"What about express?"`. Bot viết lại câu nối tiếp dựa trên lịch sử hội thoại gần nhất, truy xuất đúng chunk FAQ, trích dẫn nguồn và giữ prompt trong ngân sách token chặt chẽ.
+- **Kịch bản 1 (Khách hàng hỏi nhiều lượt):** Khách hỏi `"How much does express delivery cost?"` rồi hỏi tiếp `"What about free shipping?"`. Bot viết lại câu nối tiếp dựa trên lịch sử hội thoại gần nhất, truy xuất đúng chunk FAQ, trích dẫn nguồn và giữ prompt trong ngân sách token chặt chẽ.
 - **Kịch bản 2 (Kỹ sư phát hành):** Trước khi gộp thay đổi về chia chunk, ngưỡng điểm hay prompt, kỹ sư chạy bộ đánh giá **golden dialog** (hội thoại chuẩn) so với bản **baseline** (mốc đối chiếu) đã lưu và chặn triển khai nếu bất kỳ lượt nào từng đạt nay bị `broken` (hỏng mới).
 - **Kịch bản 3 (Dịch vụ production):** Nhiều khách hàng trò chuyện song song qua các phiên tách biệt. Phiên không hoạt động sẽ hết hạn sau `session_ttl` giây, và bộ nhớ luôn được khống chế bằng cách loại phiên ít dùng gần nhất khi chạm ngưỡng `max_sessions`.
 
@@ -50,7 +50,7 @@ Từng thành phần kế thừa trực tiếp từ các phase trước thay vì
 
 | phần | bạn xây dựng gì | tái sử dụng từ |
 |---|---|---|
-| Lịch sử & viết lại câu hỏi | Danh sách lượt giới hạn token và hàm viết lại câu nối tiếp tất định | `p7-01-llm-api`, `p7-05-rag` |
+| Lịch sử & viết lại câu hỏi | Danh sách lượt giới hạn token và hàm viết lại câu nối tiếp **tất định** (deterministic) | `p7-01-llm-api`, `p7-05-rag` |
 | Truy xuất, trích dẫn & từ chối | Chỉ mục chunk theo câu, cổng `min_score` và trích dẫn `[n]` hợp lệ | `p7-05-rag`, `p7-09-mini-project-rag` |
 | Eval hội thoại & đối chiếu baseline | Bộ chấm golden dialog từng lượt và kiểm tra hồi quy `fixed` / `broken` | `p7-08-evals`, `p7-09-mini-project-rag` |
 | Kho phiên | Dict lưu lịch sử theo từng phiên kèm TTL của `FakeClock` và loại bỏ LRU | `p8-03-caching` |
@@ -58,7 +58,7 @@ Từng thành phần kế thừa trực tiếp từ các phase trước thay vì
 
 ## 3. Lịch sử hội thoại có ngân sách token
 
-Mỗi lượt trò chuyện đều cộng thêm token vào prompt, nên lịch sử không giới hạn sớm muộn cũng tràn cửa sổ ngữ cảnh (**context window**) hoặc làm tăng độ trễ và chi phí. Hãy lưu `history` (lịch sử) thành danh sách các dict `{"role", "content"}`, đếm bằng `count_tokens` của `pyai_llm`, và bỏ dần lượt cũ nhất ở đầu danh sách cho tới khi tổng số token vừa khít `budget` (**ngân sách token**).
+Mỗi lượt trò chuyện đều cộng thêm token vào prompt, nên lịch sử không giới hạn sớm muộn cũng tràn cửa sổ ngữ cảnh (**context window**) hoặc làm tăng độ trễ và chi phí. Hãy lưu `history` (lịch sử) thành danh sách các dict `{"role", "content"}`, đếm bằng `count_tokens` của `pyai_llm`, và bỏ dần lượt cũ nhất ở đầu danh sách cho tới khi tổng số token nằm trong `budget` (**ngân sách token**).
 
 Hãy hình dung `history` giống một chiếc bảng trắng có bề ngang cố định: khi ghi chú mới không còn chỗ, bạn xóa bớt ghi chú cũ nhất bên trái để phần ngữ cảnh mới nhất luôn nằm trên bảng.
 
@@ -108,7 +108,7 @@ Bảng trace qua cả 4 lượt cho thấy rõ ngưỡng cắt bỏ:
 
 ## 4. Câu hỏi nối tiếp
 
-Một **câu hỏi nối tiếp** (follow-up question) thô như `"What about express?"` thiếu các từ khóa chủ đề của lượt 1 (`"delivery"` hay `"shipping"`), nên bước truy xuất bằng embedding chấm điểm rất thấp—hoặc kéo nhầm chunk không liên quan—và `FakeLLM.chat()` không đủ 2 từ trùng để trả lời. Trước khi embed câu truy vấn, hãy áp dụng quy tắc viết lại đơn giản, tất định và **không cần gọi LLM**: nếu `history` đã có câu hỏi `user` trước đó và câu mới ngắn (`<= 4` từ) hoặc mở đầu bằng `"what about"`, `"and"`, hoặc `"how about"`, hãy ghép thêm câu hỏi người dùng gần nhất vào trước.
+Một **câu hỏi nối tiếp** (follow-up question) thô như `"What about express?"` thiếu các từ khóa chủ đề của lượt 1 (`"delivery"` hay `"shipping"`), nên bước truy xuất bằng embedding chấm điểm rất thấp—hoặc kéo nhầm chunk không liên quan—và `FakeLLM.chat()` không đủ 2 từ trùng để trả lời. Trước khi embed câu truy vấn, hãy áp dụng quy tắc viết lại đơn giản, tất định và **không cần gọi LLM**: nếu `history` đã có câu hỏi `user` trước đó và câu mới ngắn (`<= 4` từ) hoặc mở đầu bằng `"what about"`, `"and"`, hoặc `"how about"`, hãy ghép thêm câu hỏi người dùng gần nhất vào trước. Quy tắc `<= 4` từ đơn giản này có một giới hạn biết trước—ngay cả các câu ngắn không phải câu nối tiếp như `"Thanks"` cũng bị ghép câu hỏi trước—và `ex01` chấp nhận đánh đổi đó để giữ tính tất định mà không gọi thêm LLM.
 
 Bấm **Visualize** ở khối code ngắn này để theo dõi `prev_user` và `rewritten` xử lý một câu nối tiếp so với một câu hỏi độc lập.
 
@@ -310,8 +310,8 @@ Dùng bảng tiêu chí dưới đây để tự kiểm tra toàn bộ capstone 
 
 | tiêu chí | cách đo | mức đạt |
 |---|---|---|
-| Trả lời bám nguồn & trích dẫn | Đối chiếu `sources` với các chunk truy xuất và kiểm tra biên `[n]` trên golden dialogs | `100%` bám nguồn (không trích dẫn sai biên) |
-| Từ chối an toàn | Kiểm tra lượt ngoài FAQ có trả `"I don't know"`, `sources == []` và không gọi `chat()` thừa | Tỉ lệ từ chối đúng `100%` khi không chunk nào đạt `min_score` |
+| Trả lời bám nguồn & trích dẫn | Bộ test `ex01` đối chiếu `sources` với các chunk truy xuất và kiểm tra biên `[n]` (cùng kiểm tra nguồn trong `ex02`) | `100%` bám nguồn (không trích dẫn sai biên) |
+| Từ chối an toàn | Bộ test `ex01` dùng `SpyClient` kiểm tra `"I don't know"`, `sources == []` và không gọi `chat()` thừa (cùng chấm từ chối trong `ex02`) | Tỉ lệ từ chối đúng `100%` khi không chunk nào đạt `min_score` |
 | Kỷ luật chống hồi quy | `compare_to_baseline(current, baseline)` trên toàn bộ lượt của golden dialogs | `0` ca `broken` và `pass_rate` đạt ngưỡng quy định |
 | Tách biệt & vòng đời phiên | Test bằng `TestClient` + `FakeClock` cho nhiều người dùng, hết hạn TTL và loại phiên cũ | Không rò rỉ lịch sử giữa các phiên; trả `404` khi hết hạn hoặc thiếu phiên |
 | Bộ test của bài tập | Chạy `pytest` và runner trình duyệt/cục bộ cho `ex01`, `ex02`, `ex03` | Cả 3 bộ test xanh hoàn toàn và không có cảnh báo |
@@ -367,17 +367,9 @@ while bad and sum(count_tokens(m["content"]) for m in bad) > 20:
     bad.pop(0)
 print("wrong roles:", [m["role"] for m in bad])
 # wrong roles: ['user', 'assistant', 'user']
-
-# Đúng: giữ cố định thông điệp system và chỉ cắt các lượt hội thoại cũ nhất
-sys_msg, rest = msgs[0], list(msgs[1:])
-while rest and count_tokens(sys_msg["content"]) + sum(count_tokens(m["content"]) for m in rest) > 20:
-    rest.pop(0)
-fixed = [sys_msg, *rest]
-print("fixed roles:", [m["role"] for m in fixed])
-# fixed roles: ['system', 'assistant', 'user']
 ```
 
-Cách sửa: tách riêng hoặc ghim `system` bên ngoài vòng lặp cắt lịch sử để chỉ các lượt `user`/`assistant` bị loại bỏ.
+Cách sửa: giữ thông điệp `system` ở biến riêng bên ngoài danh sách `user`/`assistant` và cộng số token của `system` khi kiểm tra ngân sách, để `pop(0)` chỉ loại bỏ các lượt hội thoại cũ hơn (bạn sẽ tự cài phần này ở `ex01`).
 
 **3. So sánh với baseline chỉ qua `pass_rate` tổng mà bỏ qua ca `broken`**
 

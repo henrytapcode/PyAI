@@ -6,7 +6,7 @@ This capstone upgrades that single-turn script into a stateful multi-turn RAG ch
 
 The product team needs one shared chatbot core that supports three user stories:
 
-- **Story 1 (Multi-turn customer):** A shopper asks `"How much does delivery cost?"` and follows up with `"What about express?"`. The bot rewrites the follow-up using recent conversation history, retrieves the right FAQ chunk, cites its source, and stays within a strict token budget.
+- **Story 1 (Multi-turn customer):** A shopper asks `"How much does express delivery cost?"` and follows up with `"What about free shipping?"`. The bot rewrites the follow-up using recent conversation history, retrieves the right FAQ chunk, cites its source, and stays within a strict token budget.
 - **Story 2 (Release engineer):** Before merging any change to chunking, thresholds, or prompts, an engineer runs the golden dialog eval suite against a saved baseline and blocks deployment if any previously passing turn becomes `broken`.
 - **Story 3 (Production service):** Multiple shoppers chat concurrently through isolated sessions. Idle sessions expire after `session_ttl` seconds, and memory stays bounded by evicting the least recently used session once `max_sessions` is full.
 
@@ -108,7 +108,7 @@ Notice that on turn 4, appending the assistant reply pushed the total above `bud
 
 ## 4. Follow-up questions
 
-A raw follow-up like `"What about express?"` lacks the topic words from turn 1 (`"delivery"` or `"shipping"`), so embedding retrieval scores it poorly—or pulls an unrelated chunk—and `FakeLLM.chat()` cannot reach the 2-word overlap required to answer. Before embedding the query, use a simple, deterministic rewrite rule that needs **no LLM call**: if `history` has a previous `user` question and the new question is short (`<= 4` words) or starts with `"what about"`, `"and"`, or `"how about"`, prepend the previous user question.
+A raw follow-up like `"What about express?"` lacks the topic words from turn 1 (`"delivery"` or `"shipping"`), so embedding retrieval scores it poorly—or pulls an unrelated chunk—and `FakeLLM.chat()` cannot reach the 2-word overlap required to answer. Before embedding the query, use a simple, deterministic rewrite rule that needs **no LLM call**: if `history` has a previous `user` question and the new question is short (`<= 4` words) or starts with `"what about"`, `"and"`, or `"how about"`, prepend the previous user question. This simple `<= 4` words rule has a known limit—even non-follow-up short messages such as `"Thanks"` get prepended with the previous question—and `ex01` accepts that trade-off to stay deterministic without an extra LLM call.
 
 Press **Visualize** on this short block and watch `prev_user` and `rewritten` resolve a follow-up versus a standalone question.
 
@@ -310,8 +310,8 @@ Use this rubric to verify your finished capstone before marking it complete:
 
 | criterion | how it is measured | passing bar |
 |---|---|---|
-| Grounded answers & citations | `sources` checked against retrieved chunks and `[n]` bounds on golden dialogs | `100%` grounded (zero invalid citations) |
-| Safe refusals | Out-of-FAQ turns checked for `"I don't know"`, `sources == []`, and zero wasted `chat()` calls | `100%` refusal accuracy when no chunk clears `min_score` |
+| Grounded answers & citations | `ex01` unit tests checking `sources` against retrieved chunks and `[n]` bounds (plus source checks on golden dialogs in `ex02`) | `100%` grounded (zero invalid citations) |
+| Safe refusals | `ex01` `SpyClient` tests checking `"I don't know"`, `sources == []`, and zero wasted `chat()` calls (plus refusal scoring in `ex02`) | `100%` refusal accuracy when no chunk clears `min_score` |
 | Regression discipline | `compare_to_baseline(current, baseline)` across all golden dialog turns | `0` `broken` turns and `pass_rate` at or above threshold |
 | Session isolation & lifecycle | `TestClient` + `FakeClock` tests for concurrent users, TTL expiry, and capacity eviction | Zero cross-session history leaks; `404` on expired/missing sessions |
 | Exercise test suites | Automated `pytest` and browser/local runner checks across `ex01`, `ex02`, and `ex03` | All 3 exercise test suites pass with zero warnings |
@@ -367,17 +367,9 @@ while bad and sum(count_tokens(m["content"]) for m in bad) > 20:
     bad.pop(0)
 print("wrong roles:", [m["role"] for m in bad])
 # wrong roles: ['user', 'assistant', 'user']
-
-# Fix: keep the system message pinned and only drop oldest conversation turns
-sys_msg, rest = msgs[0], list(msgs[1:])
-while rest and count_tokens(sys_msg["content"]) + sum(count_tokens(m["content"]) for m in rest) > 20:
-    rest.pop(0)
-fixed = [sys_msg, *rest]
-print("fixed roles:", [m["role"] for m in fixed])
-# fixed roles: ['system', 'assistant', 'user']
 ```
 
-Fix: separate or pin `system` outside the trim loop so only `user`/`assistant` turns are evicted.
+Fix: keep the `system` prompt stored separately outside the trimmed `user`/`assistant` history list and include its token count when checking the budget, so `pop(0)` only ever evicts older conversation turns (you will implement this in `ex01`).
 
 **3. Judging a candidate run only by overall `pass_rate`**
 

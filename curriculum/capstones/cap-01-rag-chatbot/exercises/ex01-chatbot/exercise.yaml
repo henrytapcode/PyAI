@@ -8,7 +8,7 @@ tags: [llm, rag]
 hints:
   en:
     - |
-      Combine history trimming (§3) and follow-up rewriting (§4) inside a stateful `ChatBot` class while pinning the `system` prompt outside `self.history`. For example, after `bot.ask("How much does delivery cost?")`, calling `bot.ask("What about express?")` sets `rewritten` to `"How much does delivery cost? What about express?"` and returns `{"answer": "Express delivery arrives next day for 12 dollars. [1]", "sources": ["shipping.md"], "rewritten": "How much does delivery cost? What about express?"}`.
+      Combine history trimming (§3) and follow-up rewriting (§4) inside a stateful `ChatBot` class while pinning the `system` prompt outside `self.history`. For example, after `bot.ask("How much does express delivery cost?")`, calling `bot.ask("What about free shipping?")` sets `rewritten` to `"How much does express delivery cost? What about free shipping?"` and returns `{"answer": "Free shipping applies on orders over 50 dollars. [1]", "sources": ["shipping.md"], "rewritten": "How much does express delivery cost? What about free shipping?"}`.
     - |
       Step-by-step plan:
       1. In `__init__`, store the configuration, call `build_index(docs, client)` once, and set `self.history = []`.
@@ -61,12 +61,12 @@ hints:
       ```
   vi:
     - |
-      Kết hợp cắt lịch sử theo ngân sách token (§3) và viết lại câu nối tiếp (§4) vào trong một class `ChatBot` có trạng thái, đồng thời ghim `system` prompt bên ngoài `self.history`. Ví dụ, sau `bot.ask("How much does delivery cost?")`, gọi `bot.ask("What about express?")` sẽ cho `rewritten` là `"How much does delivery cost? What about express?"` và trả về `{"answer": "Express delivery arrives next day for 12 dollars. [1]", "sources": ["shipping.md"], "rewritten": "How much does delivery cost? What about express?"}`.
+      Kết hợp cắt lịch sử theo ngân sách token (§3) và viết lại câu nối tiếp (§4) vào trong một class `ChatBot` có trạng thái, đồng thời ghim `system` prompt bên ngoài `self.history`. Ví dụ, sau `bot.ask("How much does express delivery cost?")`, gọi `bot.ask("What about free shipping?")` sẽ cho `rewritten` là `"How much does express delivery cost? What about free shipping?"` và trả về `{"answer": "Free shipping applies on orders over 50 dollars. [1]", "sources": ["shipping.md"], "rewritten": "How much does express delivery cost? What about free shipping?"}`.
     - |
       Kế hoạch từng bước:
       1. Trong `__init__`, lưu các tham số cấu hình, gọi `build_index(docs, client)` đúng một lần và khởi tạo `self.history = []`.
       2. Trong `ask`, `.strip()` `question` và raise `ValueError` nếu chuỗi sau khi cắt khoảng trắng bị rỗng.
-      3. Tìm nội dung `"user"` gần nhất trong `self.history`; nếu có và câu mới có `<= 4` từ, từ đầu (chữ thường) là `"and"`, hoặc bắt đầu bằng `"what about "` hay `"how about "`, viết lại thành `f"{prev_user} {question}"`.
+      3. Tìm nội dung `"user"` gần nhất trong `self.history`; nếu có và câu mới có `<= 4` từ, từ đầu tiên (viết thường) là `"and"`, hoặc bắt đầu bằng `"what about "` hay `"how about "`, viết lại thành `f"{prev_user} {question}"`.
       4. Gọi `retrieve(self.index, rewritten, self.client, self.k, self.min_score)`. Nếu không có hit nào, gán `answer = REFUSAL` và `sources = []` mà không gọi `self.client.chat`.
       5. Ngược lại, gọi `self.client.chat` một lần với `temperature=0.0` và `[system_with_context, *self.history, {"role": "user", "content": rewritten}]`, rồi lọc ra các nguồn `[n]` hợp lệ (`1 <= n <= len(hits)`), không trùng, theo thứ tự xuất hiện.
       6. Thêm câu `question` gốc và `answer` vào `self.history`, rồi bỏ phần tử đầu (`pop(0)`) khi `count_tokens(self.system_prompt) + sum(count_tokens(m["content"]) for m in self.history) > self.max_history_tokens` và `len(self.history) > 2`.

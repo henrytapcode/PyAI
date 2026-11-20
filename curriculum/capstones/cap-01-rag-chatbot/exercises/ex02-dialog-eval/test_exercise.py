@@ -88,13 +88,13 @@ def test_score_turn_case_insensitive_facts():
             "missing_fact",
         ),
         (
-            {"answer": "Unrelated context reply. [1]", "sources": ["refunds.md"]},
+            {"answer": REFUSAL, "sources": ["shipping.md"]},
             {
-                "question": "How much is express?",
-                "expected_source": "shipping.md",
-                "expected_facts": ["12 dollars"],
+                "question": "Do you take crypto?",
+                "expected_source": None,
+                "expected_facts": [],
             },
-            "wrong_source",
+            "no_refusal",
         ),
     ],
 )

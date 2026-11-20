@@ -7,18 +7,18 @@ questions:
     en:
       prompt: "Why must the `system` prompt stay pinned outside `self.history` when trimming to `max_history_tokens`?"
       options:
-        - "Because `count_tokens` raises `ValueError` on `system` role strings"
-        - "Because `pop(0)` always removes the newest element from the right end"
+        - "Because trimming pops the newest turns from the end first"
+        - "Because `self.history` only trims when model context overflows"
         - "So dropping old turns never erases the grounding instructions"
-        - "So `FakeLLM` automatically translates `system` text into citations"
+        - "Because `system` messages belong at the end of `messages`"
       explanation: "Putting `system` at index `0` inside the trimmed list causes `pop(0)` to delete your grounding instructions once the conversation exceeds the token budget."
     vi:
       prompt: "Vì sao phải giữ `system` prompt cố định bên ngoài `self.history` khi cắt lịch sử theo `max_history_tokens`?"
       options:
-        - "Vì `count_tokens` báo `ValueError` khi gặp chuỗi có vai trò `system`"
-        - "Vì `pop(0)` luôn xóa phần tử mới nhất nằm ở cuối danh sách"
+        - "Vì hàm cắt lịch sử luôn xóa các lượt mới nhất ở cuối trước"
+        - "Vì `self.history` chỉ cắt khi tràn cửa sổ ngữ cảnh của model"
         - "Để việc bỏ lượt cũ không xóa mất chỉ dẫn bám nguồn của bot"
-        - "Để `FakeLLM` tự động chuyển nội dung `system` thành trích dẫn"
+        - "Vì thông điệp `system` phải đặt ở vị trí cuối của `messages`"
       explanation: "Nếu đặt `system` ở vị trí `0` trong cùng danh sách bị cắt, lệnh `pop(0)` sẽ xóa mất chỉ dẫn bám nguồn ngay khi hội thoại vượt ngân sách token."
 
   - id: cap-01-q02
@@ -42,10 +42,10 @@ questions:
     answer: "['system', 'assistant', 'user'] 14"
     en:
       prompt: "What does this pinned-system history trimming snippet print?"
-      explanation: "`sys_msg` (`4` tokens) stays pinned; dropping the oldest user turn (`5` tokens) brings `4 + 5 + 5 = 14 <= 16`, leaving `['system', 'assistant', 'user']` and `14`."
+      explanation: "`sys_msg` (`5` tokens) stays pinned; the initial total is `5 + 6 + 5 + 4 = 20 > 16`, so dropping the oldest user turn (`6` tokens) leaves `5 + 5 + 4 = 14 <= 16` (`['system', 'assistant', 'user'] 14`)."
     vi:
       prompt: "Đoạn code cắt lịch sử có ghim `system` này in ra gì?"
-      explanation: "`sys_msg` (`4` token) được giữ cố định; bỏ lượt user cũ nhất (`5` token) đưa tổng về `4 + 5 + 5 = 14 <= 16`, còn lại `['system', 'assistant', 'user']` và `14`."
+      explanation: "`sys_msg` (`5` token) được giữ cố định; tổng ban đầu là `5 + 6 + 5 + 4 = 20 > 16`, nên bỏ lượt user cũ nhất (`6` token) đưa tổng về `5 + 5 + 4 = 14 <= 16`, in ra `['system', 'assistant', 'user'] 14`."
 
   - id: cap-01-q03
     type: fill
@@ -110,17 +110,17 @@ questions:
       prompt: "Why does `ChatBot` rewrite `\"What about express?\"` with the previous user question before calling `retrieve` and `chat`?"
       options:
         - "Raw follow-ups lack topic words for retrieval and overlap checks"
-        - "Because `FakeLLM.embed` rejects every query under five words"
-        - "Because `client.chat` raises an error on strings ending with `?`"
-        - "To strip punctuation so `count_tokens` returns zero tokens"
+        - "So short queries meet the minimum character count for embedding"
+        - "Because `retrieve` searches `self.history` instead of `index`"
+        - "So `self.history` stores expanded queries rather than raw inputs"
       explanation: "Short follow-ups omit nouns like `'delivery'` or `'shipping'`, so embedding search scores poorly or pulls the wrong document and `FakeLLM.chat` fails its 2-word overlap check."
     vi:
       prompt: "Vì sao `ChatBot` viết lại `\"What about express?\"` cùng câu hỏi người dùng trước đó trước khi gọi `retrieve` và `chat`?"
       options:
         - "Câu nối tiếp thô thiếu từ khóa chủ đề cho truy xuất và kiểm tra trùng"
-        - "Vì `FakeLLM.embed` từ chối mọi câu truy vấn có ít hơn năm từ tiếng Anh"
-        - "Vì `client.chat` sẽ báo lỗi ngay với chuỗi kết thúc bằng dấu chấm hỏi `?`"
-        - "Để xóa toàn bộ dấu câu giúp `count_tokens` đếm về giá trị không token"
+        - "Để câu ngắn đạt đủ số ký tự tối thiểu trước khi chạy embedding"
+        - "Vì hàm `retrieve` chỉ tìm kiếm trong `self.history` thay vì bộ chỉ mục"
+        - "Để `self.history` lưu sẵn câu đã mở rộng thay cho câu hỏi gốc"
       explanation: "Câu nối tiếp ngắn thiếu danh từ chủ đề như `'delivery'` hay `'shipping'`, khiến tìm kiếm embedding chấm điểm thấp hoặc kéo nhầm tài liệu và `FakeLLM.chat` trượt ngưỡng trùng 2 từ."
 
   - id: cap-01-q06
@@ -175,17 +175,17 @@ questions:
     en:
       prompt: "What goes wrong over 3+ turns if `ChatBot.ask` appends `rewritten` instead of the raw `question` to `self.history`?"
       options:
-        - "`FakeLLM.chat` raises `IndexError` when a turn has two question marks"
-        - "`retrieve` refuses to score any query that matches two FAQ pages"
-        - "`trim_history` counts only the first sentence of every user turn"
+        - "Storing `rewritten` makes `trim_history` keep only the last turn"
+        - "Short follow-ups stop matching `len(words) <= 4` on later turns"
+        - "Later turns treat `prev_user` as empty and skip query rewriting"
         - "Later turns prepend stale concatenated queries and waste tokens"
       explanation: "Storing `rewritten` in `self.history` causes each new follow-up to prepend all earlier rewritten questions, snowballing unrelated topic words into retrieval and filling the token budget."
     vi:
       prompt: "Lỗi gì xảy ra qua từ 3 lượt trở lên nếu `ChatBot.ask` lưu `rewritten` thay vì `question` gốc vào `self.history`?"
       options:
-        - "`FakeLLM.chat` báo `IndexError` ngay khi một lượt có hai dấu chấm hỏi"
-        - "`retrieve` từ chối chấm điểm mọi truy vấn khớp với từ hai trang FAQ"
-        - "`trim_history` chỉ đếm mỗi câu đầu tiên của từng lượt người dùng hỏi"
+        - "Lưu `rewritten` làm `trim_history` chỉ giữ được đúng lượt cuối"
+        - "Các câu nối tiếp ngắn không còn thỏa mãn `len(words) <= 4` ở lượt sau"
+        - "Lượt sau coi `prev_user` là rỗng nên bỏ qua bước viết lại câu hỏi"
         - "Lượt sau ghép dây chuyền các câu cũ làm nhiễu truy xuất và tốn token"
       explanation: "Nếu lưu `rewritten` vào `self.history`, mỗi câu nối tiếp mới sẽ nối thêm cả chuỗi câu đã ghép từ trước, làm loãng từ khóa truy xuất và nhanh chóng ngốn hết ngân sách token."
 
@@ -197,18 +197,18 @@ questions:
     en:
       prompt: "Why must `run_dialog_eval(make_bot, dialogs)` instantiate a fresh bot via `make_bot()` for each dialog?"
       options:
-        - "Because `ChatBot.ask` locks its vector index after two turns"
+        - "Because reusing one bot makes `build_index` re-embed on every turn"
         - "So history and rewrites from one dialog never leak into another"
-        - "Because `make_bot()` deletes and rebuilds the entire source FAQ list"
-        - "So `FakeLLM` resets every embedding vector to zeros per turn"
+        - "Because sharing one bot freezes `turn` numbering across dialogs"
+        - "Because `ChatBot` mutates `self.index` in place after every dialog"
       explanation: "Each golden dialog simulates an independent conversation; reusing one `ChatBot` across dialogs would contaminate turn 1 of dialog 2 with history from dialog 1."
     vi:
       prompt: "Vì sao `run_dialog_eval(make_bot, dialogs)` phải gọi `make_bot()` tạo bot mới cho từng dialog?"
       options:
-        - "Vì `ChatBot.ask` khóa cứng chỉ mục vector sau đúng hai lượt hỏi đáp"
+        - "Vì dùng chung một bot sẽ làm `build_index` chạy embed lại ở mọi lượt"
         - "Để lịch sử và câu viết lại của dialog trước không rò sang dialog sau"
-        - "Vì `make_bot()` tự động xóa và tạo lại toàn bộ danh sách tài liệu FAQ"
-        - "Để `FakeLLM` đặt lại toàn bộ vector embedding về không sau mỗi lượt"
+        - "Vì dùng chung một bot sẽ làm sai chỉ số `turn` giữa các dialog"
+        - "Vì `ChatBot` làm thay đổi `self.index` tại chỗ sau mỗi dialog"
       explanation: "Mỗi golden dialog mô phỏng một cuộc trò chuyện độc lập; dùng chung một `ChatBot` sẽ làm lượt 1 của dialog sau bị nhiễu bởi lịch sử của dialog trước."
 
   - id: cap-01-q10
@@ -246,20 +246,22 @@ questions:
           fixed = [k for k, ok in current.items() if k in baseline and ok and not baseline[k]]
           broken = [k for k, ok in current.items() if k in baseline and not ok and baseline[k]]
           pass_rate = round(sum(current.values()) / len(current), 3)
-          gate_ok = not ___ and pass_rate >= ___
+          gate_ok = ___ and pass_rate >= ___
           return {"pass_rate": pass_rate, "fixed": fixed, "broken": broken, "gate_ok": gate_ok}
 
 
       cur = {("d1", 1): True, ("d1", 2): False, ("d2", 1): True}
       base = {("d1", 1): True, ("d1", 2): True}
       print(compare_runs(cur, base))
-    answer: ["broken", "min_pass_rate"]
+    answer:
+      - ["not broken", "len(broken) == 0", "broken == []"]
+      - ["min_pass_rate", "0.8"]
     en:
       prompt: "Fill in the blanks to enforce the regression gate: zero broken turns and `pass_rate` at least `min_pass_rate`."
-      explanation: "`gate_ok` requires `not broken` (zero baseline regressions) and `pass_rate >= min_pass_rate`, while new turns absent from `baseline` stay out of `fixed`/`broken`."
+      explanation: "`gate_ok` requires `not broken` (or `len(broken) == 0`, zero baseline regressions) and `pass_rate >= min_pass_rate` (`0.8` by default), while new turns absent from `baseline` stay out of `fixed`/`broken`."
     vi:
       prompt: "Điền vào chỗ trống để kiểm tra cổng hồi quy: không có ca hỏng mới và `pass_rate` đạt ít nhất `min_pass_rate`."
-      explanation: "`gate_ok` đòi hỏi `not broken` (không có ca hồi quy so với baseline) và `pass_rate >= min_pass_rate`, còn ca mới chưa có trong `baseline` không tính vào `fixed`/`broken`."
+      explanation: "`gate_ok` đòi hỏi `not broken` (hoặc `len(broken) == 0`, không có ca hồi quy so với baseline) và `pass_rate >= min_pass_rate` (mặc định `0.8`), còn ca mới chưa có trong `baseline` không tính vào `fixed`/`broken`."
 
   - id: cap-01-q12
     type: parsons
@@ -288,18 +290,18 @@ questions:
     en:
       prompt: "What bug happens when two user sessions share the same `history = []` list reference?"
       options:
-        - "Python raises `TypeError` when two keys point to one list"
-        - "`pop(0)` freezes both session histories at length zero"
-        - "Appending a message to `s1` leaks it into `s2`'s history"
-        - "`FakeClock` expires both sessions immediately at `t=0`"
+        - "Rebinding `s1['history'] = []` clears `s2['history']` automatically"
+        - "Only the first session's edits appear because dicts copy on write"
+        - "Appending a turn to `s1` mutates `s2`'s history at the same time"
+        - "`trim_history` halves the shared `budget` between `s1` and `s2`"
       explanation: "Because lists are mutable, aliasing one list object across `s1` and `s2` means `s1['history'].append(...)` mutates `s2['history']` as well."
     vi:
       prompt: "Lỗi gì xảy ra khi hai phiên người dùng trỏ chung một tham chiếu list `history = []`?"
       options:
-        - "Python báo `TypeError` khi hai khóa dict trỏ tới cùng một list"
-        - "Lệnh `pop(0)` làm lịch sử của hai phiên bị đóng băng ở độ dài không"
-        - "Thêm tin nhắn vào `s1` làm lộ nội dung sang lịch sử của `s2`"
-        - "`FakeClock` làm hai phiên hết hạn ngay lập tức tại thời điểm `t=0`"
+        - "Gán lại `s1['history'] = []` sẽ tự động xóa luôn `s2['history']`"
+        - "Chỉ thay đổi ở phiên đầu được giữ lại vì dict tự sao chép khi ghi"
+        - "Thêm lượt mới vào `s1` sẽ làm biến đổi luôn lịch sử của `s2`"
+        - "`trim_history` tự chia đôi ngân sách token giữa `s1` và `s2`"
       explanation: "Do list có thể thay đổi tại chỗ, gán chung một đối tượng list cho `s1` và `s2` khiến `s1['history'].append(...)` làm biến đổi cả `s2['history']`."
 
   - id: cap-01-q14

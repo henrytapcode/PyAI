@@ -22,14 +22,21 @@ hints:
           answer, sources = result["answer"], result["sources"]
           exp = turn["expected_source"]
           if exp is None:
-              return None if (answer == REFUSAL and sources == []) else "no_refusal"
+              ...  # return None only if answer == REFUSAL and sources == [], else "no_refusal"
           if answer == REFUSAL:
               return "refused"
           if exp not in sources:
               return "wrong_source"
-          if any(f.lower() not in answer.lower() for f in turn["expected_facts"]):
-              return "missing_fact"
-          return None
+          ...  # return "missing_fact" if any expected_fact is missing (case-insensitive), else None
+
+
+      def run_dialog_eval(make_bot, dialogs: list[dict]) -> list[dict]:
+          records = []
+          for dialog in dialogs:
+              bot = make_bot()
+              for turn_num, turn in enumerate(dialog["turns"], 1):
+                  ...  # call bot.ask(turn["question"]), score_turn, and append record
+          return records
 
 
       def compare_to_baseline(current: list[dict], baseline: list[dict], min_pass_rate: float = 0.8) -> dict:
@@ -65,14 +72,21 @@ hints:
           answer, sources = result["answer"], result["sources"]
           exp = turn["expected_source"]
           if exp is None:
-              return None if (answer == REFUSAL and sources == []) else "no_refusal"
+              ...  # chỉ trả None khi answer == REFUSAL và sources == [], ngược lại trả "no_refusal"
           if answer == REFUSAL:
               return "refused"
           if exp not in sources:
               return "wrong_source"
-          if any(f.lower() not in answer.lower() for f in turn["expected_facts"]):
-              return "missing_fact"
-          return None
+          ...  # trả "missing_fact" nếu thiếu bất kỳ expected_fact nào (không phân biệt hoa thường), ngược lại trả None
+
+
+      def run_dialog_eval(make_bot, dialogs: list[dict]) -> list[dict]:
+          records = []
+          for dialog in dialogs:
+              bot = make_bot()
+              for turn_num, turn in enumerate(dialog["turns"], 1):
+                  ...  # gọi bot.ask(turn["question"]), score_turn và thêm dict kết quả vào records
+          return records
 
 
       def compare_to_baseline(current: list[dict], baseline: list[dict], min_pass_rate: float = 0.8) -> dict:

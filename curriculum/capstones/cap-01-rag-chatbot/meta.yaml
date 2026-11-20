@@ -17,12 +17,12 @@ outcomes:
     - "Maintain token-budgeted conversation history and rewrite follow-up questions before retrieval"
     - "Evaluate multi-turn dialogs against golden conversations and compare runs to a baseline"
     - "Manage isolated user sessions with TTL expiration and capacity eviction using FakeClock"
-    - "Wrap the stateful chatbot behind FastAPI session endpoints tested end to end"
+    - "Wrap any bot exposing ask() behind FastAPI session endpoints (tested with stub bots via TestClient and FakeClock, wired to ChatBot in production)"
   vi:
     - "Quản lý lịch sử hội thoại theo ngân sách token và viết lại câu hỏi nối tiếp trước khi truy xuất"
     - "Đánh giá hội thoại nhiều lượt theo bộ golden dialog và so sánh với baseline"
     - "Quản lý phiên người dùng tách biệt kèm hết hạn TTL và giới hạn số phiên bằng FakeClock"
-    - "Bọc chatbot có trạng thái sau các endpoint FastAPI cho phiên và kiểm thử đầu cuối"
+    - "Bọc bất kỳ bot nào có hàm ask() sau các endpoint FastAPI cho phiên (kiểm thử bằng bot giả qua TestClient cùng FakeClock, nối với ChatBot khi chạy thật)"
 review_by: "2027-05-01"
 further_reading:
   - title:

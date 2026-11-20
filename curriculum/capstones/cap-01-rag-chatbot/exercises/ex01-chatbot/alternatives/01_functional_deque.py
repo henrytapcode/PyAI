@@ -99,7 +99,7 @@ def trim_history_deque(
     system_prompt: str,
     max_history_tokens: int,
 ) -> list[dict]:
-    """Pure helper using ``collections.deque`` to evict oldest turns in O(1)."""
+    """Pure helper using ``collections.deque`` to pop oldest turns from the left."""
     window = deque(history)
     budget_used = count_tokens(system_prompt) + sum(count_tokens(m["content"]) for m in window)
     while len(window) > 2 and budget_used > max_history_tokens:

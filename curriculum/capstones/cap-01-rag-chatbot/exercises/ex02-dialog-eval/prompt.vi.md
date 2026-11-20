@@ -3,6 +3,20 @@ Hãy cài đặt bộ đánh giá hội thoại chuẩn và cổng hồi quy (`s
 **Ví dụ**
 
 ```python
+class StubBot:
+    def __init__(self) -> None:
+        self.replies = {
+            "How long are pickup orders held?": {"answer": "Held for 7 days. [1]", "sources": ["pickup.md"], "rewritten": "How long are pickup orders held?"},
+            "And photo ID?": {"answer": "Bring a photo ID. [1]", "sources": ["shipping.md"], "rewritten": "And photo ID?"},
+            "Do you take crypto?": {"answer": REFUSAL, "sources": [], "rewritten": "Do you take crypto?"},
+        }
+
+    def ask(self, question: str) -> dict:
+        return self.replies[question]
+
+
+make_bot = StubBot
+
 dialogs = [
     {
         "id": "d1",

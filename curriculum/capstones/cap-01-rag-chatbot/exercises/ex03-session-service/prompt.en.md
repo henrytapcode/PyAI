@@ -13,11 +13,11 @@ client.get("/health").json()
 s1 = client.post("/sessions")
 # status_code == 201, s1.json() -> {"session_id": "s1"}
 
-r1 = client.post("/sessions/s1/messages", json={"question": "How much does shipping cost?"})
+r1 = client.post("/sessions/s1/messages", json={"question": "How much does express delivery cost?"})
 # status_code == 200, r1.json() -> {"answer": "...", "sources": [...], "rewritten": "...", "turn": 1}
 
 client.get("/sessions/s1").json()
-# -> {"session_id": "s1", "turns": [{"question": "How much does shipping cost?", "answer": "..."}]}
+# -> {"session_id": "s1", "turns": [{"question": "How much does express delivery cost?", "answer": "..."}]}
 
 clock.advance(60.0)
 client.get("/sessions/s1").status_code
@@ -27,7 +27,7 @@ client.get("/sessions/s1").status_code
 **Rules**
 
 - Signature: `create_app(make_bot, clock, session_ttl: float = 600.0, max_sessions: int = 100) -> FastAPI`. Raise `ValueError` immediately if `max_sessions < 1` or `session_ttl <= 0`.
-- Keep all session state inside `create_app`'s closure so separate apps never share sessions (no module-level mutable state).
+- Keep all session state inside `create_app`'s closure so separate apps never share sessions (no module-level mutable state). Store the incrementing counter in a mutable container such as `state = {"next_id": 1}` and mutate its entry rather than rebinding an outer integer variable inside a nested route function (rebinding an outer variable in Python raises `UnboundLocalError`).
 - Store each session as `{"bot": ..., "turns": list[{"question", "answer"}], "last_seen": float, "created": int}` with deterministic IDs `"s1"`, `"s2"`, … from the app's counter.
 - **Expiration:** at the start of **every** request, remove all sessions where `clock() - last_seen >= session_ttl`.
 - `GET /health` returns `200` with `{"status": "ok", "active_sessions": n}`.
