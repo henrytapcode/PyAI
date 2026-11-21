@@ -1,0 +1,5 @@
+watch: idx=0, score=45, check=False
+watch: idx=1, score=70, check=False
+watch: idx=2, score=88, check=True
+buggy: 2
+fixed: 1

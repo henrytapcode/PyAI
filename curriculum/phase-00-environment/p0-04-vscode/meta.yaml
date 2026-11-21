@@ -1,0 +1,27 @@
+id: p0-04-vscode
+phase: p0
+order: 4
+kind: lesson
+title:
+  en: "VS Code for Python"
+  vi: "VS Code cho Python"
+summary:
+  en: "Select your .venv interpreter, configure Ruff format-on-save, run tests, and inspect bugs with the VS Code debugger."
+  vi: "Chọn interpreter trong .venv, cấu hình Ruff format-on-save, chạy test và tìm lỗi bằng debugger của VS Code."
+level: beginner
+tags: [setup, debugging, linting, json]
+prerequisites: [p0-02-uv-venv]
+duration_min: 12
+outcomes:
+  en:
+    - "Select interpreter"
+    - "Use the debugger and formatter"
+  vi:
+    - "Chọn interpreter"
+    - "Dùng debugger và formatter"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "VS Code: Getting Started with Python", vi: "VS Code: Bắt đầu với Python (EN)" }
+    url: "https://code.visualstudio.com/docs/python/python-tutorial"
+  - title: { en: "VS Code: Debugging Python", vi: "VS Code: Debug Python (EN)" }
+    url: "https://code.visualstudio.com/docs/python/debugging"

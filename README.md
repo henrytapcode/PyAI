@@ -37,7 +37,7 @@ PyAI Path is a bilingual (EN/VI) interactive Python course for people who want t
 
 | Phase | Topic | Status |
 |---|---|---|
-| 0 | Environment: uv, Git, VS Code, terminal | Planned |
+| 0 | Environment: uv, Git, VS Code, terminal | Available |
 | 1 | Python core | Available |
 | 2 | Intermediate Python: OOP, dataclasses, typing, generators, decorators | Available |
 | 3 | Code quality: pytest, ruff, logging, debugging | Available |
@@ -148,7 +148,7 @@ PyAI Path là khóa học Python tương tác song ngữ (EN/VI) cho người mu
 
 | Phase | Chủ đề | Trạng thái |
 |---|---|---|
-| 0 | Môi trường: uv, Git, VS Code, terminal | Sắp ra mắt |
+| 0 | Môi trường: uv, Git, VS Code, terminal | Đã có |
 | 1 | Python core | Đã có |
 | 2 | Python trung cấp: OOP, dataclass, typing, generator, decorator | Đã có |
 | 3 | Chất lượng code: pytest, ruff, logging, debug | Đã có |

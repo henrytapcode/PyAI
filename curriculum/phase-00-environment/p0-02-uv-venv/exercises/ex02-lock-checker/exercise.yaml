@@ -1,0 +1,16 @@
+id: p0-02-ex02
+kind: code
+title:
+  en: "Check venv isolation and diff lockfiles"
+  vi: "Kiểm tra cô lập venv và so sánh lockfile"
+difficulty: 2
+tags: [packaging, dicts, stdlib]
+hints:
+  en:
+    - "In `check_venv_isolation`, check `project not in envs` first, then normalize the project's package keys with `.lower()` before looking up `package.lower()`."
+    - "Return early for each case: `unknown_env`, `missing_package`, `version_mismatch`, and finally `ok` when `installed_ver == expected_version`."
+    - "In `diff_lockfiles`, build sets from `old_lock.keys()` and `new_lock.keys()`: `added = sorted(new_keys - old_keys)`, `removed = sorted(old_keys - new_keys)`, and `changed = sorted(k for k in old_keys & new_keys if old_lock[k] != new_lock[k])`."
+  vi:
+    - "Trong `check_venv_isolation`, kiểm tra `project not in envs` trước, sau đó chuẩn hóa tên gói trong dự án bằng `.lower()` rồi mới tra cứu `package.lower()`."
+    - "Trả về sớm cho từng trường hợp: `unknown_env`, `missing_package`, `version_mismatch`, và cuối cùng là `ok` khi `installed_ver == expected_version`."
+    - "Trong `diff_lockfiles`, tạo tập hợp từ `old_lock.keys()` và `new_lock.keys()`: `added = sorted(new_keys - old_keys)`, `removed = sorted(old_keys - new_keys)`, và `changed = sorted(k for k in old_keys & new_keys if old_lock[k] != new_lock[k])`."

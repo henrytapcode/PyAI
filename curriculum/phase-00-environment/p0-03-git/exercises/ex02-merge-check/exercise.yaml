@@ -1,0 +1,16 @@
+id: p0-03-ex02
+kind: code
+title:
+  en: "Three-way merge & commit check"
+  vi: "Gộp ba chiều & kiểm tra commit message"
+difficulty: 2
+tags: [git, dicts, strings]
+hints:
+  en:
+    - "In `three_way_merge`, use a sentinel object `MISSING = object()` with `.get(key, MISSING)` so you can distinguish a deleted file from a file with an empty string `\"\"`."
+    - "Check `main_val == feat_val` first (both kept, changed identically, or both deleted). Then check `main_val == base_val` (take `feat_val`) and `feat_val == base_val` (take `main_val`). Otherwise, record a conflict."
+    - "In `is_valid_commit_msg`, extract `subject = msg.splitlines()[0].strip()` when `msg` is non-empty, then check `bool(subject)`, `len(subject) <= 72`, `not subject.endswith(\".\")`, and `subject[0].isascii() and subject[0].isalpha()`."
+  vi:
+    - "Trong `three_way_merge`, dùng một đối tượng đánh dấu `MISSING = object()` cùng `.get(key, MISSING)` để phân biệt file bị xóa với file có nội dung rỗng `\"\"`."
+    - "Kiểm tra `main_val == feat_val` trước (cả hai giữ nguyên, sửa giống nhau hoặc cùng xóa). Sau đó kiểm tra `main_val == base_val` (lấy `feat_val`) và `feat_val == base_val` (lấy `main_val`). Ngược lại thì ghi nhận xung đột."
+    - "Trong `is_valid_commit_msg`, lấy `subject = msg.split(\"\\n\", 1)[0].strip()`, rồi kiểm tra `bool(subject)`, `len(subject) <= 72`, `not subject.endswith(\".\")` và `subject[0].isascii() and subject[0].isalpha()`."

@@ -1,0 +1,38 @@
+id: p0-01-ex01
+kind: code
+title:
+  en: "Path resolver & command splitter"
+  vi: "Phân giải đường dẫn & tách lệnh"
+difficulty: 1
+tags: [setup, files, strings]
+hints:
+  en:
+    - "For `resolve_path`, decide whether `target` starts with `/` (absolute) or not (relative to `cwd`). Then process segments separated by `/`."
+    - |
+      Use a list as a stack of folder names:
+      1. If `target.startswith("/")`, start with an empty stack; otherwise start with the non-empty segments of `cwd`.
+      2. For each segment in `target.split("/")`: ignore `""` and `"."`, pop from the stack on `".."` (if non-empty), and append anything else.
+      3. Join the stack with `"/"` and prepend `"/"`.
+    - |
+      For `split_command(line)`:
+      ```python
+      parts = line.strip().split()
+      if not parts:
+          raise ValueError("Command cannot be empty")
+      return parts[0], parts[1:]
+      ```
+  vi:
+    - "Với `resolve_path`, kiểm tra xem `target` có bắt đầu bằng `/` (tuyệt đối) hay không (tương đối theo `cwd`). Sau đó xử lý từng đoạn ngăn cách bởi `/`."
+    - |
+      Dùng một list làm ngăn xếp (stack) tên thư mục:
+      1. Nếu `target.startswith("/")`, bắt đầu với stack rỗng; ngược lại bắt đầu bằng các đoạn khác rỗng của `cwd`.
+      2. Với mỗi đoạn trong `target.split("/")`: bỏ qua `""` và `"."`, lấy phần tử cuối ra khỏi stack khi gặp `".."` (nếu stack không rỗng), và thêm các đoạn khác vào stack.
+      3. Nối stack bằng `"/"` và thêm `"/"` ở đầu.
+    - |
+      Với `split_command(line)`:
+      ```python
+      parts = line.strip().split()
+      if not parts:
+          raise ValueError("Command cannot be empty")
+      return parts[0], parts[1:]
+      ```

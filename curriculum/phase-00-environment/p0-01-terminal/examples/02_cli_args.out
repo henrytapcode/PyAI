@@ -1,0 +1,6 @@
+Running train.py with args=['--epochs', '5']
+exit code: 0
+Error: notes.txt is not a .py file
+exit code: 2
+Error: missing script name
+exit code: 1

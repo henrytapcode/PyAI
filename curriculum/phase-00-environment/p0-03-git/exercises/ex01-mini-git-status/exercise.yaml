@@ -1,0 +1,16 @@
+id: p0-03-ex01
+kind: code
+title:
+  en: "Mini git status & add"
+  vi: "Mô phỏng git status & add"
+difficulty: 1
+tags: [git, dicts]
+hints:
+  en:
+    - "Start with `git_status`: compare `staged` against `committed` across `committed.keys() | staged.keys()` to find `'staged'` changes."
+    - "For `'untracked'`, check keys in `working` that are in neither `committed` nor `staged`. For `'modified'` and `'deleted'`, compare `working` against `staged`."
+    - "In `stage_files`, copy `staged` with `dict(staged)` first. For each path in `paths`, copy from `working` if present, delete from the copy if present there, or raise `KeyError(path)`."
+  vi:
+    - "Bắt đầu với `git_status`: so sánh `staged` với `committed` trên tập khóa `committed.keys() | staged.keys()` để tìm mục `'staged'`."
+    - "Với `'untracked'`, lấy các khóa trong `working` không nằm trong `committed` lẫn `staged`. Với `'modified'` và `'deleted'`, so sánh `working` với `staged`."
+    - "Trong `stage_files`, sao chép `staged` bằng `dict(staged)` trước. Với mỗi đường dẫn trong `paths`, chép từ `working` nếu có, xóa khỏi bản sao nếu có trong đó, ngược lại ném `KeyError(path)`."

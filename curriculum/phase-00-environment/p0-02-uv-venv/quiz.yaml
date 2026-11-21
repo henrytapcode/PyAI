@@ -1,0 +1,313 @@
+questions:
+  - id: p0-02-q01
+    type: mcq
+    tags: [setup, packaging]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Why should each Python project have its own virtual environment (`.venv/`)?"
+      options:
+        - "To make Python run twice as fast"
+        - "To isolate dependencies between projects"
+        - "To encrypt source files automatically"
+        - "To skip writing a `pyproject.toml` file"
+      explanation: "A virtual environment keeps each project's installed packages separate so upgrading a library in one project never breaks another."
+    vi:
+      prompt: "Vì sao mỗi dự án Python nên có một virtual environment (`.venv/`) riêng?"
+      options:
+        - "Để Python chạy nhanh gấp đôi"
+        - "Để cô lập dependency giữa các dự án"
+        - "Để tự động mã hóa mã nguồn"
+        - "Để bỏ qua bước tạo tệp `pyproject.toml`"
+      explanation: "Môi trường ảo giữ các gói cài đặt của từng dự án tách biệt nhau, nhờ đó nâng cấp thư viện ở dự án này không làm hỏng dự án khác."
+
+  - id: p0-02-q02
+    type: mcq
+    tags: [setup, packaging]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which `uv` command initializes a new Python project with a `pyproject.toml`?"
+      options:
+        - "`uv init my-app`"
+        - "`uv sync my-app`"
+        - "`uv lock my-app`"
+        - "`uv freeze my-app`"
+      explanation: "`uv init <name>` creates the initial project skeleton including `pyproject.toml`."
+    vi:
+      prompt: "Lệnh `uv` nào khởi tạo một dự án Python mới kèm `pyproject.toml`?"
+      options:
+        - "`uv init my-app`"
+        - "`uv sync my-app`"
+        - "`uv lock my-app`"
+        - "`uv freeze my-app`"
+      explanation: "`uv init <tên>` tạo khung dự án ban đầu bao gồm `pyproject.toml`."
+
+  - id: p0-02-q03
+    type: output
+    tags: [stdlib, packaging]
+    difficulty: 1
+    code: |
+      import tomllib
+
+      raw = '[project]\nname = "agent"\ndependencies = ["httpx>=0.27"]'
+      data = tomllib.loads(raw)
+      print(data["project"]["name"], len(data["project"]["dependencies"]))
+    answer: "agent 1"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`tomllib.loads` parses the TOML string into nested dicts and lists: `name` is `\"agent\"` and `dependencies` has 1 item."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`tomllib.loads` phân tích chuỗi TOML thành dict và list lồng nhau: `name` là `\"agent\"` và `dependencies` có 1 phần tử."
+
+  - id: p0-02-q04
+    type: fill
+    tags: [stdlib, packaging]
+    difficulty: 1
+    code: |
+      import ___
+
+      cfg = tomllib.loads('[project]\nversion = "0.1.0"')
+      print(cfg["project"]["version"])  # 0.1.0
+    answer: ["tomllib"]
+    en:
+      prompt: "Fill in the standard library module name used to parse TOML in Python 3.11+."
+      explanation: "`tomllib` was added to the Python 3.11 standard library for reading TOML files."
+    vi:
+      prompt: "Điền tên module trong thư viện chuẩn Python 3.11+ dùng để đọc TOML."
+      explanation: "`tomllib` được thêm vào thư viện chuẩn từ Python 3.11 để đọc tệp TOML."
+
+  - id: p0-02-q05
+    type: mcq
+    tags: [packaging, setup]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which file(s) should you commit to Git when using `uv`?"
+      options:
+        - "Only `.venv/`"
+        - "Only `pyproject.toml`"
+        - "`pyproject.toml` and `uv.lock`"
+        - "`.venv/` and `uv.lock`"
+      explanation: "Commit both `pyproject.toml` (declared dependencies) and `uv.lock` (exact resolved versions), and ignore `.venv/`."
+    vi:
+      prompt: "Bạn nên commit tệp nào lên Git khi dùng `uv`?"
+      options:
+        - "Chỉ `.venv/`"
+        - "Chỉ `pyproject.toml`"
+        - "`pyproject.toml` và `uv.lock`"
+        - "`.venv/` và `uv.lock`"
+      explanation: "Hãy commit cả `pyproject.toml` (danh sách dependency) lẫn `uv.lock` (phiên bản chính xác), và đưa `.venv/` vào `.gitignore`."
+
+  - id: p0-02-q06
+    type: parsons
+    tags: [stdlib, packaging]
+    difficulty: 2
+    lines:
+      - "import tomllib"
+      - 'data = tomllib.loads("[project]\ndependencies = [\"rich\"]")'
+      - 'deps = data["project"]["dependencies"]'
+      - "print(deps[0])"
+    en:
+      prompt: "Put the lines in order so the program parses the TOML string and prints `rich`."
+      explanation: "Import `tomllib` first, call `tomllib.loads` to create `data`, extract `deps` from `data`, then print `deps[0]`."
+    vi:
+      prompt: "Sắp xếp các dòng để chương trình đọc chuỗi TOML và in ra `rich`."
+      explanation: "Import `tomllib` trước, gọi `tomllib.loads` để tạo `data`, lấy `deps` từ `data`, rồi in `deps[0]`."
+
+  - id: p0-02-q07
+    type: output
+    tags: [dicts, packaging]
+    difficulty: 1
+    code: |
+      env_a = {"httpx": "0.25.0"}
+      env_b = {"httpx": "0.27.0"}
+      print(env_a["httpx"] == env_b["httpx"])
+    answer: "False"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The two isolated environment dictionaries store different versions (`\"0.25.0\"` vs `\"0.27.0\"`), so equality is `False`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Hai dictionary môi trường độc lập lưu hai phiên bản khác nhau (`\"0.25.0\"` và `\"0.27.0\"`), nên phép so sánh bằng trả về `False`."
+
+  - id: p0-02-q08
+    type: mcq
+    tags: [setup, packaging]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "After cloning a repository that has `pyproject.toml` and `uv.lock`, which command creates `.venv/` with exact locked versions?"
+      options:
+        - "`uv init`"
+        - "`uv run python`"
+        - "`uv build`"
+        - "`uv sync`"
+      explanation: "`uv sync` reads `uv.lock` and installs the exact locked package versions into `.venv/`."
+    vi:
+      prompt: "Sau khi clone một repo đã có `pyproject.toml` và `uv.lock`, lệnh nào tạo `.venv/` với đúng các phiên bản đã khóa?"
+      options:
+        - "`uv init`"
+        - "`uv run python`"
+        - "`uv build`"
+        - "`uv sync`"
+      explanation: "`uv sync` đọc `uv.lock` và cài đúng các phiên bản đã khóa vào `.venv/`."
+
+  - id: p0-02-q09
+    type: fill
+    tags: [strings, packaging]
+    difficulty: 2
+    code: |
+      installed = {"pyyaml", "httpx"}
+      requested = "PyYAML"
+      print(requested.___() in installed)  # True
+    answer: ["lower"]
+    en:
+      prompt: "Fill in the string method so package comparison is case-insensitive and prints `True`."
+      explanation: "PyPI package names are case-insensitive, so calling `.lower()` turns `\"PyYAML\"` into `\"pyyaml\"`."
+    vi:
+      prompt: "Điền phương thức chuỗi để so sánh tên gói không phân biệt hoa thường và in ra `True`."
+      explanation: "Tên gói trên PyPI không phân biệt hoa thường, nên gọi `.lower()` chuyển `\"PyYAML\"` thành `\"pyyaml\"`."
+
+  - id: p0-02-q10
+    type: mcq
+    tags: [packaging]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "What is the key difference between `pyproject.toml` and `uv.lock`?"
+      options:
+        - "`pyproject.toml` is binary; `uv.lock` is plain text"
+        - "`pyproject.toml` lists ranges; `uv.lock` pins exact versions"
+        - "`pyproject.toml` is ignored by Git; `uv.lock` is committed"
+        - "`pyproject.toml` is auto-generated; `uv.lock` is hand-written"
+      explanation: "You declare flexible version ranges in `pyproject.toml`, while `uv` generates `uv.lock` with exact pinned versions for reproducibility."
+    vi:
+      prompt: "Điểm khác biệt chính giữa `pyproject.toml` và `uv.lock` là gì?"
+      options:
+        - "`pyproject.toml` là file nhị phân; `uv.lock` là văn bản thuần"
+        - "`pyproject.toml` ghi khoảng phiên bản; `uv.lock` ghim phiên bản chính xác"
+        - "`pyproject.toml` bị Git bỏ qua; `uv.lock` được commit"
+        - "`pyproject.toml` tự sinh; `uv.lock` do người viết tay"
+      explanation: "Bạn khai báo khoảng phiên bản linh hoạt trong `pyproject.toml`, còn `uv` tự sinh `uv.lock` với phiên bản cố định để tái tạo môi trường."
+
+  - id: p0-02-q11
+    type: output
+    tags: [dicts, lists]
+    difficulty: 2
+    code: |
+      old = {"httpx": "0.25.0", "rich": "13.0.0"}
+      new = {"httpx": "0.27.0", "pytest": "8.2.0"}
+      added = sorted(k for k in new if k not in old)
+      print(added)
+    answer: "['pytest']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`\"pytest\"` is in `new` and not in `old`, so `added` is `['pytest']`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`\"pytest\"` có trong `new` và không có trong `old`, nên `added` là `['pytest']`."
+
+  - id: p0-02-q12
+    type: parsons
+    tags: [strings, packaging]
+    difficulty: 2
+    lines:
+      - 'spec = "PyYAML >= 6.0"'
+      - 'raw_name, raw_ver = spec.split(">=", 1)'
+      - "pkg = raw_name.strip().lower()"
+      - 'print(pkg, raw_ver.strip())'
+    en:
+      prompt: "Arrange the lines so the code splits `spec` and prints `pyyaml 6.0`."
+      explanation: "Define `spec` first, split on `\">=\"`, normalize `pkg` from `raw_name`, and finally print `pkg` and `raw_ver.strip()`."
+    vi:
+      prompt: "Sắp xếp các dòng để code tách `spec` và in ra `pyyaml 6.0`."
+      explanation: "Khai báo `spec` trước, tách theo `\">=\"`, chuẩn hóa `pkg` từ `raw_name`, và cuối cùng in `pkg` cùng `raw_ver.strip()`."
+
+  - id: p0-02-q13
+    type: mcq
+    tags: [setup, packaging]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why does running `uv run python app.py` work even without activating `.venv/` first?"
+      options:
+        - "`uv` automatically locates and uses `.venv/`"
+        - "`uv` installs packages into global Python"
+        - "`uv` compiles `app.py` into a standalone binary"
+        - "`uv` bypasses Python's import system"
+      explanation: "`uv run` detects the project's `.venv/` and runs the command inside that virtual environment automatically."
+    vi:
+      prompt: "Vì sao chạy `uv run python app.py` vẫn hoạt động dù bạn chưa kích hoạt `.venv/` trước?"
+      options:
+        - "`uv` tự động tìm và dùng đúng `.venv/`"
+        - "`uv` cài mọi gói vào Python toàn máy"
+        - "`uv` biên dịch `app.py` thành file thực thi độc lập"
+        - "`uv` bỏ qua cơ chế import của Python"
+      explanation: "`uv run` tự nhận diện `.venv/` của dự án và chạy lệnh bên trong môi trường ảo đó."
+
+  - id: p0-02-q14
+    type: fill
+    tags: [dicts, packaging]
+    difficulty: 2
+    code: |
+      installed = {"httpx": "0.27.0"}
+      ver = installed.___("pydantic")
+      print(ver)  # None
+    answer: ["get"]
+    en:
+      prompt: "Fill in the dictionary method that returns `None` instead of raising `KeyError` when a package is missing."
+      explanation: "`dict.get(key)` returns `None` if the key is absent, whereas `installed[\"pydantic\"]` raises `KeyError`."
+    vi:
+      prompt: "Điền phương thức của dictionary trả về `None` thay vì lỗi `KeyError` khi thiếu gói."
+      explanation: "`dict.get(key)` trả về `None` nếu khóa không tồn tại, trong khi `installed[\"pydantic\"]` gây lỗi `KeyError`."
+
+  - id: p0-02-q15
+    type: mcq
+    tags: [packaging, setup]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "Which `uv` command adds `httpx` to `pyproject.toml`, updates `uv.lock`, and installs it into `.venv/`?"
+      options:
+        - "`uv init httpx`"
+        - "`uv sync httpx`"
+        - "`uv add httpx`"
+        - "`uv run httpx`"
+      explanation: "`uv add <package>` updates `pyproject.toml`, resolves and locks dependencies in `uv.lock`, and installs them into `.venv/`."
+    vi:
+      prompt: "Lệnh `uv` nào thêm `httpx` vào `pyproject.toml`, cập nhật `uv.lock` và cài nó vào `.venv/`?"
+      options:
+        - "`uv init httpx`"
+        - "`uv sync httpx`"
+        - "`uv add httpx`"
+        - "`uv run httpx`"
+      explanation: "`uv add <gói>` cập nhật `pyproject.toml`, giải quyết và khóa phiên bản vào `uv.lock`, đồng thời cài vào `.venv/`."
+
+flashcards:
+  - id: p0-02-f01
+    tags: [setup, packaging]
+    en: { front: "What is a virtual environment (`.venv/`)?", back: "A self-contained folder inside a project holding its own Python interpreter and installed packages, preventing version conflicts across projects." }
+    vi: { front: "Môi trường ảo (`.venv/`) là gì?", back: "Một thư mục độc lập trong dự án chứa bộ thông dịch Python và các gói cài đặt riêng, giúp tránh xung đột phiên bản giữa các dự án." }
+  - id: p0-02-f02
+    tags: [setup, packaging]
+    en: { front: "What does `uv init` do?", back: "Creates a new Python project skeleton with `pyproject.toml`, `.python-version`, and `main.py`." }
+    vi: { front: "`uv init` làm gì?", back: "Tạo khung dự án Python mới gồm `pyproject.toml`, `.python-version` và `main.py`." }
+  - id: p0-02-f03
+    tags: [packaging]
+    en: { front: "What does `uv add <pkg>` do?", back: "Records `<pkg>` in `pyproject.toml`, updates exact pins in `uv.lock`, and installs it into `.venv/`." }
+    vi: { front: "`uv add <gói>` làm gì?", back: "Ghi `<gói>` vào `pyproject.toml`, cập nhật phiên bản chính xác trong `uv.lock` và cài vào `.venv/`." }
+  - id: p0-02-f04
+    tags: [packaging]
+    en: { front: "Difference between `pyproject.toml` and `uv.lock`?", back: "`pyproject.toml` lists human-edited dependency ranges; `uv.lock` pins exact resolved versions for reproducible `uv sync`." }
+    vi: { front: "Khác biệt giữa `pyproject.toml` và `uv.lock`?", back: "`pyproject.toml` ghi khoảng phiên bản do người viết; `uv.lock` ghim phiên bản cố định để `uv sync` tái tạo môi trường giống hệt." }
+  - id: p0-02-f05
+    tags: [setup, packaging]
+    en: { front: "Should `.venv/` be committed to Git?", back: "No. Keep `.venv/` in `.gitignore` and commit `pyproject.toml` + `uv.lock` instead." }
+    vi: { front: "Có nên commit `.venv/` lên Git không?", back: "Không. Hãy thêm `.venv/` vào `.gitignore` và chỉ commit `pyproject.toml` cùng `uv.lock`." }
+  - id: p0-02-f06
+    tags: [stdlib]
+    code: "import tomllib\ndata = tomllib.loads(text)"
+    en: { front: "Which stdlib module parses `pyproject.toml` in Python 3.11+?", back: "`tomllib` — `tomllib.loads(text)` returns nested Python dicts and lists." }
+    vi: { front: "Module thư viện chuẩn nào đọc `pyproject.toml` từ Python 3.11+?", back: "`tomllib` — `tomllib.loads(text)` trả về các dictionary và list lồng nhau." }

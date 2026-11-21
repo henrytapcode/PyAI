@@ -1,0 +1,16 @@
+id: p0-02-ex01
+kind: code
+title:
+  en: "Inspect pyproject.toml dependencies"
+  vi: "Phân tích dependency trong pyproject.toml"
+difficulty: 1
+tags: [packaging, stdlib, strings]
+hints:
+  en:
+    - "Use `tomllib.loads(toml_text)` and safely read `data.get(\"project\", {}).get(\"dependencies\", [])` so missing sections return `{}`."
+    - "To split a dependency like `\"PyYAML >= 6.0\"`, check two-character operators (`==`, `>=`, `<=`, `~=`, `!=`) before single-character ones (`>`, `<`), strip whitespace from both sides, and drop any `[extras]` suffix before calling `.lower()`."
+    - "In `missing_packages`, build a set of `{k.lower() for k in installed}` and return `sorted(k.lower() for k in required if k.lower() not in installed_lower)`."
+  vi:
+    - "Dùng `tomllib.loads(toml_text)` và đọc an toàn `data.get(\"project\", {}).get(\"dependencies\", [])` để trả về `{}` nếu thiếu mục này."
+    - "Để tách chuỗi như `\"PyYAML >= 6.0\"`, hãy kiểm tra các toán tử 2 ký tự (`==`, `>=`, `<=`, `~=`, `!=`) trước toán tử 1 ký tự (`>`, `<`), xóa khoảng trắng hai đầu, và bỏ phần `[extras]` (nếu có) trước khi gọi `.lower()`."
+    - "Trong `missing_packages`, tạo tập `{k.lower() for k in installed}` rồi trả về `sorted(k.lower() for k in required if k.lower() not in installed_lower)`."

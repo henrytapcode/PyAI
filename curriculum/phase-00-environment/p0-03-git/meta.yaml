@@ -1,0 +1,27 @@
+id: p0-03-git
+phase: p0
+order: 3
+kind: lesson
+title:
+  en: "Git essentials"
+  vi: "Git căn bản"
+summary:
+  en: "Track code changes across Git's three areas, create branches, resolve merge conflicts, and push to GitHub."
+  vi: "Theo dõi thay đổi code qua ba vùng của Git, tạo nhánh, xử lý xung đột gộp nhánh và đẩy code lên GitHub."
+level: beginner
+tags: [setup, git, dicts]
+prerequisites: [p0-01-terminal]
+duration_min: 15
+outcomes:
+  en:
+    - "commit, branch, merge"
+    - "Push to GitHub"
+  vi:
+    - "commit, branch, merge"
+    - "Đẩy code lên GitHub"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "Pro Git book (official)", vi: "Sách Pro Git (chính thức, EN)" }
+    url: "https://git-scm.com/book/en/v2"
+  - title: { en: "GitHub Docs: Get started with Git", vi: "GitHub Docs: Bắt đầu với Git (EN)" }
+    url: "https://docs.github.com/en/get-started"

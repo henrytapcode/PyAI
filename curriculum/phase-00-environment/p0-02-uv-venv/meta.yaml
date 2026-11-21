@@ -1,0 +1,27 @@
+id: p0-02-uv-venv
+phase: p0
+order: 2
+kind: lesson
+title:
+  en: "uv & virtual environments"
+  vi: "uv & môi trường ảo"
+summary:
+  en: "Isolate project dependencies with virtual environments, manage packages with uv, and inspect pyproject.toml and uv.lock."
+  vi: "Cô lập gói phụ thuộc bằng môi trường ảo, quản lý thư viện với uv, và đọc hiểu pyproject.toml cùng uv.lock."
+level: beginner
+tags: [setup, packaging, stdlib]
+prerequisites: [p0-01-terminal]
+duration_min: 12
+outcomes:
+  en:
+    - "Create a project with uv"
+    - "Add and lock dependencies"
+  vi:
+    - "Tạo project bằng uv"
+    - "Thêm và khóa dependency"
+review_by: "2027-10-01"
+further_reading:
+  - title: { en: "uv documentation: Working on projects", vi: "Tài liệu uv: Làm việc với project (EN)" }
+    url: "https://docs.astral.sh/uv/guides/projects/"
+  - title: { en: "Python docs: tomllib — Parse TOML files", vi: "Tài liệu Python: tomllib — Đọc file TOML (EN)" }
+    url: "https://docs.python.org/3/library/tomllib.html"

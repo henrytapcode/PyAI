@@ -1,0 +1,28 @@
+id: p0-04-ex01
+kind: code
+title:
+  en: "VS Code settings builder"
+  vi: "Tạo cấu hình VS Code"
+difficulty: 1
+tags: [setup, json, linting, dicts]
+hints:
+  en:
+    - "In `build_vscode_settings`, validate `venv_path.strip()` is non-empty and `40 <= line_length <= 200` before returning the dictionary."
+    - "In `validate_settings_json`, wrap `json.loads(raw_json)` in `try/except json.JSONDecodeError` and also check `isinstance(data, dict)`."
+    - |
+      Check the required keys in exact order:
+      ```python
+      for key in ("python.defaultInterpreterPath", "editor.formatOnSave", "[python]"):
+          if key not in data:
+              errors.append(f"missing:{key}")
+      ```
+  vi:
+    - "Trong `build_vscode_settings`, kiểm tra `venv_path.strip()` không rỗng và `40 <= line_length <= 200` trước khi trả về dictionary."
+    - "Trong `validate_settings_json`, bọc `json.loads(raw_json)` trong `try/except json.JSONDecodeError` và kiểm tra thêm `isinstance(data, dict)`."
+    - |
+      Kiểm tra các key bắt buộc theo đúng thứ tự:
+      ```python
+      for key in ("python.defaultInterpreterPath", "editor.formatOnSave", "[python]"):
+          if key not in data:
+              errors.append(f"missing:{key}")
+      ```

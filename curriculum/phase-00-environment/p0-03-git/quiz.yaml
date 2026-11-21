@@ -1,0 +1,313 @@
+questions:
+  - id: p0-03-q01
+    type: mcq
+    tags: [git]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which Git area holds changes selected by `git add` for the next commit?"
+      options:
+        - "Working Tree"
+        - "Staging Area"
+        - "Remote Origin"
+        - "Stash Stack"
+      explanation: "`git add` copies changes from the Working Tree into the Staging Area (Index) before `git commit` records them."
+    vi:
+      prompt: "Vùng nào của Git giữ các thay đổi đã được chọn bằng `git add` cho commit tiếp theo?"
+      options:
+        - "Working Tree"
+        - "Staging Area"
+        - "Remote Origin"
+        - "Stash Stack"
+      explanation: "`git add` chép thay đổi từ Working Tree vào Staging Area (vùng chờ) trước khi `git commit` ghi nhận chúng."
+
+  - id: p0-03-q02
+    type: output
+    tags: [git, dicts]
+    difficulty: 1
+    code: |
+      committed = {"a.py": "v1"}
+      staged = dict(committed)
+      working = {"a.py": "v2", "b.py": "v1"}
+      staged["a.py"] = working["a.py"]
+      print(sorted(p for p in working if p not in staged))
+    answer: "['b.py']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "Only `a.py` was copied into `staged`, so `b.py` remains untracked in `working`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Chỉ có `a.py` được chép vào `staged`, nên `b.py` vẫn là file chưa theo dõi trong `working`."
+
+  - id: p0-03-q03
+    type: mcq
+    tags: [git, setup]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Which file tells Git to ignore `.venv/` and `.env`?"
+      options:
+        - ".gitkeep"
+        - ".gitmodules"
+        - ".gitignore"
+        - ".gitattributes"
+      explanation: "`.gitignore` lists file and folder patterns that Git should skip when tracking or staging."
+    vi:
+      prompt: "File nào báo cho Git bỏ qua `.venv/` và `.env`?"
+      options:
+        - ".gitkeep"
+        - ".gitmodules"
+        - ".gitignore"
+        - ".gitattributes"
+      explanation: "`.gitignore` liệt kê các mẫu file và thư mục mà Git cần bỏ qua khi theo dõi hoặc stage."
+
+  - id: p0-03-q04
+    type: fill
+    tags: [git, dicts]
+    difficulty: 1
+    code: |
+      staged = {"app.py": "v1"}
+      working = {"app.py": "v2"}
+      staged["app.py"] = ___["app.py"]
+      print(staged["app.py"])  # v2
+    answer: ["working"]
+    en:
+      prompt: "Fill in the blank to simulate `git add app.py`."
+      explanation: "Staging reads the updated content from `working` and stores it in `staged`."
+    vi:
+      prompt: "Điền vào chỗ trống để mô phỏng lệnh `git add app.py`."
+      explanation: "Thao tác stage đọc nội dung mới từ `working` và lưu vào `staged`."
+
+  - id: p0-03-q05
+    type: parsons
+    tags: [git, dicts]
+    difficulty: 1
+    lines:
+      - "working = {'app.py': 'v2'}"
+      - "staged = {'app.py': working['app.py']}"
+      - "committed = dict(staged)"
+      - "print(committed['app.py'])"
+    en:
+      prompt: "Arrange the lines to simulate editing, staging, committing, and printing `v2`."
+      explanation: "First `working` is defined, then `staged` reads from `working`, then `committed` copies `staged`, and finally `print` reads `committed`."
+    vi:
+      prompt: "Sắp xếp các dòng để mô phỏng việc sửa, stage, commit và in ra `v2`."
+      explanation: "Trước hết tạo `working`, rồi `staged` đọc từ `working`, tiếp theo `committed` chép `staged`, và cuối cùng `print` đọc `committed`."
+
+  - id: p0-03-q06
+    type: mcq
+    tags: [git]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Which command creates and switches to a new branch named `feat-api`?"
+      options:
+        - "git switch -c feat-api"
+        - "git merge -c feat-api"
+        - "git commit -b feat-api"
+        - "git branch -m feat-api"
+      explanation: "`git switch -c <name>` creates a new branch and immediately switches HEAD to it."
+    vi:
+      prompt: "Lệnh nào tạo và chuyển ngay sang nhánh mới tên `feat-api`?"
+      options:
+        - "git switch -c feat-api"
+        - "git merge -c feat-api"
+        - "git commit -b feat-api"
+        - "git branch -m feat-api"
+      explanation: "`git switch -c <tên>` tạo một nhánh mới và chuyển ngay HEAD sang nhánh đó."
+
+  - id: p0-03-q07
+    type: output
+    tags: [git, dicts]
+    difficulty: 2
+    code: |
+      committed = {"a.py": "1"}
+      staged = {"a.py": "1", "b.py": "2"}
+      changed = [k for k in sorted(staged) if staged.get(k) != committed.get(k)]
+      print(changed)
+    answer: "['b.py']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`a.py` matches `committed`, while `b.py` is newly added in `staged`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`a.py` giống với `committed`, còn `b.py` mới được thêm vào `staged`."
+
+  - id: p0-03-q08
+    type: mcq
+    tags: [git]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "When does a Git fast-forward merge happen?"
+      options:
+        - "Two branches edited the same file"
+        - "Remote origin has newer commits"
+        - "Staging Area has untracked files"
+        - "Target branch has no new commits"
+      explanation: "If the target branch (such as `main`) has no new commits since branching, Git just moves its pointer forward."
+    vi:
+      prompt: "Khi nào xảy ra gộp nhánh fast-forward trong Git?"
+      options:
+        - "Hai nhánh sửa cùng một file"
+        - "Remote origin có commit mới hơn"
+        - "Staging Area có file chưa theo dõi"
+        - "Nhánh đích không có commit mới"
+      explanation: "Nếu nhánh đích (như `main`) không có commit mới kể từ lúc tách nhánh, Git chỉ cần dời con trỏ tiến lên."
+
+  - id: p0-03-q09
+    type: fill
+    tags: [git, strings]
+    difficulty: 2
+    code: |
+      subject = "Add login check"
+      valid = len(subject) <= 72 and not subject.___(".")
+      print(valid)  # True
+    answer: ["endswith"]
+    en:
+      prompt: "Fill in the blank to check that the commit subject does not end with a period."
+      explanation: "`str.endswith(\".\")` returns `True` if the string ends with a period."
+    vi:
+      prompt: "Điền vào chỗ trống để kiểm tra tiêu đề commit không kết thúc bằng dấu chấm."
+      explanation: "`str.endswith(\".\")` trả về `True` nếu chuỗi kết thúc bằng dấu chấm."
+
+  - id: p0-03-q10
+    type: parsons
+    tags: [git, dicts]
+    difficulty: 2
+    lines:
+      - "base = {'cfg.py': 'v1'}"
+      - "main = {**base, 'cfg.py': 'v2'}"
+      - "changed = main['cfg.py'] != base['cfg.py']"
+      - "print(changed)"
+    en:
+      prompt: "Arrange the lines to check whether `main` changed `cfg.py` relative to `base` and print `True`."
+      explanation: "`base` is created first, `main` copies and updates `base`, `changed` compares `main` against `base`, and `print(changed)` outputs the result."
+    vi:
+      prompt: "Sắp xếp các dòng để kiểm tra xem `main` có sửa `cfg.py` so với `base` hay không và in ra `True`."
+      explanation: "`base` được tạo trước, `main` chép và cập nhật `base`, `changed` so sánh `main` với `base`, và `print(changed)` in kết quả."
+
+  - id: p0-03-q11
+    type: mcq
+    tags: [git]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "You edit `train.py` after running `git add train.py`, then immediately run `git commit`. What is committed?"
+      options:
+        - "The newest Working Tree edit"
+        - "The earlier staged snapshot"
+        - "A merged copy of the two edits"
+        - "Nothing; Git deletes the file"
+      explanation: "`git commit` always saves what is currently in the Staging Area, not un-staged Working Tree edits."
+    vi:
+      prompt: "Bạn sửa `train.py` sau khi đã chạy `git add train.py`, rồi chạy ngay `git commit`. Phiên bản nào được commit?"
+      options:
+        - "Bản sửa mới nhất ở Working Tree"
+        - "Bản chụp đã stage trước đó"
+        - "Bản gộp của hai lần chỉnh sửa"
+        - "Không có gì; Git xóa file đó"
+      explanation: "`git commit` luôn lưu những gì đang có trong Staging Area, không tự lấy các sửa đổi chưa stage ở Working Tree."
+
+  - id: p0-03-q12
+    type: output
+    tags: [git, dicts]
+    difficulty: 2
+    code: |
+      staged = {"a.py": "1", "b.py": "2"}
+      working = {"a.py": "1"}
+      deleted = [p for p in sorted(staged) if p not in working]
+      print(deleted)
+    answer: "['b.py']"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`b.py` is still in `staged` but missing from `working`, so it is reported as deleted."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`b.py` vẫn còn trong `staged` nhưng thiếu trong `working`, nên nó được liệt kê là đã xóa."
+
+  - id: p0-03-q13
+    type: mcq
+    tags: [git]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "What does `git pull` do?"
+      options:
+        - "Uploads local commits to GitHub"
+        - "Deletes merged local branches"
+        - "Fetches and merges remote commits"
+        - "Creates a new `.gitignore` file"
+      explanation: "`git pull` fetches new commits from the remote repository and merges them into your current branch."
+    vi:
+      prompt: "`git pull` làm gì?"
+      options:
+        - "Đẩy các commit cục bộ lên GitHub"
+        - "Xóa các nhánh cục bộ đã gộp"
+        - "Tải về và gộp commit từ remote"
+        - "Tạo một file `.gitignore` mới"
+      explanation: "`git pull` tải các commit mới từ kho lưu trữ từ xa và gộp chúng vào nhánh hiện tại của bạn."
+
+  - id: p0-03-q14
+    type: mcq
+    tags: [git, dicts]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "In a three-way merge, `base` has `x='1'`, `main` keeps `x='1'`, and `feature` deletes `x`. What happens to `x`?"
+      options:
+        - "Deleted cleanly without conflict"
+        - "Flagged as a merge conflict"
+        - "Restored to `'1'` from `main`"
+        - "Renamed to `x.bak` automatically"
+      explanation: "Because `main` did not change `x` from `base`, the deletion in `feature` wins cleanly with no conflict."
+    vi:
+      prompt: "Trong gộp ba chiều, `base` có `x='1'`, `main` giữ `x='1'`, còn `feature` xóa `x`. Điều gì xảy ra với `x`?"
+      options:
+        - "Xóa gọn gàng không có xung đột"
+        - "Bị đánh dấu là xung đột gộp nhánh"
+        - "Được khôi phục thành `'1'` từ `main`"
+        - "Tự động đổi tên thành `x.bak`"
+      explanation: "Vì `main` không sửa `x` so với `base`, thao tác xóa ở `feature` được áp dụng gọn gàng mà không xung đột."
+
+  - id: p0-03-q15
+    type: output
+    tags: [git, strings]
+    difficulty: 2
+    code: |
+      msg = "  Add dataset loader\n\nDetails here."
+      subject = msg.split("\n", 1)[0].strip()
+      print(len(subject), subject[0].isalpha())
+    answer: "18 True"
+    en:
+      prompt: "What does this code print?"
+      explanation: "The stripped first line is `'Add dataset loader'` (18 characters), which starts with the letter `'A'`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Dòng đầu tiên sau khi cắt khoảng trắng là `'Add dataset loader'` (18 ký tự), bắt đầu bằng chữ cái `'A'`."
+
+flashcards:
+  - id: p0-03-f01
+    tags: [git]
+    en: { front: "Git's three areas?", back: "Working Tree (disk edits) → Staging Area (`git add`) → Repository (`git commit`)." }
+    vi: { front: "Ba vùng của Git là gì?", back: "Working Tree (file đang sửa) → Staging Area (`git add`) → Repository (`git commit`)." }
+  - id: p0-03-f02
+    tags: [git]
+    en: { front: "What does `git status` show?", back: "Untracked, modified, deleted, and staged files by comparing Working Tree, Staging Area, and Repository." }
+    vi: { front: "`git status` hiển thị gì?", back: "Các file chưa theo dõi, đã sửa, đã xóa và đã stage bằng cách so sánh Working Tree, Staging Area và Repository." }
+  - id: p0-03-f03
+    tags: [git, setup]
+    en: { front: "What should always be in `.gitignore` for Python?", back: "`.venv/`, `__pycache__/`, `*.pyc`, and `.env` (secrets/API keys)." }
+    vi: { front: "Những gì luôn cần có trong `.gitignore` cho Python?", back: "`.venv/`, `__pycache__/`, `*.pyc` và `.env` (khóa bí mật/API key)." }
+  - id: p0-03-f04
+    tags: [git]
+    en: { front: "How do you create and switch to a new branch?", back: "`git switch -c <branch-name>`." }
+    vi: { front: "Làm sao tạo và chuyển sang nhánh mới?", back: "`git switch -c <tên-nhánh>`." }
+  - id: p0-03-f05
+    tags: [git]
+    en: { front: "When does a three-way merge conflict occur?", back: "When both branches change the same file or lines differently from their common `base` ancestor." }
+    vi: { front: "Khi nào xảy ra xung đột trong gộp ba chiều?", back: "Khi cả hai nhánh sửa cùng một file hoặc dòng theo cách khác nhau so với tổ tiên chung `base`." }
+  - id: p0-03-f06
+    tags: [git]
+    en: { front: "Difference between `git push` and `git pull`?", back: "`git push` uploads local commits to GitHub; `git pull` fetches remote commits and merges them locally." }
+    vi: { front: "Khác nhau giữa `git push` và `git pull`?", back: "`git push` đẩy commit cục bộ lên GitHub; `git pull` tải commit từ remote về và gộp vào nhánh hiện tại." }

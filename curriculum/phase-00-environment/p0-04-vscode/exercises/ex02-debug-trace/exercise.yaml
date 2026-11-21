@@ -1,0 +1,16 @@
+id: p0-04-ex02
+kind: debug
+title:
+  en: "Debug: breakpoints and watch trace"
+  vi: "Debug: breakpoint và theo dõi Watch"
+difficulty: 2
+tags: [debugging, lists, loops]
+hints:
+  en:
+    - "Run the tests first to see which assertions fail. There are bugs in both `find_first_above` and `trace_watch`."
+    - "In `find_first_above`, check three things: strict `>` instead of `>=`, 0-based index `i` instead of `i + 1`, and returning `None` instead of `-1` when nothing matches."
+    - "In `trace_watch`, accumulate `running_sum += v` (not `=`), append the step dictionary *before* checking `if hit: break`, and stop right after recording the first breakpoint hit."
+  vi:
+    - "Chạy test trước để xem những assertion nào bị fail. Có lỗi ở cả `find_first_above` lẫn `trace_watch`."
+    - "Trong `find_first_above`, kiểm tra ba điểm: dùng `>` nghiêm ngặt thay vì `>=`, trả về chỉ số 0-based `i` thay vì `i + 1`, và trả về `None` thay vì `-1` khi không tìm thấy."
+    - "Trong `trace_watch`, cộng dồn `running_sum += v` (không phải `=`), thêm dictionary bước chạy *trước* khi kiểm tra `if hit: break`, và dừng ngay sau khi ghi nhận lần chạm breakpoint đầu tiên."

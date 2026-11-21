@@ -1,0 +1,7 @@
+cwd: /home/alex/projects/ai-app
+parent: /home/alex/projects
+parts: ('/', 'home', 'alex', 'projects', 'ai-app')
+script: /home/alex/projects/ai-app/src/main.py
+filename: main.py
+suffix: .py
+is absolute: True

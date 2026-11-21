@@ -1,0 +1,240 @@
+id: p0-phase-test
+kind: phase_test
+phase: p0
+title:
+  en: "Phase 0 test: Environment setup"
+  vi: "Bài kiểm tra Phase 0: Thiết lập môi trường"
+description:
+  en: "12 questions covering terminal basics, uv virtual environments, Git essentials, and VS Code for Python."
+  vi: "12 câu hỏi về terminal cơ bản, môi trường ảo uv, Git căn bản, và VS Code cho Python."
+duration_min: 15
+pass_score: 0.7
+questions:
+  # ---- p0-01-terminal
+  - id: p0-test-q01
+    type: mcq
+    tags: [setup, files]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "In a terminal, what does the `..` segment represent in a relative path such as `../data/sample.csv`?"
+      options:
+        - "The current working directory itself"
+        - "The parent directory one level above"
+        - "The user home directory on the machine"
+        - "The root directory of the filesystem"
+      explanation: "`..` always points one level up to the parent directory, while `.` points to the current working directory."
+    vi:
+      prompt: "Trong terminal, thành phần `..` trong đường dẫn tương đối như `../data/sample.csv` đại diện cho gì?"
+      options:
+        - "Thư mục làm việc hiện tại của bạn"
+        - "Thư mục cha ở ngay phía trên một cấp"
+        - "Thư mục chính của người dùng trên máy"
+        - "Thư mục gốc của toàn bộ hệ thống tệp"
+      explanation: "`..` luôn trỏ lên một cấp tới thư mục cha, còn `.` trỏ tới thư mục làm việc hiện tại."
+
+  - id: p0-test-q02
+    type: output
+    tags: [files, stdlib]
+    difficulty: 1
+    code: |
+      from pathlib import PurePosixPath
+
+      p = PurePosixPath("/projects/ai/src/app.py")
+      print(p.parent.name, p.suffix)
+    answer: "src .py"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`p.parent` is `/projects/ai/src`, whose `.name` is `src`, and `p.suffix` is the file extension `.py`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`p.parent` là `/projects/ai/src` với `.name` là `src`, còn `p.suffix` là phần mở rộng `.py`."
+
+  - id: p0-test-q03
+    type: parsons
+    tags: [setup, strings]
+    difficulty: 2
+    lines:
+      - "line = \"  python train.py --epochs 5  \""
+      - "parts = line.strip().split()"
+      - "cmd, *args = parts"
+      - "summary = f\"{cmd}:{len(args)}\""
+      - "print(summary)"
+    en:
+      prompt: "Put the lines in order to parse a CLI command string and print `python:3`."
+      explanation: "Strip and split the raw line first, unpack `cmd` and `args`, format `summary`, and then print it."
+    vi:
+      prompt: "Sắp xếp các dòng theo đúng thứ tự để tách chuỗi lệnh CLI và in ra `python:3`."
+      explanation: "Loại bỏ khoảng trắng và tách chuỗi trước, giải nén `cmd` và `args`, định dạng `summary`, rồi mới in ra."
+
+  # ---- p0-02-uv-venv
+  - id: p0-test-q04
+    type: mcq
+    tags: [setup, packaging]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Why should each Python project have its own `.venv` managed by `uv`?"
+      options:
+        - "It isolates project packages so versions do not conflict"
+        - "It compiles Python scripts into native binary executables"
+        - "It automatically uploads your source code to GitHub repos"
+        - "It replaces the need for any imports inside Python files"
+      explanation: "A `.venv` keeps each project's dependencies separate so upgrading a package in one project cannot break another."
+    vi:
+      prompt: "Vì sao mỗi dự án Python nên có `.venv` riêng do `uv` quản lý?"
+      options:
+        - "Nó cô lập các gói của dự án để tránh xung đột phiên bản"
+        - "Nó biên dịch script Python thành tệp thực thi nhị phân"
+        - "Nó tự động tải mã nguồn của bạn lên kho lưu trữ GitHub"
+        - "Nó loại bỏ nhu cầu viết câu lệnh import trong tệp Python"
+      explanation: "`.venv` tách riêng các gói phụ thuộc của từng dự án để việc nâng cấp gói ở dự án này không làm hỏng dự án khác."
+
+  - id: p0-test-q05
+    type: fill
+    tags: [packaging, stdlib]
+    difficulty: 2
+    code: |
+      import tomllib
+
+      raw = '[project]\nname = "demo"\ndependencies = ["pytest>=8.0"]\n'
+      data = tomllib.___(raw)
+      print(data["project"]["dependencies"][0])
+    answer: ["loads"]
+    en:
+      prompt: "Fill in the `tomllib` function that parses a TOML string so the code prints `pytest>=8.0`."
+      explanation: "`tomllib.loads()` parses a TOML string into a Python `dict`, whereas `tomllib.load()` reads from a binary file object."
+    vi:
+      prompt: "Điền hàm `tomllib` phân tích chuỗi TOML để đoạn code in ra `pytest>=8.0`."
+      explanation: "`tomllib.loads()` phân tích một chuỗi TOML thành `dict` Python, còn `tomllib.load()` đọc từ tệp nhị phân."
+
+  - id: p0-test-q06
+    type: output
+    tags: [packaging, dicts]
+    difficulty: 2
+    code: |
+      required = {"httpx": ">=0.27", "pytest": ">=8.0", "ruff": ">=0.6"}
+      installed = {"httpx": "0.27.0", "ruff": "0.6.2"}
+      missing = sorted(pkg for pkg in required if pkg not in installed)
+      print(",".join(missing))
+    answer: "pytest"
+    en:
+      prompt: "What does this environment check print?"
+      explanation: "`httpx` and `ruff` are present in `installed`, leaving only `pytest` in `missing`."
+    vi:
+      prompt: "Đoạn kiểm tra môi trường này in ra gì?"
+      explanation: "`httpx` và `ruff` đều đã có trong `installed`, chỉ còn thiếu `pytest` trong `missing`."
+
+  # ---- p0-03-git
+  - id: p0-test-q07
+    type: mcq
+    tags: [setup, git]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "Which entry belongs in `.gitignore` so secrets and local environments are not committed to Git?"
+      options:
+        - "`.venv/` and `.env` containing local packages and API keys"
+        - "`pyproject.toml` listing the project name and dependencies"
+        - "`README.md` documenting how to install and run the project"
+        - "`tests/` containing automated unit tests for your modules"
+      explanation: "Virtual environments (`.venv/`) and secret files (`.env`) stay local and ignored, while `pyproject.toml`, `README.md`, and `tests/` belong in Git."
+    vi:
+      prompt: "Mục nào cần đưa vào `.gitignore` để không commit thông tin bí mật và môi trường cục bộ lên Git?"
+      options:
+        - "`.venv/` và `.env` chứa gói cục bộ cùng khóa API bí mật"
+        - "`pyproject.toml` liệt kê tên dự án và các gói phụ thuộc"
+        - "`README.md` hướng dẫn cách cài đặt và chạy mã nguồn dự án"
+        - "`tests/` chứa các bài kiểm thử đơn vị tự động cho module"
+      explanation: "Môi trường ảo (`.venv/`) và tệp bí mật (`.env`) chỉ giữ cục bộ và được bỏ qua, còn `pyproject.toml`, `README.md`, và `tests/` cần lưu trong Git."
+
+  - id: p0-test-q08
+    type: fill
+    tags: [git, dicts]
+    difficulty: 2
+    code: |
+      working = {"app.py": "v2", "notes.txt": "draft"}
+      staged = {"app.py": "v1"}
+      next_staged = staged.___()
+      next_staged["app.py"] = working["app.py"]
+      print(staged["app.py"], next_staged["app.py"])
+    answer: ["copy"]
+    en:
+      prompt: "Fill in the dict method so `staged` stays unchanged and the code prints `v1 v2`."
+      explanation: "`staged.copy()` creates a shallow copy so updating `next_staged[\"app.py\"]` does not mutate `staged`."
+    vi:
+      prompt: "Điền phương thức của dict để `staged` không bị thay đổi và code in ra `v1 v2`."
+      explanation: "`staged.copy()` tạo một bản sao mới nên khi cập nhật `next_staged[\"app.py\"]`, `staged` vẫn giữ nguyên."
+
+  - id: p0-test-q09
+    type: parsons
+    tags: [git, dicts]
+    difficulty: 2
+    lines:
+      - "staged = {\"a.py\": \"v1\", \"b.py\": \"v1\"}"
+      - "working = {**staged, \"b.py\": \"v2\"}"
+      - "modified = [k for k in staged if working[k] != staged[k]]"
+      - "print(modified)"
+    en:
+      prompt: "Put the lines in order to detect which staged file was modified in the working tree."
+      explanation: "Define `staged` first, build `working` from it with `b.py` updated, filter keys whose values differ, and print `modified`."
+    vi:
+      prompt: "Sắp xếp các dòng theo đúng thứ tự để tìm tệp đã stage nhưng bị sửa đổi trong working tree."
+      explanation: "Khai báo `staged` trước, tạo `working` từ đó với `b.py` đã đổi, lọc các khóa có giá trị khác nhau, rồi in `modified`."
+
+  # ---- p0-04-vscode
+  - id: p0-test-q10
+    type: output
+    tags: [linting, json]
+    difficulty: 1
+    code: |
+      import json
+
+      raw = '{"editor.formatOnSave": true, "ruff.lineLength": 100}'
+      cfg = json.loads(raw)
+      print(cfg["editor.formatOnSave"], cfg["ruff.lineLength"])
+    answer: "True 100"
+    en:
+      prompt: "What does this VS Code settings check print?"
+      explanation: "JSON `true` becomes Python `True`, and `100` becomes integer `100`."
+    vi:
+      prompt: "Đoạn kiểm tra cấu hình VS Code này in ra gì?"
+      explanation: "Giá trị JSON `true` chuyển thành `True` trong Python, còn `100` thành số nguyên `100`."
+
+  - id: p0-test-q11
+    type: fill
+    tags: [debugging, loops]
+    difficulty: 2
+    code: |
+      def first_above(values, threshold):
+          for idx, val in enumerate(values):
+              if val ___ threshold:
+                  return idx
+          return None
+
+      print(first_above([10, 20, 25], 20))
+    answer: [">"]
+    en:
+      prompt: "Fill in the comparison operator so `first_above([10, 20, 25], 20)` prints `2`."
+      explanation: "The function looks for the first value strictly above `threshold`, so `val > threshold` skips `20` (index 1) and returns `2` for `25`."
+    vi:
+      prompt: "Điền toán tử so sánh để `first_above([10, 20, 25], 20)` in ra `2`."
+      explanation: "Hàm tìm giá trị đầu tiên lớn hơn hẳn `threshold`, nên `val > threshold` bỏ qua `20` (chỉ số 1) và trả về `2` cho `25`."
+
+  - id: p0-test-q12
+    type: parsons
+    tags: [debugging, loops]
+    difficulty: 2
+    lines:
+      - "running_sum = 0"
+      - "for val in [4, 7, 9]:"
+      - "    running_sum += val"
+      - "    if val == 7:"
+      - "        break"
+      - "print(running_sum)"
+    en:
+      prompt: "Put the lines in order to simulate stopping at a breakpoint when `val == 7` and printing `11`."
+      explanation: "Initialize `running_sum` before the loop, add `val` on each step, break when `val == 7`, and print `running_sum` after the loop."
+    vi:
+      prompt: "Sắp xếp các dòng theo đúng thứ tự để mô phỏng việc dừng tại breakpoint khi `val == 7` và in ra `11`."
+      explanation: "Khởi tạo `running_sum` trước vòng lặp, cộng `val` ở mỗi bước, `break` khi `val == 7`, rồi in `running_sum` sau vòng lặp."

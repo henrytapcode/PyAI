@@ -1,0 +1,316 @@
+questions:
+  - id: p0-04-q01
+    type: mcq
+    tags: [setup]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Which VS Code Command Palette action connects the editor to your `.venv` Python?"
+      options:
+        - "Python: Create Terminal"
+        - "Python: Select Interpreter"
+        - "Python: Restart Language Server"
+        - "Python: Clear Cache Files"
+      explanation: "`Python: Select Interpreter` lets you choose `.venv/bin/python` (or `.venv\\Scripts\\python.exe`) so autocomplete and runs use project packages."
+    vi:
+      prompt: "Lệnh nào trong Command Palette của VS Code giúp kết nối trình soạn thảo với Python trong `.venv`?"
+      options:
+        - "Python: Create Terminal"
+        - "Python: Select Interpreter"
+        - "Python: Restart Language Server"
+        - "Python: Clear Cache Files"
+      explanation: "`Python: Select Interpreter` cho phép bạn chọn `.venv/bin/python` (hoặc `.venv\\Scripts\\python.exe`) để gợi ý code và chạy file dùng đúng thư viện của project."
+
+  - id: p0-04-q02
+    type: mcq
+    tags: [setup, linting, json]
+    difficulty: 1
+    answer: 2
+    en:
+      prompt: "Where do you store project-wide VS Code settings so teammates share the same Ruff formatter rules?"
+      options:
+        - "pyproject/vscode.toml"
+        - ".venv/settings.json"
+        - ".vscode/settings.json"
+        - "tests/config.json"
+      explanation: "VS Code automatically reads workspace settings from `.vscode/settings.json` at the project root."
+    vi:
+      prompt: "Bạn lưu cấu hình VS Code dùng chung cho cả project ở đâu để đồng đội có cùng quy tắc format Ruff?"
+      options:
+        - "pyproject/vscode.toml"
+        - ".venv/settings.json"
+        - ".vscode/settings.json"
+        - "tests/config.json"
+      explanation: "VS Code tự động đọc cấu hình workspace từ `.vscode/settings.json` ở thư mục gốc của project."
+
+  - id: p0-04-q03
+    type: output
+    tags: [json, stdlib]
+    difficulty: 1
+    code: |
+      import json
+
+      cfg = json.loads('{"editor.formatOnSave": true, "ruff.lineLength": 88}')
+      print(cfg["editor.formatOnSave"], cfg["ruff.lineLength"])
+    answer: "True 88"
+    en:
+      prompt: "What does this code print?"
+      explanation: "JSON `true` converts to Python `True`, and `88` remains an `int`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "Giá trị `true` trong JSON chuyển thành `True` trong Python, còn `88` giữ nguyên là `int`."
+
+  - id: p0-04-q04
+    type: fill
+    tags: [json, stdlib]
+    difficulty: 1
+    code: |
+      import json
+
+      data = {"ruff.lineLength": 100}
+      text = json.___(data)
+      print(text)  # {"ruff.lineLength": 100}
+    answer: ["dumps"]
+    en:
+      prompt: "Fill in the `json` function name that converts a Python dict into a JSON string."
+      explanation: "`json.dumps()` serializes a Python object to a JSON-formatted string."
+    vi:
+      prompt: "Điền tên hàm trong module `json` để chuyển một dict Python thành chuỗi JSON."
+      explanation: "`json.dumps()` chuyển một đối tượng Python thành chuỗi có định dạng JSON."
+
+  - id: p0-04-q05
+    type: mcq
+    tags: [debugging]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "When paused at a breakpoint in VS Code, which key runs the current line and moves to the next line in the same function?"
+      options:
+        - "F10 (Step Over)"
+        - "F11 (Step Into)"
+        - "F5 (Continue)"
+        - "F9 (Breakpoint)"
+      explanation: "`F10` (Step Over) executes the current line without stepping inside function calls on that line."
+    vi:
+      prompt: "Khi đang dừng tại breakpoint trong VS Code, phím nào chạy dòng hiện tại rồi chuyển sang dòng tiếp theo trong cùng hàm?"
+      options:
+        - "F10 (Step Over)"
+        - "F11 (Step Into)"
+        - "F5 (Continue)"
+        - "F9 (Breakpoint)"
+      explanation: "`F10` (Step Over) thực thi dòng hiện tại mà không đi sâu vào bên trong các lời gọi hàm trên dòng đó."
+
+  - id: p0-04-q06
+    type: parsons
+    tags: [json, stdlib, dicts]
+    difficulty: 2
+    lines:
+      - "import json"
+      - 'config = json.loads(''{"editor.formatOnSave": true}'')'
+      - 'enabled = config["editor.formatOnSave"]'
+      - "print(enabled)"
+    en:
+      prompt: "Put the lines in order to parse a JSON settings string and print `True`."
+      explanation: "Import `json`, parse the JSON string into `config`, read `enabled` from `config`, then print `enabled`."
+    vi:
+      prompt: "Sắp xếp các dòng để phân tích chuỗi cấu hình JSON và in ra `True`."
+      explanation: "Import `json`, phân tích chuỗi JSON thành `config`, đọc `enabled` từ `config`, rồi in `enabled`."
+
+  - id: p0-04-q07
+    type: output
+    tags: [debugging, loops, lists]
+    difficulty: 2
+    code: |
+      nums = [2, 5, 8, 3]
+      total = 0
+      for n in nums:
+          total += n
+          if n >= 8:
+              break
+      print(total)
+    answer: "15"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`total` accumulates `2 + 5 + 8 = 15`, then `break` stops the loop before `3` is added."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`total` cộng dồn `2 + 5 + 8 = 15`, sau đó `break` dừng vòng lặp trước khi `3` được cộng vào."
+
+  - id: p0-04-q08
+    type: mcq
+    tags: [debugging]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Which debugger panel shows the chain of function calls that led to the paused line?"
+      options:
+        - "Testing Sidebar"
+        - "Output Console"
+        - "Extensions View"
+        - "Call Stack"
+      explanation: "The **Call Stack** panel lists each active function frame from the entry point down to the current line."
+    vi:
+      prompt: "Bảng nào trong debugger hiển thị chuỗi lời gọi hàm đã dẫn tới dòng đang tạm dừng?"
+      options:
+        - "Testing Sidebar"
+        - "Output Console"
+        - "Extensions View"
+        - "Call Stack"
+      explanation: "Bảng **Call Stack** liệt kê từng frame hàm đang hoạt động từ điểm bắt đầu xuống đến dòng hiện tại."
+
+  - id: p0-04-q09
+    type: fill
+    tags: [linting, json]
+    difficulty: 2
+    code: |
+      settings = {
+          "editor.formatOnSave": ___,
+          "ruff.lineLength": 100,
+      }
+      print(settings["editor.formatOnSave"])  # True
+    answer: ["True"]
+    en:
+      prompt: "Fill in the Python boolean literal so saving a file triggers formatting."
+      explanation: "In Python dicts, boolean literals are capitalized (`True`, `False`); `json.dumps()` converts `True` to JSON `true`."
+    vi:
+      prompt: "Điền giá trị boolean của Python để tự động format khi lưu file."
+      explanation: "Trong dict Python, giá trị boolean viết hoa chữ cái đầu (`True`, `False`); `json.dumps()` sẽ chuyển `True` thành `true` trong JSON."
+
+  - id: p0-04-q10
+    type: output
+    tags: [debugging, lists]
+    difficulty: 2
+    code: |
+      def first_above(nums, limit):
+          for i, val in enumerate(nums):
+              if val > limit:
+                  return i
+          return None
+
+      print(first_above([3, 5, 9], 5))
+    answer: "2"
+    en:
+      prompt: "What does this code print?"
+      explanation: "`3 > 5` is `False`, `5 > 5` is `False` (strict `>`), and `9 > 5` is `True` at index `2`."
+    vi:
+      prompt: "Đoạn code này in ra gì?"
+      explanation: "`3 > 5` là `False`, `5 > 5` là `False` (dùng `>` nghiêm ngặt), và `9 > 5` là `True` tại chỉ số `2`."
+
+  - id: p0-04-q11
+    type: mcq
+    tags: [setup, testing]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "What is the quickest way in VS Code to run or debug a single `test_*` function without typing terminal commands?"
+      options:
+        - "Edit pyproject.toml manually"
+        - "Click the icon in Testing sidebar"
+        - "Restart the Python terminal"
+        - "Delete the __pycache__ folder"
+      explanation: "Once `pytest` is configured in the Testing sidebar, you can run or debug any individual test with one click."
+    vi:
+      prompt: "Cách nhanh nhất trong VS Code để chạy hoặc debug một hàm `test_*` đơn lẻ mà không cần gõ lệnh terminal là gì?"
+      options:
+        - "Sửa thủ công file pyproject.toml"
+        - "Bấm biểu tượng ở thanh Testing"
+        - "Khởi động lại terminal Python"
+        - "Xóa thư mục __pycache__"
+      explanation: "Sau khi cấu hình `pytest` ở thanh Testing, bạn có thể chạy hoặc debug từng bài test chỉ với một cú nhấp chuột."
+
+  - id: p0-04-q12
+    type: parsons
+    tags: [debugging, loops]
+    difficulty: 2
+    lines:
+      - "total = 0"
+      - "for x in [3, 6, 9]:"
+      - "    total += x"
+      - "print(total)"
+    en:
+      prompt: "Put the lines in order to sum `[3, 6, 9]` and print `18`."
+      explanation: "Initialize `total` before the loop, iterate with `for`, accumulate `total += x` inside the loop, then print after the loop."
+    vi:
+      prompt: "Sắp xếp các dòng để tính tổng `[3, 6, 9]` và in ra `18`."
+      explanation: "Khởi tạo `total` trước vòng lặp, duyệt bằng `for`, cộng dồn `total += x` bên trong vòng lặp, rồi in kết quả sau vòng lặp."
+
+  - id: p0-04-q13
+    type: fill
+    tags: [debugging]
+    difficulty: 2
+    code: |
+      values = [10, 20, 30]
+      for i, v in ___(values):
+          if v == 20:
+              print(i)  # 1
+    answer: ["enumerate"]
+    en:
+      prompt: "Fill in the built-in function that yields both the 0-based index `i` and value `v`."
+      explanation: "`enumerate(values)` produces `(index, value)` pairs starting at `0`."
+    vi:
+      prompt: "Điền hàm dựng sẵn trả về cả chỉ số 0-based `i` lẫn giá trị `v`."
+      explanation: "`enumerate(values)` tạo các cặp `(index, value)` bắt đầu từ `0`."
+
+  - id: p0-04-q14
+    type: mcq
+    tags: [debugging]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why might VS Code skip a breakpoint you tried to place?"
+      options:
+        - "The file uses 4-space indentation"
+        - "Ruff formatOnSave is turned on"
+        - "The line is blank or a comment"
+        - "The function returns a dict"
+      explanation: "Breakpoints only pause on executable lines; blank lines and comments have no instructions to execute."
+    vi:
+      prompt: "Vì sao VS Code có thể bỏ qua một breakpoint bạn vừa đặt?"
+      options:
+        - "File đang dùng thụt lề 4 dấu cách"
+        - "Chế độ Ruff formatOnSave đang bật"
+        - "Dòng đó trống hoặc là dòng comment"
+        - "Hàm đang trả về một dictionary"
+      explanation: "Breakpoint chỉ dừng ở những dòng có lệnh thực thi; dòng trống và comment không có lệnh nào để chạy."
+
+  - id: p0-04-q15
+    type: parsons
+    tags: [json, dicts, stdlib]
+    difficulty: 3
+    lines:
+      - "import json"
+      - 'payload = json.dumps({"ruff.lineLength": 100})'
+      - "data = json.loads(payload)"
+      - 'print(data["ruff.lineLength"])'
+    en:
+      prompt: "Put the lines in order to serialize a dict to JSON, parse it back, and print `100`."
+      explanation: "Import `json`, serialize into `payload`, parse `payload` into `data`, then print `data[\"ruff.lineLength\"]`."
+    vi:
+      prompt: "Sắp xếp các dòng để chuyển dict thành JSON, phân tích lại và in ra `100`."
+      explanation: "Import `json`, chuyển thành `payload`, phân tích `payload` thành `data`, rồi in `data[\"ruff.lineLength\"]`."
+
+flashcards:
+  - id: p0-04-f01
+    tags: [setup]
+    en: { front: "Where is the `.venv` Python executable on Windows vs macOS/Linux?", back: "Windows: `.venv\\Scripts\\python.exe`. macOS/Linux: `.venv/bin/python`." }
+    vi: { front: "File chạy Python của `.venv` nằm ở đâu trên Windows và macOS/Linux?", back: "Windows: `.venv\\Scripts\\python.exe`. macOS/Linux: `.venv/bin/python`." }
+  - id: p0-04-f02
+    tags: [linting, json]
+    en: { front: "Which `.vscode/settings.json` keys enable Ruff format-on-save?", back: "`editor.formatOnSave: true` and `\"[python]\": {\"editor.defaultFormatter\": \"charliermarsh.ruff\"}`." }
+    vi: { front: "Các key nào trong `.vscode/settings.json` bật tự động format bằng Ruff khi lưu?", back: "`editor.formatOnSave: true` và `\"[python]\": {\"editor.defaultFormatter\": \"charliermarsh.ruff\"}`." }
+  - id: p0-04-f03
+    tags: [debugging]
+    en: { front: "Difference between `F10` (Step Over) and `F11` (Step Into)?", back: "`F10` runs the current line and stays in the same function; `F11` enters a called function line by line." }
+    vi: { front: "Khác nhau giữa `F10` (Step Over) và `F11` (Step Into)?", back: "`F10` chạy dòng hiện tại và ở lại cùng hàm; `F11` đi vào bên trong hàm được gọi để soi từng dòng." }
+  - id: p0-04-f04
+    tags: [debugging]
+    en: { front: "What do the Watch and Call Stack panels show during debugging?", back: "Watch tracks custom expressions and variables; Call Stack shows the chain of active function calls." }
+    vi: { front: "Bảng Watch và Call Stack hiển thị gì khi debug?", back: "Watch theo dõi các biểu thức và biến tùy chọn; Call Stack hiển thị chuỗi các lời gọi hàm đang hoạt động." }
+  - id: p0-04-f05
+    tags: [debugging]
+    en: { front: "What is a conditional breakpoint in VS Code?", back: "A breakpoint that pauses execution only when a chosen expression (such as `i == 5`) evaluates to `True`." }
+    vi: { front: "Conditional breakpoint trong VS Code là gì?", back: "Là breakpoint chỉ tạm dừng chương trình khi một biểu thức điều kiện (như `i == 5`) có giá trị `True`." }
+  - id: p0-04-f06
+    tags: [json, stdlib]
+    en: { front: "Difference between `json.loads()` and `json.dumps()`?", back: "`json.loads(text)` parses a JSON string into Python data; `json.dumps(obj)` serializes Python data to a JSON string." }
+    vi: { front: "Khác nhau giữa `json.loads()` và `json.dumps()`?", back: "`json.loads(text)` chuyển chuỗi JSON thành dữ liệu Python; `json.dumps(obj)` chuyển dữ liệu Python thành chuỗi JSON." }

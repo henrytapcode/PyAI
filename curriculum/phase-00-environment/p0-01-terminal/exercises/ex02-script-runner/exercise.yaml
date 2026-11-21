@@ -1,0 +1,42 @@
+id: p0-01-ex02
+kind: code
+title:
+  en: "Script finder & run command builder"
+  vi: "Tìm script & tạo lệnh chạy Python"
+difficulty: 2
+tags: [setup, files, strings]
+hints:
+  en:
+    - "For `find_python_files`, strip leading/trailing `/` from `folder`, keep only entries ending with `.py`, and check the folder boundary with `folder + \"/\"`."
+    - |
+      Be careful not to match `"src_old/a.py"` when `folder="src"`:
+      1. Normalize `clean_folder = folder.strip().strip("/")`.
+      2. Normalize each entry with `p = entry.strip().lstrip("/")`.
+      3. If `clean_folder` is non-empty, require `p.startswith(clean_folder + "/")`.
+      4. Sort the matching normalized paths.
+    - |
+      For `build_run_cmd(script, args=None, use_uv=True)`:
+      ```python
+      clean = script.strip()
+      if not clean.endswith(".py"):
+          raise ValueError("Script must end with .py")
+      prefix = ["uv", "run", "python"] if use_uv else ["python"]
+      return prefix + [clean] + (list(args) if args else [])
+      ```
+  vi:
+    - "Với `find_python_files`, bỏ dấu `/` ở đầu/cuối `folder`, chỉ giữ các đường dẫn kết thúc bằng `.py`, và kiểm tra ranh giới thư mục bằng `folder + \"/\"`."
+    - |
+      Cẩn thận để `folder="src"` không khớp nhầm `"src_old/a.py"`:
+      1. Chuẩn hóa `clean_folder = folder.strip().strip("/")`.
+      2. Chuẩn hóa từng phần tử với `p = entry.strip().lstrip("/")`.
+      3. Nếu `clean_folder` khác rỗng, yêu cầu `p.startswith(clean_folder + "/")`.
+      4. Sắp xếp danh sách kết quả theo thứ tự tăng dần.
+    - |
+      Với `build_run_cmd(script, args=None, use_uv=True)`:
+      ```python
+      clean = script.strip()
+      if not clean.endswith(".py"):
+          raise ValueError("Script must end with .py")
+      prefix = ["uv", "run", "python"] if use_uv else ["python"]
+      return prefix + [clean] + (list(args) if args else [])
+      ```
