@@ -530,9 +530,9 @@ for epoch in range(1, 5):
         preds = model(**batch).logits.argmax(dim=1).tolist()
     print(f"epoch {epoch}: loss={round(out.loss.item(), 3)}  preds={preds}")
 # epoch 1: loss=0.682  preds=[1, 1, 1, 1]
-# epoch 2: loss=3.288  preds=[0, 0, 0, 0]
-# epoch 3: loss=6.721  preds=[0, 0, 0, 0]
-# epoch 4: loss=3.255  preds=[1, 1, 1, 1]
+# epoch 2: loss=3.28...  preds=[0, 0, 0, 0]
+# epoch 3: loss=6.7...  preds=[0, 0, 0, 0]
+# epoch 4: loss=3...  preds=[1, 1, 1, 1]
 ```
 
 Cách sửa: giữ learning rate nhỏ khi fine-tune, như `5e-4` (hoặc `2e-5`–`5e-5` với model lớn hơn).
