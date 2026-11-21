@@ -67,6 +67,42 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
     visitLesson(meta.id);
   }, [meta.id, visitLesson]);
 
+  useEffect(() => {
+    const applySearch = (search: string) => {
+      const params = new URLSearchParams(search);
+      const ex = params.get("ex");
+      const nextTab = params.get("tab");
+      if (ex && lesson.exercises.some((item) => item.id === ex)) {
+        setExerciseId(ex);
+        setTab("exercises");
+        setMobilePane("content");
+      } else if (nextTab === "theory" || nextTab === "examples" || nextTab === "exercises" || nextTab === "quiz") {
+        setTab(nextTab);
+        setMobilePane("content");
+      }
+    };
+    applySearch(window.location.search);
+    const onPopState = () => applySearch(window.location.search);
+    const onDeepLink = (e: Event) => {
+      const href = (e as CustomEvent<{ href?: string }>).detail?.href;
+      if (href) {
+        const url = new URL(href, window.location.origin);
+        const pathname = url.pathname.replace(/\/+$/, "") || "/";
+        const current = window.location.pathname.replace(/\/+$/, "") || "/";
+        if (pathname !== `/lesson/${meta.id}` && pathname !== current) return;
+        applySearch(url.search);
+      } else {
+        applySearch(window.location.search);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    window.addEventListener("pyai:deeplink", onDeepLink);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("pyai:deeplink", onDeepLink);
+    };
+  }, [meta.id, lesson.exercises]);
+
   // Celebrate once when the lesson becomes complete.
   const complete = isLessonComplete(p, summary);
   const wasComplete = useRef(complete);

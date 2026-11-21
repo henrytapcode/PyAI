@@ -167,3 +167,202 @@ def test_build_content_with_ready_and_unbuilt_capstones(tmp_path: Path) -> None:
     assert cap2["title"] == {"en": "Agent Cap", "vi": "Agent Cap"}
     assert cap2["prerequisites"] == ["p0-01-intro"]
     assert not (out / "lessons" / "cap-02-tool-agent.json").exists()
+
+    search = json.loads((out / "search.json").read_text(encoding="utf-8"))
+    search_ids = {item["id"] for item in search["items"]}
+    assert "lesson:p0-01-intro" in search_ids
+    assert "lesson:cap-01-rag-chatbot" in search_ids
+    assert "exercise:cap-01-ex01" in search_ids
+    assert "lesson:cap-02-tool-agent" not in search_ids
+
+
+def test_build_content_generates_search_index_all_kinds(tmp_path: Path) -> None:
+    cur = tmp_path / "curriculum"
+    out = tmp_path / "out"
+    _write_yaml(cur / "topics.yaml", {"topics": ["python", "rag"]})
+    _write_yaml(
+        cur / "syllabus.yaml",
+        {
+            "phases": [
+                {
+                    "id": "p0",
+                    "dir": "phase-00-environment",
+                    "order": 0,
+                    "icon": "terminal",
+                    "title": {"en": "Env", "vi": "Moi truong"},
+                    "summary": {"en": "Env", "vi": "Moi truong"},
+                    "lessons": [
+                        {"id": "p0-01-intro", "title": {"en": "Intro", "vi": "Gioi thieu"}},
+                        {"id": "p0-02-unready", "title": {"en": "Unready", "vi": "Chua xong"}},
+                    ],
+                }
+            ],
+            "capstones": [],
+        },
+    )
+
+    p0_dir = cur / "phase-00-environment" / "p0-01-intro"
+    _write_yaml(
+        p0_dir / "meta.yaml",
+        {
+            "id": "p0-01-intro",
+            "phase": "p0",
+            "order": 1,
+            "title": {"en": "Intro", "vi": "Gioi thieu"},
+            "summary": {"en": "A   very   " + ("long " * 40) + "summary", "vi": "Tom tat"},
+            "level": "beginner",
+            "tags": ["python"],
+            "duration_min": 10,
+            "outcomes": {"en": ["Run"], "vi": ["Chay"]},
+            "review_by": "2027-01-01",
+        },
+    )
+    (p0_dir / "lesson.en.md").write_text("# Intro\n", encoding="utf-8")
+    (p0_dir / "lesson.vi.md").write_text("# Gioi thieu\n", encoding="utf-8")
+
+    ex_dir = p0_dir / "exercises" / "ex01-hello"
+    _write_yaml(
+        ex_dir / "exercise.yaml",
+        {
+            "id": "p0-01/ex 01",
+            "title": {"en": "Hello Ex", "vi": "Bai tap"},
+            "difficulty": 1,
+            "tags": ["setup"],
+            "hints": {"en": ["a", "b", "c"], "vi": ["a", "b", "c"]},
+        },
+    )
+    (ex_dir / "prompt.en.md").write_text("Prompt", encoding="utf-8")
+    (ex_dir / "prompt.vi.md").write_text("Prompt", encoding="utf-8")
+    (ex_dir / "starter.py").write_text("x = 0\n", encoding="utf-8")
+    (ex_dir / "solution.py").write_text("x = 1\n", encoding="utf-8")
+    (ex_dir / "test_exercise.py").write_text("def test_x():\n    assert True\n", encoding="utf-8")
+
+    _write_yaml(
+        cur / "placement" / "placement.yaml",
+        {
+            "id": "placement",
+            "kind": "placement",
+            "title": {"en": "Placement", "vi": "Dau vao"},
+            "description": {"en": "Test your level", "vi": "Kiem tra trinh do"},
+            "duration_min": 15,
+            "pass_score": 0.8,
+            "questions": [],
+        },
+    )
+    _write_yaml(
+        cur / "phase-00-environment" / "phase-test.yaml",
+        {
+            "id": "phase-0-test",
+            "kind": "phase",
+            "phase": "p0",
+            "title": {"en": "Phase 0 Test", "vi": "Kiem tra Phase 0"},
+            "description": {"en": "Check p0", "vi": "Kiem tra p0"},
+            "duration_min": 10,
+            "pass_score": 0.7,
+            "questions": [],
+        },
+    )
+    _write_yaml(
+        cur / "glossary.yaml",
+        {
+            "terms": [
+                {
+                    "term": "data type",
+                    "vi_term": "kiểu dữ liệu",
+                    "tags": ["types"],
+                    "en": "Kind of value",
+                    "vi": "Loại giá trị",
+                },
+                {
+                    "term": "boolean",
+                    "vi_term": "boolean",
+                    "tags": ["booleans"],
+                    "en": "True or False",
+                },
+            ]
+        },
+    )
+    _write_yaml(
+        cur / "interview" / "questions.yaml",
+        {
+            "questions": [
+                {
+                    "id": "iv-01/special",
+                    "topic": "types",
+                    "level": "junior",
+                    "kind": "concept",
+                    "en": {"question": "What is mutable?", "answer": "Can change."},
+                    "vi": {"question": "Mutable là gì?", "answer": "Có thể đổi."},
+                }
+            ]
+        },
+    )
+    _write_yaml(
+        cur / "portfolio.yaml",
+        {
+            "projects": [
+                {
+                    "id": "grade-report",
+                    "phase": "p1",
+                    "tags": ["lists", "dicts"],
+                    "skills": ["dicts", "formatting"],
+                    "title": {"en": "Grade report", "vi": "Bang diem"},
+                    "pitch": {"en": "Score summary", "vi": "Tong hop diem"},
+                }
+            ]
+        },
+    )
+
+    assert build_content.main(curriculum=cur, out=out, web=None) == 0
+
+    search = json.loads((out / "search.json").read_text(encoding="utf-8"))
+    by_id = {item["id"]: item for item in search["items"]}
+
+    assert "lesson:p0-02-unready" not in by_id
+
+    lesson = by_id["lesson:p0-01-intro"]
+    assert lesson["kind"] == "lesson"
+    assert lesson["href"] == "/lesson/p0-01-intro/"
+    assert lesson["phase"] == "p0"
+    assert len(lesson["subtitle"]["en"]) <= 160
+    assert lesson["subtitle"]["en"].endswith("…")
+
+    exercise = by_id["exercise:p0-01/ex 01"]
+    assert exercise["kind"] == "exercise"
+    assert exercise["href"] == "/lesson/p0-01-intro/?tab=exercises&ex=p0-01%2Fex%2001"
+    assert exercise["subtitle"] == {"en": "Intro", "vi": "Gioi thieu"}
+    assert exercise["phase"] == "p0"
+
+    placement = by_id["exam:placement"]
+    assert placement["kind"] == "exam"
+    assert placement["href"] == "/placement/"
+    assert "phase" not in placement
+    assert placement["tags"] == ["placement"]
+
+    phase_exam = by_id["exam:phase-0-test"]
+    assert phase_exam["kind"] == "exam"
+    assert phase_exam["href"] == "/exam/phase-0-test/"
+    assert phase_exam["phase"] == "p0"
+    assert phase_exam["tags"] == ["phase", "p0"]
+
+    glossary_dt = by_id["glossary:data type"]
+    assert glossary_dt["kind"] == "glossary"
+    assert glossary_dt["title"] == {"en": "data type", "vi": "data type (kiểu dữ liệu)"}
+    assert glossary_dt["href"] == "/glossary/?q=data%20type"
+    assert glossary_dt["tags"] == ["types"]
+
+    glossary_bool = by_id["glossary:boolean"]
+    assert glossary_bool["title"] == {"en": "boolean"}
+    assert glossary_bool["subtitle"] == {"en": "True or False"}
+
+    interview = by_id["interview:iv-01/special"]
+    assert interview["kind"] == "interview"
+    assert interview["href"] == "/interview/?q=iv-01%2Fspecial"
+    assert interview["subtitle"] == {"en": "types · junior", "vi": "types · junior"}
+    assert interview["tags"] == ["types", "junior", "concept"]
+
+    portfolio = by_id["portfolio:grade-report"]
+    assert portfolio["kind"] == "portfolio"
+    assert portfolio["href"] == "/portfolio/"
+    assert portfolio["tags"] == ["lists", "dicts", "formatting"]
+    assert portfolio["phase"] == "p1"

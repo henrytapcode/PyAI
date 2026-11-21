@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import glossaryJson from "@/generated/glossary.json";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,36 @@ export default function GlossaryPage() {
   const [query, setQuery] = useState("");
   const [tag, setTag] = useState<string | null>(null);
   const tags = useMemo(() => Array.from(new Set(terms.flatMap((x) => x.tags ?? []))).sort(), []);
+
+  useEffect(() => {
+    const applySearch = (search: string) => {
+      const q = new URLSearchParams(search).get("q");
+      if (q) {
+        setTag(null);
+        setQuery(q);
+      }
+    };
+    applySearch(window.location.search);
+    const onPopState = () => applySearch(window.location.search);
+    const onDeepLink = (e: Event) => {
+      const href = (e as CustomEvent<{ href?: string }>).detail?.href;
+      if (href) {
+        const url = new URL(href, window.location.origin);
+        const pathname = url.pathname.replace(/\/+$/, "") || "/";
+        const current = window.location.pathname.replace(/\/+$/, "") || "/";
+        if (pathname !== "/glossary" && pathname !== current) return;
+        applySearch(url.search);
+      } else {
+        applySearch(window.location.search);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    window.addEventListener("pyai:deeplink", onDeepLink);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("pyai:deeplink", onDeepLink);
+    };
+  }, []);
 
   const filtered = terms.filter((x) => {
     if (tag && !(x.tags ?? []).includes(tag)) return false;

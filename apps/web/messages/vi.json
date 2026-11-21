@@ -14,6 +14,7 @@
     "interview": "Phỏng vấn",
     "portfolio": "Portfolio",
     "settings": "Cài đặt",
+    "search": "Tìm kiếm",
     "more": "Thêm",
     "skipToContent": "Bỏ qua tới nội dung"
   },
@@ -470,5 +471,28 @@
     "retry": "Thử kết nối lại",
     "checkingBtn": "Đang kiểm tra…",
     "copyCommand": "Sao chép lệnh"
+  },
+  "search": {
+    "open": "Mở tìm kiếm",
+    "title": "Tìm kiếm",
+    "description": "Tìm bài học, bài tập, thuật ngữ, câu hỏi phỏng vấn, bài kiểm tra và dự án portfolio.",
+    "placeholder": "Tìm bài học, bài tập, thuật ngữ…",
+    "clear": "Xóa tìm kiếm",
+    "loading": "Đang tải chỉ mục tìm kiếm…",
+    "empty": "Không tìm thấy kết quả phù hợp.",
+    "quickJump": "Đi nhanh",
+    "resultsCount": "{count} kết quả",
+    "hintNavigate": "Di chuyển",
+    "hintSelect": "Mở",
+    "hintClose": "Đóng",
+    "kinds": {
+      "all": "Tất cả",
+      "lesson": "Bài học",
+      "exercise": "Bài tập",
+      "glossary": "Thuật ngữ",
+      "interview": "Phỏng vấn",
+      "exam": "Kiểm tra",
+      "portfolio": "Portfolio"
+    }
   }
 }

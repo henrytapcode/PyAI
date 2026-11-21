@@ -18,6 +18,7 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 import yaml
 
@@ -133,8 +134,54 @@ def lesson_groups(syllabus: dict) -> list[dict]:
     ]
 
 
+def _truncate(text: str, limit: int = 160) -> str:
+    """Collapse whitespace and trim text to `limit` characters with an ellipsis."""
+    cleaned = " ".join(text.split())
+    if len(cleaned) <= limit:
+        return cleaned
+    return f"{cleaned[: limit - 1].rstrip()}…"
+
+
+def _truncate_i18n(value: dict | None, limit: int = 160) -> dict | None:
+    if not value:
+        return None
+    truncated = {k: _truncate(v, limit) for k, v in value.items() if isinstance(v, str) and v}
+    return truncated or None
+
+
+def _search_item(
+    *,
+    item_id: str,
+    kind: str,
+    title: dict,
+    href: str,
+    tags: list[str],
+    subtitle: dict | None = None,
+    phase: str | None = None,
+) -> dict:
+    entry: dict = {
+        "id": item_id,
+        "kind": kind,
+        "title": title,
+        "href": href,
+        "tags": tags,
+    }
+    if subtitle:
+        entry["subtitle"] = subtitle
+    if phase:
+        entry["phase"] = phase
+    return entry
+
+
 def build_lesson_summary(
-    item: dict, order: int, group_dir: Path, out: Path, review: dict
+    item: dict,
+    order: int,
+    group_dir: Path,
+    out: Path,
+    review: dict,
+    *,
+    phase: str | None = None,
+    search_items: list[dict] | None = None,
 ) -> tuple[dict, bool]:
     """Build one lesson/capstone summary and write its lesson JSON when ready."""
     lesson_dir = group_dir / item["id"]
@@ -176,6 +223,31 @@ def build_lesson_summary(
         review["flashcards"].append({**card, "lessonId": item["id"]})
     for q in lesson["quiz"]["questions"]:
         review["questions"].append({**q, "lessonId": item["id"]})
+    if search_items is not None:
+        lesson_id = item["id"]
+        search_items.append(
+            _search_item(
+                item_id=f"lesson:{lesson_id}",
+                kind="lesson",
+                title=meta["title"],
+                subtitle=_truncate_i18n(meta.get("summary")),
+                href=f"/lesson/{lesson_id}/",
+                tags=list(meta.get("tags") or []),
+                phase=phase,
+            )
+        )
+        for ex in lesson["exercises"]:
+            search_items.append(
+                _search_item(
+                    item_id=f"exercise:{ex['id']}",
+                    kind="exercise",
+                    title=ex["title"],
+                    subtitle=_truncate_i18n(meta["title"]),
+                    href=f"/lesson/{lesson_id}/?tab=exercises&ex={quote(ex['id'], safe='')}",
+                    tags=list(ex.get("tags") or []),
+                    phase=phase,
+                )
+            )
     return summary, True
 
 
@@ -187,6 +259,7 @@ def main(curriculum: Path = CURRICULUM, out: Path = OUT, web: Path | None = WEB)
     topics = load_yaml(topics_path)["topics"] if topics_path.exists() else []
 
     review = {"flashcards": [], "questions": []}
+    search_items: list[dict] = []
     phases = []
     capstones = []
     lesson_count = 0
@@ -194,7 +267,15 @@ def main(curriculum: Path = CURRICULUM, out: Path = OUT, web: Path | None = WEB)
         group_dir = curriculum / group["dir"]
         summaries = []
         for order, item in enumerate(group["lessons"], 1):
-            summary, built = build_lesson_summary(item, order, group_dir, out, review)
+            summary, built = build_lesson_summary(
+                item,
+                order,
+                group_dir,
+                out,
+                review,
+                phase=group["id"],
+                search_items=search_items,
+            )
             if built:
                 lesson_count += 1
             summaries.append(summary)
@@ -234,15 +315,70 @@ def main(curriculum: Path = CURRICULUM, out: Path = OUT, web: Path | None = WEB)
     glossary = load_yaml(glossary_path) if glossary_path.exists() else {"terms": []}
     write_json(out / "glossary.json", glossary)
     interview_path = curriculum / "interview" / "questions.yaml"
-    write_json(
-        out / "interview.json",
-        load_yaml(interview_path) if interview_path.exists() else {"questions": []},
-    )
+    interview = load_yaml(interview_path) if interview_path.exists() else {"questions": []}
+    write_json(out / "interview.json", interview)
     portfolio_path = curriculum / "portfolio.yaml"
-    write_json(
-        out / "portfolio.json",
-        load_yaml(portfolio_path) if portfolio_path.exists() else {"projects": []},
-    )
+    portfolio = load_yaml(portfolio_path) if portfolio_path.exists() else {"projects": []}
+    write_json(out / "portfolio.json", portfolio)
+
+    for exam in exams:
+        search_items.append(
+            _search_item(
+                item_id=f"exam:{exam['id']}",
+                kind="exam",
+                title=exam["title"],
+                subtitle=_truncate_i18n(exam.get("description")),
+                href="/placement/" if exam["kind"] == "placement" else f"/exam/{exam['id']}/",
+                tags=[t for t in (exam["kind"], exam.get("phase")) if t],
+                phase=exam.get("phase"),
+            )
+        )
+    for entry in glossary.get("terms") or []:
+        term = entry["term"]
+        vi_term = entry.get("vi_term")
+        en = entry.get("en", "")
+        vi = entry.get("vi")
+        title = {"en": term}
+        if vi_term and vi_term != term:
+            title["vi"] = vi_term if vi_term.lower().startswith(term.lower()) else f"{term} ({vi_term})"
+        search_items.append(
+            _search_item(
+                item_id=f"glossary:{term}",
+                kind="glossary",
+                title=title,
+                subtitle={"en": _truncate(en, 160), **({"vi": _truncate(vi, 160)} if vi else {})},
+                href=f"/glossary/?q={quote(term, safe='')}",
+                tags=list(entry.get("tags") or []),
+            )
+        )
+    for q in interview.get("questions") or []:
+        iv_sub = f"{q['topic']} · {q['level']}"
+        search_items.append(
+            _search_item(
+                item_id=f"interview:{q['id']}",
+                kind="interview",
+                title={
+                    "en": _truncate(q["en"]["question"], 160),
+                    **({"vi": _truncate(q["vi"]["question"], 160)} if q.get("vi") else {}),
+                },
+                subtitle={"en": iv_sub, "vi": iv_sub},
+                href=f"/interview/?q={quote(q['id'], safe='')}",
+                tags=[t for t in (q.get("topic"), q.get("level"), q.get("kind")) if t],
+            )
+        )
+    for proj in portfolio.get("projects") or []:
+        search_items.append(
+            _search_item(
+                item_id=f"portfolio:{proj['id']}",
+                kind="portfolio",
+                title=proj["title"],
+                subtitle=_truncate_i18n(proj.get("pitch")),
+                href="/portfolio/",
+                tags=list(dict.fromkeys([*(proj.get("tags") or []), *(proj.get("skills") or [])])),
+                phase=proj.get("phase"),
+            )
+        )
+    write_json(out / "search.json", {"items": search_items})
     # Keep lessons/ and exams/ importable even when empty.
     (out / "lessons").mkdir(parents=True, exist_ok=True)
     (out / "exams").mkdir(parents=True, exist_ok=True)

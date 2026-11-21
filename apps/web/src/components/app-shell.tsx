@@ -10,13 +10,15 @@ import {
   MessagesSquare,
   MoreHorizontal,
   Repeat,
+  Search,
   Settings,
   SquareTerminal,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CommandPalette } from "@/components/command-palette";
 import { XpFigure } from "@/components/count-up";
 import { LanguageSwitch, ThemeToggle } from "@/components/controls";
 import { Logo } from "@/components/providers";
@@ -54,7 +56,13 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
   const days = useProgress((s) => streak(s));
   const xp = useProgress((s) => s.xp);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [isMac, setIsMac] = useState(false);
   const full = fullBleed || pathname.startsWith("/lesson") || pathname.startsWith("/playground");
+
+  useEffect(() => {
+    setIsMac(/mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent));
+  }, []);
 
   return (
     <div className="flex min-h-dvh">
@@ -67,10 +75,21 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
 
       {/* Desktop sidebar: Dose theme uses --muted ground */}
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-muted px-3 py-4 lg:flex">
-        <Link href="/" className="mb-6 flex items-center gap-2.5 px-2" aria-label="PyAI Path">
+        <Link href="/" className="mb-4 flex items-center gap-2.5 px-2" aria-label="PyAI Path">
           <Logo className="size-9" aria-hidden="true" />
           <span className="font-display text-xl font-bold leading-none tracking-tight">PyAI Path</span>
         </Link>
+        <button
+          type="button"
+          onClick={() => setSearchOpen(true)}
+          className="mb-3 flex w-full items-center gap-2.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          <Search className="size-4 shrink-0" aria-hidden="true" />
+          <span className="flex-1 text-left">{t("search")}</span>
+          <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground">
+            {isMac ? "⌘K" : "Ctrl K"}
+          </kbd>
+        </button>
         <nav className="flex flex-1 flex-col gap-0.5">
           {NAV.map(({ href, key, icon: Icon }) => {
             const active = isActive(pathname, href);
@@ -116,6 +135,14 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
             <span className="font-display text-lg font-bold leading-none tracking-tight">PyAI Path</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label={t("search")}
+              className="hit grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              <Search className="size-4" aria-hidden="true" />
+            </button>
             <span className="flex items-center gap-1 font-mono text-sm font-medium tabular-nums">
               <Flame className={cn("size-4", days > 0 ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
               {days}
@@ -178,6 +205,7 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
           )}
         </nav>
       </div>
+      <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { CheckCircle2, ChevronDown, Circle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import interviewJson from "@/generated/interview.json";
 import { Markdown, StaticCode } from "@/components/markdown";
 import { PageHeader } from "@/components/page-header";
@@ -26,6 +26,39 @@ export default function InterviewPage() {
   const [topic, setTopic] = useState<string | null>(null);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const topics = useMemo(() => Array.from(new Set(questions.map((q) => q.topic))), []);
+
+  useEffect(() => {
+    const applySearch = (search: string) => {
+      const q = new URLSearchParams(search).get("q");
+      if (q && questions.some((item) => item.id === q)) {
+        setTopic(null);
+        setOpen((o) => ({ ...o, [q]: true }));
+        requestAnimationFrame(() =>
+          document.getElementById(`accordion-trigger-${q}`)?.scrollIntoView({ behavior: "smooth", block: "center" }),
+        );
+      }
+    };
+    applySearch(window.location.search);
+    const onPopState = () => applySearch(window.location.search);
+    const onDeepLink = (e: Event) => {
+      const href = (e as CustomEvent<{ href?: string }>).detail?.href;
+      if (href) {
+        const url = new URL(href, window.location.origin);
+        const pathname = url.pathname.replace(/\/+$/, "") || "/";
+        const current = window.location.pathname.replace(/\/+$/, "") || "/";
+        if (pathname !== "/interview" && pathname !== current) return;
+        applySearch(url.search);
+      } else {
+        applySearch(window.location.search);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    window.addEventListener("pyai:deeplink", onDeepLink);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("pyai:deeplink", onDeepLink);
+    };
+  }, []);
   const list = questions.filter((q) => !topic || q.topic === topic);
   const done = questions.filter((q) => practiced?.[q.id]).length;
 

@@ -186,6 +186,24 @@ export interface PortfolioProject {
   stretch?: I18n<string[]>;
 }
 
+export type SearchKind =
+  | "lesson"
+  | "exercise"
+  | "glossary"
+  | "interview"
+  | "exam"
+  | "portfolio";
+
+export interface SearchItem {
+  id: string;
+  kind: SearchKind;
+  title: I18n;
+  subtitle?: I18n;
+  href: string;
+  tags: string[];
+  phase?: string;
+}
+
 /** Output of tools/pyrunner/tracer.py (the Visualize view). */
 export interface TraceTable {
   kind: "dataframe" | "series" | "array";
