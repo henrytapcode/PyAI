@@ -21,6 +21,7 @@ Evaluate every new user request and explicitly declare its Tier before acting:
 3. **Dependency Freeze:** NEVER install/upgrade packages or modify `.env*` / lockfiles unless explicitly requested.
 4. **Circuit Breaker (Quota Protection):** If lint, build, or test fails **2 consecutive times** on the same error group, STOP editing immediately. Extract max 30 relevant log lines + root-cause hypothesis into `.workflow/BLOCKER.md` and hand back to Boss.
 5. **Definition of Done:** Never claim completion from reading code alone. Run the exact verification commands from `.workflow/PROJECT_PROFILE.md` or `SPEC.md` and report actual pass/fail output concisely.
+6. **Balanced Token Discipline:** Read `.workflow/*` before scanning the repo; read only targeted line ranges on files >150 lines (grep first); batch independent read calls; run targeted tests (`-k` / single file / `--path`) during iteration and save full suites for final QA; avoid restating written `.workflow/` files in chat.
 
 ## 3. Project Conventions (python-ai-platform)
 - **Architecture:** Personal static app (NO auth, NO backend). Progress persists in `localStorage` via `apps/web/src/lib/storage.ts`. Content pipeline: `curriculum/` → `tools/build_content.py` → `apps/web/src/generated/` (gitignored). Client-side EN/VI via `next-intl` (update both `apps/web/messages/en.json` and `vi.json`; no hardcoded UI strings).
