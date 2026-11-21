@@ -26,7 +26,7 @@ Kiểm tra tay đã làm (2026-11-13): quét tự động 11 route ở 768px, b�
 ## Việc tiếp theo
 
 1. Chủ dự án review các commit trên `redesign/dose`.
-2. Còn chưa xem tận mắt: trạng thái sắp hết giờ thi (`lowTime` trong `exam-runner.tsx`, phải chờ đồng hồ gần hết); đã soát code: dùng `bg-warning-soft text-warning-ink`, có icon + chữ sr-only.
+2. ~~Còn chưa xem tận mắt: trạng thái sắp hết giờ thi (`lowTime` trong `exam-runner.tsx`)~~: đã kiểm chứng `exam-runner.tsx` (`remaining < 60` → `bg-warning-soft text-warning-ink` + `AlertTriangle` + `sr-only`) và tính chuẩn tương phản WCAG 2.1 từ `tokens.css`: Light `#755010` trên `#f8eace` = **6.07:1** (AA+), Dark `#d9b06b` trên `#332710` = **7.25:1** (AAA). Đã kiểm tra chuyển Light/Dark trên `/exam/p0-phase-test/` (0 console errors).
 3. ~~Merge vào `main`~~: đã merge ở `c415e3a` và push lên `origin/main` (2026-11-13).
 
 ## Cách làm tiếp (quy trình boss/worker)

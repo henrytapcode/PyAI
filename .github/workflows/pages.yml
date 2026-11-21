@@ -16,10 +16,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-models-${{ hashFiles('tools/localrunner/models.py') }}
       - run: pnpm install --frozen-lockfile
+      - run: uv run python tools/localrunner/fetch_models.py
       - run: uv run python tools/validate.py
       - run: pnpm --filter web build
         env:

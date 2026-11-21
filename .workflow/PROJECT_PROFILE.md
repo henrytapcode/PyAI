@@ -1,7 +1,7 @@
 # Project Profile: python-ai-platform
 
 ## Stack & Scale
-- **Scale:** Large (monorepo: 60 web src files, 24 tool files, 4 package files, 1,825 curriculum files; 55 lessons, 11 exams, 111 exercises).
+- **Scale:** Large (monorepo: 60 web src files, 26 tool files, 8 package files, 1,991 curriculum files; 60 lessons across Phases 0–8 + 2 Capstones, 14 exams, 122 exercises).
 - **Content & Tooling:** Python >=3.11 managed by `uv` (`pyproject.toml`, `uv.lock`); YAML + Markdown + Python curriculum validated by `jsonschema`, `pytest`, `ruff`; local package `packages/pyai_llm` (deterministic `FakeLLM`).
 - **Web App (`apps/web`):** Next.js 16.4.5 (App Router, static export `output: "export"`), React 19, TypeScript 5.9, Tailwind CSS v4, Radix UI, Zustand, `next-intl` (client-side EN/VI), Monaco Editor, Pyodide Web Worker (`public/pyodide-worker.js`). Managed by `pnpm@10.34.7`.
 - **Execution Modes:** Pyodide in-browser (phases 0–5, 7, most capstones) + FastAPI local runner (`127.0.0.1:8765`, `tools/localrunner/serve.py`) for `runner: local` lessons/exercises (PyTorch/HF/FastAPI `TestClient`).
