@@ -7,7 +7,7 @@
     "predev": "pnpm run content",
     "dev": "next dev",
     "prebuild": "pnpm run content",
-    "build": "node -e \"const fs=require('fs'),cp=require('child_process'),env={...process.env};if(env.NODE_EXTRA_CA_CERTS&&!fs.existsSync(env.NODE_EXTRA_CA_CERTS))delete env.NODE_EXTRA_CA_CERTS;const r=cp.spawnSync(process.execPath,[require.resolve('next/dist/bin/next'),'build'],{stdio:'inherit',env});process.exit(r.status??1)\"",
+    "build": "node -e \"const fs=require('fs'),cp=require('child_process'),env={...process.env};if(env.NODE_EXTRA_CA_CERTS&&!fs.existsSync(env.NODE_EXTRA_CA_CERTS))delete env.NODE_EXTRA_CA_CERTS;const r=cp.spawnSync(process.execPath,[require.resolve('next/dist/bin/next'),'build','--webpack'],{stdio:'inherit',env});process.exit(r.status??1)\"",
     "start": "uv run --project ../.. python -m http.server 3000 --directory out",
     "typecheck": "pnpm run content && tsc --noEmit"
   },

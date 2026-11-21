@@ -111,9 +111,10 @@ export default function LearnPage() {
                   const st = lessonStatus(p, { ...l, phaseId: phase.id });
                   const isNext = l.id === next?.id;
                   const parts = l.ready ? lessonParts(p, l) : null;
-                  const missing = l.prerequisites.filter(
-                    (pre) => !phase.lessons.some((x) => x.id === pre) || st === "locked",
-                  );
+                  const missing = l.prerequisites.filter((pre) => {
+                    const pl = findLesson(pre);
+                    return pl && pl.ready && !isLessonComplete(p, pl) && !p.skippedPhases.includes(pl.phaseId);
+                  });
 
                   const cell = (
                     <div
@@ -160,8 +161,8 @@ export default function LearnPage() {
                           {st === "locked" && missing.length > 0 && (
                             <span>
                               {t("prereqWarning", {
-                                list: l.prerequisites
-                                  .map((id) => loc.t(phase.lessons.find((x) => x.id === id)?.title) ?? id)
+                                list: missing
+                                  .map((id) => loc.t(findLesson(id)?.title) ?? id)
                                   .join(", "),
                               })}
                             </span>
