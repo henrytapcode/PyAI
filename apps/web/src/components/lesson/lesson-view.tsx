@@ -331,6 +331,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                 <ExercisePanel
                   key={exercise.id}
                   exercise={exercise}
+                  currentCode={exCode}
                   onLoadCode={(code) => {
                     onExCode(code);
                     setMobilePane("editor");

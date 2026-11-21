@@ -153,7 +153,16 @@
     "resetConfirm": "Replace your code with the starter code?",
     "pick": "Pick an exercise",
     "allPassed": "All exercises passed. Great job!",
-    "otherApproaches": "Other ways to solve it"
+    "otherApproaches": "Other ways to solve it",
+    "compare": "Compare with your code",
+    "compareShort": "Compare",
+    "diffTitle": "Compare code",
+    "diffDescription": "Compare your code side-by-side with the model solution.",
+    "yourCode": "Your code",
+    "modelSolution": "Model solution",
+    "sideBySide": "Side by side",
+    "inlineDiff": "Inline",
+    "identicalCode": "Your code matches this solution."
   },
   "editor": {
     "run": "Run",

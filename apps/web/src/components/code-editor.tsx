@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
 type MonacoEditor = Parameters<OnMount>[0];
 type Monaco = Parameters<OnMount>[1];
 
-const defineThemes: BeforeMount = (monaco) => {
+export const definePyaiThemes: BeforeMount = (monaco) => {
   monaco.editor.defineTheme("pyai-light", {
     base: "vs",
     inherit: true,
@@ -109,7 +109,7 @@ export function CodeEditor({ value, onChange, onRun, onCheck, readOnly, errorLin
         language="python"
         value={value}
         onChange={(v) => onChange?.(v ?? "")}
-        beforeMount={defineThemes}
+        beforeMount={definePyaiThemes}
         onMount={onMount}
         theme={resolvedTheme === "dark" ? "pyai-dark" : "pyai-light"}
         loading={<div className="grid h-full place-items-center text-sm text-muted-foreground">{t("loading")}</div>}

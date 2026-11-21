@@ -1,8 +1,9 @@
 "use client";
 
-import { CheckCircle2, Circle, Eye, KeyRound, Lightbulb, Lock } from "lucide-react";
+import { CheckCircle2, Circle, Eye, GitCompareArrows, KeyRound, Lightbulb, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { CodeDiffDialog, type DiffTarget } from "@/components/code-diff-dialog";
 import { Markdown, StaticCode } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,15 @@ export function ExercisePicker({ exercises, activeId, onPick }: { exercises: Exe
   );
 }
 
-export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; onLoadCode: (code: string) => void }) {
+export function ExercisePanel({
+  exercise,
+  currentCode,
+  onLoadCode,
+}: {
+  exercise: Exercise;
+  currentCode?: string;
+  onLoadCode: (code: string) => void;
+}) {
   const t = useTranslations("exercise");
   const tc = useTranslations("common");
   const loc = useLoc();
@@ -54,6 +63,7 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
   const showHint = useProgress((s) => s.showHint);
   const viewSolution = useProgress((s) => s.viewSolution);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [diffTargetId, setDiffTargetId] = useState<string | null>(null);
 
   const attempts = state?.attempts ?? 0;
   const hintsShown = state?.hintsShown ?? 0;
@@ -61,6 +71,15 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
   const prompt = loc.pick(exercise.prompt);
   const solutionUnlocked = !!state?.passed || attempts >= exercise.solution_unlock_attempts || hintsShown >= 3;
   const solutionVisible = !!state?.solutionViewed || !!state?.passed;
+  const userCode = currentCode ?? state?.code ?? exercise.starter;
+  const diffTargets: DiffTarget[] = [
+    { id: "solution", label: t("modelSolution"), code: exercise.solution },
+    ...(exercise.alternatives ?? []).map((alt) => ({
+      id: alt.name,
+      label: loc.t(alt.title) || alt.name,
+      code: alt.code,
+    })),
+  ];
 
   return (
     <div className="space-y-6">
@@ -134,9 +153,15 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
         {solutionVisible ? (
           <div className="space-y-2 animate-rise">
             <StaticCode code={exercise.solution} />
-            <Button variant="outline" size="sm" onClick={() => onLoadCode(exercise.solution)}>
-              {t("loadSolution")}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => onLoadCode(exercise.solution)}>
+                {t("loadSolution")}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setDiffTargetId("solution")}>
+                <GitCompareArrows aria-hidden="true" />
+                {t("compare")}
+              </Button>
+            </div>
             {exercise.alternatives?.length > 0 && (
               <div className="space-y-3 pt-2">
                 <h4 className="text-sm font-bold">{t("otherApproaches")}</h4>
@@ -145,6 +170,15 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
                     <p className="text-sm font-medium">{loc.t(alt.title)}</p>
                     <Markdown text={loc.t(alt.explain) ?? ""} />
                     <StaticCode code={alt.code} />
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <Button variant="outline" size="sm" onClick={() => setDiffTargetId(alt.name)}>
+                        <GitCompareArrows aria-hidden="true" />
+                        {t("compareShort")}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => onLoadCode(alt.code)}>
+                        {t("loadSolution")}
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -182,6 +216,16 @@ export function ExercisePanel({ exercise, onLoadCode }: { exercise: Exercise; on
           </div>
         </DialogContent>
       </Dialog>
+
+      <CodeDiffDialog
+        open={diffTargetId !== null}
+        onOpenChange={(o) => !o && setDiffTargetId(null)}
+        exerciseTitle={loc.t(exercise.title) ?? ""}
+        userCode={userCode}
+        targets={diffTargets}
+        initialTargetId={diffTargetId ?? "solution"}
+        onLoadTarget={onLoadCode}
+      />
     </div>
   );
 }

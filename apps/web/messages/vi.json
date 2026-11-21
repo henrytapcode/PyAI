@@ -153,7 +153,16 @@
     "resetConfirm": "Thay code của bạn bằng code ban đầu?",
     "pick": "Chọn một bài tập",
     "allPassed": "Đã qua hết bài tập. Tuyệt vời!",
-    "otherApproaches": "Các cách giải khác"
+    "otherApproaches": "Các cách giải khác",
+    "compare": "So sánh với code của bạn",
+    "compareShort": "So sánh",
+    "diffTitle": "So sánh code",
+    "diffDescription": "So sánh trực tiếp code của bạn với lời giải mẫu.",
+    "yourCode": "Code của bạn",
+    "modelSolution": "Lời giải mẫu",
+    "sideBySide": "Song song",
+    "inlineDiff": "Gộp dòng",
+    "identicalCode": "Code của bạn giống hệt lời giải này."
   },
   "editor": {
     "run": "Chạy",
