@@ -1,46 +1,34 @@
 ---
 name: workflow-commander
-description: "Guide the 4-account Gemini Pro workflow (100% Antigravity Desktop App), effort levels, phase transitions, quota failover, and ready-to-copy prompts from .workflow/ state."
+description: "Guide the 4-account Gemini Pro workflow (Single-Conversation Orchestrator via swarm in Antigravity Desktop App), effort levels, phase transitions, quota failover, and fallback prompts from .workflow/ state."
 ---
-# Workflow Commander (100% Antigravity App — 4-Account Quota Pool)
+# Workflow Commander (Single-Conversation Orchestrator — Antigravity Desktop App)
 
-## 1. Account & Role Architecture (App-Only + Quota Rotation)
-- **100% Antigravity Desktop App (NO CLI):** All phases run inside Antigravity Desktop App on `d:\Proj\python-ai-platform` (auto-loads `GEMINI.md`, zero `outside workspace` issues, unified iOS Remote Control via `https://antigravity.google`).
-- **1 Active Account + Ring Rotation (`Acc 1 → Acc 2 → Acc 3 → Acc 4 → Acc 1`):**
-  - Keep **ONE Active Account** signed in across all phases of a wave (**0 mid-wave logins**, **4× total Argon weekly + Neon + Hydrogen quotas** across the pool).
-  - **Role isolation comes from opening a fresh `New Conversation` + switching Model + file-based state (`.workflow/*`), NEVER mixing roles in one conversation:**
-    - **Boss / Spec Architect (Boss Conversation — Gemini 4 Neon):** Large-codebase reading, Tier 1/2/3 triage, authoring/patching `.workflow/SPEC.md` & `.workflow/TASKS.md`, resolving `.workflow/BLOCKER.md`. For **Tier 1**, execute directly in Boss conversation.
-    - **Worker Pool & QA (New Conversation — Gemini 4 Hydrogen / 3.8 Flash):** Executes Wave tasks in order (`[SERIAL]` first, then parallel subagents `invoke_subagent` / `run_workflow` for disjoint `[PARALLEL]` tasks). Strictly obeys `File Whitelist` and Circuit Breaker (2 consecutive failures on the same error group → write `.workflow/BLOCKER.md` and STOP).
-    - **Adversarial Critic & Final Reviewer (Fresh New Conversation — Gemini 4 Argon):**
-      - **Phase 2 (Tier 3 only):** Red-team `.workflow/SPEC.md` & `.workflow/TASKS.md` (read-only) → write `.workflow/CRITIQUE.md`.
-      - **Phase 5 (Final Review):** Audit `git diff` + verification logs (read-only) → write `.workflow/REVIEW.md`. Merge requires `VERDICT: APPROVE`.
-  - **When to Rotate Account:** ONLY when the active account hits a quota/rate limit (5-hour cap or Argon weekly cap). Sign out → Sign in to next account in ring (`1 → 2 → 3 → 4 → 1`) in App Settings, open a **New Conversation** with the same Model & Effort, and send the 1-line `.workflow/NEXT_PROMPT.md` trigger to resume unchecked `[ ]` tasks in `.workflow/TASKS.md`.
-
-## 2. Default Effort Matrix
-| Model | Default Effort | Escalation / Token-Saving Rule |
-|---|---|---|
-| **Gemini 4 Neon** | `Medium` (routing/triage/small edits) / `High` (SPEC & complex bugs) | Moderate token discipline: read `.workflow/*` first, use grep/line-ranges on files >150 lines, batch reads, run targeted tests first. Use `xHigh` ONLY for severe `BLOCKER.md`. |
-| **Gemini 4 Argon** | `Medium` (lean) / `High` (strict) | Argon has a separate weekly limit and burns tokens fast: default `Medium` + strict read/line caps in `NEXT_PROMPT.md`; reserve `High` for critical security/core-infra/large-diff audits. |
-| **Gemini 4 Hydrogen** | `Medium` | Use `High` for hard tasks. **NEVER** use `xHigh`. Prefer parallel subagents over `/teamwork` when `SPEC.md` already locks disjoint files. |
-| **Gemini 3.8 Flash** | `Low` / `Medium` | Use for lightweight/repetitive tasks or quick QA checks. |
-| **Gemini Flash-Lite** | `Minimal` / `Low` | Use only for trivial/mechanical chores. |
-
-## 3. Navigation Protocol (Zero-Copy `.workflow/NEXT_PROMPT.md`)
-- **Mandatory End-of-Task Rule (Every Turn):** At the end of EVERY completed task or phase (even if the user did not explicitly ask *"việc tiếp theo"*), ALWAYS update `.workflow/NEXT_PROMPT.md` for the next phase and end your response with the 3-part Next Step block below.
-- Whenever transitioning phases or handing off to Worker / Critic / Reviewer, ALWAYS write the complete, self-contained instructions directly into `.workflow/NEXT_PROMPT.md` (overwriting the previous prompt). The user opens a **New Conversation** in Antigravity App, selects the target Model & Effort, and sends the exact 1-line trigger:
+## 1. Architecture (1 Boss Conversation + Native `swarm` Isolation)
+- **100% Antigravity Desktop App (NO CLI):** Stay in **ONE Boss Conversation** (`Orchestrator (Neon)` or `Gemini 4 Neon`, Effort `Medium`/`High`) on `d:\Proj\python-ai-platform`. No copy-pasting prompts across tabs!
+- **Role isolation & parallel execution via `swarm` (NOT manual tab switching):**
+  - **Tier 1 (1–2 files):** Execute directly in Boss conversation (zero swarm overhead).
+  - **Tier 2 / Tier 3:** Boss writes `.workflow/SPEC.md` & `.workflow/TASKS.md`, then dispatches fresh isolated `swarm` workers (each starts with an empty conversation — zero Boss bias) with `workspace: "inherit"` whenever tasks own disjoint files (avoids Windows git worktree/merge overhead):
+    - **Phase 2 Critic (Tier 3):** `swarm(add, name="critic", model="gemini-4-argon-medium", workspace="inherit")` → writes `.workflow/CRITIQUE.md` (read-only on source).
+    - **Phase 3–4 Workers (`[PARALLEL]` disjoint tasks):** `swarm(add, ..., model="gemini-4-hydrogen-medium", workspace="inherit")` → each worker runs its own targeted tests/linters before reporting done. Boss runs `[SERIAL]` integration & full QA gates (or delegates to a single QA worker).
+    - **Phase 5 Final Reviewer:** `swarm(add, name="reviewer", model="gemini-4-argon-medium", workspace="inherit")` (or `high` for large/high-risk diffs) → audits `git diff` → writes `.workflow/REVIEW.md`. Merge requires `VERDICT: APPROVE`.
+  - **Clean up workers:** `swarm(kill)` finished workers after their wave/phase lands so the roster stays clean.
+- **In-Account Multi-Pool Failover (`swarm(model)`):** Check `swarm(models, all=true)` before spawning. If a worker hits its 5h Gemini quota, switch it in-place with `swarm(model)` to an available pool (e.g., `claude-sonnet-5-5-medium`) without losing conversation state.
+- **Account Rotation Fallback (`Acc 1 → 2 → 3 → 4 → 1`):** ONLY when ALL usable model pools on the Active Account are exhausted, write `.workflow/NEXT_PROMPT.md`, ask the user to rotate account in App Settings, open a **New Conversation** (`Orchestrator (Neon)` / `Gemini 4 Neon`), and send:
   `Đọc và thực thi đúng toàn bộ chỉ thị trong .workflow/NEXT_PROMPT.md`
 
-Whenever the user asks *"tiếp theo làm gì?"*, *"xong bước này rồi"*, *"gặp lỗi"*, or *"hết quota"*:
-1. **Inspect live state first:** Read existing files in `.workflow/` (`PROJECT_PROFILE.md`, `SPEC.md`, `TASKS.md`, `CRITIQUE.md`, `BLOCKER.md`, `REVIEW.md`) and run `git status --short`.
-2. **State routing logic (all on current Active Account; rotate Acc ONLY on quota limit):**
-   - If `.workflow/BLOCKER.md` exists → Handle directly in **Boss Conversation (Neon `High`, escalate to `xHigh` only if severe)** to resolve root cause and update `SPEC.md`/`TASKS.md`.
-   - Else if Tier 3 and `.workflow/CRITIQUE.md` does not exist → Route to **New Conversation (Gemini 4 Argon | Effort: `Medium`)** for Phase 2 Adversarial Critic.
-   - Else if `.workflow/CRITIQUE.md` has unresolved `[BLOCKER]` items → Patch `SPEC.md`/`TASKS.md` in **Boss Conversation (Neon `Medium`/`High`)**.
-   - Else if `.workflow/TASKS.md` has unchecked `[ ]` tasks in active wave → Route to **New Conversation (Gemini 4 Hydrogen | Effort: `Medium`)** for Phase 3–4 Worker execution (on quota exhaustion → rotate Acc in App Settings → open New Conversation and send the same 1-line trigger).
-   - Else if all active `[ ]` tasks are `[x]` and `.workflow/REVIEW.md` lacks `VERDICT: APPROVE` → Route to **New Conversation (Gemini 4 Argon | Effort: `Medium`, or `High` for large/high-risk diffs)** for Phase 5 Final Review.
-   - Else if `.workflow/REVIEW.md` has `VERDICT: APPROVE` → Instruct user to commit cleanly and start next wave or task.
-3. **Write `.workflow/NEXT_PROMPT.md`** for any handoff to a New Conversation.
-4. **Respond concisely in Vietnamese using this exact 3-part template:**
-   1. **Pha & trạng thái thực tế:** (cite exact `.workflow/*` state and `git status`).
-   2. **Thao tác trong Antigravity App:** `[Giữ nguyên Active Acc (chỉ đổi Acc nếu hết quota) | New Conversation hay tiếp ở Boss | Model | Effort: <level>]`.
-   3. **Đúng 1 dòng prompt gọi `.workflow/NEXT_PROMPT.md`** (copy-paste ready).
+## 2. Default Model & Effort Matrix
+| Role | Recommended Model | Escalation / Token-Saving Rule |
+|---|---|---|
+| **Boss / Orchestrator** | `Orchestrator (Neon)` or `Gemini 4 Neon` (`Medium` / `High`) | **NEVER** use `Orchestrator (Argon)` as Boss (burns Argon's weekly cap). Use `xHigh` ONLY for severe `BLOCKER.md`. |
+| **Critic & Reviewer** | `gemini-4-argon-medium` | Argon has a separate weekly cap: default `medium` + strict turn/read/line caps; reserve `high` for critical security/core-infra/large-diff audits. |
+| **Execution Workers** | `gemini-4-hydrogen-medium` | Fallback to `claude-sonnet-5-5-medium` via `swarm(model)` if 5h Gemini pool runs low. **NEVER** use `xHigh`. |
+| **Lightweight Chores** | `gemini-3.8-flash-medium` | Use for simple single-file edits or quick mechanical checks. |
+
+## 3. State & Compaction Protocol
+- **Disk State Is Source of Truth:** Always persist `.workflow/{SPEC,TASKS,CRITIQUE,REVIEW,BLOCKER}.md` on disk so work survives crashes, compaction, or Account rotation.
+- **Boss Conversation Compaction Rule:** Because the Boss conversation persists across waves, append a 1-line `/compact` reminder at clean checkpoints (after committing a wave, starting a new milestone, or after ≥ 8–10 heavy turns/logs) once `.workflow/*` is saved on disk.
+- **When User Triggers (`"tiếp theo làm gì?"`, `"xong bước này rồi"`, `"gặp lỗi"`, `"hết quota"`):**
+  1. Inspect `.workflow/*` and `git status --short`.
+  2. Auto-advance via `swarm` in the current Boss conversation whenever quota permits (do not ask the user to manually copy-paste unless Account rotation is required).
+  3. Only when rotating accounts or stopping at a user approval gate, write `.workflow/NEXT_PROMPT.md` and present the concise 3-part Vietnamese summary: (1) Pha & trạng thái thực tế, (2) Thao tác trong Antigravity App, (3) 1 dòng prompt gọi `.workflow/NEXT_PROMPT.md`.
