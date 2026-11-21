@@ -41,10 +41,10 @@ Theo các đề xuất ★ ở trên. Thêm: exercise được ghi `runner: loca
 | 4 | `m5-mock-ai` | Mock exam phase 6–8 (24 câu) | `85c22f1` |
 | 5 | `m5-mock-final` | Mock exam tổng (40 câu) | `85c22f1` |
 | 5b | `m5-mock-review` | Reviewer Opus/Argon 100% cả 2 đề, sửa | `85c22f1` |
-| 6a | `m5-pdf-book` | `tools/export_pdf.py`: giáo trình EN/VI (pure stdlib + Chrome/Edge headless) | Wave 2A (done) |
-| 6b | `m5-pdf-sheets` | Cheat sheet mỗi phase + đề in được, đáp án tách riêng | Wave 2A (done) |
-| 7a–7c | `m5-overlap-*` | 33 cảnh báo chép code, chia theo nhóm phase | Wave 2B (pending) |
-| 8 | `m5-polish` | Soát luồng/route tĩnh trong `apps/web/out/`, README | Wave 2A (done) |
-| 9 | `m5-docs` | DESIGN/CONTENT_GUIDE/M5-PLAN: cập nhật Wave 2A | Wave 2A (done) |
+| 6a | `m5-pdf-book` | `tools/export_pdf.py`: giáo trình EN/VI (pure stdlib + Chrome/Edge headless) | `75c032e` |
+| 6b | `m5-pdf-sheets` | Cheat sheet mỗi phase + đề in được, đáp án tách riêng | `75c032e` |
+| 7a–7c | `m5-overlap-*` | 33 cảnh báo chép code, chia theo nhóm phase | Wave 2B (done — M5 100%) |
+| 8 | `m5-polish` | Soát luồng/route tĩnh trong `apps/web/out/`, README | `75c032e` |
+| 9 | `m5-docs` | DESIGN/CONTENT_GUIDE/M5-PLAN: cập nhật Wave 2A & Wave 2B (M5 xong) | `75c032e` + Wave 2B |
 
 Cổng mỗi bước: validate (`--path` hoặc toàn bộ), `uv run python -m pytest`, `EXERCISE_TARGET=starter` (mọi test fail), ruff, typecheck + build (tắt dev server trước), xem trong trình duyệt của app.

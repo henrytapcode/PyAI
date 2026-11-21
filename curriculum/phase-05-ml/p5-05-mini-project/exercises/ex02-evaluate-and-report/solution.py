@@ -14,13 +14,13 @@ def evaluate_models(X: np.ndarray, y: np.ndarray, seed: int) -> dict[str, tuple[
     """Run 5-fold stratified CV for baseline, logreg, and tree; return {name: (mean, std)}."""
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
     scorer = make_scorer(f1_score, zero_division=0)
-    models = [
-        ("baseline", DummyClassifier(strategy="most_frequent")),
-        ("logreg", make_pipeline(StandardScaler(), LogisticRegression())),
-        ("tree", DecisionTreeClassifier(max_depth=3, random_state=0)),
-    ]
+    estimators = {
+        "baseline": DummyClassifier(strategy="most_frequent"),
+        "logreg": make_pipeline(StandardScaler(), LogisticRegression()),
+        "tree": DecisionTreeClassifier(max_depth=3, random_state=0),
+    }
     results: dict[str, tuple[float, float]] = {}
-    for name, estimator in models:
+    for name, estimator in estimators.items():
         scores = cross_val_score(estimator, X, y, cv=skf, scoring=scorer)
         results[name] = (round(float(scores.mean()), 3), round(float(scores.std()), 3))
     return results

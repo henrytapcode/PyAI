@@ -7,11 +7,11 @@ class Model:
     def __init__(self, name):
         self.name = name
 
-    def generate(self, prompt):
-        raise NotImplementedError("write generate in a subclass")
-
     def describe(self):
         return f"model: {self.name}"
+
+    def generate(self, prompt):
+        raise NotImplementedError("subclasses must implement generate")
 
 
 class CannedModel(Model):

@@ -3,11 +3,10 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 REPO = "distilbert/distilbert-base-uncased-finetuned-sst-2-english"
 REV = "714eb0fa89d2f80546fda750413ed43d93601a13"
+HF_ARGS = {"revision": REV, "local_files_only": True}
 
-tokenizer = AutoTokenizer.from_pretrained(REPO, revision=REV, local_files_only=True)
-model = AutoModelForSequenceClassification.from_pretrained(
-    REPO, revision=REV, local_files_only=True
-)
+tokenizer = AutoTokenizer.from_pretrained(REPO, **HF_ARGS)
+model = AutoModelForSequenceClassification.from_pretrained(REPO, **HF_ARGS)
 
 
 def classify(texts: list[str]) -> list[tuple[str, float]]:

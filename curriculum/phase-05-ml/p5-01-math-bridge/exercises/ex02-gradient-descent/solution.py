@@ -19,10 +19,7 @@ def fit_line(xs: np.ndarray, ys: np.ndarray, lr: float, steps: int) -> tuple[flo
     w = 0.0
     b = 0.0
     for _ in range(steps):
-        pred = w * xs + b
-        error = pred - ys
-        grad_w = float(np.mean(2 * error * xs))
-        grad_b = float(np.mean(2 * error))
-        w = w - lr * grad_w
-        b = b - lr * grad_b
+        residual = (w * xs + b) - ys
+        w -= lr * float(np.mean(2.0 * residual * xs))
+        b -= lr * float(np.mean(2.0 * residual))
     return (round(float(w), 3), round(float(b), 3))

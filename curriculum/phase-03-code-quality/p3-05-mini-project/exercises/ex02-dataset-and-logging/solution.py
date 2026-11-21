@@ -1,6 +1,6 @@
 """Text-cleaning toolkit, part 2: clean a whole dataset and log what happened."""
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 logger = logging.getLogger("textclean")
 
@@ -8,32 +8,31 @@ logger = logging.getLogger("textclean")
 @dataclass(frozen=True)
 class CleanConfig:
     lowercase: bool = True
-    drop_urls: bool = True
-    max_chars: int | None = None
+    drop_urls: bool = field(default=True)
+    max_chars: int | None = field(default=None)
 
 
 def clean_text(text: str, config: CleanConfig | None = None) -> str:
     if not isinstance(text, str):
         raise TypeError("text must be a string")
-    if config is None:
-        config = CleanConfig()
-    words = text.split()
-    if config.drop_urls:
-        words = [w for w in words if not w.startswith(("http://", "https://"))]
-    text = " ".join(words)
-    if config.lowercase:
-        text = text.lower()
-    if config.max_chars is not None:
-        text = text[: config.max_chars].rstrip()
-    return text
+    cfg = config if config is not None else CleanConfig()
+    tokens = text.split()
+    if cfg.drop_urls:
+        tokens = [tok for tok in tokens if not tok.startswith(("http://", "https://"))]
+    result = " ".join(tokens)
+    if cfg.lowercase:
+        result = result.lower()
+    if cfg.max_chars is not None:
+        return result[: cfg.max_chars].rstrip()
+    return result
 
 
 @dataclass
 class CleanReport:
     kept: list[str]
-    skipped: int = 0
-    empty: int = 0
-    duplicates: int = 0
+    skipped: int = field(default=0)
+    empty: int = field(default=0)
+    duplicates: int = field(default=0)
 
 
 def clean_dataset(texts: list, config: CleanConfig | None = None) -> CleanReport:
@@ -45,20 +44,25 @@ def clean_dataset(texts: list, config: CleanConfig | None = None) -> CleanReport
         and logs WARNING "skipping item 3: not a string"
         and logs INFO "kept 1 of 4 texts"
     """
-    report = CleanReport(kept=[])
-    seen = set()
-    for index, item in enumerate(texts):
-        if not isinstance(item, str):
-            logger.warning("skipping item %d: not a string", index)
-            report.skipped += 1
+    kept: list[str] = []
+    seen: set[str] = set()
+    skipped = 0
+    empty = 0
+    duplicates = 0
+
+    for idx, raw in enumerate(texts):
+        if not isinstance(raw, str):
+            logger.warning("skipping item %d: not a string", idx)
+            skipped += 1
             continue
-        cleaned = clean_text(item, config)
+        cleaned = clean_text(raw, config)
         if not cleaned:
-            report.empty += 1
+            empty += 1
         elif cleaned in seen:
-            report.duplicates += 1
+            duplicates += 1
         else:
             seen.add(cleaned)
-            report.kept.append(cleaned)
-    logger.info("kept %d of %d texts", len(report.kept), len(texts))
-    return report
+            kept.append(cleaned)
+
+    logger.info("kept %d of %d texts", len(kept), len(texts))
+    return CleanReport(kept=kept, skipped=skipped, empty=empty, duplicates=duplicates)

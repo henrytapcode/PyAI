@@ -3,24 +3,28 @@ import re
 import numpy as np
 
 
-def _split_doc(text: str, mode: str, size: int, overlap: int) -> list[str]:
-    cleaned = text.strip()
-    if not cleaned:
-        return []
-    if mode == "sentence":
-        return [s.strip() for s in re.split(r"(?<=[.!?])\s+", cleaned) if s.strip()]
+def _split_words(cleaned: str, size: int, overlap: int) -> list[str]:
     if size <= 0 or overlap < 0 or overlap >= size:
         raise ValueError("need size > 0 and 0 <= overlap < size")
     words = cleaned.split()
     step = size - overlap
     pieces: list[str] = []
-    i = 0
-    while i < len(words):
-        pieces.append(" ".join(words[i : i + size]))
-        if i + size >= len(words):
+    pos = 0
+    while pos < len(words):
+        pieces.append(" ".join(words[pos : pos + size]))
+        if pos + size >= len(words):
             break
-        i += step
+        pos += step
     return pieces
+
+
+def _split_doc(text: str, mode: str, size: int, overlap: int) -> list[str]:
+    if not (cleaned := text.strip()):
+        return []
+    if mode == "sentence":
+        parts = re.split(r"(?<=[.!?])\s+", cleaned)
+        return [s.strip() for s in parts if s.strip()]
+    return _split_words(cleaned, size, overlap)
 
 
 def build_index(

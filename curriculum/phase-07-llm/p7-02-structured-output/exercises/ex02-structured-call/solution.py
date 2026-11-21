@@ -3,29 +3,32 @@ import json
 from pyai_llm import FakeLLM
 
 
+_TYPE_MAP: dict[str, type | tuple[type, ...]] = {
+    "string": str,
+    "integer": int,
+    "number": (int, float),
+    "boolean": bool,
+}
+
+
+def _field_error(key: str, value: object, spec: dict) -> str | None:
+    expected_type = spec.get("type", "")
+    if expected_type in ("integer", "number") and isinstance(value, bool):
+        return f"wrong type: {key}"
+    expected = _TYPE_MAP.get(expected_type)
+    if expected is not None and not isinstance(value, expected):
+        return f"wrong type: {key}"
+    return None
+
+
 def _check_reply(data: dict, schema: dict) -> list[str]:
     """Validate required keys and primitive types against schema."""
-    type_map = {
-        "string": str,
-        "integer": int,
-        "number": (int, float),
-        "boolean": bool,
-    }
-    errors: list[str] = []
-    for key in schema.get("required", []):
-        if key not in data:
-            errors.append(f"missing: {key}")
+    errors = [f"missing: {key}" for key in schema.get("required", []) if key not in data]
     for key, spec in schema.get("properties", {}).items():
-        if key not in data:
-            continue
-        expected_type = spec.get("type", "")
-        value = data[key]
-        if expected_type in ("integer", "number") and isinstance(value, bool):
-            errors.append(f"wrong type: {key}")
-            continue
-        expected = type_map.get(expected_type)
-        if expected is not None and not isinstance(value, expected):
-            errors.append(f"wrong type: {key}")
+        if key in data:
+            err = _field_error(key, data[key], spec)
+            if err is not None:
+                errors.append(err)
     return errors
 
 

@@ -1,28 +1,24 @@
 """Expense tracker, part 1: the model, the checks and the JSON file."""
 import json
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class Expense:
     date: str
     category: str
     amount: float
-    note: str = ""
+    note: str = field(default="")
 
 
-def is_iso_date(text) -> bool:
-    if not isinstance(text, str):
+def is_iso_date(text: object) -> bool:
+    if not isinstance(text, str) or len(text) != 10:
         return False
-    parts = text.split("-")
-    if len(parts) != 3:
+    if text[4] != "-" or text[7] != "-":
         return False
-    year, month, day = parts
-    if (len(year), len(month), len(day)) != (4, 2, 2):
-        return False
-    return (year + month + day).isdigit()
+    return (text[:4] + text[5:7] + text[8:]).isdigit()
 
 
 def check_expense(expense: Expense) -> None:

@@ -45,13 +45,11 @@ def clean_text(text: str, config: CleanConfig | None = None) -> str:
     """
     if not isinstance(text, str):
         raise TypeError("text must be a string")
-    if config is None:
-        config = CleanConfig()
-    if config.drop_urls:
-        text = remove_urls(text)
-    text = normalize_spaces(text)
-    if config.lowercase:
-        text = text.lower()
-    if config.max_chars is not None:
-        text = text[: config.max_chars].rstrip()
-    return text
+    cfg = config if config is not None else CleanConfig()
+    cleaned = remove_urls(text) if cfg.drop_urls else text
+    cleaned = normalize_spaces(cleaned)
+    if cfg.lowercase:
+        cleaned = cleaned.lower()
+    if cfg.max_chars is not None:
+        return cleaned[: cfg.max_chars].rstrip()
+    return cleaned

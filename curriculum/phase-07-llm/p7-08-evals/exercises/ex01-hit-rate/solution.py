@@ -1,3 +1,11 @@
+def _hit_rate_at_k(results: list[dict], k: int) -> float:
+    scored = [row for row in results if row["expected_source"] is not None]
+    if not scored:
+        return 0.0
+    hits = sum(1 for row in scored if row["expected_source"] in row["retrieved"][:k])
+    return round(hits / len(scored), 3)
+
+
 def hit_rates(results: list[dict], ks: list[int]) -> dict[int, float]:
     """Compute retrieval hit@k rounded to 3 decimals for each k in ks.
 
@@ -9,14 +17,5 @@ def hit_rates(results: list[dict], ks: list[int]) -> dict[int, float]:
     for k in ks:
         if k <= 0:
             raise ValueError(f"k must be positive, got {k}")
-        hits = 0
-        total = 0
-        for row in results:
-            expected = row["expected_source"]
-            if expected is None:
-                continue
-            total += 1
-            if expected in row["retrieved"][:k]:
-                hits += 1
-        rates[k] = round(hits / total, 3) if total else 0.0
+        rates[k] = _hit_rate_at_k(results, k)
     return rates

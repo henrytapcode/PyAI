@@ -19,9 +19,9 @@ def fit_slope(xs: torch.Tensor, ys: torch.Tensor, lr: float, steps: int) -> floa
     """
     w = torch.tensor(0.0, requires_grad=True)
     for _ in range(steps):
-        loss = ((w * xs - ys) ** 2).mean()
-        loss.backward()
+        residual = w * xs - ys
+        torch.mean(residual ** 2).backward()
         with torch.no_grad():
             w -= lr * w.grad
-        w.grad.zero_()
+            w.grad.zero_()
     return round(w.item(), 3)

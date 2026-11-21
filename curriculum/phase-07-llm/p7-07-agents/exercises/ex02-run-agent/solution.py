@@ -18,6 +18,15 @@ def _dispatch(tc, registry: dict, required_map: dict[str, set[str]]) -> str:
     return json.dumps(out) if isinstance(out, dict) else str(out)
 
 
+def _agent_result(reason: str, steps: int, trace: list[dict], answer: str = "") -> dict:
+    return {
+        "answer": answer,
+        "stopped_reason": reason,
+        "steps": steps,
+        "trace": trace,
+    }
+
+
 def run_agent(
     client,
     task: str,
@@ -31,40 +40,33 @@ def run_agent(
         t["name"]: set(t.get("parameters", {}).get("required", []))
         for t in tools
     }
-    messages = [{"role": "user", "content": task}]
-    trace: list[dict] = []
     total_tokens = 0
+    messages: list[dict] = [{"role": "user", "content": task}]
+    trace: list[dict] = []
 
     for step in range(1, max_steps + 1):
         resp = client.chat(messages, tools=tools)
         total_tokens += resp.usage.total_tokens
         if token_budget is not None and total_tokens > token_budget:
-            return {
-                "answer": "",
-                "stopped_reason": "budget",
-                "steps": step,
-                "trace": trace,
-            }
+            return _agent_result("budget", step, trace)
         if not resp.tool_calls:
-            return {
-                "answer": resp.content or "",
-                "stopped_reason": "final",
-                "steps": step,
-                "trace": trace,
-            }
+            return _agent_result("final", step, trace, answer=resp.content or "")
 
         tc = resp.tool_calls[0]
         args = dict(tc.arguments)
         if trace and trace[-1]["tool"] == tc.name and trace[-1]["args"] == args:
-            return {"answer": "", "stopped_reason": "repeat", "steps": step, "trace": trace}
+            return _agent_result("repeat", step, trace)
 
         observation = _dispatch(tc, registry, required_map)
-        messages.append({
+        assistant_msg = {
             "role": "assistant",
             "content": None,
             "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": args}],
-        })
-        messages.append({"role": "tool", "tool_call_id": tc.id, "content": observation})
+        }
+        messages.extend([
+            assistant_msg,
+            {"role": "tool", "tool_call_id": tc.id, "content": observation},
+        ])
         trace.append({"step": step, "tool": tc.name, "args": args, "observation": observation})
 
-    return {"answer": "", "stopped_reason": "max_steps", "steps": max_steps, "trace": trace}
+    return _agent_result("max_steps", max_steps, trace)

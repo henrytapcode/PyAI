@@ -1,20 +1,13 @@
 def average(scores):
     """Mean of a list of numbers (0.0 for an empty list). Already done for you."""
-    if not scores:
-        return 0.0
-    return sum(scores) / len(scores)
+    return sum(scores) / len(scores) if scores else 0.0
 
 
 def letter_grade(avg):
     """Letter for an average on a 10-point scale. Already done for you."""
-    if avg >= 8.5:
-        return "A"
-    if avg >= 7:
-        return "B"
-    if avg >= 5.5:
-        return "C"
-    if avg >= 4:
-        return "D"
+    for cutoff, grade in ((8.5, "A"), (7, "B"), (5.5, "C"), (4, "D")):
+        if avg >= cutoff:
+            return grade
     return "F"
 
 

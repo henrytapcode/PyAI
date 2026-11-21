@@ -3,6 +3,29 @@ import re
 import numpy as np
 
 
+def _build_messages(question: str, hits: list[dict]) -> list[dict[str, str]]:
+    context = "\n".join(f"[{n}] {hit['text']}" for n, hit in enumerate(hits, 1))
+    system_prompt = (
+        'Answer using only the provided context. If the answer is not there, say "I don\'t know." '
+        f"Cite sources with [n].\n\nContext:\n{context}"
+    )
+    return [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": question},
+    ]
+
+
+def _extract_sources(answer: str, hits: list[dict]) -> list[str]:
+    sources: list[str] = []
+    for raw in re.findall(r"\[(\d+)\]", answer):
+        idx = int(raw) - 1
+        if 0 <= idx < len(hits):
+            src = hits[idx]["source"]
+            if src not in sources:
+                sources.append(src)
+    return sources
+
+
 def answer_with_sources(
     question: str,
     chunks: list[dict],
@@ -27,26 +50,5 @@ def answer_with_sources(
         return {"answer": "I don't know.", "sources": []}
 
     hits = [chunks[int(i)] for i in order]
-    context = "\n".join(f"[{n}] {h['text']}" for n, h in enumerate(hits, 1))
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "Answer using only the provided context. "
-                "If the answer is not there, say \"I don't know.\" "
-                "Cite sources with [n].\n\n"
-                f"Context:\n{context}"
-            ),
-        },
-        {"role": "user", "content": question},
-    ]
-    answer = client.chat(messages).content or ""
-
-    sources: list[str] = []
-    for raw in re.findall(r"\[(\d+)\]", answer):
-        idx = int(raw) - 1
-        if 0 <= idx < len(hits):
-            src = hits[idx]["source"]
-            if src not in sources:
-                sources.append(src)
-    return {"answer": answer, "sources": sources}
+    answer = client.chat(_build_messages(question, hits)).content or ""
+    return {"answer": answer, "sources": _extract_sources(answer, hits)}

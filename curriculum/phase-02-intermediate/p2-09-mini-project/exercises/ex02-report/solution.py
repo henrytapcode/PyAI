@@ -1,13 +1,13 @@
 """Expense tracker, part 2: the report."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class Expense:
     date: str
     category: str
     amount: float
-    note: str = ""
+    note: str = field(default="")
 
 
 def totals_by_category(expenses: list[Expense]) -> dict[str, float]:

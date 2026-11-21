@@ -2,24 +2,26 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as hf_logging
 
-hf_logging.set_verbosity_error()  # hide the expected LOAD REPORT on stderr
-hf_logging.disable_progress_bar()
 REPO = "google/bert_uncased_L-2_H-128_A-2"
 REV = "30b0a37ccaaa32f332884b96992754e246e48c5f"
+HF_ARGS = {"revision": REV, "local_files_only": True}
 
-tokenizer = AutoTokenizer.from_pretrained(REPO, revision=REV, local_files_only=True)
+hf_logging.set_verbosity_error()
+hf_logging.disable_progress_bar()
+
+tokenizer = AutoTokenizer.from_pretrained(REPO, **HF_ARGS)
 
 
 def load_model():
     """Load BERT-Tiny offline with a seeded 2-class classification head."""
     torch.manual_seed(0)
+    labels = {0: "bug", 1: "billing"}
     return AutoModelForSequenceClassification.from_pretrained(
         REPO,
-        revision=REV,
-        local_files_only=True,
-        num_labels=2,
-        id2label={0: "bug", 1: "billing"},
-        label2id={"bug": 0, "billing": 1},
+        **HF_ARGS,
+        num_labels=len(labels),
+        id2label=labels,
+        label2id={name: idx for idx, name in labels.items()},
     )
 
 

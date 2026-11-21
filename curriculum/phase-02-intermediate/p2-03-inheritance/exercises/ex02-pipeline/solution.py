@@ -3,17 +3,17 @@ class Model:
         self.name = name
 
     def generate(self, prompt):
-        raise NotImplementedError("write generate in a subclass")
-
-
-class EchoModel(Model):
-    def generate(self, prompt):
-        return "echo: " + prompt
+        raise NotImplementedError("subclasses must implement generate")
 
 
 class ShoutModel(Model):
-    def generate(self, prompt):
-        return prompt.upper()
+    def generate(self, text: str) -> str:
+        return text.upper()
+
+
+class EchoModel(Model):
+    def generate(self, text: str) -> str:
+        return f"echo: {text}"
 
 
 class Pipeline:

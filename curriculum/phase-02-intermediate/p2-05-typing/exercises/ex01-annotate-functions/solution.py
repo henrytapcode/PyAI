@@ -22,10 +22,7 @@ def word_lengths(words: list[str]) -> dict[str, int]:
 
     Example: word_lengths(["hi", "hello"]) -> {"hi": 2, "hello": 5}
     """
-    lengths = {}
-    for word in words:
-        lengths[word] = len(word)
-    return lengths
+    return {word: len(word) for word in words}
 
 
 def first_and_count(tokens: list[str]) -> tuple[str, int]:

@@ -20,11 +20,11 @@ class MiniStore:
 
     def __init__(self, client) -> None:
         self._client = client
+        self._matrix: np.ndarray | None = None
+        self._id_to_idx: dict[str, int] = {}
         self._ids: list[str] = []
         self._texts: list[str] = []
         self._metadatas: list[dict] = []
-        self._id_to_idx: dict[str, int] = {}
-        self._matrix: np.ndarray | None = None
 
     def __len__(self) -> int:
         return len(self._id_to_idx)
