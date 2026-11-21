@@ -156,14 +156,24 @@ projects:
         - "Stream từng token qua Server-Sent Events (SSE) từ endpoint POST /sessions/{id}/messages"
 
   - id: cap-tool-agent
+    lesson: cap-02-tool-agent
     phase: p8
     difficulty: 5
-    tags: [agents, production]
+    tags: [agents, production, logging, llm]
     title: { en: "Capstone: production tool agent", vi: "Capstone: agent dùng tool cho production" }
     pitch:
-      en: "Take the agent to production: safe tool permissions, retries, budgets per request and dashboards for what it did."
-      vi: "Đưa agent lên production: phân quyền tool an toàn, retry, giới hạn ngân sách mỗi request và dashboard theo dõi hành vi."
+      en: "Harden a tool-using agent for production: enforce per-request tool allowlists, write-cap policies, and destructive confirmation gates with full audit logs; guard the agent loop with idempotent FakeClock backoff retries and hard token/USD budgets; and emit JSONL trace spans for nearest-rank p95 latency and budget reporting."
+      vi: "Gia cố agent dùng tool cho production: áp đặt allowlist tool theo request, trần chính sách ghi và cổng xác nhận thao tác hủy kèm audit log; bảo vệ vòng lặp agent bằng retry backoff idempotent với FakeClock cùng ngân sách token/USD cứng; và xuất span trace JSONL để báo cáo độ trễ p95 nearest-rank và mức dùng ngân sách."
     cv_bullet:
-      en: "Deployed a tool-using agent behind an API with permission-scoped tools, retries, per-request cost budgets and execution dashboards."
-      vi: "Triển khai agent dùng tool sau một API với tool được phân quyền, retry, ngân sách chi phí theo request và dashboard theo dõi thực thi."
-    skills: ["agents", "API design", "observability", "cost control"]
+      en: "Hardened a production tool-using agent with per-request allowlist scoping, risk-tiered policy caps and confirmation gates, idempotent exponential-backoff retries with hard token/cost budgets, and JSONL trace span aggregation (p95 latency, retry counts, and budget utilization)."
+      vi: "Gia cố agent dùng tool cho production với phân quyền allowlist theo request, trần chính sách theo mức rủi ro và cổng xác nhận, retry backoff lũy tiến cho lệnh idempotent kèm ngân sách token/chi phí cứng, và tổng hợp span trace JSONL (độ trễ p95, số lần retry và mức dùng ngân sách)."
+    skills: ["scoped tool permissions", "audit logging", "idempotent retries", "cost budgeting", "JSONL trace spans", "p95 reporting"]
+    stretch:
+      en:
+        - "Add per-tool circuit breakers that trip into denied_policy for 60s after 3 consecutive tool_error failures"
+        - "Export TraceRecorder spans to OpenTelemetry and ship batches to Jaeger or Grafana Tempo"
+        - "Persist ScopedRegistry.audit_log entries to an append-only SQLite table for compliance audits"
+      vi:
+        - "Thêm circuit breaker theo từng tool để ngắt sang denied_policy trong 60 giây sau 3 lỗi tool_error liên tiếp"
+        - "Xuất các span của TraceRecorder sang OpenTelemetry và gửi theo lô về Jaeger hoặc Grafana Tempo"
+        - "Lưu các bản ghi ScopedRegistry.audit_log vào bảng SQLite append-only để phục vụ kiểm toán"

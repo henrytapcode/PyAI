@@ -475,8 +475,18 @@ capstones:
         - "Quản lý phiên người dùng tách biệt kèm hết hạn TTL và giới hạn số phiên bằng FakeClock"
         - "Bọc bất kỳ bot nào có hàm ask() sau các endpoint FastAPI cho phiên (kiểm thử bằng bot giả qua TestClient cùng FakeClock, nối với ChatBot khi chạy thật)"
   - id: cap-02-tool-agent
+    kind: project
     title: { en: "Capstone: tool-using agent", vi: "Capstone: agent dùng tool" }
     prerequisites: [p7-07-agents, p7-10-mini-project-agent, p8-04-monitoring]
+    outcomes:
+      en:
+        - "Enforce per-request tool allowlists, risk tiers, policy caps, and confirmation gates with a full audit log"
+        - "Protect agent loops with idempotent exponential-backoff retries using FakeClock and hard token/cost budgets"
+        - "Record per-step JSONL trace spans and aggregate p95 latency, retry counts, and budget utilization reports"
+      vi:
+        - "Áp đặt allowlist tool theo từng request, mức rủi ro, hạn mức chính sách và cổng xác nhận kèm audit log đầy đủ"
+        - "Bảo vệ vòng lặp agent bằng retry backoff lũy tiến cho lệnh idempotent dùng FakeClock và ngân sách token/chi phí cứng"
+        - "Ghi span trace JSONL từng bước và tổng hợp báo cáo độ trễ p95, số lần retry và mức sử dụng ngân sách"
 
 further_reading:
   en: ["Advanced asyncio", "Metaclasses", "C extensions", "Proof-based math", "Kubernetes", "Deep profiling"]

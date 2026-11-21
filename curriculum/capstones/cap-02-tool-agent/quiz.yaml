@@ -1,0 +1,386 @@
+questions:
+  - id: cap-02-q01
+    type: mcq
+    tags: [agents, production]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "In `ScopedRegistry.execute`, which check runs first when an unknown tool name is called?"
+      options:
+        - "Argument validation checks missing keys first"
+        - "Registry lookup fails with `unknown_tool` first"
+        - "Scope allowlist fails with `denied_scope` first"
+        - "Confirmation gate fails with `needs_confirmation`"
+      explanation: "Lookup happens first so an unregistered tool returns `unknown_tool` and logs `risk=\"unknown\"` in `audit_log` before any scope or argument check."
+    vi:
+      prompt: "Trong `ScopedRegistry.execute`, kiểm tra nào chạy đầu tiên khi gọi một tên tool chưa đăng ký?"
+      options:
+        - "Kiểm tra tham số báo thiếu khóa bắt buộc trước"
+        - "Tra cứu registry báo lỗi `unknown_tool` trước"
+        - "Kiểm tra allowlist báo `denied_scope` trước"
+        - "Cổng xác nhận báo `needs_confirmation` trước"
+      explanation: "Bước tra cứu chạy đầu tiên để tool chưa đăng ký trả về `unknown_tool` và ghi `risk=\"unknown\"` vào `audit_log` trước mọi bước kiểm tra khác."
+
+  - id: cap-02-q02
+    type: output
+    tags: [agents, production]
+    difficulty: 2
+    code: |
+      allowed = {"lookup_order", "issue_refund"}
+      calls = ["lookup_order", "delete_account", "issue_refund"]
+      statuses = ["ok" if name in allowed else "denied_scope" for name in calls]
+      print(statuses)
+    answer: "['ok', 'denied_scope', 'ok']"
+    en:
+      prompt: "What does this scope check comprehension print?"
+      explanation: "`lookup_order` and `issue_refund` are in `allowed`, while `delete_account` is outside the allowlist and maps to `'denied_scope'`."
+    vi:
+      prompt: "Đoạn list comprehension kiểm tra phạm vi này in ra gì?"
+      explanation: "`lookup_order` và `issue_refund` nằm trong `allowed`, còn `delete_account` nằm ngoài allowlist nên cho kết quả `'denied_scope'`."
+
+  - id: cap-02-q03
+    type: mcq
+    tags: [agents, production]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why must `ScopedRegistry` reject `isinstance(amount, bool)` when validating a numeric `amount`?"
+      options:
+        - "Because booleans serialize to strings in JSON"
+        - "Because `bool` raises `TypeError` in `round()`"
+        - "Because `bool` is a subclass of `int` in Python"
+        - "Because `bool` values always exceed `max_amount`"
+      explanation: "In Python `isinstance(True, (int, float))` is `True` because `bool` subclasses `int`, so checking `isinstance(val, bool)` explicitly prevents `True` from passing as `1`."
+    vi:
+      prompt: "Vì sao `ScopedRegistry` phải từ chối `isinstance(amount, bool)` khi kiểm tra `amount` kiểu số?"
+      options:
+        - "Vì boolean bị chuyển thành chuỗi khi xuất JSON"
+        - "Vì `bool` gây `TypeError` khi gọi hàm `round()`"
+        - "Vì `bool` là lớp con của `int` trong Python"
+        - "Vì giá trị `bool` luôn lớn hơn `max_amount`"
+      explanation: "Trong Python `isinstance(True, (int, float))` trả về `True` do `bool` kế thừa `int`, nên cần kiểm tra `isinstance(val, bool)` để chặn `True` lọt qua như số `1`."
+
+  - id: cap-02-q04
+    type: fill
+    tags: [agents, logging]
+    difficulty: 2
+    code: |
+      def check_cap(amount: object, max_amount: float | None) -> str:
+          if max_amount is None:
+              return "ok"
+          if isinstance(amount, ___) or not isinstance(amount, (int, float)):
+              return "invalid_args"
+          return "denied_policy" if amount > ___ else "ok"
+
+
+      print(check_cap(True, 50.0), check_cap(75.0, 50.0), check_cap(25.0, 50.0))
+    answer: ["bool", "max_amount"]
+    en:
+      prompt: "Fill in the blanks to reject booleans as invalid arguments and enforce the numeric `max_amount` policy cap."
+      explanation: "Checking `isinstance(amount, bool)` catches booleans before `(int, float)`, and comparing `amount > max_amount` enforces the policy cap."
+    vi:
+      prompt: "Điền vào chỗ trống để từ chối giá trị boolean là tham số sai và áp đặt trần chính sách `max_amount`."
+      explanation: "Kiểm tra `isinstance(amount, bool)` chặn boolean trước `(int, float)`, còn `amount > max_amount` kiểm tra vượt trần chính sách."
+
+  - id: cap-02-q05
+    type: parsons
+    tags: [agents, production]
+    difficulty: 2
+    lines:
+      - "def gate_destructive(token: str | None, confirm_fn, req_id: str, name: str, args: dict) -> str:"
+      - "    if not token or confirm_fn is None:"
+      - "        return 'needs_confirmation'"
+      - "    if not confirm_fn(req_id, name, args, token):"
+      - "        return 'denied_confirmation'"
+      - "    return 'ok'"
+      - "print(gate_destructive(None, None, 'r1', 'del', {}), gate_destructive('t1', lambda *a: False, 'r1', 'del', {}))"
+    answer: [0, 1, 2, 3, 4, 5, 6]
+    en:
+      prompt: "Order these lines to implement the destructive-tool confirmation gate in the exact priority order."
+      explanation: "First check whether `token` or `confirm_fn` is missing (`'needs_confirmation'`), then invoke `confirm_fn` and return `'denied_confirmation'` if falsy, else `'ok'`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để cài đặt cổng xác nhận cho tool mức `destructive` đúng thứ tự ưu tiên."
+      explanation: "Kiểm tra thiếu `token` hoặc `confirm_fn` trước (`'needs_confirmation'`), sau đó mới gọi `confirm_fn` và trả về `'denied_confirmation'` nếu sai, ngược lại `'ok'`."
+
+  - id: cap-02-q06
+    type: mcq
+    tags: [llm, production]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Why does `run_budgeted_agent` pass `idempotent=True` for `client.chat()` but execute `registry.execute()` only once?"
+      options:
+        - "LLM calls are read-only while tools mutate state"
+        - "Tools never raise `TimeoutError` during execution"
+        - "`FakeLLM.chat()` ignores `max_retries` internally"
+        - "Tool results are cached by `CostBudget` automatically"
+      explanation: "Retrying a failed or timed-out `write`/`destructive` tool call can trigger duplicate side effects (such as double refunds), whereas `client.chat()` is safe to retry."
+    vi:
+      prompt: "Vì sao `run_budgeted_agent` dùng `idempotent=True` cho `client.chat()` nhưng chỉ gọi `registry.execute()` đúng một lần?"
+      options:
+        - "Gọi LLM chỉ đọc còn tool có thể làm thay đổi trạng thái"
+        - "Tool không bao giờ ném lỗi `TimeoutError` khi chạy"
+        - "`FakeLLM.chat()` tự bỏ qua tham số `max_retries` bên trong"
+        - "Kết quả tool được `CostBudget` tự động lưu cache"
+      explanation: "Retry một tool `write`/`destructive` bị timeout có thể gây tác dụng phụ kép (như hoàn tiền hai lần), trong khi `client.chat()` an toàn để retry."
+
+  - id: cap-02-q07
+    type: output
+    tags: [llm, production]
+    difficulty: 2
+    code: |
+      from pyai_llm import Usage
+
+      u = Usage(prompt_tokens=600, completion_tokens=200, total_tokens=800)
+      cost = round((u.prompt_tokens * 0.002 + u.completion_tokens * 0.004) / 1000.0, 6)
+      print(u.total_tokens, cost)
+    answer: "800 0.002"
+    en:
+      prompt: "What does this `Usage` cost calculation print?"
+      explanation: "`(600 * 0.002 + 200 * 0.004) / 1000.0 = (1.2 + 0.8) / 1000.0 = 0.002`, and `u.total_tokens` is `800`."
+    vi:
+      prompt: "Đoạn tính chi phí từ `Usage` này in ra gì?"
+      explanation: "`(600 * 0.002 + 200 * 0.004) / 1000.0 = (1.2 + 0.8) / 1000.0 = 0.002`, và `u.total_tokens` bằng `800`."
+
+  - id: cap-02-q08
+    type: fill
+    tags: [llm, agents]
+    difficulty: 2
+    code: |
+      t = 0.0
+      base = 0.5
+      for attempt in range(3):
+          wait = base * (2 ** ___)
+          t += ___
+      print(round(t, 2))
+    answer: ["attempt", "wait"]
+    en:
+      prompt: "Fill in the blanks so exponential backoff advances `t` by `0.5 + 1.0 + 2.0 = 3.5`."
+      explanation: "Using `2 ** attempt` yields delays `0.5`, `1.0`, and `2.0`, and `t += wait` accumulates `3.5`."
+    vi:
+      prompt: "Điền vào chỗ trống để exponential backoff cộng dồn `t` thành `0.5 + 1.0 + 2.0 = 3.5`."
+      explanation: "Dùng `2 ** attempt` tạo độ trễ `0.5`, `1.0`, `2.0`, và `t += wait` cộng dồn thành `3.5`."
+
+  - id: cap-02-q09
+    type: mcq
+    tags: [llm, agents]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "In `run_budgeted_agent`, what happens if `resp.content` is `None` when `resp.tool_calls` is non-empty?"
+      options:
+        - "Skip appending the assistant message to `messages`"
+        - "Pass `content: None` straight to `FakeLLM.chat`"
+        - "Raise `ValueError` and abort the agent loop"
+        - "Append `content: \"\"` in the assistant message"
+      explanation: "`pyai_llm.FakeLLM.chat()` requires every message to have a string `\"content\"` field, so `resp.content or \"\"` prevents a validation error."
+    vi:
+      prompt: "Trong `run_budgeted_agent`, cần xử lý thế nào khi `resp.content` là `None` lúc `resp.tool_calls` không rỗng?"
+      options:
+        - "Bỏ qua không thêm tin nhắn assistant vào `messages`"
+        - "Truyền thẳng `content: None` cho `FakeLLM.chat`"
+        - "Ném `ValueError` và dừng ngay vòng lặp agent"
+        - "Thêm `content: \"\"` vào tin nhắn assistant"
+      explanation: "`pyai_llm.FakeLLM.chat()` yêu cầu mọi tin nhắn có khóa `\"content\"` kiểu chuỗi, nên dùng `resp.content or \"\"` sẽ tránh lỗi kiểm tra."
+
+  - id: cap-02-q10
+    type: output
+    tags: [llm, production]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM, RateLimitError
+
+      llm = FakeLLM(script=["done"], fail_times=2)
+      errs = 0
+      for _ in range(3):
+          try:
+              r = llm.chat([{"role": "user", "content": "hi"}])
+              print("ok:", r.content, "errs:", errs)
+          except RateLimitError:
+              errs += 1
+    answer: "ok: done errs: 2"
+    en:
+      prompt: "What does this `FakeLLM` retry loop print?"
+      explanation: "With `fail_times=2`, the first two `chat()` calls raise `RateLimitError` (`errs=2`), and the third call succeeds with `'done'`."
+    vi:
+      prompt: "Vòng lặp retry với `FakeLLM` này in ra gì?"
+      explanation: "Với `fail_times=2`, hai lần gọi `chat()` đầu tiên ném `RateLimitError` (`errs=2`), và lần thứ ba thành công với `'done'`."
+
+  - id: cap-02-q11
+    type: mcq
+    tags: [agents, production]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "Why does `run_budgeted_agent` depend on `registry.execute(...)` via duck typing instead of importing `ScopedRegistry`?"
+      options:
+        - "Because `ScopedRegistry` cannot run inside Pyodide"
+        - "To keep `ex02` self-contained and testable with stubs"
+        - "Because `FakeLLM` requires a stub registry class"
+        - "To bypass `audit_log` recording during retries"
+      explanation: "Duck typing on `.execute(name, args, ctx)` decouples `ex02` from `ex01` so unit tests can inject lightweight stub registries."
+    vi:
+      prompt: "Vì sao `run_budgeted_agent` dùng duck typing gọi `registry.execute(...)` thay vì import `ScopedRegistry`?"
+      options:
+        - "Vì `ScopedRegistry` không thể chạy trong Pyodide"
+        - "Để `ex02` độc lập và dễ kiểm thử bằng stub"
+        - "Vì `FakeLLM` bắt buộc phải dùng lớp stub registry"
+        - "Để bỏ qua việc ghi `audit_log` khi retry"
+      explanation: "Duck typing trên `.execute(name, args, ctx)` tách rời `ex02` khỏi `ex01`, giúp unit test truyền vào các stub registry gọn nhẹ."
+
+  - id: cap-02-q12
+    type: output
+    tags: [logging, evaluation]
+    difficulty: 2
+    code: |
+      import math
+
+      durs = [10.0, 20.0, 30.0, 40.0, 200.0]
+      p95 = durs[max(0, math.ceil(0.95 * len(durs)) - 1)]
+      print(p95)
+    answer: "200.0"
+    en:
+      prompt: "What does the nearest-rank `p95` calculation print for these 5 durations?"
+      explanation: "`math.ceil(0.95 * 5) - 1 = 5 - 1 = 4`, so `durs[4]` is `200.0`."
+    vi:
+      prompt: "Phép tính `p95` theo nearest-rank in ra giá trị nào cho 5 độ trễ này?"
+      explanation: "`math.ceil(0.95 * 5) - 1 = 5 - 1 = 4`, nên `durs[4]` bằng `200.0`."
+
+  - id: cap-02-q13
+    type: parsons
+    tags: [logging, production]
+    difficulty: 2
+    lines:
+      - "def summarize_tools(spans: list[dict]) -> dict[str, int]:"
+      - "    counts: dict[str, int] = {}"
+      - "    for span in spans:"
+      - "        if span['kind'] == 'tool':"
+      - "            counts[span['name']] = counts.get(span['name'], 0) + 1"
+      - "    return counts"
+      - "print(summarize_tools([{'kind': 'llm', 'name': 'fake'}, {'kind': 'tool', 'name': 'lookup'}]))"
+    answer: [0, 1, 2, 3, 4, 5, 6]
+    en:
+      prompt: "Order these lines to count only `'tool'` spans by tool name."
+      explanation: "Initialize `counts`, loop over `spans`, filter by `span['kind'] == 'tool'`, increment `counts[span['name']]`, and return `counts`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để đếm chỉ các span loại `'tool'` theo tên tool."
+      explanation: "Khởi tạo `counts`, duyệt `spans`, lọc `span['kind'] == 'tool'`, tăng `counts[span['name']]`, rồi trả về `counts`."
+
+  - id: cap-02-q14
+    type: mcq
+    tags: [logging, production]
+    difficulty: 1
+    answer: 0
+    en:
+      prompt: "In `summarize_traces`, what should `budget_utilization` be when `budget_usd` is `None` or `<= 0`?"
+      options:
+        - "Return `None` to avoid invalid division"
+        - "Return `0.0` as the default ratio"
+        - "Return `1.0` to flag full utilization"
+        - "Raise `ZeroDivisionError` immediately"
+      explanation: "When no positive `budget_usd` is configured, `budget_utilization` is `None` rather than dividing by zero or inventing `0.0`."
+    vi:
+      prompt: "Trong `summarize_traces`, `budget_utilization` phải trả về gì khi `budget_usd` là `None` hoặc `<= 0`?"
+      options:
+        - "Trả về `None` để tránh phép chia không hợp lệ"
+        - "Trả về `0.0` làm tỉ lệ mặc định"
+        - "Trả về `1.0` để báo đã dùng hết ngân sách"
+        - "Ném ngay `ZeroDivisionError`"
+      explanation: "Khi chưa cấu hình `budget_usd` dương, `budget_utilization` phải là `None` thay vì chia cho 0 hay tự đặt `0.0`."
+
+  - id: cap-02-q15
+    type: fill
+    tags: [logging, evaluation]
+    difficulty: 2
+    code: |
+      spans = [
+          {"request_id": "r2", "status": "error"},
+          {"request_id": "r1", "status": "ok"},
+          {"request_id": "r1", "status": "error"},
+      ]
+      failed = ___({s["request_id"] for s in spans if s["status"] == ___})
+      print(failed)
+    answer: ["sorted", "\"error\""]
+    en:
+      prompt: "Fill in the blanks to collect unique failed `request_id` values in sorted order."
+      explanation: "A set comprehension filtered by `s[\"status\"] == \"error\"` deduplicates request IDs, and `sorted(...)` produces a deterministic list."
+    vi:
+      prompt: "Điền vào chỗ trống để thu thập các `request_id` bị lỗi không trùng lặp theo thứ tự tăng dần."
+      explanation: "Set comprehension lọc `s[\"status\"] == \"error\"` loại bỏ trùng lặp, còn `sorted(...)` trả về danh sách có thứ tự tất định."
+
+  - id: cap-02-q16
+    type: mcq
+    tags: [logging, production]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Which constraint must every line in `format_report(summary)` satisfy for clean terminal rendering?"
+      options:
+        - "Every line must be valid JSONL"
+        - "Every line must end with a period"
+        - "Every line must be under 60 characters"
+        - "Every line must include a timestamp"
+      explanation: "`format_report(summary)` formats a compact human-readable summary where every line is strictly shorter than `60` characters."
+    vi:
+      prompt: "Mỗi dòng trong `format_report(summary)` phải tuân thủ ràng buộc nào để hiển thị gọn trên terminal?"
+      options:
+        - "Mỗi dòng phải là một chuỗi JSONL hợp lệ"
+        - "Mỗi dòng phải kết thúc bằng dấu chấm"
+        - "Mỗi dòng phải ngắn hơn 60 ký tự"
+        - "Mỗi dòng phải chứa một mốc thời gian"
+      explanation: "`format_report(summary)` xuất báo cáo văn bản gọn gàng với độ dài mỗi dòng luôn nhỏ hơn `60` ký tự."
+
+flashcards:
+  - id: cap-02-f01
+    tags: [agents, production]
+    en:
+      front: "ScopedRegistry status priority"
+      back: "Check in order: unknown_tool -> denied_scope -> invalid_args -> denied_policy -> needs_confirmation -> denied_confirmation -> ok / tool_error. Log every call to audit_log."
+    vi:
+      front: "Thứ tự ưu tiên trạng thái ScopedRegistry"
+      back: "Kiểm tra theo thứ tự: unknown_tool -> denied_scope -> invalid_args -> denied_policy -> needs_confirmation -> denied_confirmation -> ok / tool_error. Ghi mọi lần gọi vào audit_log."
+
+  - id: cap-02-f02
+    tags: [agents, production]
+    en:
+      front: "Numeric amount validation"
+      back: "When max_amount is not None on a write tool, reject None, bool (since bool subclasses int), and non-numeric values as invalid_args before checking amount > max_amount."
+    vi:
+      front: "Kiểm tra amount kiểu số"
+      back: "Khi write tool có max_amount is not None, từ chối None, bool (vì bool kế thừa int), và kiểu không phải số với invalid_args trước khi so sánh amount > max_amount."
+
+  - id: cap-02-f03
+    tags: [llm, production]
+    en:
+      front: "Idempotent retry rule"
+      back: "Retry only (RateLimitError, TimeoutError) when idempotent=True using clock.advance(base_delay * (2 ** attempt)). Run idempotent=False tool calls at most once."
+    vi:
+      front: "Quy tắc retry idempotent"
+      back: "Chỉ retry (RateLimitError, TimeoutError) khi idempotent=True và tăng clock.advance(base_delay * (2 ** attempt)). Tool idempotent=False chỉ chạy tối đa một lần."
+
+  - id: cap-02-f04
+    tags: [llm, production]
+    en:
+      front: "CostBudget enforcement"
+      back: "Record prompt/completion token costs via Pricing, then check total_tokens > max_tokens ('token_budget') and cost_usd > max_cost_usd ('cost_budget') both before and after each step."
+    vi:
+      front: "Kiểm soát ngân sách CostBudget"
+      back: "Ghi chi phí prompt/completion token qua Pricing, rồi kiểm tra total_tokens > max_tokens ('token_budget') và cost_usd > max_cost_usd ('cost_budget') cả trước lẫn sau mỗi bước."
+
+  - id: cap-02-f05
+    tags: [logging, evaluation]
+    en:
+      front: "Nearest-rank p95 latency"
+      back: "Return 0.0 when spans is empty; otherwise sort duration_ms ascending and pick index max(0, math.ceil(0.95 * len(durs)) - 1)."
+    vi:
+      front: "Độ trễ p95 theo nearest-rank"
+      back: "Trả về 0.0 khi spans rỗng; ngược lại sắp xếp duration_ms tăng dần và lấy phần tử tại chỉ số max(0, math.ceil(0.95 * len(durs)) - 1)."
+
+  - id: cap-02-f06
+    tags: [logging, production]
+    en:
+      front: "TraceRecorder & summarize_traces"
+      back: "Capture started_at and duration_ms per step in JSONL; count only kind == 'tool' in tool_counts, sort unique failed request_ids, and return None budget_utilization if budget_usd is None or <= 0."
+    vi:
+      front: "TraceRecorder & summarize_traces"
+      back: "Ghi started_at và duration_ms từng bước ra JSONL; chỉ đếm kind == 'tool' vào tool_counts, sắp xếp request_id lỗi duy nhất, và trả budget_utilization=None nếu budget_usd là None hoặc <= 0."

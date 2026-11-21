@@ -1,0 +1,66 @@
+id: cap-02-ex02
+kind: project
+title:
+  en: "Build idempotent retries, cost budgets, and the budgeted agent loop"
+  vi: "Xây dựng retry lũy đẳng, ngân sách chi phí và vòng lặp agent có giới hạn"
+difficulty: 3
+tags: [llm, agents, production]
+hints:
+  en:
+    - |
+      Separate **idempotent** LLM retries from **non-idempotent** tool calls: `call_with_retry` only retries `(RateLimitError, TimeoutError)` when `idempotent=True`, advancing `clock.advance(base_delay * (2 ** attempt))` between attempts, while `CostBudget.record(usage, pricing)` tracks `total_tokens` and `cost_usd` (rounded to 6 decimals) so `CostBudget.check()` can halt the loop both before and after each LLM call.
+    - |
+      Step-by-step plan:
+      1. `Pricing(input_per_1k, output_per_1k)`: raise `ValueError` if either rate is `< 0`.
+      2. `CostBudget(max_tokens, max_cost_usd)`: raise `ValueError` if either limit is `<= 0`; initialize `self.total_tokens = 0` and `self.cost_usd = 0.0`. In `record(usage, pricing)`, compute `(usage.prompt_tokens * pricing.input_per_1k + usage.completion_tokens * pricing.output_per_1k) / 1000.0`, add `usage.total_tokens` to `self.total_tokens`, update `self.cost_usd = round(self.cost_usd + cost, 6)`, and return `round(cost, 6)`. In `check()`, return `"token_budget"` if `self.total_tokens > self.max_tokens`, else `"cost_budget"` if `self.cost_usd > self.max_cost_usd`, else `None`.
+      3. `call_with_retry(fn, clock, max_retries=3, base_delay=0.5, idempotent=True)`: run `fn()` up to `max_retries + 1` times when `idempotent=True` (or at most once when `idempotent=False`). Retry only `(RateLimitError, TimeoutError)` when attempts remain, advancing `clock` by `base_delay * (2 ** attempt)`. Return `{"ok", "value", "error", "attempts", "wait_seconds"}`.
+      4. `run_budgeted_agent(...)`: loop up to `max_steps`. Check `budget.check()` before calling `call_with_retry(lambda: client.chat(messages, tools=tools), clock, max_retries=max_retries, idempotent=True)`. Accumulate `retries += res["attempts"] - 1`. Return `"rate_limit"` if `not res["ok"]`. Record `resp.usage`, increment `steps`, check `budget.check()` again. If `not resp.tool_calls`, return `"final"`. Otherwise append `{"role": "assistant", "content": resp.content or ""}` and execute each tool once via `registry.execute(tc.name, tc.arguments, ctx)` (no retries), appending `{"role": "tool", "content": json.dumps(outcome, sort_keys=True)}`.
+    - |
+      Skeleton:
+      ```python
+      def call_with_retry(fn, clock, max_retries=3, base_delay=0.5, idempotent=True):
+          wait_seconds = 0.0
+          attempts = 0
+          max_attempts = max_retries + 1 if idempotent else 1
+          for attempt in range(max_attempts):
+              attempts += 1
+              try:
+                  return {"ok": True, "value": fn(), "error": None, "attempts": attempts, "wait_seconds": wait_seconds}
+              except (RateLimitError, TimeoutError) as exc:
+                  if not idempotent or attempt >= max_retries:
+                      return {"ok": False, "value": None, "error": str(exc), "attempts": attempts, "wait_seconds": wait_seconds}
+                  delay = base_delay * (2 ** attempt)
+                  clock.advance(delay)
+                  wait_seconds += delay
+              except Exception as exc:
+                  return {"ok": False, "value": None, "error": str(exc), "attempts": attempts, "wait_seconds": wait_seconds}
+      ```
+  vi:
+    - |
+      Tách biệt retry **lũy đẳng (idempotent)** cho lệnh gọi LLM khỏi lệnh gọi tool **không lũy đẳng**: `call_with_retry` chỉ retry `(RateLimitError, TimeoutError)` khi `idempotent=True`, tăng đồng hồ `clock.advance(base_delay * (2 ** attempt))` giữa các lần thử, còn `CostBudget.record(usage, pricing)` theo dõi `total_tokens` và `cost_usd` (làm tròn 6 chữ số thập phân) để `CostBudget.check()` dừng vòng lặp cả trước và sau mỗi bước gọi LLM.
+    - |
+      Kế hoạch từng bước:
+      1. `Pricing(input_per_1k, output_per_1k)`: raise `ValueError` nếu một trong hai giá trị `< 0`.
+      2. `CostBudget(max_tokens, max_cost_usd)`: raise `ValueError` nếu một trong hai giới hạn `<= 0`; khởi tạo `self.total_tokens = 0` và `self.cost_usd = 0.0`. Trong `record(usage, pricing)`, tính `(usage.prompt_tokens * pricing.input_per_1k + usage.completion_tokens * pricing.output_per_1k) / 1000.0`, cộng `usage.total_tokens` vào `self.total_tokens`, cập nhật `self.cost_usd = round(self.cost_usd + cost, 6)` và trả về `round(cost, 6)`. Trong `check()`, trả về `"token_budget"` nếu `self.total_tokens > self.max_tokens`, ngược lại `"cost_budget"` nếu `self.cost_usd > self.max_cost_usd`, còn lại `None`.
+      3. `call_with_retry(fn, clock, max_retries=3, base_delay=0.5, idempotent=True)`: gọi `fn()` tối đa `max_retries + 1` lần khi `idempotent=True` (hoặc tối đa 1 lần khi `idempotent=False`). Chỉ retry `(RateLimitError, TimeoutError)` khi còn lượt, tăng `clock` thêm `base_delay * (2 ** attempt)`. Trả về `{"ok", "value", "error", "attempts", "wait_seconds"}`.
+      4. `run_budgeted_agent(...)`: lặp tối đa `max_steps` bước. Kiểm tra `budget.check()` trước khi gọi `call_with_retry(lambda: client.chat(messages, tools=tools), clock, max_retries=max_retries, idempotent=True)`. Cộng `retries += res["attempts"] - 1`. Nếu `not res["ok"]`, trả về `"rate_limit"`. Ghi nhận `resp.usage`, tăng `steps`, kiểm tra `budget.check()` lần nữa. Nếu `not resp.tool_calls`, trả về `"final"`. Ngược lại thêm `{"role": "assistant", "content": resp.content or ""}` và chạy từng tool đúng một lần qua `registry.execute(tc.name, tc.arguments, ctx)` (không retry), rồi thêm `{"role": "tool", "content": json.dumps(outcome, sort_keys=True)}`.
+    - |
+      Khung code:
+      ```python
+      def call_with_retry(fn, clock, max_retries=3, base_delay=0.5, idempotent=True):
+          wait_seconds = 0.0
+          attempts = 0
+          max_attempts = max_retries + 1 if idempotent else 1
+          for attempt in range(max_attempts):
+              attempts += 1
+              try:
+                  return {"ok": True, "value": fn(), "error": None, "attempts": attempts, "wait_seconds": wait_seconds}
+              except (RateLimitError, TimeoutError) as exc:
+                  if not idempotent or attempt >= max_retries:
+                      return {"ok": False, "value": None, "error": str(exc), "attempts": attempts, "wait_seconds": wait_seconds}
+                  delay = base_delay * (2 ** attempt)
+                  clock.advance(delay)
+                  wait_seconds += delay
+              except Exception as exc:
+                  return {"ok": False, "value": None, "error": str(exc), "attempts": attempts, "wait_seconds": wait_seconds}
+      ```

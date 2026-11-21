@@ -1,0 +1,515 @@
+id: mock-ai-engineer
+kind: mock
+title:
+  en: "Mock exam: AI Engineer"
+  vi: "Thi thử: AI Engineer"
+description:
+  en: "24 interview-style questions on Deep Learning, PyTorch, Hugging Face, LLMs, RAG, Agents, Evals, FastAPI, Docker, caching, and monitoring. Aim for 80% or more."
+  vi: "24 câu hỏi kiểu phỏng vấn về Deep Learning, PyTorch, Hugging Face, LLM, RAG, Agent, đánh giá mô hình, FastAPI, Docker, caching và giám sát hệ thống. Mục tiêu từ 80% trở lên."
+duration_min: 35
+pass_score: 0.8
+questions:
+  # ---- dl / pytorch / huggingface (6)
+  - id: mock3-q01
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "Before running inference on a trained PyTorch classifier in production, why should you call `model.eval()` and wrap the forward pass in `with torch.no_grad():`?"
+      options:
+        - "To compile the model weights into C++ bytecode for faster CPU execution"
+        - "To switch Dropout/BatchNorm to inference mode and skip tracking gradients"
+        - "To move all model parameters from CPU memory onto the primary GPU"
+        - "To zero out stale parameter gradients left over from the previous batch"
+      explanation: "`model.eval()` switches layers like Dropout and BatchNorm to deterministic inference behavior, while `torch.no_grad()` disables autograd graph construction, reducing memory usage and speeding up the forward pass."
+    vi:
+      prompt: "Trước khi chạy suy luận trên một mô hình phân loại PyTorch đã huấn luyện trong production, vì sao bạn nên gọi `model.eval()` và bọc lượt truyền xuôi trong `with torch.no_grad():`?"
+      options:
+        - "Để biên dịch trọng số mô hình sang bytecode C++ giúp CPU chạy nhanh hơn"
+        - "Để chuyển Dropout/BatchNorm sang chế độ suy luận và bỏ qua việc lưu gradient"
+        - "Để di chuyển toàn bộ tham số mô hình từ bộ nhớ CPU sang GPU chính"
+        - "Để đặt lại về 0 các gradient cũ còn sót lại từ batch huấn luyện trước"
+      explanation: "`model.eval()` chuyển các lớp như Dropout và BatchNorm sang hành vi suy luận ổn định, còn `torch.no_grad()` tắt việc dựng đồ thị autograd, giúp giảm bộ nhớ tiêu thụ và tăng tốc lượt truyền xuôi."
+
+  - id: mock3-q02
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "In a standard PyTorch training loop, what happens if you forget to call `optimizer.zero_grad()` before `loss.backward()` on each batch?"
+      options:
+        - "PyTorch raises a `RuntimeError` because `backward()` requires empty `.grad` buffers"
+        - "The optimizer skips updating weights because the learning rate resets to zero"
+        - "New gradients are added onto previous gradients, causing incorrect step sizes"
+        - "The loss value becomes `NaN` immediately on the very first training batch"
+      explanation: "PyTorch accumulates gradients into `.grad` by default (useful for gradient accumulation across micro-batches). Without `optimizer.zero_grad()`, gradients from earlier batches keep summing up and distort parameter updates."
+    vi:
+      prompt: "Trong vòng lặp huấn luyện PyTorch chuẩn, điều gì xảy ra nếu bạn quên gọi `optimizer.zero_grad()` trước `loss.backward()` ở mỗi batch?"
+      options:
+        - "PyTorch báo lỗi `RuntimeError` vì `backward()` yêu cầu bộ đệm `.grad` rỗng"
+        - "Bộ tối ưu hóa bỏ qua bước cập nhật trọng số do tốc độ học bị đặt về 0"
+        - "Gradient mới bị cộng dồn vào gradient cũ, làm sai lệch bước cập nhật trọng số"
+        - "Giá trị hàm mất mát lập tức biến thành `NaN` ngay ở batch huấn luyện đầu tiên"
+      explanation: "Mặc định PyTorch cộng dồn gradient vào `.grad` (hữu ích khi tích lũy gradient qua nhiều micro-batch). Nếu thiếu `optimizer.zero_grad()`, gradient các batch trước tiếp tục cộng dồn và làm lệch hướng cập nhật."
+
+  - id: mock3-q03
+    type: output
+    tags: [dl, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      x = np.array([2.0, -1.0])
+      W = np.array([[1.0, 0.5], [-2.0, 1.0]])
+      b = np.array([0.0, 0.5])
+      hidden = np.maximum(0.0, x @ W + b)
+      print(hidden.tolist(), int(np.argmax(hidden)))
+    answer: "[4.0, 0.5] 0"
+    en:
+      prompt: "This NumPy snippet mirrors a single linear layer followed by ReLU activation (`y = max(0, xW + b)`). What does it print?"
+      explanation: "`x @ W` computes `[2*1 + (-1)*(-2), 2*0.5 + (-1)*1] = [4.0, 0.0]`. Adding `b = [0.0, 0.5]` gives `[4.0, 0.5]`, ReLU keeps both positive values, and `argmax` returns index `0`."
+    vi:
+      prompt: "Đoạn code NumPy này mô phỏng một lớp tuyến tính theo sau bởi hàm kích hoạt ReLU (`y = max(0, xW + b)`). Đoạn code in ra gì?"
+      explanation: "`x @ W` tính ra `[2*1 + (-1)*(-2), 2*0.5 + (-1)*1] = [4.0, 0.0]`. Cộng `b = [0.0, 0.5]` được `[4.0, 0.5]`, ReLU giữ nguyên hai giá trị dương và `argmax` trả về chỉ số `0`."
+
+  - id: mock3-q04
+    type: mcq
+    tags: [huggingface, dl]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "When batching variable-length sentences with a Hugging Face tokenizer (`padding=True, truncation=True`), why must you pass `attention_mask` into the model?"
+      options:
+        - "So self-attention ignores pad tokens added to match the longest sequence"
+        - "So the tokenizer knows which special `[CLS]` and `[SEP]` tokens to strip"
+        - "So the model converts string labels into integer class IDs during training"
+        - "So CUDA allocates fixed-size memory pages only for non-empty text batches"
+      explanation: "Shorter sequences in a batch are padded with `[PAD]` tokens to form a rectangular tensor. `attention_mask` marks real tokens as `1` and pad tokens as `0` so attention weights do not attend to meaningless padding."
+    vi:
+      prompt: "Khi gom batch các câu có độ dài khác nhau bằng tokenizer của Hugging Face (`padding=True, truncation=True`), vì sao bạn cần truyền `attention_mask` vào mô hình?"
+      options:
+        - "Để cơ chế self-attention bỏ qua các token đệm được thêm cho bằng câu dài nhất"
+        - "Để tokenizer biết cần loại bỏ các token đặc biệt `[CLS]` và `[SEP]` nào"
+        - "Để mô hình chuyển đổi nhãn dạng chuỗi thành ID lớp số nguyên khi huấn luyện"
+        - "Để CUDA cấp phát các trang bộ nhớ kích thước cố định cho các batch có chữ"
+      explanation: "Các câu ngắn hơn trong batch được chèn thêm token `[PAD]` để tạo tensor hình chữ nhật. `attention_mask` đánh dấu token thật là `1` và token đệm là `0` để lớp attention không chú ý vào phần đệm vô nghĩa."
+
+  - id: mock3-q05
+    type: fill
+    tags: [dl, ml-math, numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      logits = np.array([1000.0, 1001.0, 999.0])
+      shifted = logits - np.___(logits)
+      probs = np.exp(shifted) / np.sum(np.exp(shifted))
+      print([round(float(p), 3) for p in probs])
+    answer: ["max"]
+    en:
+      prompt: "To prevent floating-point overflow when computing softmax on large logits, fill in the NumPy function so `probs` prints `[0.245, 0.665, 0.09]`."
+      explanation: "Subtracting `np.max(logits)` shifts the largest logit to `0.0` (making `exp(0.0) = 1.0`), which prevents `exp(1000)` from overflowing to `inf` while leaving the softmax probabilities mathematically identical."
+    vi:
+      prompt: "Để tránh tràn số dấu phẩy động khi tính softmax trên các logit lớn, điền tên hàm NumPy để `probs` in ra `[0.245, 0.665, 0.09]`."
+      explanation: "Trừ đi `np.max(logits)` đưa giá trị logit lớn nhất về `0.0` (làm `exp(0.0) = 1.0`), giúp tránh lỗi `exp(1000)` tràn thành `inf` mà vẫn giữ nguyên xác suất softmax về mặt toán học."
+
+  - id: mock3-q06
+    type: mcq
+    tags: [huggingface, dl]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "Why is LoRA (Low-Rank Adaptation) widely used to fine-tune large language models instead of updating all model weights?"
+      options:
+        - "It removes the need for a tokenizer by operating directly on raw UTF-8 bytes"
+        - "It replaces the transformer architecture with a faster linear regression head"
+        - "It guarantees zero catastrophic forgetting without needing any validation set"
+        - "It freezes base weights and trains small adapter matrices, cutting VRAM needs"
+      explanation: "LoRA freezes the pretrained weights and injects trainable low-rank matrices (`A` and `B`) into target layers. Training only those small adapters dramatically lowers optimizer memory and checkpoint size."
+    vi:
+      prompt: "Vì sao LoRA (Low-Rank Adaptation) được dùng phổ biến để tinh chỉnh mô hình ngôn ngữ lớn thay vì cập nhật toàn bộ trọng số?"
+      options:
+        - "Nó bỏ qua bước dùng tokenizer bằng cách xử lý trực tiếp trên byte UTF-8 thô"
+        - "Nó thay thế kiến trúc transformer bằng một lớp hồi quy tuyến tính nhanh hơn"
+        - "Nó đảm bảo không bao giờ quên kiến thức cũ mà không cần tập kiểm định"
+        - "Nó đóng băng trọng số gốc và chỉ huấn luyện ma trận adapter nhỏ, giảm VRAM"
+      explanation: "LoRA đóng băng trọng số tiền huấn luyện và chèn các ma trận hạng thấp (`A` và `B`) có thể huấn luyện vào các lớp đích. Chỉ cập nhật các adapter nhỏ này giúp giảm mạnh bộ nhớ optimizer và kích thước checkpoint."
+
+  # ---- llm / rag / agents / evals (10)
+  - id: mock3-q07
+    type: mcq
+    tags: [llm]
+    difficulty: 1
+    answer: 1
+    en:
+      prompt: "You are building an LLM pipeline that extracts structured invoice dates and totals into JSON. Which temperature setting is most appropriate and why?"
+      options:
+        - "High temperature (`1.2`), so the model explores creative formatting styles"
+        - "Low temperature (`0.0`), so token sampling stays focused and repeatable"
+        - "Medium temperature (`0.7`), so the model balances accuracy and randomness"
+        - "Negative temperature (`-1.0`), so the API disables the context window limit"
+      explanation: "Lower temperature sharpens the next-token probability distribution. `temperature=0.0` makes extraction tasks nearly deterministic and consistent, whereas higher values introduce unnecessary randomness."
+    vi:
+      prompt: "Bạn đang xây dựng pipeline LLM trích xuất ngày và tổng tiền hóa đơn sang JSON. Mức `temperature` nào phù hợp nhất và vì sao?"
+      options:
+        - "Mức `temperature` cao (`1.2`), để mô hình thử nghiệm nhiều kiểu định dạng sáng tạo"
+        - "Mức `temperature` thấp (`0.0`), để việc lấy mẫu token tập trung và lặp lại ổn định"
+        - "Mức `temperature` trung bình (`0.7`), để mô hình cân bằng độ chính xác và ngẫu nhiên"
+        - "Mức `temperature` âm (`-1.0`), để API tắt giới hạn kích thước cửa sổ ngữ cảnh"
+      explanation: "`temperature` thấp làm phân phối xác suất token tiếp theo dốc hơn. Đặt `temperature=0.0` giúp tác vụ trích xuất ổn định và nhất quán, trong khi giá trị cao gây ra độ ngẫu nhiên không cần thiết."
+
+  - id: mock3-q08
+    type: output
+    tags: [llm, json]
+    difficulty: 2
+    code: |
+      import json
+
+      raw = '{"intent": "refund", "confidence": 0.92}'
+      data = json.loads(raw)
+      ok = isinstance(data.get("intent"), str) and data.get("confidence", 0) >= 0.8
+      print(data["intent"], ok)
+    answer: "refund True"
+    en:
+      prompt: "After receiving a JSON string from a structured-output LLM call, what does this validation check print?"
+      explanation: "`json.loads(raw)` parses the JSON into a Python dict. `data['intent']` is `'refund'` (a `str`), and `0.92 >= 0.8` is `True`, so it prints `refund True`."
+    vi:
+      prompt: "Sau khi nhận được chuỗi JSON từ một lời gọi LLM có đầu ra cấu trúc, đoạn kiểm tra hợp lệ này in ra gì?"
+      explanation: "`json.loads(raw)` phân tích chuỗi JSON thành dict Python. `data['intent']` là `'refund'` (kiểu `str`), và `0.92 >= 0.8` đúng là `True`, nên kết quả là `refund True`."
+
+  - id: mock3-q09
+    type: fill
+    tags: [rag, loops]
+    difficulty: 2
+    code: |
+      def chunk_words(words, size, overlap):
+          step = size - ___
+          return [words[i:i + size] for i in range(0, len(words), step)]
+
+      tokens = ["a", "b", "c", "d", "e", "f"]
+      print(chunk_words(tokens, size=4, overlap=2))
+    answer: ["overlap"]
+    en:
+      prompt: "Complete the sliding-window chunker for a RAG ingestion pipeline so `chunk_words(tokens, size=4, overlap=2)` prints `[['a', 'b', 'c', 'd'], ['c', 'd', 'e', 'f'], ['e', 'f']]`."
+      explanation: "With `size=4` and `overlap=2`, each chunk advances by `step = size - overlap = 2` words so consecutive chunks share `2` overlapping words at the boundary."
+    vi:
+      prompt: "Hoàn thành hàm chia đoạn dạng cửa sổ trượt cho pipeline nạp dữ liệu RAG để `chunk_words(tokens, size=4, overlap=2)` in ra `[['a', 'b', 'c', 'd'], ['c', 'd', 'e', 'f'], ['e', 'f']]`."
+      explanation: "Với `size=4` và `overlap=2`, mỗi đoạn dịch chuyển `step = size - overlap = 2` từ để các đoạn liên tiếp gối đầu nhau đúng `2` từ ở phần ranh giới."
+
+  - id: mock3-q10
+    type: output
+    tags: [rag, numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      query = np.array([1.0, 0.0])
+      docs = np.array([
+          [0.0, 2.0],
+          [3.0, 0.0],
+          [1.0, 1.0],
+      ])
+      norms = np.linalg.norm(docs, axis=1) * np.linalg.norm(query)
+      scores = (docs @ query) / norms
+      best_idx = int(np.argmax(scores))
+      print(best_idx, round(float(scores[best_idx]), 2))
+    answer: "1 1.0"
+    en:
+      prompt: "This RAG retriever ranks 3 document embeddings against a query embedding using cosine similarity. What does it print?"
+      explanation: "Document 0 (`[0, 2]`) is orthogonal to `query` (`0.0`), document 1 (`[3, 0]`) points in the exact same direction (`3 / (3 * 1) = 1.0`), and document 2 (`[1, 1]`) has score `~0.71`. `argmax` picks index `1` with score `1.0`."
+    vi:
+      prompt: "Bộ truy xuất RAG này xếp hạng 3 vector embedding tài liệu theo câu truy vấn bằng độ tương đồng cosine. Đoạn code in ra gì?"
+      explanation: "Tài liệu 0 (`[0, 2]`) vuông góc với `query` (`0.0`), tài liệu 1 (`[3, 0]`) cùng hướng hoàn toàn (`3 / (3 * 1) = 1.0`), còn tài liệu 2 (`[1, 1]`) đạt `~0.71`. `argmax` chọn chỉ số `1` với điểm `1.0`."
+
+  - id: mock3-q11
+    type: mcq
+    tags: [rag]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "In a RAG system for technical support docs, when does hybrid search (combining BM25 keyword search and dense vector search) outperform vector-only search?"
+      options:
+        - "When all documents are shorter than a single sentence with no punctuation"
+        - "When the embedding model has more parameters than the generator LLM"
+        - "When user queries contain exact error codes, SKUs, or rare identifiers"
+        - "When the vector database stores fewer than ten total document chunks"
+      explanation: "Dense embeddings capture semantic meaning well but can blur exact lexical matches like `ERR_4091` or product SKUs. BM25 excels at exact token matches, so combining both improves recall on technical queries."
+    vi:
+      prompt: "Trong hệ thống RAG cho tài liệu hỗ trợ kỹ thuật, khi nào tìm kiếm kết hợp (hybrid search giữa từ khóa BM25 và vector dày đặc) vượt trội hơn tìm kiếm chỉ dùng vector?"
+      options:
+        - "Khi mọi tài liệu đều ngắn hơn một câu đơn và không chứa dấu câu nào"
+        - "Khi mô hình embedding có số lượng tham số lớn hơn mô hình LLM sinh văn bản"
+        - "Khi câu truy vấn chứa mã lỗi chính xác, mã SKU hoặc định danh hiếm gặp"
+        - "Khi cơ sở dữ liệu vector lưu trữ ít hơn mười đoạn tài liệu tổng cộng"
+      explanation: "Vector embedding nắm bắt ngữ nghĩa tốt nhưng dễ làm mờ các chuỗi khớp chính xác như `ERR_4091` hay mã SKU. BM25 mạnh về khớp từ khóa chính xác, nên kết hợp cả hai giúp tăng độ phủ cho truy vấn kỹ thuật."
+
+  - id: mock3-q12
+    type: parsons
+    tags: [rag, llm]
+    difficulty: 2
+    lines:
+      - "def build_rag_prompt(query, chunks):"
+      - '    context = "\n".join(f"[{i}] {c}" for i, c in enumerate(chunks, 1))'
+      - '    return f"Context:\n{context}\n\nQuestion: {query}"'
+      - 'prompt = build_rag_prompt("Reset key?", ["Go to Settings.", "Click Rotate."])'
+      - "print(prompt)"
+    en:
+      prompt: "Arrange these lines in order to define `build_rag_prompt`, format numbered context chunks, and print the final RAG prompt."
+      explanation: "Define `build_rag_prompt(query, chunks)` first, build the numbered `context` string before returning the formatted prompt, then call `build_rag_prompt` and print the result."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để định nghĩa hàm `build_rag_prompt`, định dạng các đoạn ngữ cảnh có đánh số và in ra prompt RAG hoàn chỉnh."
+      explanation: "Định nghĩa `build_rag_prompt(query, chunks)` trước, tạo chuỗi `context` đánh số trước khi `return` prompt đã định dạng, sau đó gọi hàm `build_rag_prompt` rồi in kết quả."
+
+  - id: mock3-q13
+    type: mcq
+    tags: [agents, llm]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "In an LLM tool-calling workflow, what is the model's actual role when it decides a tool is needed?"
+      options:
+        - "It outputs a structured tool name and arguments for your app to execute"
+        - "It opens a direct network socket from its weights to the external API"
+        - "It compiles Python tool functions inside the GPU kernel during decoding"
+        - "It bypasses your application code and writes directly to your database"
+      explanation: "An LLM only generates tokens: when tool calling is enabled, it emits a structured tool name and JSON arguments. Your host application validates and executes the function, then sends the tool output back to the model."
+    vi:
+      prompt: "Trong quy trình gọi công cụ (tool-calling) của LLM, vai trò thực sự của mô hình là gì khi nó quyết định cần dùng một công cụ?"
+      options:
+        - "Nó sinh tên công cụ và tham số có cấu trúc để ứng dụng của bạn thực thi"
+        - "Nó tự mở kết nối mạng trực tiếp từ trọng số mô hình tới API bên ngoài"
+        - "Nó biên dịch các hàm Python ngay trong nhân GPU trong quá trình giải mã"
+        - "Nó bỏ qua mã nguồn ứng dụng của bạn và ghi thẳng vào cơ sở dữ liệu"
+      explanation: "LLM chỉ sinh token: khi bật tool calling, nó xuất ra tên công cụ và tham số JSON có cấu trúc. Ứng dụng chủ của bạn kiểm tra, thực thi hàm đó rồi gửi kết quả công cụ lại cho mô hình."
+
+  - id: mock3-q14
+    type: output
+    tags: [agents, loops]
+    difficulty: 3
+    code: |
+      tools = {"double": lambda x: x * 2, "add_one": lambda x: x + 1}
+      plan = [("double", 5), ("add_one", None)]
+      value = None
+      for step, (name, arg) in enumerate(plan, 1):
+          if step > 2:
+              break
+          arg_val = value if arg is None else arg
+          value = tools[name](arg_val)
+      print(value)
+    answer: "11"
+    en:
+      prompt: "This snippet simulates an agent executing a two-step tool plan with a step-limit guard. What does it print?"
+      explanation: "Step 1 calls `tools['double'](5)` to set `value = 10`. Step 2 sees `arg is None`, passes the previous `value` (`10`) to `tools['add_one'](10)`, and prints `11`."
+    vi:
+      prompt: "Đoạn code này mô phỏng một agent thực thi kế hoạch gọi công cụ 2 bước kèm giới hạn số bước. Đoạn code in ra gì?"
+      explanation: "Bước 1 gọi `tools['double'](5)` cho `value = 10`. Bước 2 thấy `arg is None` nên truyền `value` trước đó (`10`) vào `tools['add_one'](10)`, rồi in ra `11`."
+
+  - id: mock3-q15
+    type: mcq
+    tags: [evaluation, rag]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "Your RAG evaluation suite shows Recall@5 is `0.94`, but Faithfulness (groundedness) is only `0.48`. What does this combination indicate?"
+      options:
+        - "The vector index is missing documents, so retrieval cannot find answers"
+        - "The embedding model is too slow to meet the latency budget in production"
+        - "The tokenizer is truncating user queries before they reach the database"
+        - "The retriever finds relevant chunks, but the LLM still hallucinates claims"
+      explanation: "High Recall@5 means the right context chunks are reaching the prompt, while low Faithfulness means the generator is inventing or contradicting facts not supported by those retrieved chunks."
+    vi:
+      prompt: "Bộ đánh giá RAG cho thấy Recall@5 đạt `0.94`, nhưng Faithfulness (độ bám sát ngữ cảnh) chỉ đạt `0.48`. Sự kết hợp này cho thấy điều gì?"
+      options:
+        - "Chỉ mục vector bị thiếu tài liệu nên bộ truy xuất không tìm thấy câu trả lời"
+        - "Mô hình embedding chạy quá chậm so với ngân sách độ trễ trong production"
+        - "Tokenizer đang cắt ngắn câu truy vấn trước khi gửi tới cơ sở dữ liệu"
+        - "Bộ truy xuất tìm đúng đoạn văn bản, nhưng LLM vẫn tự bịa thêm thông tin"
+      explanation: "Recall@5 cao nghĩa là các đoạn ngữ cảnh đúng đã được đưa vào prompt, còn Faithfulness thấp cho thấy mô hình sinh văn bản đang tự suy diễn hoặc nói sai lệch so với các đoạn đã truy xuất."
+
+  - id: mock3-q16
+    type: fill
+    tags: [evaluation, llm]
+    difficulty: 2
+    code: |
+      cases = [("paris", "Paris"), ("tokyo", "Kyoto"), ("hanoi", " Hanoi ")]
+      hits = sum(1 for pred, gold in cases if pred.strip().lower() == gold.___().lower())
+      print(round(hits / len(cases), 2))
+    answer: ["strip"]
+    en:
+      prompt: "Fill in the string method in this normalized exact-match evaluator so it prints `0.67`."
+      explanation: "Calling `gold.strip().lower()` removes leading/trailing whitespace around `' Hanoi '` before lowercasing, matching `'hanoi'` so 2 out of 3 cases pass (`0.67`)."
+    vi:
+      prompt: "Điền tên phương thức chuỗi trong bộ đánh giá khớp chính xác đã chuẩn hóa này để kết quả in ra `0.67`."
+      explanation: "Gọi `gold.strip().lower()` giúp xóa khoảng trắng thừa hai đầu của `' Hanoi '` trước khi chuyển chữ thường, khớp với `'hanoi'` nên có 2 trên 3 mẫu đạt (`0.67`)."
+
+  # ---- fastapi / docker / cache / monitoring (8)
+  - id: mock3-q17
+    type: mcq
+    tags: [apis, production, performance]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "In a FastAPI service, what happens if you define an `async def` endpoint that calls a synchronous, blocking HTTP client or `time.sleep(2)` directly?"
+      options:
+        - "FastAPI automatically runs the blocking call inside a separate worker process"
+        - "The blocking call stalls the asyncio event loop and delays concurrent requests"
+        - "Python converts `time.sleep(2)` into `await asyncio.sleep(2)` at runtime"
+        - "Uvicorn kills the worker thread immediately and returns HTTP `504` to clients"
+      explanation: "An `async def` route runs directly on the single-threaded asyncio event loop. Blocking calls inside it freeze the entire event loop for all concurrent requests; use `await` with async clients or a regular `def` route (which FastAPI runs in a threadpool)."
+    vi:
+      prompt: "Trong dịch vụ FastAPI, điều gì xảy ra nếu bạn định nghĩa một endpoint `async def` nhưng bên trong lại gọi trực tiếp thư viện HTTP đồng bộ gây chặn hoặc `time.sleep(2)`?"
+      options:
+        - "FastAPI tự động đẩy lời gọi gây chặn đó sang một tiến trình worker riêng"
+        - "Lời gọi gây chặn làm treo event loop asyncio và làm chậm các request khác"
+        - "Python tự chuyển `time.sleep(2)` thành `await asyncio.sleep(2)` khi chạy"
+        - "Uvicorn ngắt luồng worker ngay lập tức và trả về mã HTTP `504` cho client"
+      explanation: "Route `async def` chạy trực tiếp trên event loop asyncio đơn luồng. Gọi hàm chặn bên trong sẽ làm đứng toàn bộ event loop cho mọi request đồng thời; cần dùng `await` với client bất đồng bộ hoặc dùng `def` thường (FastAPI chạy trong threadpool)."
+
+  - id: mock3-q18
+    type: mcq
+    tags: [apis, production]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "A client sends `{\"temperature\": \"hot\"}` to a FastAPI endpoint expecting a Pydantic model field `temperature: float`. Which HTTP status code does FastAPI return by default?"
+      options:
+        - "`400 Bad Request`, because the JSON syntax is invalid"
+        - "`404 Not Found`, because the route handler cannot parse strings"
+        - "`422 Unprocessable Entity`, with structured validation error details"
+        - "`500 Internal Server Error`, because Pydantic raises an unhandled crash"
+      explanation: "The JSON itself is syntactically valid, so FastAPI parses it and runs Pydantic validation. When type coercion fails (`\"hot\"` is not a `float`), FastAPI automatically responds with `422 Unprocessable Entity` and field-level error details."
+    vi:
+      prompt: "Một client gửi `{\"temperature\": \"hot\"}` tới endpoint FastAPI đang dùng Pydantic mong đợi trường `temperature: float`. Mặc định FastAPI trả về mã trạng thái HTTP nào?"
+      options:
+        - "`400 Bad Request`, vì cú pháp JSON của request không hợp lệ"
+        - "`404 Not Found`, vì hàm xử lý route không thể phân tích chuỗi"
+        - "`422 Unprocessable Entity`, kèm chi tiết lỗi kiểm tra dữ liệu có cấu trúc"
+        - "`500 Internal Server Error`, vì Pydantic ném ra ngoại lệ chưa được bắt"
+      explanation: "Bản thân chuỗi JSON hợp lệ về cú pháp nên FastAPI vẫn đọc được rồi chạy kiểm tra Pydantic. Khi ép kiểu thất bại (`\"hot\"` không phải `float`), FastAPI tự động trả về `422 Unprocessable Entity` kèm chi tiết lỗi từng trường."
+
+  - id: mock3-q19
+    type: mcq
+    tags: [production, system-design]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "In a `Dockerfile` for a Python AI API, why should you `COPY pyproject.toml` and install dependencies before running `COPY . .`?"
+      options:
+        - "So Docker reuses the cached dependency layer when only app code changes"
+        - "So `pip` or `uv` can delete unused source files before the build finishes"
+        - "So Python skips compiling `.pyc` bytecode files inside the container image"
+        - "So the container exposes port `8000` before copying any application routes"
+      explanation: "Docker caches image layers sequentially. Placing `COPY pyproject.toml` and dependency installation before `COPY . .` ensures editing application `.py` files does not invalidate the slow dependency-install layer."
+    vi:
+      prompt: "Trong `Dockerfile` cho một API AI bằng Python, vì sao bạn nên `COPY pyproject.toml` và cài đặt thư viện trước khi chạy `COPY . .`?"
+      options:
+        - "Để Docker tái sử dụng lớp cache thư viện khi chỉ mã nguồn ứng dụng thay đổi"
+        - "Để `pip` hoặc `uv` có thể xóa các file mã nguồn thừa trước khi build xong"
+        - "Để Python bỏ qua bước biên dịch file bytecode `.pyc` bên trong container image"
+        - "Để container mở sẵn cổng `8000` trước khi sao chép các route của ứng dụng"
+      explanation: "Docker lưu cache từng lớp theo thứ tự. Đặt `COPY pyproject.toml` và bước cài thư viện trước `COPY . .` giúp việc sửa file `.py` của ứng dụng không làm mất cache của lớp cài đặt thư viện vốn rất chậm."
+
+  - id: mock3-q20
+    type: output
+    tags: [performance, production]
+    difficulty: 2
+    code: |
+      from functools import lru_cache
+
+      @lru_cache(maxsize=2)
+      def embed_key(text):
+          return len(text)
+
+      for q in ["hi", "ok", "hi", "bye", "ok"]:
+          embed_key(q)
+
+      info = embed_key.cache_info()
+      print(info.hits, info.misses, info.currsize)
+    answer: "1 4 2"
+    en:
+      prompt: "You wrap a deterministic helper with `lru_cache(maxsize=2)`. What does `cache_info()` print after these five calls?"
+      explanation: "Calls: `'hi'` (miss, cache `[hi]`), `'ok'` (miss, `[hi, ok]`), `'hi'` (hit, `[ok, hi]`), `'bye'` (miss, evicts `'ok'`, `[hi, bye]`), `'ok'` (miss, evicts `'hi'`, `[bye, ok]`). Total: `1` hit, `4` misses, `currsize=2`."
+    vi:
+      prompt: "Bạn bọc một hàm phụ trợ tất định bằng `lru_cache(maxsize=2)`. Sau 5 lần gọi này, `cache_info()` in ra gì?"
+      explanation: "Các lần gọi: `'hi'` (miss, cache `[hi]`), `'ok'` (miss, `[hi, ok]`), `'hi'` (hit, `[ok, hi]`), `'bye'` (miss, đẩy `'ok'`, `[hi, bye]`), `'ok'` (miss, đẩy `'hi'`, `[bye, ok]`). Tổng cộng: `1` hit, `4` miss, `currsize=2`."
+
+  - id: mock3-q21
+    type: mcq
+    tags: [performance, llm, system-design]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "How does a semantic cache differ from an exact-match prompt cache in an LLM gateway?"
+      options:
+        - "It only caches HTTP `422` errors rather than successful model completions"
+        - "It bypasses the embedding step and compares raw byte lengths of prompts"
+        - "It guarantees identical answers by requiring exact character-by-character match"
+        - "It embeds incoming queries and reuses a cached answer above a similarity cutoff"
+      explanation: "Exact-match caching hashes the normalized prompt string and model settings. Semantic caching computes an embedding for the query and returns a cached response when cosine similarity exceeds a high threshold (e.g., `0.95`), trading minor semantic risk for higher hit rates."
+    vi:
+      prompt: "Semantic cache (bộ nhớ đệm ngữ nghĩa) khác gì so với cache khớp chính xác prompt trong một LLM gateway?"
+      options:
+        - "Nó chỉ lưu cache các lỗi HTTP `422` thay vì các câu trả lời thành công"
+        - "Nó bỏ qua bước tạo embedding và chỉ so sánh độ dài byte thô của prompt"
+        - "Nó đảm bảo câu trả lời giống hệt bằng cách yêu cầu khớp từng ký tự"
+        - "Nó tạo embedding cho truy vấn và dùng lại kết quả cũ khi vượt ngưỡng tương đồng"
+      explanation: "Cache khớp chính xác băm chuỗi prompt đã chuẩn hóa cùng cấu hình mô hình. Semantic cache tạo vector embedding cho truy vấn và trả về kết quả cũ khi độ tương đồng cosine vượt ngưỡng cao (ví dụ `0.95`), đánh đổi chút rủi ro ngữ nghĩa để tăng tỉ lệ trúng cache."
+
+  - id: mock3-q22
+    type: parsons
+    tags: [logging, production, json]
+    difficulty: 2
+    lines:
+      - "import json"
+      - 'event = json.loads(''{"route": "/chat", "ms": 38, "ok": true}'')'
+      - 'event["status"] = 200 if event.pop("ok") else 500'
+      - "output = json.dumps(event, sort_keys=True)"
+      - "print(output)"
+    en:
+      prompt: "Arrange these lines in order to parse a raw log event, convert its `ok` flag into an HTTP `status` code, and print sorted JSON."
+      explanation: "Import `json` first, parse the raw JSON string into `event`, replace `ok` with `status`, serialize `event` with `sort_keys=True`, and print `output` last."
+    vi:
+      prompt: "Sắp xếp các dòng sau theo đúng thứ tự để phân tích một sự kiện log thô, đổi cờ `ok` thành mã HTTP `status` và in ra chuỗi JSON đã sắp xếp khóa."
+      explanation: "Import `json` trước, phân tích chuỗi JSON thô thành `event`, thay `ok` bằng `status`, tuần tự hóa `event` với `sort_keys=True` rồi mới in `output`."
+
+  - id: mock3-q23
+    type: output
+    tags: [production, performance]
+    difficulty: 3
+    code: |
+      latencies = [120, 45, 80, 310, 95, 60, 150, 200, 70, 50]
+      ordered = sorted(latencies)
+      p50 = ordered[int(0.50 * (len(ordered) - 1))]
+      p90 = ordered[int(0.90 * (len(ordered) - 1))]
+      print(p50, p90)
+    answer: "80 200"
+    en:
+      prompt: "A monitoring script computes latency percentiles from 10 API requests using nearest-rank indexing on the sorted list. What does it print?"
+      explanation: "Sorting gives `[45, 50, 60, 70, 80, 95, 120, 150, 200, 310]`. `int(0.50 * 9) = 4` (`ordered[4] = 80`) and `int(0.90 * 9) = 8` (`ordered[8] = 200`)."
+    vi:
+      prompt: "Một script giám sát tính các phân vị độ trễ từ 10 request API bằng cách lấy chỉ số gần nhất trên danh sách đã sắp xếp. Đoạn code in ra gì?"
+      explanation: "Sắp xếp cho `[45, 50, 60, 70, 80, 95, 120, 150, 200, 310]`. `int(0.50 * 9) = 4` (`ordered[4] = 80`) và `int(0.90 * 9) = 8` (`ordered[8] = 200`)."
+
+  - id: mock3-q24
+    type: mcq
+    tags: [production, logging, system-design]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why should an AI service alert on `p95` or `p99` latency rather than relying solely on average (mean) latency?"
+      options:
+        - "Because average latency cannot be computed without storing raw prompt text"
+        - "Because `p95` automatically excludes all HTTP `500` errors from dashboards"
+        - "Because slow tail requests can hurt many users while the mean still looks fast"
+        - "Because `p95` is always lower than the mean when traffic spikes occur"
+      explanation: "Fast cached responses pull the mean down, hiding severe tail latency experienced by 1-in-20 or 1-in-100 requests (such as long uncached LLM generations or cold starts). Monitoring `p95`/`p99` exposes these user-facing slowdowns."
+    vi:
+      prompt: "Vì sao một dịch vụ AI nên đặt cảnh báo theo độ trễ `p95` hoặc `p99` thay vì chỉ dựa vào độ trễ trung bình (mean)?"
+      options:
+        - "Vì không thể tính độ trễ trung bình nếu không lưu toàn bộ nội dung prompt thô"
+        - "Vì `p95` tự động loại bỏ toàn bộ các lỗi HTTP `500` ra khỏi bảng theo dõi"
+        - "Vì các request chậm ở phần đuôi gây hại cho người dùng dù trung bình vẫn nhanh"
+        - "Vì `p95` luôn nhỏ hơn giá trị trung bình mỗi khi lưu lượng truy cập tăng vọt"
+      explanation: "Các request trúng cache chạy rất nhanh kéo giá trị trung bình xuống, che giấu tình trạng chậm nghiêm trọng ở 5% hoặc 1% request chậm nhất (ví dụ sinh văn bản dài chưa cache). Theo dõi `p95`/`p99` giúp phát hiện đúng các điểm nghẽn này."

@@ -1,0 +1,60 @@
+id: cap-02-ex03
+kind: project
+title:
+  en: "Build JSONL trace recording and summary reporting"
+  vi: "Xây dựng bộ ghi trace JSONL và báo cáo tóm tắt"
+difficulty: 3
+tags: [logging, production, agents, evaluation]
+hints:
+  en:
+    - |
+      Use `TraceRecorder(clock)` to wrap each step execution: read `started_at = self.clock()`, run `fn()` inside `try`/`except Exception`, and compute `duration_ms = round((self.clock() - started_at) * 1000.0, 3)` afterward so both successful and failing steps record accurate timing.
+    - |
+      In `summarize_traces(spans, budget_usd=None)`, filter `span["kind"] == "tool"` before counting `tool_counts` so LLM calls are not mixed in. Handle empty `spans` explicitly (`p95_step_ms = 0.0`, `failed_requests = []`), sort durations ascending for `durs[max(0, math.ceil(0.95 * len(durs)) - 1)]`, and return `budget_utilization = None` whenever `budget_usd is None or budget_usd <= 0`.
+    - |
+      Skeleton for `TraceRecorder` and `summarize_traces`:
+      ```python
+      class TraceRecorder:
+          def __init__(self, clock):
+              self.clock = clock
+              self.spans = []
+
+          def record_step(self, request_id, step, kind, name, fn, tokens=0, cost_usd=0.0, retries=0):
+              started_at = self.clock()
+              try:
+                  result = fn()
+                  status, error = "ok", None
+              except Exception as exc:
+                  result = None
+                  status, error = "error", str(exc)
+              duration_ms = round((self.clock() - started_at) * 1000.0, 3)
+              span = { ... }
+              self.spans.append(span)
+              return result, span
+      ```
+  vi:
+    - |
+      Hãy dùng `TraceRecorder(clock)` để bọc mỗi lần chạy bước: đọc `started_at = self.clock()`, gọi `fn()` trong khối `try`/`except Exception`, và tính `duration_ms = round((self.clock() - started_at) * 1000.0, 3)` sau đó để cả bước thành công lẫn bước lỗi đều ghi đúng thời gian.
+    - |
+      Trong `summarize_traces(spans, budget_usd=None)`, bạn cần lọc `span["kind"] == "tool"` trước khi đếm `tool_counts` để không lẫn tên model LLM. Xử lý riêng trường hợp `spans` rỗng (`p95_step_ms = 0.0`, `failed_requests = []`), sắp xếp thời lượng tăng dần để lấy `durs[max(0, math.ceil(0.95 * len(durs)) - 1)]`, và trả về `budget_utilization = None` khi `budget_usd is None or budget_usd <= 0`.
+    - |
+      Khung gợi ý cho `TraceRecorder`:
+      ```python
+      class TraceRecorder:
+          def __init__(self, clock):
+              self.clock = clock
+              self.spans = []
+
+          def record_step(self, request_id, step, kind, name, fn, tokens=0, cost_usd=0.0, retries=0):
+              started_at = self.clock()
+              try:
+                  result = fn()
+                  status, error = "ok", None
+              except Exception as exc:
+                  result = None
+                  status, error = "error", str(exc)
+              duration_ms = round((self.clock() - started_at) * 1000.0, 3)
+              span = { ... }
+              self.spans.append(span)
+              return result, span
+      ```

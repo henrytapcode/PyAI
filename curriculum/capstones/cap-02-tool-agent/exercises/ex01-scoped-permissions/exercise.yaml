@@ -1,0 +1,68 @@
+id: cap-02-ex01
+kind: project
+title:
+  en: "Build the ScopedRegistry permission and audit layer"
+  vi: "Xây dựng lớp phân quyền và audit log ScopedRegistry"
+difficulty: 3
+tags: [llm, agents, production, logging]
+hints:
+  en:
+    - |
+      Separate tool registration (`ToolSpec` stored in `ScopedRegistry`) from per-request authorization (`RequestContext.allowed_tools`). On every `execute(name, args, ctx, confirm_fn=None)` call, evaluate checks in strict priority order: `"unknown_tool"` -> `"denied_scope"` -> `"invalid_args"` -> `"denied_policy"` -> `"needs_confirmation"` -> `"denied_confirmation"` -> `"ok"` / `"tool_error"`, and always append an entry to `self.audit_log`.
+    - |
+      Step-by-step plan:
+      1. In `register(spec)`, validate `spec.risk in ("read", "write", "destructive")` and reject duplicate `spec.name` with `ValueError`.
+      2. In `execute`, look up `spec = self._tools.get(name)`. If `None`, record `risk="unknown"` and return `"unknown_tool"`.
+      3. If `name not in ctx.allowed_tools`, return `"denied_scope"` without checking `args`.
+      4. Check all `spec.required_args` are in `args`. When `spec.risk == "write"` and `spec.max_amount is not None` and `"amount"` is in `args`, reject `None`, `bool`, or non-`(int, float)` values as `"invalid_args"`.
+      5. Filter `args` to keys in `spec.required_args` (plus `"amount"` when `spec.risk == "write"` and `spec.max_amount is not None`).
+      6. If `spec.risk == "write"` and `spec.max_amount is not None` and `args.get("amount", 0) > spec.max_amount`, return `"denied_policy"`.
+      7. If `spec.risk == "destructive"`, require a non-empty `ctx.confirmation_token` and non-`None` `confirm_fn` (`"needs_confirmation"`), then verify `confirm_fn(ctx.request_id, name, filtered_args, ctx.confirmation_token)` is truthy (`"denied_confirmation"`).
+      8. Call `spec.fn(**filtered_args)` inside `try...except Exception as exc:` to return `"ok"` or `"tool_error"`.
+    - |
+      Skeleton for `execute`:
+      ```python
+      def execute(self, name, args, ctx, confirm_fn=None):
+          spec = self._tools.get(name)
+          if spec is None:
+              return self._record(ctx, name, "unknown", False, "unknown_tool", None, f"Unknown tool: {name}")
+          if name not in ctx.allowed_tools:
+              return self._record(ctx, name, spec.risk, False, "denied_scope", None, "Not in allowed_tools")
+          # Validate required_args and numeric amount (reject bool!)
+          # Build filtered_args, check max_amount, check destructive confirmation
+          try:
+              result = spec.fn(**filtered_args)
+              return self._record(ctx, name, spec.risk, True, "ok", result, None)
+          except Exception as exc:
+              return self._record(ctx, name, spec.risk, False, "tool_error", None, str(exc))
+      ```
+  vi:
+    - |
+      Tách việc đăng ký tool (`ToolSpec` lưu trong `ScopedRegistry`) khỏi ủy quyền theo từng request (`RequestContext.allowed_tools`). Ở mỗi lần gọi `execute(name, args, ctx, confirm_fn=None)`, kiểm tra theo đúng thứ tự ưu tiên: `"unknown_tool"` -> `"denied_scope"` -> `"invalid_args"` -> `"denied_policy"` -> `"needs_confirmation"` -> `"denied_confirmation"` -> `"ok"` / `"tool_error"`, và luôn ghi thêm một bản ghi vào `self.audit_log`.
+    - |
+      Kế hoạch từng bước:
+      1. Trong `register(spec)`, kiểm tra `spec.risk in ("read", "write", "destructive")` và ném `ValueError` nếu trùng `spec.name`.
+      2. Trong `execute`, tra cứu `spec = self._tools.get(name)`. Nếu là `None`, ghi `risk="unknown"` và trả về `"unknown_tool"`.
+      3. Nếu `name not in ctx.allowed_tools`, trả về `"denied_scope"` mà không kiểm tra `args`.
+      4. Kiểm tra đủ các khóa trong `spec.required_args`. Khi `spec.risk == "write"` và `spec.max_amount is not None` và `"amount"` có trong `args`, từ chối giá trị `None`, `bool`, hoặc không phải `(int, float)` với trạng thái `"invalid_args"`.
+      5. Lọc `args` chỉ giữ các khóa thuộc `spec.required_args` (cộng thêm `"amount"` nếu `spec.risk == "write"` và `spec.max_amount is not None`).
+      6. Nếu `spec.risk == "write"` và `spec.max_amount is not None` và `args.get("amount", 0) > spec.max_amount`, trả về `"denied_policy"`.
+      7. Nếu `spec.risk == "destructive"`, yêu cầu `ctx.confirmation_token` khác rỗng và `confirm_fn` khác `None` (`"needs_confirmation"`), sau đó kiểm tra `confirm_fn(ctx.request_id, name, filtered_args, ctx.confirmation_token)` trả về truthy (`"denied_confirmation"`).
+      8. Gọi `spec.fn(**filtered_args)` trong `try...except Exception as exc:` để trả về `"ok"` hoặc `"tool_error"`.
+    - |
+      Khung cho `execute`:
+      ```python
+      def execute(self, name, args, ctx, confirm_fn=None):
+          spec = self._tools.get(name)
+          if spec is None:
+              return self._record(ctx, name, "unknown", False, "unknown_tool", None, f"Unknown tool: {name}")
+          if name not in ctx.allowed_tools:
+              return self._record(ctx, name, spec.risk, False, "denied_scope", None, "Not in allowed_tools")
+          # Kiểm tra required_args và kiểu số cho amount (loại bỏ bool!)
+          # Tạo filtered_args, kiểm tra max_amount, kiểm tra xác nhận destructive
+          try:
+              result = spec.fn(**filtered_args)
+              return self._record(ctx, name, spec.risk, True, "ok", result, None)
+          except Exception as exc:
+              return self._record(ctx, name, spec.risk, False, "tool_error", None, str(exc))
+      ```

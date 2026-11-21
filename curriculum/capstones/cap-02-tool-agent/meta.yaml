@@ -1,0 +1,33 @@
+id: cap-02-tool-agent
+phase: cap
+order: 2
+kind: project
+title:
+  en: "Capstone: tool-using agent"
+  vi: "Capstone: agent dùng tool"
+summary:
+  en: "Harden a tool-using agent for production: enforce per-request tool scopes, policy caps, and destructive confirmation gates; guard the agent loop with idempotent FakeClock retries and hard token/cost budgets; and emit JSONL trace spans for p95 latency and budget reporting."
+  vi: "Gia cố agent dùng tool cho môi trường production: áp đặt phạm vi tool theo request, hạn mức chính sách và cổng xác nhận thao tác hủy; bảo vệ vòng lặp agent bằng retry idempotent với FakeClock cùng ngân sách token/chi phí cứng; và xuất span trace JSONL để báo cáo độ trễ p95 cùng mức dùng ngân sách."
+level: applied
+tags: [llm, agents, production, logging]
+prerequisites: [p7-07-agents, p7-10-mini-project-agent, p8-04-monitoring]
+duration_min: 90
+outcomes:
+  en:
+    - "Enforce per-request tool allowlists, risk tiers, policy caps, and confirmation gates with a full audit log"
+    - "Protect agent loops with idempotent exponential-backoff retries using FakeClock and hard token/cost budgets"
+    - "Record per-step JSONL trace spans and aggregate p95 latency, retry counts, and budget utilization reports"
+  vi:
+    - "Áp đặt allowlist tool theo từng request, mức rủi ro, hạn mức chính sách và cổng xác nhận kèm audit log đầy đủ"
+    - "Bảo vệ vòng lặp agent bằng retry backoff lũy tiến cho lệnh idempotent dùng FakeClock và ngân sách token/chi phí cứng"
+    - "Ghi span trace JSONL từng bước và tổng hợp báo cáo độ trễ p95, số lần retry và mức sử dụng ngân sách"
+review_by: "2027-05-01"
+further_reading:
+  - title:
+      en: "Anthropic: Building Effective Agents"
+      vi: "Anthropic: Xây dựng Agent hiệu quả (EN)"
+    url: "https://www.anthropic.com/research/building-effective-agents"
+  - title:
+      en: "OpenTelemetry: Traces & Spans Overview"
+      vi: "OpenTelemetry: Tổng quan về Trace & Span (EN)"
+    url: "https://opentelemetry.io/docs/concepts/signals/traces/"

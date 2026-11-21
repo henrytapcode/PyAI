@@ -1,0 +1,3 @@
+# Frozen dataclass pricing and iterative `while` backoff
+
+This alternative models `Pricing` as an immutable `@dataclass(frozen=True)` and `CostBudget` as a `@dataclass` with `__post_init__` validation, preventing accidental mutation of pricing rates after construction. In `call_with_retry`, it doubles `delay *= 2.0` iteratively inside a `while True` loop instead of recomputing `base_delay * (2 ** attempt)` on each iteration. Both approaches have identical `O(max_retries)` time and `O(1)` space complexity, while the frozen dataclass makes pricing specs safer to share across concurrent or multi-agent runs.

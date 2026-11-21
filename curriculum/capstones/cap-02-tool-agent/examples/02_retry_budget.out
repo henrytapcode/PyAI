@@ -1,0 +1,2 @@
+Run 1 (transient errors): {'answer': 'Order ORD-7 total is 42.0.', 'stopped_reason': 'final', 'steps': 2, 'total_tokens': 99, 'cost_usd': 0.000286, 'retries': 2} clock: 1.5
+Run 2 (tight token cap): {'answer': None, 'stopped_reason': 'token_budget', 'steps': 1, 'total_tokens': 20, 'cost_usd': 8.8e-05, 'retries': 0}

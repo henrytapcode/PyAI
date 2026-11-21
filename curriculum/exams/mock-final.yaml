@@ -1,0 +1,851 @@
+id: mock-final
+kind: mock
+title:
+  en: "Mock exam: Final full-stack Python & AI"
+  vi: "Thi thử: Tổng hợp Python & AI"
+description:
+  en: "40 interview-style questions across Phases 1–8, weighted toward Deep Learning, LLMs, RAG, Agents, and Production AI systems. Aim for 80% or more."
+  vi: "40 câu hỏi kiểu phỏng vấn xuyên suốt Phase 1–8, tập trung nhiều vào Deep Learning, LLM, RAG, Agent và hệ thống AI Production. Mục tiêu từ 80% trở lên."
+duration_min: 60
+pass_score: 0.8
+questions:
+  # ---- P1-P3: Python fundamentals, data structures, OOP, testing (8 questions)
+  - id: final-q01
+    type: output
+    tags: [lists, scope]
+    difficulty: 2
+    code: |
+      grid = [[0] * 2] * 2
+      grid[0][1] = 7
+      print(grid)
+    answer: "[[0, 7], [0, 7]]"
+    en:
+      prompt: "What does this list-multiplication snippet print?"
+      explanation: "`[[0] * 2] * 2` repeats references to the exact same inner list object, so mutating `grid[0][1]` also updates `grid[1][1]`. Use `[[0] * 2 for _ in range(2)]` when you need independent rows."
+    vi:
+      prompt: "Đoạn code nhân list này in ra gì?"
+      explanation: "`[[0] * 2] * 2` lặp lại tham chiếu đến cùng một list con duy nhất, nên sửa `grid[0][1]` cũng làm thay đổi `grid[1][1]`. Hãy dùng `[[0] * 2 for _ in range(2)]` khi bạn cần các hàng độc lập."
+
+  - id: final-q02
+    type: mcq
+    tags: [dicts, exceptions]
+    difficulty: 2
+    answer: 2
+    code: |
+      counts = {}
+      for tag in ["rag", "llm", "rag"]:
+          counts[tag] = counts.___(tag, 0) + 1
+    en:
+      prompt: "Which dict method safely returns `0` when `tag` is missing without mutating `counts` during the lookup?"
+      options:
+        - "Call `counts.pop(tag, 0)` to read the current count"
+        - "Call `counts.setdefault(tag, 0)` before adding one"
+        - "Call `counts.get(tag, 0)` to supply a default value"
+        - "Call `counts.keys(tag, 0)` to check key membership"
+      explanation: "`dict.get(key, default)` returns `default` when `key` is absent without modifying the dictionary or raising `KeyError`. `pop` removes existing keys, `setdefault` mutates the dict on lookup, and `keys()` takes no arguments."
+    vi:
+      prompt: "Phương thức dict nào trả về an toàn giá trị `0` khi thiếu `tag` mà không làm thay đổi `counts` trong lúc tra cứu?"
+      options:
+        - "Gọi `counts.pop(tag, 0)` để đọc số đếm hiện tại"
+        - "Gọi `counts.setdefault(tag, 0)` trước khi cộng thêm một"
+        - "Gọi `counts.get(tag, 0)` để cung cấp giá trị mặc định"
+        - "Gọi `counts.keys(tag, 0)` để kiểm tra khóa tồn tại"
+      explanation: "`dict.get(key, default)` trả về `default` khi thiếu `key` mà không sửa dictionary hay gây `KeyError`. `pop` sẽ xóa khóa đang có, `setdefault` ghi thêm vào dict ngay lúc tra cứu, còn `keys()` không nhận tham số."
+
+  - id: final-q03
+    type: fill
+    tags: [comprehensions, strings]
+    difficulty: 2
+    code: |
+      raw = ["  RAG ", "", "  ", "LLM\n"]
+      clean = [t.strip().lower() for t in raw if t.___()]
+      print(clean)
+    answer: ["strip"]
+    en:
+      prompt: "Fill in the string method in the `if` filter so whitespace-only entries are dropped and `clean` prints `['rag', 'llm']`."
+      explanation: "Calling `t.strip()` in the comprehension guard returns `\"\"` (falsy) for empty or whitespace-only strings, filtering them out before `t.strip().lower()` runs."
+    vi:
+      prompt: "Điền tên phương thức chuỗi trong điều kiện `if` để loại bỏ các mục chỉ chứa khoảng trắng và `clean` in ra `['rag', 'llm']`."
+      explanation: "Gọi `t.strip()` ở điều kiện lọc của comprehension sẽ trả về `\"\"` (giá trị falsy) cho chuỗi rỗng hoặc toàn khoảng trắng, giúp loại chúng trước khi chạy `t.strip().lower()`."
+
+  - id: final-q04
+    type: parsons
+    tags: [iterators, functions]
+    difficulty: 2
+    lines:
+      - "def batch_items(items, size):"
+      - "    for i in range(0, len(items), size):"
+      - "        yield items[i : i + size]"
+      - "batches = list(batch_items([1, 2, 3, 4, 5], 2))"
+      - "print(batches)"
+    en:
+      prompt: "Arrange these lines to define a generator `batch_items` that yields fixed-size chunks and prints `[[1, 2], [3, 4], [5]]`."
+      explanation: "Define `batch_items`, loop with step `size`, `yield` each slice, materialize the generator with `list(...)`, and `print(batches)`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để định nghĩa generator `batch_items` trả về từng lô kích thước cố định và in ra `[[1, 2], [3, 4], [5]]`."
+      explanation: "Định nghĩa `batch_items`, lặp với bước nhảy `size`, `yield` từng lát cắt, chuyển generator thành list bằng `list(...)` rồi `print(batches)`."
+
+  - id: final-q05
+    type: output
+    tags: [decorators, closures]
+    difficulty: 3
+    code: |
+      def count_calls(fn):
+          calls = 0
+          def wrapper(*args):
+              nonlocal calls
+              calls += 1
+              return fn(*args), calls
+          return wrapper
+
+      @count_calls
+      def double(x):
+          return x * 2
+
+      print(double(3), double(5))
+    answer: "(6, 1) (10, 2)"
+    en:
+      prompt: "What does this decorator print when `double` is called twice?"
+      explanation: "`calls` lives in `count_calls`'s closure and is updated across invocations via `nonlocal calls`, so the first call returns `(6, 1)` and the second returns `(10, 2)`."
+    vi:
+      prompt: "Decorator này in ra gì khi `double` được gọi hai lần?"
+      explanation: "`calls` nằm trong closure của `count_calls` và được cập nhật qua các lần gọi nhờ `nonlocal calls`, nên lần gọi đầu trả về `(6, 1)` và lần thứ hai trả về `(10, 2)`."
+
+  - id: final-q06
+    type: mcq
+    tags: [dataclasses, typing]
+    difficulty: 2
+    answer: 1
+    code: |
+      from dataclasses import dataclass, field
+
+      @dataclass
+      class Document:
+          text: str
+          tags: list[str] = field(default_factory=list)
+    en:
+      prompt: "Why does `Document` use `field(default_factory=list)` instead of `tags: list[str] = []`?"
+      options:
+        - "Because `list[str]` cannot be type-checked at runtime"
+        - "Because a bare `[]` would be shared across all instances"
+        - "Because `default_factory` freezes the list as immutable"
+        - "Because dataclasses disallow any mutable field types"
+      explanation: "Using `= []` would share one mutable list across every `Document` instance, so `@dataclass` raises a `ValueError`. `field(default_factory=list)` creates a fresh list per instance."
+    vi:
+      prompt: "Vì sao `Document` dùng `field(default_factory=list)` thay vì `tags: list[str] = []`?"
+      options:
+        - "Vì `list[str]` không thể kiểm tra kiểu dữ liệu lúc chạy"
+        - "Vì viết `[]` trực tiếp sẽ dùng chung một list cho mọi instance"
+        - "Vì `default_factory` khóa cứng list thành kiểu bất biến"
+        - "Vì dataclass không cho phép dùng bất kỳ kiểu dữ liệu mutable nào"
+      explanation: "Viết `= []` sẽ khiến mọi instance `Document` dùng chung một list, nên `@dataclass` chặn lại bằng `ValueError`. `field(default_factory=list)` tạo một list mới cho mỗi instance."
+
+  - id: final-q07
+    type: fill
+    tags: [context-managers, exceptions]
+    difficulty: 3
+    code: |
+      from contextlib import contextmanager
+
+      events = []
+
+      @contextmanager
+      def open_session():
+          events.append("open")
+          ___:
+              yield "ok"
+          ___:
+              events.append("close")
+
+      try:
+          with open_session() as s:
+              events.append(s)
+              raise ValueError("boom")
+      except ValueError:
+          pass
+      print(events)
+    answer: ["try", "finally"]
+    en:
+      prompt: "Fill in the two keywords so `open_session` always records `'close'` even when the `with` block raises `ValueError`."
+      explanation: "Wrapping `yield` in `try ... finally` guarantees the cleanup code after `yield` runs whether the `with` block succeeds or raises an exception, printing `['open', 'ok', 'close']`."
+    vi:
+      prompt: "Điền hai từ khóa để `open_session` luôn ghi nhận `'close'` ngay cả khi khối `with` ném ra `ValueError`."
+      explanation: "Bọc `yield` trong `try ... finally` đảm bảo code dọn dẹp sau `yield` luôn chạy dù khối `with` thành công hay gặp ngoại lệ, in ra `['open', 'ok', 'close']`."
+
+  - id: final-q08
+    type: mcq
+    tags: [testing, fixtures]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "When writing unit tests for an AI service that calls an external LLM API and `time.time()`, what is the cleanest testing strategy?"
+      options:
+        - "Inject a fake LLM client and fake clock via fixtures"
+        - "Call the live API with a small timeout in CI"
+        - "Skip assertions on latency and non-deterministic text"
+        - "Hardcode `time.sleep(0)` to stabilize real API calls"
+      explanation: "Dependency injection with a fake client and fake clock makes tests fast, deterministic, and offline-safe without weakening assertions or relying on external network state."
+    vi:
+      prompt: "Khi viết unit test cho dịch vụ AI có gọi API LLM bên ngoài và `time.time()`, chiến lược kiểm thử sạch nhất là gì?"
+      options:
+        - "Truyền client LLM giả và đồng hồ giả qua fixture"
+        - "Gọi API thật với timeout ngắn trong hệ thống CI"
+        - "Bỏ qua assertion cho độ trễ và văn bản ngẫu nhiên"
+        - "Gọi `time.sleep(0)` để ổn định kết quả API thật"
+      explanation: "Tiêm phụ thuộc (dependency injection) bằng client giả và đồng hồ giả giúp test chạy nhanh, tất định và không cần mạng mà vẫn giữ nguyên các assertion chặt chẽ."
+
+  # ---- P4: NumPy, Pandas, data cleaning, SQL (4 questions)
+  - id: final-q09
+    type: output
+    tags: [numpy]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      scores = np.array([0.4, 0.85, 0.62, 0.91])
+      labels = np.where(scores >= 0.7, 1, 0)
+      print(labels.sum(), labels.tolist())
+    answer: "2 [0, 1, 0, 1]"
+    en:
+      prompt: "What does this vectorized thresholding snippet print?"
+      explanation: "`np.where(scores >= 0.7, 1, 0)` maps `0.85` and `0.91` to `1` and the others to `0`, giving `[0, 1, 0, 1]` with sum `2`."
+    vi:
+      prompt: "Đoạn code phân ngưỡng vector hóa này in ra gì?"
+      explanation: "`np.where(scores >= 0.7, 1, 0)` ánh xạ `0.85` và `0.91` thành `1` và các phần tử còn lại thành `0`, cho ra `[0, 1, 0, 1]` với tổng bằng `2`."
+
+  - id: final-q10
+    type: mcq
+    tags: [data-cleaning, pandas]
+    difficulty: 3
+    answer: 3
+    code: |
+      df["age"] = df["age"].fillna(df["age"].mean())
+      X_train, X_test, y_train, y_test = train_test_split(df[["age"]], df["y"])
+    en:
+      prompt: "What bug is present in this preprocessing snippet?"
+      options:
+        - "`fillna` mutates `y_train` labels into floats"
+        - "`train_test_split` drops rows that were imputed"
+        - "Column `age` must be converted to strings first"
+        - "Computing the global mean before splitting leaks test data"
+      explanation: "Calculating `df[\"age\"].mean()` on the entire dataset before `train_test_split` leaks test distribution information into training features. Fit the imputer on `X_train` only, then transform `X_test`."
+    vi:
+      prompt: "Đoạn code tiền xử lý này mắc lỗi gì?"
+      options:
+        - "`fillna` biến nhãn `y_train` thành kiểu float"
+        - "`train_test_split` tự động xóa các dòng đã điền khuyết"
+        - "Cột `age` phải được ép sang kiểu chuỗi trước"
+        - "Tính trung bình trên toàn bộ dữ liệu trước khi chia gây rò rỉ dữ liệu test"
+      explanation: "Tính `df[\"age\"].mean()` trên cả tập dữ liệu trước `train_test_split` làm rò rỉ thông tin phân phối của tập test vào tập train. Bạn phải fit bộ điền khuyết chỉ trên `X_train`, rồi mới transform `X_test`."
+
+  - id: final-q11
+    type: fill
+    tags: [numpy, ml-math]
+    difficulty: 2
+    code: |
+      import numpy as np
+
+      X = np.array([[2.0, 10.0], [4.0, 20.0], [6.0, 30.0]])
+      centered = X - X.mean(___=0)
+      print(centered.mean(axis=0).tolist())
+    answer: ["axis"]
+    en:
+      prompt: "Fill in the keyword argument so `X` is centered per feature column and prints `[0.0, 0.0]`."
+      explanation: "Passing `axis=0` computes one mean per column (`[4.0, 20.0]`), which broadcasts across rows so each feature column has mean `0.0`."
+    vi:
+      prompt: "Điền tên tham số từ khóa để `X` được quy tâm (center) theo từng cột feature và in ra `[0.0, 0.0]`."
+      explanation: "Truyền `axis=0` tính một giá trị trung bình cho mỗi cột (`[4.0, 20.0]`), rồi broadcast qua các hàng để mỗi cột feature có trung bình `0.0`."
+
+  - id: final-q12
+    type: parsons
+    tags: [sql]
+    difficulty: 2
+    lines:
+      - "import sqlite3"
+      - 'conn = sqlite3.connect(":memory:")'
+      - 'conn.execute("CREATE TABLE logs (model TEXT, ok INTEGER)")'
+      - 'conn.executemany("INSERT INTO logs VALUES (?, ?)", [("a", 1), ("a", 0), ("b", 1)])'
+      - 'rows = conn.execute("SELECT model, SUM(ok) FROM logs GROUP BY model ORDER BY model").fetchall()'
+      - "print(rows)"
+    en:
+      prompt: "Arrange these lines to create an in-memory `logs` table, insert three rows safely, sum `ok` per model, and print `[('a', 1), ('b', 1)]`."
+      explanation: "Import `sqlite3`, open `:memory:`, create `logs`, insert rows with `executemany`, run the `GROUP BY` query, and print `rows`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để tạo bảng `logs` trong bộ nhớ, chèn ba dòng an toàn, tính tổng `ok` theo từng model và in ra `[('a', 1), ('b', 1)]`."
+      explanation: "Import `sqlite3`, mở `:memory:`, tạo bảng `logs`, chèn dữ liệu bằng `executemany`, chạy truy vấn `GROUP BY` rồi in `rows`."
+
+  # ---- P5: Machine learning, math, sklearn, evaluation (6 questions)
+  - id: final-q13
+    type: mcq
+    tags: [model-evaluation, ml]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "A fraud classifier sees 99% legitimate transactions and 1% fraud. Why is raw accuracy a poor primary metric here?"
+      options:
+        - "Because accuracy requires calibrated probabilities first"
+        - "Because a dummy all-negative model already scores 99%"
+        - "Because accuracy cannot be computed on binary labels"
+        - "Because accuracy penalizes false positives twice as much"
+      explanation: "On a 99:1 imbalanced dataset, predicting the majority class for every input achieves 99% accuracy while catching zero fraud. Metrics like Precision, Recall, F1, or PR-AUC measure minority-class performance."
+    vi:
+      prompt: "Một mô hình phát hiện gian lận gặp 99% giao dịch hợp lệ và 1% gian lận. Vì sao accuracy thuần túy là thước đo chính kém cho bài toán này?"
+      options:
+        - "Vì accuracy yêu cầu xác suất phải được hiệu chuẩn trước"
+        - "Vì một mô hình ngây thơ luôn đoán âm tính đã đạt 99%"
+        - "Vì accuracy không thể tính được trên nhãn nhị phân"
+        - "Vì accuracy phạt dương tính giả nặng gấp đôi bình thường"
+      explanation: "Trên tập dữ liệu lệch 99:1, việc luôn đoán lớp đa số cho mọi đầu vào đã đạt 99% accuracy dù không bắt được ca gian lận nào. Các thước đo như Precision, Recall, F1 hoặc PR-AUC mới phản ánh đúng hiệu quả trên lớp thiểu số."
+
+  - id: final-q14
+    type: output
+    tags: [ml-math, numpy]
+    difficulty: 3
+    code: |
+      w, b, lr = 1.0, 0.0, 0.1
+      x, y = 2.0, 5.0
+      pred = w * x + b
+      grad_w = 2 * (pred - y) * x
+      w = w - lr * grad_w
+      print(round(pred, 2), round(w, 2))
+    answer: "2.0 2.2"
+    en:
+      prompt: "What does this single gradient-descent step on squared error `(w*x + b - y)**2` print?"
+      explanation: "`pred` is `2.0`, so `grad_w = 2 * (2.0 - 5.0) * 2.0 = -12.0`. Updating `w = 1.0 - 0.1 * (-12.0)` yields `2.2`."
+    vi:
+      prompt: "Bước cập nhật gradient descent đơn lẻ trên sai số bình phương `(w*x + b - y)**2` này in ra gì?"
+      explanation: "`pred` bằng `2.0`, nên `grad_w = 2 * (2.0 - 5.0) * 2.0 = -12.0`. Cập nhật `w = 1.0 - 0.1 * (-12.0)` cho kết quả `2.2`."
+
+  - id: final-q15
+    type: mcq
+    tags: [sklearn, supervised-learning]
+    difficulty: 3
+    answer: 2
+    en:
+      prompt: "Why should you wrap `StandardScaler()` and `LogisticRegression()` inside a `sklearn.pipeline.Pipeline` before running `cross_val_score`?"
+      options:
+        - "It reduces the number of folds automatically"
+        - "It converts sparse matrices into dense tensors"
+        - "It fits the scaler inside each training fold only"
+        - "It tunes regularization `C` without extra code"
+      explanation: "A `Pipeline` fits `StandardScaler` exclusively on each CV training split and applies those statistics to the validation split, preventing validation-fold data leakage."
+    vi:
+      prompt: "Vì sao bạn nên bọc `StandardScaler()` và `LogisticRegression()` vào `sklearn.pipeline.Pipeline` trước khi chạy `cross_val_score`?"
+      options:
+        - "Nó tự động giảm số lượng fold kiểm định chéo"
+        - "Nó chuyển đổi ma trận thưa thành tensor dày đặc"
+        - "Nó chỉ fit bộ chuẩn hóa trên phần train của từng fold"
+        - "Nó tự động tối ưu tham số `C` mà không cần thêm code"
+      explanation: "`Pipeline` đảm bảo `StandardScaler` chỉ học mean/std trên phần train của mỗi fold cross-validation rồi mới biến đổi phần validation, tránh rò rỉ dữ liệu giữa các fold."
+
+  - id: final-q16
+    type: fill
+    tags: [model-evaluation]
+    difficulty: 2
+    code: |
+      tp, fp, fn = 9, 1, 6
+      precision = tp / (tp + ___)
+      recall = tp / (tp + ___)
+      f1 = 2 * precision * recall / (precision + recall)
+      print(round(precision, 2), round(recall, 2), round(f1, 2))
+    answer: ["fp", "fn"]
+    en:
+      prompt: "Fill in the two confusion-matrix terms so `precision`, `recall`, and `f1` print `0.9 0.6 0.72`."
+      explanation: "Precision is `tp / (tp + fp)` (`9 / 10 = 0.9`) and Recall is `tp / (tp + fn)` (`9 / 15 = 0.6`), yielding harmonic mean `F1 = 0.72`."
+    vi:
+      prompt: "Điền hai thành phần của ma trận nhầm lẫn để `precision`, `recall` và `f1` in ra `0.9 0.6 0.72`."
+      explanation: "Precision là `tp / (tp + fp)` (`9 / 10 = 0.9`) và Recall là `tp / (tp + fn)` (`9 / 15 = 0.6`), cho trung bình điều hòa `F1 = 0.72`."
+
+  - id: final-q17
+    type: mcq
+    tags: [supervised-learning, ml]
+    difficulty: 2
+    answer: 0
+    en:
+      prompt: "Your model achieves 99% accuracy on the training set but only 68% on the validation set. Which diagnosis and fix is most appropriate?"
+      options:
+        - "High variance (overfitting); add regularization or more data"
+        - "High bias (underfitting); increase model depth and features"
+        - "Data leakage; remove the validation set completely"
+        - "Label noise; switch accuracy to mean squared error"
+      explanation: "A large gap between high training performance and low validation performance indicates overfitting (high variance). Stronger regularization, simpler models, or more diverse training data help close the gap."
+    vi:
+      prompt: "Mô hình của bạn đạt 99% accuracy trên tập train nhưng chỉ đạt 68% trên tập validation. Chẩn đoán và hướng xử lý nào phù hợp nhất?"
+      options:
+        - "Phương sai cao (overfitting); tăng regularization hoặc thêm dữ liệu"
+        - "Độ chệch cao (underfitting); tăng độ sâu mô hình và số feature"
+        - "Rò rỉ dữ liệu; xóa hoàn toàn tập validation đi"
+        - "Nhiễu nhãn; đổi thước đo accuracy sang sai số bình phương"
+      explanation: "Khoảng cách lớn giữa điểm train rất cao và điểm validation thấp là dấu hiệu overfitting (high variance). Tăng regularization, đơn giản hóa mô hình hoặc bổ sung dữ liệu train đa dạng sẽ giúp giảm khoảng cách này."
+
+  - id: final-q18
+    type: output
+    tags: [ml-math, numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      weights = np.array([3.0, -4.0])
+      mse = 0.5
+      lam = 0.1
+      total_loss = mse + lam * float(np.sum(weights ** 2))
+      print(round(total_loss, 2))
+    answer: "3.0"
+    en:
+      prompt: "What does this L2-regularized loss calculation print?"
+      explanation: "`np.sum(weights ** 2)` is `9.0 + 16.0 = 25.0`. Multiplying by `lam = 0.1` adds `2.5` to `mse = 0.5`, printing `3.0`."
+    vi:
+      prompt: "Đoạn code tính hàm mất mát có L2 regularization này in ra gì?"
+      explanation: "`np.sum(weights ** 2)` bằng `9.0 + 16.0 = 25.0`. Nhân với `lam = 0.1` rồi cộng thêm `mse = 0.5` sẽ in ra `3.0`."
+
+  # ---- P6: Deep learning, PyTorch, Hugging Face (6 questions)
+  - id: final-q19
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "In a PyTorch training loop, why must you call `optimizer.zero_grad()` on every batch before `loss.backward()`?"
+      options:
+        - "To reset model weights back to their initialization"
+        - "To flush GPU memory allocated by `DataLoader`"
+        - "To disable dropout layers during the forward pass"
+        - "Because `.backward()` accumulates gradients into `.grad`"
+      explanation: "PyTorch adds new gradients onto existing `.grad` tensors by default (useful for gradient accumulation). Without `optimizer.zero_grad()`, gradients from prior batches would sum into the current step."
+    vi:
+      prompt: "Trong vòng lặp huấn luyện PyTorch, vì sao bạn phải gọi `optimizer.zero_grad()` ở mỗi batch trước `loss.backward()`?"
+      options:
+        - "Để đặt lại toàn bộ trọng số về giá trị khởi tạo ban đầu"
+        - "Để giải phóng bộ nhớ GPU do `DataLoader` cấp phát"
+        - "Để tắt các lớp dropout trong lượt lan truyền xuôi"
+        - "Vì `.backward()` mặc định cộng dồn gradient vào `.grad`"
+      explanation: "PyTorch mặc định cộng dồn gradient mới vào tensor `.grad` hiện có (hữu ích cho gradient accumulation). Nếu thiếu `optimizer.zero_grad()`, gradient từ các batch trước sẽ cộng lẫn vào bước hiện tại."
+
+  - id: final-q20
+    type: output
+    tags: [dl, numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      logits = np.array([1000.0, 1001.0, 1000.0])
+      shifted = logits - np.max(logits)
+      probs = np.exp(shifted) / np.sum(np.exp(shifted))
+      print(np.round(probs, 3).tolist())
+    answer: "[0.212, 0.576, 0.212]"
+    en:
+      prompt: "What does this numerically stable softmax implementation print?"
+      explanation: "Subtracting `np.max(logits)` shifts `[1000, 1001, 1000]` to `[-1, 0, -1]`, avoiding `exp(1001)` overflow while preserving exact softmax probabilities `[0.212, 0.576, 0.212]`."
+    vi:
+      prompt: "Hàm softmax ổn định số học này in ra gì?"
+      explanation: "Trừ đi `np.max(logits)` dịch `[1000, 1001, 1000]` về `[-1, 0, -1]`, giúp tránh tràn số ở `exp(1001)` mà vẫn giữ nguyên xác suất softmax `[0.212, 0.576, 0.212]`."
+
+  - id: final-q21
+    type: mcq
+    tags: [pytorch, dl]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "During PyTorch inference, what is the difference between `model.eval()` and `with torch.no_grad():`?"
+      options:
+        - "`model.eval()` disables autograd; `no_grad()` disables dropout"
+        - "`model.eval()` switches dropout/BatchNorm; `no_grad()` skips autograd"
+        - "They are aliases for the exact same internal flag"
+        - "`no_grad()` freezes weights permanently even after exiting"
+      explanation: "`model.eval()` puts layers like Dropout and BatchNorm into evaluation behavior, whereas `torch.no_grad()` turns off autograd graph construction to reduce memory and speed up inference. Best practice uses both."
+    vi:
+      prompt: "Khi suy luận (inference) trong PyTorch, sự khác biệt giữa `model.eval()` và `with torch.no_grad():` là gì?"
+      options:
+        - "`model.eval()` tắt autograd; `no_grad()` tắt dropout"
+        - "`model.eval()` đổi chế độ dropout/BatchNorm; `no_grad()` bỏ qua autograd"
+        - "Hai lệnh là bí danh của cùng một cờ nội bộ"
+        - "`no_grad()` khóa vĩnh viễn trọng số ngay cả sau khi thoát khối"
+      explanation: "`model.eval()` chuyển các lớp như Dropout và BatchNorm sang chế độ đánh giá, còn `torch.no_grad()` tắt việc dựng đồ thị autograd để tiết kiệm bộ nhớ và tăng tốc. Thực hành chuẩn là dùng cả hai."
+
+  - id: final-q22
+    type: fill
+    tags: [dl, numpy]
+    difficulty: 3
+    code: |
+      import numpy as np
+
+      probs = np.array([0.1, 0.8, 0.1])
+      target = 1
+      loss = -float(np.___(probs[target]))
+      print(round(loss, 4))
+    answer: ["log"]
+    en:
+      prompt: "Fill in the NumPy function to compute cross-entropy loss for class index `target`, printing `0.2231`."
+      explanation: "Multi-class cross-entropy for a hard target index simplifies to the negative natural log of the predicted probability at `target`: `-np.log(0.8) ≈ 0.2231`."
+    vi:
+      prompt: "Điền hàm NumPy để tính cross-entropy loss cho lớp đúng `target`, in ra `0.2231`."
+      explanation: "Cross-entropy đa lớp với nhãn cứng rút gọn thành âm logarit tự nhiên của xác suất dự đoán tại `target`: `-np.log(0.8) ≈ 0.2231`."
+
+  - id: final-q23
+    type: mcq
+    tags: [huggingface, dl]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "When a Hugging Face tokenizer pads a batch of sentences of unequal length, what is the role of `attention_mask`?"
+      options:
+        - "It stores the ground-truth label IDs for training"
+        - "It maps subword tokens back to original characters"
+        - "It marks real tokens (`1`) vs padding tokens (`0`)"
+        - "It sets the temperature used during text generation"
+      explanation: "`attention_mask` contains `1` for real tokens and `0` for padding tokens so self-attention layers ignore padded positions."
+    vi:
+      prompt: "Khi tokenizer của Hugging Face đệm (pad) một batch các câu có độ dài khác nhau, vai trò của `attention_mask` là gì?"
+      options:
+        - "Lưu ID nhãn đúng phục vụ quá trình huấn luyện"
+        - "Ánh xạ ngược subword token về ký tự gốc ban đầu"
+        - "Đánh dấu token thật (`1`) và token đệm (`0`)"
+        - "Thiết lập nhiệt độ (temperature) khi sinh văn bản"
+      explanation: "`attention_mask` chứa `1` cho token thật và `0` cho token đệm để các lớp self-attention bỏ qua vị trí đệm."
+
+  - id: final-q24
+    type: mcq
+    tags: [huggingface, pytorch]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "How does LoRA (Low-Rank Adaptation) fine-tune a large pretrained model with far less GPU memory than full fine-tuning?"
+      options:
+        - "It freezes base weights and trains tiny low-rank adapter matrices"
+        - "It quantizes all activations to 1-bit integers during backprop"
+        - "It deletes the attention heads and trains only the embeddings"
+        - "It runs forward passes only without computing any gradients"
+      explanation: "LoRA freezes the pretrained weight matrix `W` and injects trainable low-rank matrices `A` and `B` (`W + BA`), drastically shrinking optimizer states and trainable parameters."
+    vi:
+      prompt: "LoRA (Low-Rank Adaptation) tinh chỉnh mô hình lớn với ít bộ nhớ GPU hơn hẳn full fine-tuning bằng cách nào?"
+      options:
+        - "Đóng băng trọng số gốc và chỉ huấn luyện cặp ma trận hạng thấp nhỏ"
+        - "Lượng tử hóa mọi activation thành số nguyên 1-bit khi backprop"
+        - "Xóa bỏ các attention head và chỉ huấn luyện lớp embedding"
+        - "Chỉ chạy lượt xuôi mà không cần tính bất kỳ gradient nào"
+      explanation: "LoRA đóng băng ma trận trọng số gốc `W` và chèn hai ma trận hạng thấp `A`, `B` có thể huấn luyện (`W + BA`), giúp giảm mạnh số tham số cần cập nhật và bộ nhớ optimizer."
+
+  # ---- P7: LLM APIs, structured output, embeddings, RAG, agents, evals (10 questions)
+  - id: final-q25
+    type: output
+    tags: [llm]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM
+
+      client = FakeLLM(script=["Paris"])
+      resp = client.chat([{"role": "user", "content": "Capital of France?"}])
+      print(resp.content, resp.usage.total_tokens > 0)
+    answer: "Paris True"
+    en:
+      prompt: "What does this `FakeLLM` chat call print?"
+      explanation: "`FakeLLM(script=[\"Paris\"])` returns `\"Paris\"` in `resp.content` and populates `resp.usage` with positive token counts, so `resp.usage.total_tokens > 0` is `True`."
+    vi:
+      prompt: "Lời gọi `FakeLLM` này in ra gì?"
+      explanation: "`FakeLLM(script=[\"Paris\"])` trả về `\"Paris\"` trong `resp.content` và điền số token dương vào `resp.usage`, nên `resp.usage.total_tokens > 0` là `True`."
+
+  - id: final-q26
+    type: mcq
+    tags: [llm, apis]
+    difficulty: 3
+    answer: 1
+    en:
+      prompt: "Your LLM client receives HTTP `429 Too Many Requests` or `503 Service Unavailable`. What is the recommended retry policy?"
+      options:
+        - "Retry immediately in a tight loop until it succeeds"
+        - "Use exponential backoff with jitter and a max-retry cap"
+        - "Retry all 4xx client errors including `400 Bad Request`"
+        - "Switch to a smaller `max_tokens` without waiting"
+      explanation: "Exponential backoff with random jitter spreads out retry storms on transient `429`/`503` responses, while a max-retry cap bounds total latency. Non-retryable `400` errors should fail fast."
+    vi:
+      prompt: "Client LLM của bạn nhận mã HTTP `429 Too Many Requests` hoặc `503 Service Unavailable`. Chính sách retry nào được khuyến nghị?"
+      options:
+        - "Thử lại ngay lập tức trong vòng lặp liên tục đến khi được"
+        - "Dùng exponential backoff kèm jitter và giới hạn số lần thử"
+        - "Thử lại mọi lỗi 4xx kể cả `400 Bad Request`"
+        - "Giảm `max_tokens` xuống rồi gửi lại không cần chờ"
+      explanation: "Exponential backoff kèm jitter ngẫu nhiên giúp tránh dồn tải đồng loạt khi gặp lỗi tạm thời `429`/`503`, đồng thời giới hạn số lần thử để kiểm soát độ trễ. Các lỗi `400` không thể sửa bằng retry nên fail sớm."
+
+  - id: final-q27
+    type: parsons
+    tags: [llm, json]
+    difficulty: 2
+    lines:
+      - "import json, pyai_llm"
+      - 'client = pyai_llm.FakeLLM(script=[''{"intent": "refund", "urgent": true}''])'
+      - 'raw = client.chat([{"role": "user", "content": "Classify"}]).content'
+      - "data = json.loads(raw)"
+      - 'print(data["intent"], data["urgent"])'
+    en:
+      prompt: "Arrange these lines to request a structured JSON response from `FakeLLM`, parse it, and print `refund True`."
+      explanation: "Import `json` and `pyai_llm`, instantiate `client` with the JSON script, call `client.chat(...)` to get `raw`, parse with `json.loads(raw)`, and print the fields."
+    vi:
+      prompt: "Sắp xếp các dòng sau để gọi `FakeLLM` trả về JSON có cấu trúc, phân tích cú pháp rồi in ra `refund True`."
+      explanation: "Import `json` và `pyai_llm`, khởi tạo `client` với kịch bản JSON, gọi `client.chat(...)` lấy `raw`, parse bằng `json.loads(raw)` rồi in các trường."
+
+  - id: final-q28
+    type: fill
+    tags: [rag, llm]
+    difficulty: 2
+    code: |
+      from pyai_llm import FakeLLM, cosine
+
+      client = FakeLLM(embed_dim=64)
+      qv = client.embed(["reset password"])[0]
+      docs = ["Billing policy", "How to reset your password"]
+      best = max(docs, key=lambda d: ___(client.embed([d])[0], qv))
+      print(best)
+    answer: ["cosine"]
+    en:
+      prompt: "Fill in the similarity function imported from `pyai_llm` so `best` selects the closest document to the query embedding."
+      explanation: "`cosine(doc_vec, qv)` scores semantic alignment between each embedded document and the query vector `qv`, letting `max(...)` pick `'How to reset your password'`."
+    vi:
+      prompt: "Điền tên hàm tính độ tương đồng đã import từ `pyai_llm` để `best` chọn ra tài liệu gần nhất với vector truy vấn."
+      explanation: "`cosine(doc_vec, qv)` chấm điểm độ gần về ngữ nghĩa giữa từng vector tài liệu và vector truy vấn `qv`, giúp `max(...)` chọn đúng `'How to reset your password'`."
+
+  - id: final-q29
+    type: mcq
+    tags: [rag]
+    difficulty: 3
+    answer: 3
+    en:
+      prompt: "Why does hybrid search (BM25 + dense embeddings via Reciprocal Rank Fusion) often beat dense-only retrieval in production RAG?"
+      options:
+        - "Because BM25 does not require storing any index on disk"
+        - "Because dense embeddings cannot compare multi-word queries"
+        - "Because RRF automatically fine-tunes the embedding model"
+        - "Because BM25 catches exact IDs, codes, and rare terms"
+      explanation: "Dense embeddings capture semantic paraphrase well, while BM25 excels on exact keyword matches such as error codes, SKU numbers, and acronyms. Combining both rankings with RRF captures both strengths."
+    vi:
+      prompt: "Vì sao tìm kiếm lai (BM25 + dense embedding ghép bằng Reciprocal Rank Fusion) thường vượt trội tìm kiếm vector thuần túy trong RAG thực tế?"
+      options:
+        - "Vì BM25 không cần lưu bất kỳ chỉ mục nào trên đĩa"
+        - "Vì dense embedding không so sánh được câu hỏi nhiều từ"
+        - "Vì RRF tự động tinh chỉnh lại mô hình embedding"
+        - "Vì BM25 bắt chính xác mã lỗi, ID và các từ khóa hiếm"
+      explanation: "Dense embedding mạnh về ngữ nghĩa gần đúng, còn BM25 bắt chính xác từ khóa như mã lỗi, mã sản phẩm hay từ viết tắt. Kết hợp xếp hạng của cả hai qua RRF tận dụng được cả hai ưu điểm."
+
+  - id: final-q30
+    type: output
+    tags: [rag]
+    difficulty: 2
+    code: |
+      words = ["a", "b", "c", "d", "e", "f"]
+      size, overlap = 4, 2
+      step = size - overlap
+      chunks = [words[i : i + size] for i in range(0, len(words) - overlap, step)]
+      print(len(chunks), chunks[-1])
+    answer: "2 ['c', 'd', 'e', 'f']"
+    en:
+      prompt: "What does this overlapping sliding-window chunker print?"
+      explanation: "With `size=4` and `overlap=2`, `step=2`. `range(0, 4, 2)` produces indices `0` (`['a','b','c','d']`) and `2` (`['c','d','e','f']`), so `len(chunks)` is `2`."
+    vi:
+      prompt: "Đoạn code chia chunk cửa sổ trượt có chồng lấn này in ra gì?"
+      explanation: "Với `size=4` và `overlap=2`, bước nhảy `step=2`. `range(0, 4, 2)` sinh các chỉ số `0` (`['a','b','c','d']`) và `2` (`['c','d','e','f']`), nên `len(chunks)` bằng `2`."
+
+  - id: final-q31
+    type: mcq
+    tags: [rag, evaluation]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "In RAG evaluation, a system retrieves the exact right document, but the final answer invents a refund deadline not present in that document. Which metric failed?"
+      options:
+        - "Faithfulness (groundedness) failed while retrieval succeeded"
+        - "Retrieval recall@k failed while faithfulness succeeded"
+        - "Embedding cosine similarity failed during indexing"
+        - "Chunk overlap failed because the context was too short"
+      explanation: "Retrieval succeeded because the gold document was fetched, but the generator hallucinated an unsupported claim, which is a faithfulness (groundedness) failure."
+    vi:
+      prompt: "Khi đánh giá RAG, hệ thống truy xuất đúng tài liệu cần tìm nhưng câu trả lời lại tự bịa ra hạn hoàn tiền không có trong tài liệu đó. Tiêu chí nào đã thất bại?"
+      options:
+        - "Tính trung thực (faithfulness) thất bại dù truy xuất đã đúng"
+        - "Chỉ số retrieval recall@k thất bại dù faithfulness đã đúng"
+        - "Độ tương đồng cosine của embedding thất bại lúc lập chỉ mục"
+        - "Độ chồng lấn chunk thất bại vì ngữ cảnh quá ngắn"
+      explanation: "Bước truy xuất đã thành công vì lấy đúng tài liệu chuẩn, nhưng bộ sinh văn bản lại bịa thông tin không có căn cứ, tức lỗi thuộc về faithfulness (groundedness)."
+
+  - id: final-q32
+    type: parsons
+    tags: [agents, llm]
+    difficulty: 3
+    lines:
+      - "import json"
+      - 'call = json.loads(''{"name": "add_tax", "args": {"amount": 50}}'')'
+      - 'fn = {"add_tax": lambda amount: round(amount * 1.1, 2)}[call["name"]]'
+      - 'result = fn(**call["args"])'
+      - "print(result)"
+    en:
+      prompt: "Arrange these lines to safely dispatch a parsed JSON tool call against a `tools` allowlist and print `55.0`."
+      explanation: "Import `json`, parse the JSON `call`, look up `fn` from the allowlist dict by `call[\"name\"]`, invoke `fn(**call[\"args\"])`, and print `result`."
+    vi:
+      prompt: "Sắp xếp các dòng sau để điều phối an toàn một tool call JSON qua bảng cho phép và in ra `55.0`."
+      explanation: "Import `json`, parse JSON `call`, tra cứu `fn` từ dict cho phép theo `call[\"name\"]`, gọi `fn(**call[\"args\"])` rồi in `result`."
+
+  - id: final-q33
+    type: mcq
+    tags: [agents]
+    difficulty: 2
+    answer: 2
+    en:
+      prompt: "Why must a tool-calling agent loop enforce a `max_steps` limit instead of looping until the LLM stops requesting tools?"
+      options:
+        - "Because Python `while` loops cannot contain `if` checks"
+        - "Because tool outputs are never appended to message history"
+        - "Because a confused model can loop forever and burn budget"
+        - "Because `max_steps` automatically caches all tool results"
+      explanation: "An agent can get stuck repeating failing or redundant tool calls. A `max_steps` cap (alongside token/cost budgets) guarantees termination and bounded cost."
+    vi:
+      prompt: "Vì sao vòng lặp agent gọi tool phải đặt giới hạn `max_steps` thay vì chạy mãi cho đến khi LLM ngừng gọi tool?"
+      options:
+        - "Vì vòng lặp `while` trong Python không cho phép đặt điều kiện `if`"
+        - "Vì kết quả của tool không bao giờ được nối vào lịch sử hội thoại"
+        - "Vì mô hình bị lú có thể lặp vô hạn và đốt sạch ngân sách"
+        - "Vì `max_steps` tự động lưu cache cho toàn bộ kết quả tool"
+      explanation: "Agent có thể rơi vào vòng lặp gọi đi gọi lại một tool bị lỗi hoặc dư thừa. Giới hạn `max_steps` (cùng ngân sách token/chi phí) đảm bảo vòng lặp luôn dừng và kiểm soát được chi phí."
+
+  - id: final-q34
+    type: fill
+    tags: [evaluation, llm]
+    difficulty: 2
+    code: |
+      relevant = {"doc2", "doc5"}
+      retrieved_k = ["doc1", "doc2", "doc3"]
+      hits = len(relevant ___ set(retrieved_k))
+      recall_at_k = hits / len(relevant)
+      print(recall_at_k)
+    answer: ["&"]
+    en:
+      prompt: "Fill in the set operator to count how many `relevant` IDs appear in `retrieved_k`, printing `0.5`."
+      explanation: "Set intersection `relevant & set(retrieved_k)` yields `{'doc2'}` (size `1`), so `1 / 2 = 0.5` for `Recall@3`."
+    vi:
+      prompt: "Điền toán tử tập hợp để đếm số ID thuộc `relevant` có mặt trong `retrieved_k`, in ra `0.5`."
+      explanation: "Phép giao tập hợp `relevant & set(retrieved_k)` trả về `{'doc2'}` (kích thước `1`), cho `Recall@3 = 1 / 2 = 0.5`."
+
+  # ---- P8: Production, FastAPI/APIs, caching, logging, system design (6 questions)
+  - id: final-q35
+    type: mcq
+    tags: [apis, production]
+    difficulty: 2
+    answer: 1
+    en:
+      prompt: "In a FastAPI service, what happens if you run a synchronous blocking `time.sleep(2)` or heavy CPU call directly inside an `async def` endpoint?"
+      options:
+        - "FastAPI automatically moves it to a separate GPU worker"
+        - "It blocks the event loop and stalls other concurrent requests"
+        - "It raises a `SyntaxError` when `uvicorn` loads the route"
+        - "It converts the endpoint into a WebSocket stream"
+      explanation: "Calling blocking code inside an `async def` coroutine blocks the single asyncio event loop thread. Use a regular `def` endpoint (run in AnyIO's threadpool) or offload with `asyncio.to_thread`."
+    vi:
+      prompt: "Trong dịch vụ FastAPI, điều gì xảy ra nếu bạn chạy `time.sleep(2)` đồng bộ hoặc tác vụ CPU nặng trực tiếp bên trong endpoint `async def`?"
+      options:
+        - "FastAPI tự động chuyển tác vụ đó sang một GPU worker riêng"
+        - "Nó làm nghẽn event loop và chặn các request đồng thời khác"
+        - "Nó gây ra lỗi `SyntaxError` ngay khi `uvicorn` nạp route"
+        - "Nó biến endpoint đó thành một luồng WebSocket"
+      explanation: "Gọi code chặn (blocking) trong hàm `async def` sẽ khóa luôn luồng event loop asyncio duy nhất. Bạn nên dùng hàm `def` thường (chạy trong threadpool) hoặc đẩy sang `asyncio.to_thread`."
+
+  - id: final-q36
+    type: output
+    tags: [performance, production]
+    difficulty: 3
+    code: |
+      from functools import lru_cache
+
+      calls = 0
+
+      @lru_cache(maxsize=2)
+      def embed_cached(text):
+          global calls
+          calls += 1
+          return len(text)
+
+      _ = embed_cached("hi"), embed_cached("ok"), embed_cached("hi"), embed_cached("bye")
+      print(calls, embed_cached.cache_info().hits)
+    answer: "3 1"
+    en:
+      prompt: "What does this `lru_cache(maxsize=2)` test print for `(calls, hits)`?"
+      explanation: "`\"hi\"` and `\"ok\"` miss (`calls=2`), the second `\"hi\"` hits (`hits=1`), and `\"bye\"` misses (`calls=3`, evicting `\"ok\"`), printing `3 1`."
+    vi:
+      prompt: "Đoạn kiểm tra `lru_cache(maxsize=2)` này in ra gì cho `(calls, hits)`?"
+      explanation: "`\"hi\"` và `\"ok\"` đều trượt cache (`calls=2`), lần gọi `\"hi\"` thứ hai trúng cache (`hits=1`), và `\"bye\"` trượt cache (`calls=3`, đẩy `\"ok\"` ra), in ra `3 1`."
+
+  - id: final-q37
+    type: mcq
+    tags: [logging, production]
+    difficulty: 2
+    answer: 3
+    en:
+      prompt: "Why should a production AI API emit structured JSON logs with a `request_id` instead of plain `print()` statements?"
+      options:
+        - "Because `print()` cannot write text longer than 80 characters"
+        - "Because JSON logs automatically encrypt all user prompts"
+        - "Because `uvicorn` deletes any process that calls `print()`"
+        - "Because log aggregators can filter, correlate, and alert on fields"
+      explanation: "Structured JSON logs let monitoring tools query by `request_id`, latency, status code, or token cost across distributed steps—while still requiring explicit redaction of secrets and PII."
+    vi:
+      prompt: "Vì sao API AI ở môi trường production nên xuất log JSON có cấu trúc kèm `request_id` thay vì dùng `print()` thuần?"
+      options:
+        - "Vì `print()` không thể ghi chuỗi dài quá 80 ký tự"
+        - "Vì log JSON tự động mã hóa toàn bộ prompt của người dùng"
+        - "Vì `uvicorn` sẽ tắt tiến trình nào dám gọi `print()`"
+        - "Vì hệ thống thu thập log có thể lọc, đối chiếu và cảnh báo theo trường"
+      explanation: "Log JSON có cấu trúc cho phép công cụ giám sát truy vấn theo `request_id`, độ trễ, mã trạng thái hay chi phí token qua nhiều bước—tất nhiên bạn vẫn phải chủ động che (redact) bí mật và PII."
+
+  - id: final-q38
+    type: fill
+    tags: [system-design, production]
+    difficulty: 3
+    code: |
+      timestamps = [10.0, 12.0, 15.0]
+      now, window, limit = 18.0, 5.0, 2
+      recent = [t for t in timestamps if now - t ___ window]
+      allowed = len(recent) < limit
+      print(len(recent), allowed)
+    answer: ["<"]
+    en:
+      prompt: "Fill in the comparison operator for a strict sliding window (`now - t < window`) so only `15.0` counts and the code prints `1 True`."
+      explanation: "With `now=18.0` and `window=5.0`, `18.0 - 15.0 = 3.0 < 5.0` keeps only `15.0`, leaving `len(recent) == 1 < 2` (`allowed = True`)."
+    vi:
+      prompt: "Điền toán tử so sánh cho cửa sổ trượt chặt (`now - t < window`) để chỉ giữ lại `15.0` và đoạn code in ra `1 True`."
+      explanation: "Với `now=18.0` và `window=5.0`, chỉ `18.0 - 15.0 = 3.0 < 5.0` thỏa mãn nên giữ lại `15.0`, cho `len(recent) == 1 < 2` (`allowed = True`)."
+
+  - id: final-q39
+    type: mcq
+    tags: [system-design, llm]
+    difficulty: 3
+    answer: 0
+    en:
+      prompt: "You want to cut LLM serving costs by 60% while keeping high accuracy on hard queries. Which architecture pattern fits best?"
+      options:
+        - "Route easy queries to a small model and escalate hard ones"
+        - "Always call two frontier models in parallel and average tokens"
+        - "Disable streaming and increase `temperature` to `1.5`"
+        - "Store every user prompt in a relational table without indexes"
+      explanation: "Model routing (cascading) sends routine requests to a fast, low-cost model and escalates low-confidence or complex queries to a larger frontier model."
+    vi:
+      prompt: "Bạn muốn giảm 60% chi phí vận hành LLM mà vẫn giữ độ chính xác cao cho các câu hỏi khó. Kiến trúc nào phù hợp nhất?"
+      options:
+        - "Điều hướng câu dễ sang mô hình nhỏ và chuyển câu khó lên mô hình lớn"
+        - "Luôn gọi song song hai mô hình lớn rồi lấy trung bình số token"
+        - "Tắt chế độ streaming và tăng `temperature` lên `1.5`"
+        - "Lưu mọi prompt người dùng vào bảng SQL không cần đánh chỉ mục"
+      explanation: "Điều hướng mô hình (model routing / cascading) xử lý các yêu cầu đơn giản bằng mô hình nhỏ giá rẻ và chỉ chuyển các ca phức tạp hoặc độ tin cậy thấp lên mô hình lớn."
+
+  - id: final-q40
+    type: parsons
+    tags: [production, apis]
+    difficulty: 2
+    lines:
+      - 'def infer_with_fallback(fn, query, default="unavailable"):'
+      - "    try:"
+      - "        return fn(query)"
+      - "    except TimeoutError:"
+      - "        return default"
+      - 'print(infer_with_fallback(lambda q: q.upper(), "ok"), infer_with_fallback(lambda q: (_ for _ in ()).throw(TimeoutError()), "hi"))'
+    en:
+      prompt: "Arrange these lines to wrap an inference call with a `TimeoutError` fallback and print `OK unavailable`."
+      explanation: "Define `infer_with_fallback`, open `try:` to return `fn(query)`, catch `TimeoutError` to return `default`, and print the success + timeout test calls at the end."
+    vi:
+      prompt: "Sắp xếp các dòng sau để bọc lời gọi suy luận với cơ chế dự phòng khi gặp `TimeoutError` và in ra `OK unavailable`."
+      explanation: "Định nghĩa `infer_with_fallback`, mở `try:` để trả về `fn(query)`, bắt `TimeoutError` để trả về `default` rồi in hai lượt gọi thử ở cuối."
