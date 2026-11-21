@@ -3,6 +3,7 @@
 import {
   ArrowLeft,
   ArrowRight,
+  Bookmark,
   BookOpen,
   CheckCircle2,
   ChevronLeft,
@@ -14,11 +15,13 @@ import {
   PartyPopper,
   PenLine,
   Sparkles,
+  StickyNote,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ExercisePanel, ExercisePicker } from "@/components/lesson/exercise-panel";
+import { LessonNotes } from "@/components/lesson/lesson-notes";
 import { LessonQuiz } from "@/components/lesson/lesson-quiz";
 import { RagChat } from "@/components/lesson/rag-chat";
 import { Markdown } from "@/components/markdown";
@@ -35,7 +38,7 @@ import { isLessonComplete, lessonParts } from "@/lib/selectors";
 import type { Lesson, TestRunResult } from "@/lib/types";
 import { cn, percent } from "@/lib/utils";
 
-type Tab = "theory" | "examples" | "exercises" | "quiz";
+type Tab = "theory" | "examples" | "exercises" | "quiz" | "notes";
 
 export function LessonView({ lesson }: { lesson: Lesson }) {
   const t = useTranslations("lesson");
@@ -53,6 +56,9 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
   const saveCode = useProgress((s) => s.saveCode);
   const recordCheck = useProgress((s) => s.recordCheck);
   const markLessonComplete = useProgress((s) => s.markLessonComplete);
+  const toggleBookmark = useProgress((s) => s.toggleBookmark);
+  const isBookmarked = Boolean(p.bookmarks?.[meta.id]);
+  const hasNote = Boolean(p.notes?.[meta.id]?.content?.trim());
 
   const [tab, setTab] = useState<Tab>("theory");
   const [exerciseId, setExerciseId] = useState<string | null>(lesson.exercises[0]?.id ?? null);
@@ -76,7 +82,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
         setExerciseId(ex);
         setTab("exercises");
         setMobilePane("content");
-      } else if (nextTab === "theory" || nextTab === "examples" || nextTab === "exercises" || nextTab === "quiz") {
+      } else if (nextTab === "theory" || nextTab === "examples" || nextTab === "exercises" || nextTab === "quiz" || nextTab === "notes") {
         setTab(nextTab);
         setMobilePane("content");
       }
@@ -194,6 +200,16 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           />
         </div>
         <div className="flex items-center">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => toggleBookmark(meta.id)}
+            aria-pressed={isBookmarked}
+            aria-label={isBookmarked ? t("removeBookmark") : t("addBookmark")}
+            title={isBookmarked ? t("removeBookmark") : t("addBookmark")}
+          >
+            <Bookmark className={cn("size-4", isBookmarked && "fill-current text-primary")} aria-hidden="true" />
+          </Button>
           <Button asChild={!!prev} variant="ghost" size="icon-sm" disabled={!prev} aria-label={t("prevLesson")}>
             {prev ? (
               <Link href={`/lesson/${prev.id}/`}>
@@ -240,7 +256,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           className={cn("min-h-0 w-full overflow-y-auto bg-background lg:block lg:w-[var(--split)]", mobilePane === "content" ? "block" : "hidden")}
         >
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mx-auto max-w-3xl px-5 py-5 sm:px-8">
-            <TabsList className="sticky top-0 z-10 mb-6 grid w-full grid-cols-4 sm:flex sm:w-full sm:justify-start">
+            <TabsList className="sticky top-0 z-10 mb-6 grid w-full grid-cols-5 sm:flex sm:w-full sm:justify-start">
               <TabsTrigger value="theory" className="justify-center gap-1 px-1.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm">
                 <BookOpen aria-hidden="true" /> {t("theory")}
                 {parts.theory && <CheckCircle2 className="text-primary" aria-hidden="true" />}
@@ -257,6 +273,10 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
               <TabsTrigger value="quiz" className="justify-center gap-1 px-1.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm">
                 <ListChecks aria-hidden="true" /> {t("quiz")}
                 {parts.quizDone && <CheckCircle2 className="text-primary" aria-hidden="true" />}
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="justify-center gap-1 px-1.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm">
+                <StickyNote aria-hidden="true" className={cn(hasNote && "text-primary")} /> {t("notes")}
+                {hasNote && <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />}
               </TabsTrigger>
             </TabsList>
 
@@ -347,6 +367,10 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
 
             <TabsContent value="quiz" className="animate-rise">
               <LessonQuiz lessonId={meta.id} questions={lesson.quiz.questions} flashcards={lesson.quiz.flashcards} onDone={() => setTab("theory")} />
+            </TabsContent>
+
+            <TabsContent value="notes" className="animate-rise">
+              <LessonNotes lessonId={meta.id} lessonTitle={loc.t(meta.title)} onTryCode={tryCode} />
             </TabsContent>
           </Tabs>
         </section>

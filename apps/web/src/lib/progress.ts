@@ -26,6 +26,11 @@ export interface ExamAttempt {
   byTopic: Record<string, { correct: number; total: number }>;
 }
 
+export interface LessonNote {
+  content: string;
+  updatedAt: string; // ISO timestamp
+}
+
 export interface ProgressData {
   version: 1;
   profile: {
@@ -47,6 +52,10 @@ export interface ProgressData {
   xp: number;
   /** Interview questions the learner marked as practiced. */
   practiced: Record<string, boolean>;
+  /** Bookmarked lesson IDs mapped to ISO timestamp when bookmarked. */
+  bookmarks: Record<string, string>;
+  /** Per-lesson Markdown notes mapped by lesson ID. */
+  notes: Record<string, LessonNote>;
 }
 
 export interface AnswerRecord {
@@ -71,6 +80,9 @@ interface Actions {
   recordExam(examId: string, attempt: ExamAttempt, answers: AnswerRecord[], skipsPhases?: string[], isPlacement?: boolean): void;
   markLessonComplete(id: string): void;
   togglePracticed(id: string): void;
+  toggleBookmark(lessonId: string): void;
+  saveNote(lessonId: string, content: string): void;
+  deleteNote(lessonId: string): void;
   importData(data: ProgressData): void;
   reset(): void;
 }
@@ -91,6 +103,8 @@ export const initialProgress = (): ProgressData => ({
   activity: {},
   xp: 0,
   practiced: {},
+  bookmarks: {},
+  notes: {},
 });
 
 export const XP = { theory: 10, exercise: 20, exerciseWithSolution: 5, quiz: 30, review: 2, exam: 50 } as const;
@@ -234,7 +248,42 @@ export const useProgress = create<ProgressStore>()(
 
       togglePracticed: (id) => set((s) => ({ practiced: { ...s.practiced, [id]: !s.practiced[id] } })),
 
-      importData: (data) => set(() => ({ ...initialProgress(), ...data })),
+      toggleBookmark: (lessonId) =>
+        set((s) => {
+          const prev = s.bookmarks ?? {};
+          if (prev[lessonId]) {
+            const { [lessonId]: _, ...rest } = prev;
+            return { bookmarks: rest };
+          }
+          return { bookmarks: { ...prev, [lessonId]: new Date().toISOString() } };
+        }),
+
+      saveNote: (lessonId, content) =>
+        set((s) => {
+          const prev = s.notes ?? {};
+          if (content.trim().length === 0) {
+            if (!prev[lessonId]) return {};
+            const { [lessonId]: _, ...rest } = prev;
+            return { notes: rest };
+          }
+          return { notes: { ...prev, [lessonId]: { content, updatedAt: new Date().toISOString() } } };
+        }),
+
+      deleteNote: (lessonId) =>
+        set((s) => {
+          const prev = s.notes ?? {};
+          if (!prev[lessonId]) return {};
+          const { [lessonId]: _, ...rest } = prev;
+          return { notes: rest };
+        }),
+
+      importData: (data) =>
+        set(() => ({
+          ...initialProgress(),
+          ...data,
+          bookmarks: data.bookmarks ?? {},
+          notes: data.notes ?? {},
+        })),
       reset: () => set(() => initialProgress()),
     }),
     {

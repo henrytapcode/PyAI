@@ -1,9 +1,21 @@
 "use client";
 
-import { ArrowRight, BookOpen, Check, ClipboardCheck, Clock, Cpu, FolderGit2, Lock, Trophy } from "lucide-react";
+import {
+  ArrowRight,
+  Bookmark,
+  BookOpen,
+  Check,
+  ClipboardCheck,
+  Clock,
+  Cpu,
+  FolderGit2,
+  Lock,
+  StickyNote,
+  Trophy,
+} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { PhaseIcon } from "@/components/phase-icon";
 import { getPhaseTintClass, trayCellClass } from "@/components/roadmap-tray";
@@ -17,14 +29,47 @@ import { useProgress } from "@/lib/progress";
 import { isLessonComplete, lessonParts, lessonStatus, nextLesson, phaseProgress } from "@/lib/selectors";
 import { cn, percent } from "@/lib/utils";
 
+type LearnFilter = "all" | "bookmarked" | "notes";
+
+function noteExcerpt(content: string): string {
+  for (const raw of content.split(/\r?\n/)) {
+    const cleaned = raw.trim().replace(/^[#>*\-\s]+/, "").trim();
+    if (cleaned.length > 0) return cleaned;
+  }
+  return "";
+}
+
 export default function LearnPage() {
   const t = useTranslations("learn");
   const tc = useTranslations("common");
   const ts = useTranslations("status");
   const loc = useLoc();
   const p = useProgress();
+  const [filter, setFilter] = useState<LearnFilter>("all");
   const placement = catalog.exams.find((e) => e.kind === "placement");
   const next = nextLesson(p);
+
+  let bookmarkedCount = 0;
+  let notesCount = 0;
+  for (const phase of catalog.phases) {
+    for (const l of phase.lessons) {
+      if (!l.ready) continue;
+      if (p.bookmarks?.[l.id]) bookmarkedCount += 1;
+      if (p.notes?.[l.id]?.content?.trim()) notesCount += 1;
+    }
+  }
+
+  const filteredPhases = catalog.phases
+    .map((phase) => ({
+      phase,
+      lessons: phase.lessons.filter((l) => {
+        if (filter === "all") return true;
+        if (!l.ready) return false;
+        if (filter === "bookmarked") return Boolean(p.bookmarks?.[l.id]);
+        return Boolean(p.notes?.[l.id]?.content?.trim());
+      }),
+    }))
+    .filter(({ lessons }) => filter === "all" || lessons.length > 0);
 
   // Level select: j/k move between lessons; arrows do too once a row has focus. Enter opens it.
   useEffect(() => {
@@ -60,188 +105,263 @@ export default function LearnPage() {
         </Card>
       )}
 
-      <ol className="relative space-y-6">
-        {catalog.phases.map((phase) => {
-          const prog = phaseProgress(p, phase);
-          const hasContent = prog.ready > 0;
-          const pctValue = prog.skipped ? 1 : prog.fraction;
-          const tintClass = getPhaseTintClass(phase.order);
-
+      <div
+        role="group"
+        aria-label={t("filterLabel")}
+        className="mb-6 flex flex-wrap items-center gap-2"
+      >
+        {(
+          [
+            { id: "all" as const, label: t("filterAll"), count: 0 },
+            { id: "bookmarked" as const, label: t("filterBookmarked"), count: bookmarkedCount },
+            { id: "notes" as const, label: t("filterNotes"), count: notesCount },
+          ]
+        ).map((item) => {
+          const active = filter === item.id;
           return (
-            <li key={phase.id} className={cn("rounded-lg p-3 sm:p-4", tintClass)}>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span aria-hidden="true" className="shrink-0">
-                      <PhaseIcon name={phase.icon} className="size-5 text-foreground" />
-                    </span>
-                    <h2 className="text-lg font-bold text-foreground">
-                      <span className="mr-2 text-sm font-medium">{t("phase", { n: phase.order })}</span>
-                      <Tx value={phase.title} />
-                    </h2>
-                  </div>
-                  {phase.summary && (
-                    <p className="mt-1 text-sm text-foreground/80">{loc.t(phase.summary)}</p>
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setFilter(item.id)}
+              className={cn(
+                "hit inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                active
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-foreground hover:bg-accent",
+              )}
+            >
+              <span>{item.label}</span>
+              {item.count > 0 && (
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 font-mono text-xs leading-none tabular-nums",
+                    active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground",
                   )}
-                </div>
+                >
+                  {item.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-                <div className="flex flex-col items-start gap-2 sm:items-end sm:shrink-0">
-                  <div className="flex flex-wrap gap-1.5 sm:justify-end">
-                    {phase.lessons.some((l) => l.runner === "local") && (
-                      <Badge variant="outline" className="border-foreground/25 text-foreground">
-                        <Cpu className="size-3.5" aria-hidden="true" /> {t("localRunner")}
-                      </Badge>
-                    )}
-                    {prog.skipped && <Badge variant="muted" className="border-foreground/25 text-foreground">{ts("skipped")}</Badge>}
-                    {!hasContent && <Badge variant="outline" className="border-foreground/25 text-foreground">{tc("comingSoon")}</Badge>}
-                  </div>
-                  {hasContent && (
-                    <div className="flex w-full items-center gap-2 sm:w-40">
-                      <Progress value={pctValue} className="flex-1" />
-                      <span className="shrink-0 font-mono text-xs font-bold tabular-nums text-foreground">
-                        {percent(pctValue)}
+      {filter !== "all" && filteredPhases.length === 0 ? (
+        <Card className="p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            {filter === "bookmarked" ? t("emptyBookmarked") : t("emptyNotes")}
+          </p>
+          <Button variant="outline" size="sm" className="mt-4" onClick={() => setFilter("all")}>
+            {t("showAll")}
+          </Button>
+        </Card>
+      ) : (
+        <ol className="relative space-y-6">
+          {filteredPhases.map(({ phase, lessons }) => {
+            const prog = phaseProgress(p, phase);
+            const hasContent = prog.ready > 0;
+            const pctValue = prog.skipped ? 1 : prog.fraction;
+            const tintClass = getPhaseTintClass(phase.order);
+
+            return (
+              <li key={phase.id} className={cn("rounded-lg p-3 sm:p-4", tintClass)}>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span aria-hidden="true" className="shrink-0">
+                        <PhaseIcon name={phase.icon} className="size-5 text-foreground" />
                       </span>
+                      <h2 className="text-lg font-bold text-foreground">
+                        <span className="mr-2 text-sm font-medium">{t("phase", { n: phase.order })}</span>
+                        <Tx value={phase.title} />
+                      </h2>
                     </div>
-                  )}
-                </div>
-              </div>
+                    {phase.summary && (
+                      <p className="mt-1 text-sm text-foreground/80">{loc.t(phase.summary)}</p>
+                    )}
+                  </div>
 
-              <ul className="mt-3.5 divide-y divide-border overflow-hidden rounded-md bg-card/70">
-                {phase.lessons.map((l) => {
-                  const st = lessonStatus(p, { ...l, phaseId: phase.id });
-                  const isNext = l.id === next?.id;
-                  const parts = l.ready ? lessonParts(p, l) : null;
-                  const missing = l.prerequisites.filter((pre) => {
-                    const pl = findLesson(pre);
-                    return pl && pl.ready && !isLessonComplete(p, pl) && !p.skippedPhases.includes(pl.phaseId);
-                  });
-
-                  const cell = (
-                    <div
-                      className={cn(
-                        "grid size-9 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums",
-                        trayCellClass(st, isNext),
+                  <div className="flex flex-col items-start gap-2 sm:items-end sm:shrink-0">
+                    <div className="flex flex-wrap gap-1.5 sm:justify-end">
+                      {phase.lessons.some((l) => l.runner === "local") && (
+                        <Badge variant="outline" className="border-foreground/25 text-foreground">
+                          <Cpu className="size-3.5" aria-hidden="true" /> {t("localRunner")}
+                        </Badge>
                       )}
-                    >
-                      {st === "completed" ? (
-                        <Check className="size-4" aria-hidden="true" />
-                      ) : st === "coming_soon" ? (
-                        <Lock className="size-3.5" aria-hidden="true" />
-                      ) : (
-                        <span>{l.order}</span>
-                      )}
+                      {prog.skipped && <Badge variant="muted" className="border-foreground/25 text-foreground">{ts("skipped")}</Badge>}
+                      {!hasContent && <Badge variant="outline" className="border-foreground/25 text-foreground">{tc("comingSoon")}</Badge>}
                     </div>
-                  );
-
-                  const body = (
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold text-foreground">
-                          <Tx value={l.title} />
+                    {hasContent && (
+                      <div className="flex w-full items-center gap-2 sm:w-40">
+                        <Progress value={pctValue} className="flex-1" />
+                        <span className="shrink-0 font-mono text-xs font-bold tabular-nums text-foreground">
+                          {percent(pctValue)}
                         </span>
-                        {l.kind === "project" && (
-                          <Badge>
-                            <FolderGit2 className="size-3.5" aria-hidden="true" /> {t("project")}
-                          </Badge>
-                        )}
                       </div>
+                    )}
+                  </div>
+                </div>
 
-                      {l.ready ? (
-                        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/80">
-                          {l.duration && (
-                            <span className="flex items-center gap-1 whitespace-nowrap">
-                              <Clock className="size-3" aria-hidden="true" />
-                              <span>{tc("minutes", { count: l.duration })}</span>
-                            </span>
-                          )}
-                          <span className="flex items-center gap-1">
-                            <BookOpen className="size-3" aria-hidden="true" />
-                            <span>{ts(st)}</span>
-                          </span>
-                          {st === "locked" && missing.length > 0 && (
-                            <span>
-                              {t("prereqWarning", {
-                                list: missing
-                                  .map((id) => loc.t(findLesson(id)?.title) ?? id)
-                                  .join(", "),
-                              })}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        l.outcomes && (
-                          <div className="mt-0.5 truncate text-xs text-foreground/80">
-                            {loc.t(l.outcomes).join(", ")}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  );
+                <ul className="mt-3.5 divide-y divide-border overflow-hidden rounded-md bg-card/70">
+                  {lessons.map((l) => {
+                    const st = lessonStatus(p, { ...l, phaseId: phase.id });
+                    const isNext = l.id === next?.id;
+                    const parts = l.ready ? lessonParts(p, l) : null;
+                    const isBookmarked = Boolean(l.ready && p.bookmarks?.[l.id]);
+                    const noteContent = l.ready ? p.notes?.[l.id]?.content?.trim() ?? "" : "";
+                    const hasNote = noteContent.length > 0;
+                    const missing = l.prerequisites.filter((pre) => {
+                      const pl = findLesson(pre);
+                      return pl && pl.ready && !isLessonComplete(p, pl) && !p.skippedPhases.includes(pl.phaseId);
+                    });
 
-                  return (
-                    <li key={l.id}>
-                      {l.ready ? (
-                        <Link
-                          href={`/lesson/${l.id}/`}
-                          data-lesson-row
-                          data-live={isNext}
-                          className={cn(
-                            "group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2",
-                            isNext
-                              ? "border-l-[3px] border-l-primary bg-accent"
-                              : "border-l-[3px] border-l-transparent",
-                          )}
-                        >
-                          {cell}
-                          {body}
-                          {parts && parts.fraction > 0 && st !== "completed" && (
-                            <Progress value={parts.fraction} className="hidden w-24 sm:block" />
-                          )}
-                          <ArrowRight
-                            aria-hidden="true"
-                            className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
-                          />
-                        </Link>
-                      ) : (
-                        <div className="flex items-center gap-4 border-l-[3px] border-l-transparent px-4 py-3 opacity-60">
-                          {cell}
-                          {body}
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-
-                {prog.phaseTest && (
-                  <li>
-                    <Link
-                      href={`/exam/${prog.phaseTest.id}/`}
-                      className="group flex items-center gap-4 border-l-[3px] border-l-transparent px-4 py-3 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2"
-                    >
+                    const cell = (
                       <div
                         className={cn(
                           "grid size-9 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums",
-                          trayCellClass(prog.phaseTestPassed ? "completed" : "available", false),
+                          trayCellClass(st, isNext),
                         )}
                       >
-                        <ClipboardCheck className="size-4" aria-hidden="true" />
+                        {st === "completed" ? (
+                          <Check className="size-4" aria-hidden="true" />
+                        ) : st === "coming_soon" ? (
+                          <Lock className="size-3.5" aria-hidden="true" />
+                        ) : (
+                          <span>{l.order}</span>
+                        )}
                       </div>
-                      <div className="flex flex-1 flex-wrap items-baseline gap-x-2">
-                        <span className="font-bold text-foreground">{t("phaseTest")}</span>
-                        <span className="text-sm text-foreground/80">{loc.t(prog.phaseTest.title)}</span>
+                    );
+
+                    const body = (
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold text-foreground">
+                            <Tx value={l.title} />
+                          </span>
+                          {isBookmarked && (
+                            <Bookmark
+                              className="size-3.5 shrink-0 fill-current text-primary"
+                              aria-label={t("bookmarkedBadge")}
+                            />
+                          )}
+                          {hasNote && (
+                            <StickyNote
+                              className="size-3.5 shrink-0 text-primary"
+                              aria-label={t("hasNoteBadge")}
+                            />
+                          )}
+                          {l.kind === "project" && (
+                            <Badge>
+                              <FolderGit2 className="size-3.5" aria-hidden="true" /> {t("project")}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {l.ready ? (
+                          <>
+                            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/80">
+                              {l.duration && (
+                                <span className="flex items-center gap-1 whitespace-nowrap">
+                                  <Clock className="size-3" aria-hidden="true" />
+                                  <span>{tc("minutes", { count: l.duration })}</span>
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <BookOpen className="size-3" aria-hidden="true" />
+                                <span>{ts(st)}</span>
+                              </span>
+                              {st === "locked" && missing.length > 0 && (
+                                <span>
+                                  {t("prereqWarning", {
+                                    list: missing
+                                      .map((id) => loc.t(findLesson(id)?.title) ?? id)
+                                      .join(", "),
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                            {filter === "notes" && hasNote && (
+                              <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                                {noteExcerpt(noteContent)}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          l.outcomes && (
+                            <div className="mt-0.5 truncate text-xs text-foreground/80">
+                              {loc.t(l.outcomes).join(", ")}
+                            </div>
+                          )
+                        )}
                       </div>
-                      <ArrowRight
-                        aria-hidden="true"
-                        className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
-                      />
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </li>
-          );
-        })}
-      </ol>
+                    );
+
+                    return (
+                      <li key={l.id}>
+                        {l.ready ? (
+                          <Link
+                            href={filter === "notes" ? `/lesson/${l.id}/?tab=notes` : `/lesson/${l.id}/`}
+                            data-lesson-row
+                            data-live={isNext}
+                            className={cn(
+                              "group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2",
+                              isNext
+                                ? "border-l-[3px] border-l-primary bg-accent"
+                                : "border-l-[3px] border-l-transparent",
+                            )}
+                          >
+                            {cell}
+                            {body}
+                            {parts && parts.fraction > 0 && st !== "completed" && (
+                              <Progress value={parts.fraction} className="hidden w-24 sm:block" />
+                            )}
+                            <ArrowRight
+                              aria-hidden="true"
+                              className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
+                            />
+                          </Link>
+                        ) : (
+                          <div className="flex items-center gap-4 border-l-[3px] border-l-transparent px-4 py-3 opacity-60">
+                            {cell}
+                            {body}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+
+                  {filter === "all" && prog.phaseTest && (
+                    <li>
+                      <Link
+                        href={`/exam/${prog.phaseTest.id}/`}
+                        className="group flex items-center gap-4 border-l-[3px] border-l-transparent px-4 py-3 transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2"
+                      >
+                        <div
+                          className={cn(
+                            "grid size-9 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums",
+                            trayCellClass(prog.phaseTestPassed ? "completed" : "available", false),
+                          )}
+                        >
+                          <ClipboardCheck className="size-4" aria-hidden="true" />
+                        </div>
+                        <div className="flex flex-1 flex-wrap items-baseline gap-x-2">
+                          <span className="font-bold text-foreground">{t("phaseTest")}</span>
+                          <span className="text-sm text-foreground/80">{loc.t(prog.phaseTest.title)}</span>
+                        </div>
+                        <ArrowRight
+                          aria-hidden="true"
+                          className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
+                        />
+                      </Link>
+                    </li>
+                  )}
+                </ul>
+              </li>
+            );
+          })}
+        </ol>
+      )}
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         <Card className="p-5">
