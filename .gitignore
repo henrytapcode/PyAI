@@ -13,6 +13,7 @@ apps/web/next-env.d.ts
 *.tsbuildinfo
 apps/web/public/pyrunner/
 apps/web/out/
+exports/
 
 # AI-assistant instructions (kept locally, not published)
 CLAUDE.md

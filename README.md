@@ -41,8 +41,23 @@ PyAI Path is a bilingual (EN/VI) interactive Python course for people who want t
 | 1 | Python core | Available |
 | 2 | Intermediate Python: OOP, dataclasses, typing, generators, decorators | Available |
 | 3 | Code quality: pytest, ruff, logging, debugging | Available |
-| 4–5 | Data (NumPy, Pandas, SQL) and ML basics | Planned |
-| 6–8 | Deep learning, LLM/GenAI, production | Planned |
+| 4–5 | Data (NumPy, Pandas, SQL) and ML basics | Available |
+| 6–8 | Deep learning, LLM/GenAI, production | Available |
+| Capstones | `cap-01-rag-chatbot`, `cap-02-tool-agent` | Available |
+
+### Local runner & mock exams
+
+- **Local runner** (for Phase 6 PyTorch/Hugging Face and `cap-01` `ex03` FastAPI `TestClient`): run `uv run python tools/localrunner/fetch_models.py` once to cache models offline, then start `uv run python tools/localrunner/serve.py` (`127.0.0.1:8765`).
+- **Mock exams:** 4 timed bilingual mock exams are included (`mock-python-core`, `mock-data-ml`, `mock-ai-engineer`, `mock-final`).
+
+### Export printable HTML & PDF
+
+Generate textbooks, phase cheat sheets, and printable exams (with separate answer keys) using pure stdlib + system Chrome/Edge headless:
+
+```bash
+uv run python tools/export_pdf.py --only all --lang both            # HTML + PDF via Chrome/Edge
+uv run python tools/export_pdf.py --only book --lang both --html-only  # HTML only
+```
 
 ### Quick start
 
@@ -69,8 +84,8 @@ Every lesson is code: examples run, starters fail, solutions pass, EN and VI sta
 
 ```bash
 uv run python tools/validate.py   # schema, EN/VI parity, examples, starter fail / solution pass, quiz answers, ruff
-uv run pytest curriculum          # every exercise's tests against its solution
-pnpm typecheck                    # TypeScript + en.json/vi.json key parity
+uv run python -m pytest curriculum # every exercise's tests against its solution
+pnpm typecheck                    # TypeScript + en.json/vi.json key parity (use pnpm.cmd on Windows PowerShell)
 ```
 
 ### Project layout
@@ -137,8 +152,23 @@ PyAI Path là khóa học Python tương tác song ngữ (EN/VI) cho người mu
 | 1 | Python core | Đã có |
 | 2 | Python trung cấp: OOP, dataclass, typing, generator, decorator | Đã có |
 | 3 | Chất lượng code: pytest, ruff, logging, debug | Đã có |
-| 4–5 | Dữ liệu (NumPy, Pandas, SQL) và nền tảng ML | Sắp ra mắt |
-| 6–8 | Deep learning, LLM/GenAI, production | Sắp ra mắt |
+| 4–5 | Dữ liệu (NumPy, Pandas, SQL) và nền tảng ML | Đã có |
+| 6–8 | Deep learning, LLM/GenAI, production | Đã có |
+| Capstone | `cap-01-rag-chatbot`, `cap-02-tool-agent` | Đã có |
+
+### Local runner & đề thi thử
+
+- **Local runner** (cho Phase 6 PyTorch/Hugging Face và `cap-01` `ex03` FastAPI `TestClient`): chạy `uv run python tools/localrunner/fetch_models.py` một lần để tải cache model offline, sau đó chạy `uv run python tools/localrunner/serve.py` (`127.0.0.1:8765`).
+- **Đề thi thử:** 4 đề mock exam song ngữ có tính giờ (`mock-python-core`, `mock-data-ml`, `mock-ai-engineer`, `mock-final`).
+
+### Xuất bản in HTML & PDF
+
+Xuất giáo trình, cheat sheet từng phase và đề thi bản in (kèm file đáp án tách riêng) bằng thư viện chuẩn Python + Chrome/Edge headless:
+
+```bash
+uv run python tools/export_pdf.py --only all --lang both            # HTML + PDF qua Chrome/Edge
+uv run python tools/export_pdf.py --only book --lang both --html-only  # Chỉ xuất HTML
+```
 
 ### Chạy nhanh
 
@@ -165,8 +195,8 @@ Mỗi bài học là code: example chạy được, starter fail, solution pass,
 
 ```bash
 uv run python tools/validate.py   # schema, parity EN/VI, example, starter fail / solution pass, đáp án quiz, ruff
-uv run pytest curriculum          # test của mọi exercise với solution
-pnpm typecheck                    # TypeScript + kiểm tra en.json/vi.json cùng khóa
+uv run python -m pytest curriculum # test của mọi exercise với solution
+pnpm typecheck                    # TypeScript + kiểm tra en.json/vi.json cùng khóa (dùng pnpm.cmd trên Windows PowerShell)
 ```
 
 ### Cấu trúc dự án

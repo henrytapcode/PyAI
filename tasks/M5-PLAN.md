@@ -36,15 +36,15 @@ Theo các đề xuất ★ ở trên. Thêm: exercise được ghi `runner: loca
 | 2c | `m5-cap01-ex02` | cap-01 ex02: eval theo hội thoại + so baseline (fixed/broken) | `b594a95` |
 | 2d | `m5-cap01-ex03` | cap-01 ex03: dịch vụ FastAPI có session (TTL, giới hạn số session, 404) (`runner: local`); p8-05 đã có cache + metrics nên không làm lại | `c429894` |
 | 2e | `m5-cap01-quiz` | cap-01 quiz + portfolio `lesson`, cập nhật pitch | `cfc94c5` |
-| 2f | `m5-cap01-review` | Reviewer Opus 100%, sửa | đang làm |
-| 3a–3f | `m5-cap02-*` | cap-02 tool agent, cùng nhịp 2a–2f (ex01 phân quyền tool, ex02 retry + ngân sách, ex03 trace + báo cáo) | |
-| 4 | `m5-mock-ai` | Mock exam phase 6–8 (24 câu) | |
-| 5 | `m5-mock-final` | Mock exam tổng (40 câu) | |
-| 5b | `m5-mock-review` | Reviewer Opus 100% cả 2 đề, sửa | |
-| 6a | `m5-pdf-book` | `tools/export_pdf.py`: giáo trình EN/VI | |
-| 6b | `m5-pdf-sheets` | Cheat sheet mỗi phase + đề in được, đáp án tách riêng | |
-| 7a–7c | `m5-overlap-*` | 33 cảnh báo chép code, chia theo nhóm phase | |
-| 8 | `m5-polish` | Soát luồng đầu-cuối trong app (desktop + mobile), sửa lỗi, README | |
-| 9 | `m5-docs` | DESIGN/CLAUDE.md/CONTENT_GUIDE: M5 xong | |
+| 2f | `m5-cap01-review` | Reviewer Opus 100%, sửa | `dcb33c8` |
+| 3a–3f | `m5-cap02-*` | cap-02 tool agent, cùng nhịp 2a–2f (ex01 phân quyền tool, ex02 retry + ngân sách, ex03 trace + báo cáo) | `85c22f1` |
+| 4 | `m5-mock-ai` | Mock exam phase 6–8 (24 câu) | `85c22f1` |
+| 5 | `m5-mock-final` | Mock exam tổng (40 câu) | `85c22f1` |
+| 5b | `m5-mock-review` | Reviewer Opus/Argon 100% cả 2 đề, sửa | `85c22f1` |
+| 6a | `m5-pdf-book` | `tools/export_pdf.py`: giáo trình EN/VI (pure stdlib + Chrome/Edge headless) | Wave 2A (done) |
+| 6b | `m5-pdf-sheets` | Cheat sheet mỗi phase + đề in được, đáp án tách riêng | Wave 2A (done) |
+| 7a–7c | `m5-overlap-*` | 33 cảnh báo chép code, chia theo nhóm phase | Wave 2B (pending) |
+| 8 | `m5-polish` | Soát luồng/route tĩnh trong `apps/web/out/`, README | Wave 2A (done) |
+| 9 | `m5-docs` | DESIGN/CONTENT_GUIDE/M5-PLAN: cập nhật Wave 2A | Wave 2A (done) |
 
 Cổng mỗi bước: validate (`--path` hoặc toàn bộ), `uv run python -m pytest`, `EXERCISE_TARGET=starter` (mọi test fail), ruff, typecheck + build (tắt dev server trước), xem trong trình duyệt của app.
