@@ -83,6 +83,8 @@
     "weakTopics": "Chủ đề cần củng cố",
     "weakTopicsEmpty": "Chưa có chủ đề yếu. Làm vài bài quiz để hệ thống phân tích.",
     "accuracy": "Đúng {rate}",
+    "drillWeak": "Luyện chủ đề yếu",
+    "drillTopic": "Luyện {topic}",
     "activity": "Hoạt động (12 tuần gần nhất)",
     "less": "Ít",
     "more": "Nhiều",
@@ -271,7 +273,33 @@
     "reviewed": "Đã ôn {count}",
     "deckSize": "Bộ thẻ: {count}",
     "practice": "Vẫn luyện thêm",
-    "goToLessons": "Sang lộ trình bài học"
+    "goToLessons": "Sang lộ trình bài học",
+    "tabs": {
+      "srs": "Ôn SRS hằng ngày",
+      "drill": "Luyện chủ đề yếu"
+    },
+    "drill": {
+      "title": "Luyện tập thông minh theo chủ đề yếu",
+      "subtitle": "Tập trung vào các chủ đề bạn hay làm sai hoặc chọn bất kỳ chủ đề nào để luyện nhanh.",
+      "weakOverview": "Chủ đề yếu nhất của bạn",
+      "weakEmpty": "Chưa có lịch sử quiz — Chế độ Trộn thông minh sẽ chọn bộ câu hỏi khởi động cân bằng.",
+      "smartMix": "Trộn thông minh",
+      "chooseTopic": "Chọn chủ đề",
+      "questionCount": "Số câu hỏi",
+      "availableCount": "Có {count} câu hỏi",
+      "start": "Bắt đầu luyện",
+      "finish": "Hoàn tất",
+      "quit": "Kết thúc sớm",
+      "summaryTitle": "Hoàn thành phiên luyện!",
+      "scoreLabel": "Đúng {correct}/{total} ({rate})",
+      "xpEarned": "+{xp} XP nhận được",
+      "topicBreakdown": "Kết quả theo chủ đề",
+      "missedTitle": "Câu cần xem lại",
+      "missedHint": "Các câu làm sai đã được tự động thêm vào bộ thẻ Ôn SRS hằng ngày của bạn.",
+      "drillAgain": "Luyện tiếp",
+      "changeTopic": "Đổi thiết lập",
+      "openLesson": "Mở bài học"
+    }
   },
   "exam": {
     "title": "Kiểm tra",
@@ -358,7 +386,53 @@
     "filterTopic": "Chủ đề",
     "practiced": "Đã luyện",
     "markPracticed": "Đánh dấu đã luyện",
-    "count": "{count} câu hỏi"
+    "count": "{count} câu hỏi",
+    "tip": "Mẹo trả lời",
+    "kind": {
+      "concept": "Lý thuyết",
+      "coding": "Coding",
+      "scenario": "Tình huống",
+      "system": "Hệ thống"
+    },
+    "tabs": {
+      "bank": "Ngân hàng câu hỏi",
+      "mock": "Phỏng vấn thử"
+    },
+    "mock": {
+      "title": "Phỏng vấn thử tương tác",
+      "subtitle": "Mô phỏng buổi phỏng vấn AI Engineer thật với đồng hồ từng câu, nháp ý chính và tự chấm điểm.",
+      "filterTopic": "Chủ đề",
+      "filterLevel": "Cấp độ",
+      "filterKind": "Loại câu hỏi",
+      "questionCount": "Số câu hỏi",
+      "timerLabel": "Thời gian mỗi câu",
+      "noTimer": "Không giới hạn",
+      "matchingPool": "{count} câu hỏi phù hợp",
+      "noMatches": "Không có câu hỏi nào khớp bộ lọc. Bạn hãy thử mở rộng lựa chọn nhé.",
+      "start": "Bắt đầu phỏng vấn thử",
+      "pause": "Tạm dừng",
+      "resume": "Tiếp tục",
+      "timesUp": "Hết giờ",
+      "showTip": "Xem gợi ý",
+      "hideTip": "Ẩn gợi ý",
+      "notesLabel": "Dàn ý câu trả lời của bạn (tùy chọn)",
+      "notesPlaceholder": "Ghi nhanh các ý chính hoặc tập nói thành tiếng trước khi mở đáp án mẫu…",
+      "revealAnswer": "Xem đáp án mẫu",
+      "modelAnswer": "Đáp án mẫu",
+      "yourNotes": "Ghi chú của bạn",
+      "ratePrompt": "Bạn tự đánh giá câu trả lời của mình thế nào?",
+      "rateNeedsWork": "Cần ôn thêm",
+      "ratePartial": "Tạm ổn",
+      "rateConfident": "Tự tin",
+      "confidentHint": "Tự động đánh dấu câu này là đã luyện",
+      "quit": "Kết thúc phiên",
+      "summaryTitle": "Hoàn thành buổi phỏng vấn thử",
+      "elapsed": "Tổng thời gian: {time}",
+      "revisitTitle": "Câu cần ôn lại",
+      "allConfident": "Bạn đã tự tin ở tất cả các câu hỏi. Rất tốt!",
+      "newMock": "Phiên phỏng vấn mới",
+      "retryMissed": "Luyện lại câu chưa ổn ({count})"
+    }
   },
   "portfolio": {
     "title": "Portfolio",

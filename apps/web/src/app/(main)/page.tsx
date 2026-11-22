@@ -195,22 +195,37 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground">{t("weakTopicsEmpty")}</p>
               ) : (
                 <div className="space-y-3">
-                  {(data.weak.length ? data.weak : data.accuracy.slice(0, 4)).slice(0, 5).map((w) => (
-                    <div key={w.topic}>
-                      <div className="mb-1 flex justify-between text-sm font-bold">
-                        <span>{loc.t(catalog.topics[w.topic]) ?? w.topic}</span>
-                        <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                          {t("accuracy", { rate: percent(w.rate) })}
-                        </span>
-                      </div>
-                      <Progress value={w.rate} tone={w.rate >= 0.7 ? "success" : "primary"} />
-                    </div>
-                  ))}
-                  {data.due > 0 && (
-                    <Button asChild variant="soft" size="sm" className="mt-1 w-full">
-                      <Link href="/review/">{t("reviewNow")}</Link>
+                  {(data.weak.length ? data.weak : data.accuracy.slice(0, 4)).slice(0, 5).map((w) => {
+                    const topicLabel = loc.t(catalog.topics[w.topic]) ?? w.topic;
+                    return (
+                      <Link
+                        key={w.topic}
+                        href={`/review/?mode=drill&topic=${encodeURIComponent(w.topic)}`}
+                        aria-label={t("drillTopic", { topic: topicLabel })}
+                        className="group block rounded-md p-1.5 -mx-1.5 transition-colors hover:bg-accent/50 outline-none focus-visible:outline-2 focus-visible:outline-ring"
+                      >
+                        <div className="mb-1 flex items-center justify-between text-sm font-bold">
+                          <span className="group-hover:text-primary">{topicLabel}</span>
+                          <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                            {t("accuracy", { rate: percent(w.rate) })}
+                          </span>
+                        </div>
+                        <Progress value={w.rate} tone={w.rate >= 0.7 ? "success" : "primary"} />
+                      </Link>
+                    );
+                  })}
+                  <div className="flex flex-col gap-2 pt-1">
+                    <Button asChild variant="soft" size="sm" className="w-full">
+                      <Link href="/review/?mode=drill">
+                        {t("drillWeak")} <ArrowRight aria-hidden="true" />
+                      </Link>
                     </Button>
-                  )}
+                    {data.due > 0 && (
+                      <Button asChild variant="outline" size="sm" className="w-full">
+                        <Link href="/review/">{t("reviewNow")}</Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               )}
             </CardContent>

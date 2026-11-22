@@ -83,6 +83,8 @@
     "weakTopics": "Topics to strengthen",
     "weakTopicsEmpty": "No weak topics yet. Answer some quizzes and they will show up here.",
     "accuracy": "{rate} correct",
+    "drillWeak": "Drill weak topics",
+    "drillTopic": "Drill {topic}",
     "activity": "Activity (last 12 weeks)",
     "less": "Less",
     "more": "More",
@@ -271,7 +273,33 @@
     "reviewed": "{count} reviewed",
     "deckSize": "Deck: {count} cards",
     "practice": "Practice anyway",
-    "goToLessons": "Go to lessons"
+    "goToLessons": "Go to lessons",
+    "tabs": {
+      "srs": "Daily SRS",
+      "drill": "Weak-Topic Drill"
+    },
+    "drill": {
+      "title": "Smart Weak-Topic Drill",
+      "subtitle": "Target your lowest-accuracy topics or pick any topic for a focused practice sprint.",
+      "weakOverview": "Your weakest topics",
+      "weakEmpty": "No quiz history yet — Smart Mix will give you a balanced warm-up across topics.",
+      "smartMix": "Smart weak mix",
+      "chooseTopic": "Topic focus",
+      "questionCount": "Session length",
+      "availableCount": "{count} questions available",
+      "start": "Start drill",
+      "finish": "Finish drill",
+      "quit": "End early",
+      "summaryTitle": "Drill complete!",
+      "scoreLabel": "{correct}/{total} correct ({rate})",
+      "xpEarned": "+{xp} XP earned",
+      "topicBreakdown": "Topic breakdown",
+      "missedTitle": "Questions to revisit",
+      "missedHint": "Missed questions were added to your Daily SRS deck.",
+      "drillAgain": "Drill again",
+      "changeTopic": "Change setup",
+      "openLesson": "Open lesson"
+    }
   },
   "exam": {
     "title": "Exams",
@@ -358,7 +386,53 @@
     "filterTopic": "Topic",
     "practiced": "Practiced",
     "markPracticed": "Mark as practiced",
-    "count": "{count} questions"
+    "count": "{count} questions",
+    "tip": "Interviewer tip",
+    "kind": {
+      "concept": "Concept",
+      "coding": "Coding",
+      "scenario": "Scenario",
+      "system": "System"
+    },
+    "tabs": {
+      "bank": "Question bank",
+      "mock": "Mock interview"
+    },
+    "mock": {
+      "title": "Interactive Mock Interview",
+      "subtitle": "Simulate a real AI Engineer interview with a per-question timer, notes scratchpad, and self-grading.",
+      "filterTopic": "Topic",
+      "filterLevel": "Level",
+      "filterKind": "Question type",
+      "questionCount": "Questions",
+      "timerLabel": "Timer per question",
+      "noTimer": "No timer",
+      "matchingPool": "{count} matching questions",
+      "noMatches": "No questions match these filters. Try broadening your selection.",
+      "start": "Start mock interview",
+      "pause": "Pause",
+      "resume": "Resume",
+      "timesUp": "Time's up",
+      "showTip": "Show tip",
+      "hideTip": "Hide tip",
+      "notesLabel": "Your answer outline (optional)",
+      "notesPlaceholder": "Jot down key points or speak out loud before revealing the model answer…",
+      "revealAnswer": "Reveal model answer",
+      "modelAnswer": "Model answer",
+      "yourNotes": "Your notes",
+      "ratePrompt": "How did your answer compare?",
+      "rateNeedsWork": "Needs work",
+      "ratePartial": "Partially",
+      "rateConfident": "Confident",
+      "confidentHint": "Marks this question as practiced",
+      "quit": "End session",
+      "summaryTitle": "Mock interview complete",
+      "elapsed": "Total time: {time}",
+      "revisitTitle": "Questions to review",
+      "allConfident": "You rated every question as Confident. Great job!",
+      "newMock": "New mock interview",
+      "retryMissed": "Retry needs-work ({count})"
+    }
   },
   "portfolio": {
     "title": "Portfolio",

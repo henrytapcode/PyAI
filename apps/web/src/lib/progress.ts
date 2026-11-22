@@ -76,10 +76,12 @@ interface Actions {
   showHint(exerciseId: string): void;
   viewSolution(exerciseId: string): void;
   recordQuiz(lessonId: string, score: number, answers: AnswerRecord[], flashcardIds: string[]): void;
+  recordDrill(answers: AnswerRecord[]): void;
   reviewCard(key: string, grade: Grade): void;
   recordExam(examId: string, attempt: ExamAttempt, answers: AnswerRecord[], skipsPhases?: string[], isPlacement?: boolean): void;
   markLessonComplete(id: string): void;
   togglePracticed(id: string): void;
+  setPracticed(id: string, value: boolean): void;
   toggleBookmark(lessonId: string): void;
   saveNote(lessonId: string, content: string): void;
   deleteNote(lessonId: string): void;
@@ -206,6 +208,17 @@ export const useProgress = create<ProgressStore>()(
           };
         }),
 
+      recordDrill: (answers) =>
+        set((s) => {
+          if (answers.length === 0) return {};
+          const applied = applyAnswers(s, answers);
+          const correctCount = answers.filter((a) => a.correct).length;
+          return {
+            ...applied,
+            ...(correctCount > 0 ? gain(s, XP.review * correctCount) : {}),
+          };
+        }),
+
       reviewCard: (key, grade) =>
         set((s) => {
           const card = s.srs[key] ?? newCard();
@@ -247,6 +260,7 @@ export const useProgress = create<ProgressStore>()(
         ),
 
       togglePracticed: (id) => set((s) => ({ practiced: { ...s.practiced, [id]: !s.practiced[id] } })),
+      setPracticed: (id, value) => set((s) => ({ practiced: { ...s.practiced, [id]: value } })),
 
       toggleBookmark: (lessonId) =>
         set((s) => {

@@ -1,149 +1,127 @@
-# SPEC — Bookmarks & Markdown Notes per Lesson
+# SPEC: Smart Weak-Topic Drill & Interactive Mock Interview
 
 ## Tier & Summary
-- **Tier:** **TIER 2 (Standard)** — Touches 6 files within `apps/web` (1 store file, 1 new component, 2 existing UI files, 2 i18n files), zero protected backend/curriculum pipeline changes, backward-compatible `localStorage` persistence.
-- **Summary:** Add per-lesson Bookmarks and Markdown Notes stored in `useProgress` (`localStorage` + automatic JSON export/import), accessible via a Bookmark toggle and `Notes` tab in `LessonView`, and filterable on `/learn/` (`All` / `Bookmarked` / `With notes`).
+- **Tier:** TIER 2 (Standard — frontend-only feature inside `apps/web`, zero schema/storage/backend/curriculum changes; touches 8 files including 2 new components and EN/VI message parity).
+- **Summary:** Add two high-value practice modes using existing `review.json` (958 tagged questions) and `interview.json` (87 questions with `kind` and `tip`):
+  1. **Smart Weak-Topic Drill** as a tab inside `/review/` (plus 1-click deep links from Dashboard Weak Topics).
+  2. **Interactive Mock Interview** as a tab inside `/interview/` with setup filters, per-question timer, scratchpad notes, progressive tip reveal, model answer comparison, and 3-level self-rating.
 
 ## Goal & Non-Goals
 - **Goals:**
-  1. Persist `bookmarks` and `notes` per `lessonId` in `useProgress` (`apps/web/src/lib/progress.ts`) with full backward compatibility for existing v1 `localStorage` data and automatic inclusion in `exportProgress()` / `importData()`.
-  2. Provide a header Bookmark toggle button and a `Notes` tab (`?tab=notes` deep-link supported) in `LessonView`.
-  3. Build `LessonNotes` with Edit / Preview modes (reusing `<Markdown />` with `onTryCode` so Python snippets in notes can run in Workbench), 400ms debounced autosave + unmount/lesson-change flush, `.md` download export, and inline 2-step clear confirmation (no `window.confirm`).
-  4. Add a Dose-compliant filter bar (`All`, `Bookmarked`, `With notes`) and per-row bookmark/note indicators + note excerpt preview on `/learn/`.
-  5. Maintain strict 1:1 EN/VI i18n parity (VI addresses reader as `"bạn"`) and Dose Design System compliance (`apps/web/design.md`).
+  - Let learners drill their weakest topics (derived from `questionStats` via `topicAccuracy`) or any chosen topic with 5/10/15 questions from `review.json`, updating `questionStats`, `srs` (adding missed questions), and `xp`.
+  - Deep-link from Dashboard weak topics directly into `/review/?mode=drill&topic=<topicId>` (and `/review/?mode=drill`).
+  - Let learners run timed, realistic mock interviews from `interview.json` with filters (`topic`, `level`, `kind`, `count`, `timer`), scratchpad notes, optional tip reveal, model answer reveal, 3-level self-assessment (`needs_work` | `partial` | `confident`), and end-of-session summary.
+  - Surface existing `kind` badge and `tip` callout on the Interview Question Bank as well.
+  - Follow Dose Design System (`apps/web/design.md`): no raw color literals, no `backdrop-blur`, no `transition-all`, tap targets >= 44px (`.hit`), full EN/VI parity (`"bạn"` in VI).
 - **Non-Goals (DO NOT touch):**
-  - Do NOT touch `tools/`, `curriculum/`, `packages/`, `apps/web/src/lib/storage.ts`, `apps/web/src/lib/types.ts`, `apps/web/src/app/tokens.css`, `apps/web/src/app/globals.css`, or `apps/web/src/components/markdown.tsx`.
-  - Do NOT bump `ProgressData.version` from `1` or break existing persisted state missing `bookmarks`/`notes`.
-  - Do NOT install new npm packages.
+  - Do NOT modify `ProgressData` persisted schema or `apps/web/src/lib/storage.ts`.
+  - Do NOT modify `tools/build_content.py`, `curriculum/`, `apps/web/src/lib/types.ts`, `tokens.css`, or `globals.css`.
+  - Do NOT add new top-level navigation routes or install npm packages.
+  - Do NOT add AI/network calls (app is 100% static/offline-first).
 
 ## File Whitelist
-- `apps/web/src/lib/progress.ts` (modify)
-- `apps/web/src/components/lesson/lesson-notes.tsx` (create)
-- `apps/web/src/components/lesson/lesson-view.tsx` (modify)
-- `apps/web/src/app/(main)/learn/page.tsx` (modify)
-- `apps/web/messages/en.json` (modify)
-- `apps/web/messages/vi.json` (modify)
+- `apps/web/src/lib/progress.ts` (add `recordDrill` and `setPracticed` actions only)
+- `apps/web/src/components/weak-topic-drill.tsx` (NEW)
+- `apps/web/src/components/mock-interview.tsx` (NEW)
+- `apps/web/src/app/(main)/review/page.tsx`
+- `apps/web/src/app/(main)/interview/page.tsx`
+- `apps/web/src/app/(main)/page.tsx`
+- `apps/web/messages/en.json`
+- `apps/web/messages/vi.json`
 
 ## File Blacklist
 - `apps/web/src/lib/storage.ts`
 - `apps/web/src/lib/types.ts`
-- `apps/web/src/components/markdown.tsx`
 - `apps/web/src/app/tokens.css`
 - `apps/web/src/app/globals.css`
-- `apps/web/package.json`, `pnpm-lock.yaml`
-- Everything under `tools/`, `curriculum/`, `packages/`
+- `tools/**`
+- `curriculum/**`
+- `packages/**`
+- `package.json`, `pnpm-lock.yaml`, `pyproject.toml`, `uv.lock`
 
 ## Technical Design & Interface Contracts
 
-### 1. Persistence Contract (`apps/web/src/lib/progress.ts`)
-Add type and fields to `ProgressData` (keeping `version: 1`):
+### 1. Store Actions (`apps/web/src/lib/progress.ts`)
+Add two additive actions to `Actions` (no changes to `ProgressData` or `initialProgress`):
 ```ts
-export interface LessonNote {
-  content: string;
-  updatedAt: string; // ISO timestamp
+recordDrill(answers: AnswerRecord[]): void;
+setPracticed(id: string, value: boolean): void;
+```
+- `recordDrill(answers)`:
+  - Calls existing `applyAnswers(s, answers)` to update `questionStats` and enqueue missed questions (`q:<id>`) into `srs`.
+  - Awards `XP.review * correctCount` via `gain(s, ...)` (if `correctCount > 0`, else no XP change).
+- `setPracticed(id, value)`:
+  - Sets `practiced: { ...s.practiced, [id]: value }` idempotently (used when learner self-rates `"confident"` in Mock Interview so it never accidentally un-marks an already practiced question).
+
+### 2. Smart Weak-Topic Drill (`apps/web/src/components/weak-topic-drill.tsx`)
+```ts
+export interface WeakTopicDrillProps {
+  questions: Question[];
+  initialTopic?: string | null;
 }
 ```
-Inside `ProgressData`:
+- **Smart Question Selection (`buildDrillQueue`):**
+  - Pure helper function taking `(questions, progress, selectedTopic: string | "smart", count: 5 | 10 | 15)`.
+  - Filter pool:
+    - If `selectedTopic !== "smart"`: questions where `q.tags.includes(selectedTopic)`.
+    - If `selectedTopic === "smart"`: rank topics by `topicAccuracy(p)` ascending (weakest first). Take questions whose primary tag (`q.tags[0]`) is in weak topics (`rate < 0.7`) first; if fewer than `count`, top up from remaining lowest-accuracy topics, then unseen topics (shuffled within each priority bucket).
+  - Within a bucket, prioritize questions with higher `wrong` count or never attempted (`!p.questionStats[q.id]`), then shuffle ties.
+  - Slice to `Math.min(count, pool.length)`.
+- **States:**
+  - `setup`: Shows weak-topic accuracy cards (top weak topics with progress bars + 1-click select), topic filter chips (`Smart mix` + topics present in `questions` sorted with weakest first), length selector (`5`, `10`, `15`), and `Start drill` CTA (disabled if pool is empty).
+  - `active`: Progress bar (`pos + 1 / queue.length`), `QuestionView` (`showType={false}`), `SourceLine` with topic badge + lesson link, `Check` button -> reveals explanation + `Next` / `Finish` button. Records each answer into session results; on finish (or last question submit), calls `recordDrill(answers)` once.
+  - `summary`: Score (`correct/total`, `%`), XP earned, per-topic session breakdown, list of missed questions with lesson links, and actions: `Drill again` (same config) & `Change topic`.
+- **Edge Cases:**
+  - New learner (`questionStats` empty): `Smart mix` gracefully falls back to a balanced random sample across available topics with an explanatory hint.
+  - `initialTopic` passed from URL `?mode=drill&topic=X`: pre-selects topic `X` if valid and exists in `questions`.
+
+### 3. Interactive Mock Interview (`apps/web/src/components/mock-interview.tsx`)
 ```ts
-  /** Bookmarked lesson IDs mapped to ISO timestamp when bookmarked. */
-  bookmarks: Record<string, string>;
-  /** Per-lesson Markdown notes mapped by lesson ID. */
-  notes: Record<string, LessonNote>;
+export interface MockInterviewProps {
+  questions: InterviewQuestion[];
+}
 ```
-Inside `initialProgress()`:
-```ts
-  bookmarks: {},
-  notes: {},
-```
-Inside `Actions`:
-```ts
-  toggleBookmark(lessonId: string): void;
-  saveNote(lessonId: string, content: string): void;
-  deleteNote(lessonId: string): void;
-```
-Behavior & edge cases:
-- Always guard legacy persisted states where `s.bookmarks` or `s.notes` may be `undefined` (`const prev = s.bookmarks ?? {}`, `const prev = s.notes ?? {}`).
-- `toggleBookmark(lessonId)`: if `prev[lessonId]` exists, omit `lessonId` from new object; otherwise set `next[lessonId] = new Date().toISOString()`.
-- `saveNote(lessonId, content)`: if `content.trim().length === 0`, omit `lessonId` from `notes` (clean empty notes); otherwise set `next[lessonId] = { content, updatedAt: new Date().toISOString() }`.
-- `deleteNote(lessonId)`: omit `lessonId` from `notes`.
-- `importData(data)`: `{ ...initialProgress(), ...data, bookmarks: data.bookmarks ?? {}, notes: data.notes ?? {} }`.
+- **Setup State:**
+  - Filters: `topic` (`"all"` | specific topic), `level` (`"all"` | `"junior"` | `"mid"`), `kind` (`"all"` | `"concept"` | `"coding"` | `"scenario"` | `"system"`), `count` (`3` | `5` | `8`), `timerSec` (`0` | `120` | `300`).
+  - Shows live matching pool count; disables Start if `0` matches.
+  - Prioritizes unpracticed questions first when building the session queue, then shuffles.
+- **Active State:**
+  - Header row: question index (`1/5`), progress bar, topic + level + kind badges, and countdown timer (`MM:SS` in `font-mono tabular-nums`) with Pause/Resume button (when `timerSec > 0`). When timer hits `0`, displays a non-blocking `Time's up` badge (never auto-skips).
+  - Prompt: `Markdown` question + optional `StaticCode` block.
+  - Progressive Tip: collapsible `Show tip` button revealing `qa.value.tip` (when present).
+  - Scratchpad: `<textarea>` for learner's outline/notes (ephemeral per question in session state).
+  - Reveal Model Answer: reveals `qa.value.answer` alongside the learner's notes, plus 3 self-rating buttons:
+    - `needs_work` ("Needs work" / "Cần ôn thêm")
+    - `partial` ("Partially" / "Tạm ổn")
+    - `confident` ("Confident" / "Tự tin") -> calls `setPracticed(q.id, true)`.
+  - Selecting a rating advances to next question (or summary on last question).
+- **Summary State:**
+  - Totals for `Confident`, `Partially`, `Needs work`, and total elapsed time.
+  - Expandable review list of `Needs work` / `Partially` questions showing model answer + tip.
+  - Actions: `Start new mock` (back to setup) and `Retry missed` (if any `needs_work` items exist).
 
-### 2. `LessonNotes` Component (`apps/web/src/components/lesson/lesson-notes.tsx`)
-```tsx
-export function LessonNotes({
-  lessonId,
-  lessonTitle,
-  onTryCode,
-}: {
-  lessonId: string;
-  lessonTitle: string;
-  onTryCode: (code: string) => void;
-})
-```
-- Reads `saved = useProgress((s) => s.notes?.[lessonId])`, `saveNote = useProgress((s) => s.saveNote)`, `deleteNote = useProgress((s) => s.deleteNote)`.
-- Maintains local `draft` state synced when `lessonId` changes (and flushes any pending debounced save for the previous `lessonId` before switching or unmounting).
-- Debounced autosave (400ms) calls `saveNote(lessonId, nextText)` and updates a subtle status label (`lesson.noteSaved` / `lesson.noteSaving` / empty).
-- Mode toggle (`Edit` / `Preview`) using two `.hit` pill buttons with `aria-pressed` (no nested Radix `<Tabs>`).
-- **Edit mode:** `<textarea>` with `min-h-[320px] w-full resize-y rounded-lg border border-border bg-card p-4 font-mono text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring`, `aria-label={t("notes")}`, placeholder from `t("notePlaceholder")`. Footer shows subtle Markdown hint + character count.
-- **Preview mode:** If `draft.trim()` is non-empty, renders `<div className="rounded-lg border border-border bg-card p-5"><Markdown text={draft} onTryCode={onTryCode} canVisualize={false} /></div>`. If empty, shows an empty-state card with button to switch to Edit mode.
-- **Export `.md`:** Downloads a `Blob` (`text/markdown;charset=utf-8`) named `${lessonId}-notes.md` prefixed with `# ${lessonTitle}\n\n${draft}`, disabled when `draft.trim().length === 0`.
-- **Clear note:** Inline 2-step confirmation (`Clear` -> `Confirm clear` / `Cancel`), disabled when `draft.trim().length === 0`. Never use `window.confirm`.
-- **Dose compliance:** Zero raw hex/oklch literals, zero `backdrop-blur`, zero `transition-all`, font weights only `400/500/700` (`font-normal`/`font-medium`/`font-bold`), all interactive controls use `.hit` or `Button` (`>= 44px` tap target).
+### 4. Page Integrations
+- **`apps/web/src/app/(main)/review/page.tsx`:**
+  - Wrap content in `Tabs` (`srs` | `drill`).
+  - Read `window.location.search` on mount (`?mode=drill&topic=...`) to activate `drill` tab and pass `initialTopic` to `<WeakTopicDrill />`.
+  - Keep existing SRS review logic completely intact inside the `srs` tab.
+- **`apps/web/src/app/(main)/interview/page.tsx`:**
+  - Wrap content in `Tabs` (`bank` | `mock`).
+  - Keep deep-link `?q=<id>` opening the `bank` tab and expanding that accordion item.
+  - In `bank` tab, also render `q.kind` badge (if present) and `qa.value.tip` callout (if present) inside the expanded panel.
+- **`apps/web/src/app/(main)/page.tsx` (Dashboard):**
+  - On each weak topic row in the Weak Topics card, make the topic row link (or add a compact icon/link) to `/review/?mode=drill&topic=${encodeURIComponent(w.topic)}`, and add a `Drill weak topics` button pointing to `/review/?mode=drill` when `data.accuracy.length > 0`.
 
-### 3. `LessonView` Integration (`apps/web/src/components/lesson/lesson-view.tsx`)
-- Extend `type Tab = "theory" | "examples" | "exercises" | "quiz" | "notes";`
-- Extend `applySearch` to accept `nextTab === "notes"`.
-- In `<header>` (next to prev/next buttons): add Bookmark toggle `<Button variant="ghost" size="icon-sm" onClick={() => toggleBookmark(meta.id)} aria-pressed={isBookmarked} aria-label={isBookmarked ? t("removeBookmark") : t("addBookmark")} title={...}>` with `<Bookmark className={cn("size-4", isBookmarked && "fill-current text-primary")} aria-hidden="true" />`.
-- In `<TabsList>`: update grid class to `grid-cols-5 sm:flex sm:w-full sm:justify-start` and add `<TabsTrigger value="notes">`:
-  - Icon `<StickyNote aria-hidden="true" className={cn(hasNote && "text-primary")} />` + label `{t("notes")}` + subtle indicator dot when `hasNote` (`<span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />`).
-- Add `<TabsContent value="notes" className="animate-rise">` rendering `<LessonNotes lessonId={meta.id} lessonTitle={loc.t(meta.title)} onTryCode={tryCode} />`.
-
-### 4. Roadmap Filter & Indicators (`apps/web/src/app/(main)/learn/page.tsx`)
-- Add local filter state: `type LearnFilter = "all" | "bookmarked" | "notes";` defaulting to `"all"`.
-- Compute counts across ready lessons in `catalog.phases` (and capstones if applicable, or phases lessons): `bookmarkedCount`, `notesCount`.
-- Render a compact filter bar below `PageHeader` (and after Track B card if visible) with 3 `.hit` pill buttons (`role="group"`, `aria-label={t("filterLabel")}`, `aria-pressed`):
-  - `t("filterAll")`
-  - `t("filterBookmarked")` + count badge when `bookmarkedCount > 0`
-  - `t("filterNotes")` + count badge when `notesCount > 0`
-- On each ready lesson row:
-  - If `Boolean(p.bookmarks?.[l.id])`, render `<Bookmark className="size-3.5 shrink-0 fill-current text-primary" aria-label={t("bookmarkedBadge")} />` next to the lesson title.
-  - If `Boolean(p.notes?.[l.id]?.content?.trim())`, render `<StickyNote className="size-3.5 shrink-0 text-primary" aria-label={t("hasNoteBadge")} />` next to the lesson title.
-  - When `filter === "notes"` and note exists, render a 1-line excerpt (`line-clamp-1 text-xs text-muted-foreground mt-1`) of the first non-empty line (stripped of leading `#`/`>`/`-`/`*` markdown chars) and link directly to `/lesson/${l.id}/?tab=notes` (while `all`/`bookmarked` keep `/lesson/${l.id}/`).
-- When `filter !== "all"`:
-  - Filter `phase.lessons` to matching ready lessons; hide phases with 0 matching lessons; hide `prog.phaseTest` row.
-  - If 0 phases match, render a Dose `<Card className="p-8 text-center">` empty state (`t("emptyBookmarked")` or `t("emptyNotes")`) with a `<Button variant="outline" size="sm" onClick={() => setFilter("all")}>{t("showAll")}</Button>`.
-
-### 5. i18n Keys (`apps/web/messages/en.json` & `apps/web/messages/vi.json`)
-Add identical keys to both files:
-- Under `learn`:
-  - `filterLabel`: EN `"Filter lessons"` | VI `"Lọc bài học"`
-  - `filterAll`: EN `"All"` | VI `"Tất cả"`
-  - `filterBookmarked`: EN `"Bookmarked"` | VI `"Đã lưu"`
-  - `filterNotes`: EN `"With notes"` | VI `"Có ghi chú"`
-  - `bookmarkedBadge`: EN `"Bookmarked"` | VI `"Đã đánh dấu"`
-  - `hasNoteBadge`: EN `"Has notes"` | VI `"Có ghi chú"`
-  - `emptyBookmarked`: EN `"No bookmarked lessons yet. Open any lesson and click the bookmark icon to save it here."` | VI `"Chưa có bài học nào được lưu. Mở một bài học và bấm biểu tượng đánh dấu để lưu vào đây."`
-  - `emptyNotes`: EN `"No lesson notes yet. Open any lesson and switch to the Notes tab to write Markdown notes."` | VI `"Chưa có ghi chú nào. Mở một bài học và chuyển sang tab Ghi chú để viết ghi chú Markdown."`
-  - `showAll`: EN `"Show all lessons"` | VI `"Hiện tất cả bài học"`
-- Under `lesson`:
-  - `notes`: EN `"Notes"` | VI `"Ghi chú"`
-  - `addBookmark`: EN `"Bookmark lesson"` | VI `"Đánh dấu bài học"`
-  - `removeBookmark`: EN `"Remove bookmark"` | VI `"Bỏ đánh dấu bài học"`
-  - `noteEdit`: EN `"Edit"` | VI `"Viết"`
-  - `notePreview`: EN `"Preview"` | VI `"Xem trước"`
-  - `notePlaceholder`: EN `"Write your Markdown notes for this lesson…\n\nSupports headings, lists, > [!TIP] callouts, and ```python code blocks (clickable Try it in Preview)."` | VI `"Viết ghi chú Markdown của bạn cho bài học này…\n\nHỗ trợ tiêu đề, danh sách, hộp > [!TIP] và khối code ```python (bấm Chạy thử ngay ở chế độ Xem trước)."`
-  - `noteSaved`: EN `"Saved"` | VI `"Đã lưu"`
-  - `noteSaving`: EN `"Saving…"` | VI `"Đang lưu…"`
-  - `noteExport`: EN `"Export .md"` | VI `"Xuất .md"`
-  - `noteClear`: EN `"Clear"` | VI `"Xóa"`
-  - `noteClearConfirm`: EN `"Confirm clear"` | VI `"Xác nhận xóa"`
-  - `noteEmptyPreview`: EN `"Nothing to preview yet. Switch to Edit to start writing your notes."` | VI `"Chưa có nội dung để xem trước. Chuyển sang tab Viết để bắt đầu ghi chú của bạn."`
-  - `noteChars`: EN `"{count} chars"` | VI `"{count} ký tự"`
-  - `noteHint`: EN `"Markdown supported · saved locally in your browser"` | VI `"Hỗ trợ Markdown · tự động lưu trên trình duyệt của bạn"`
+### 5. i18n Parity (`apps/web/messages/{en,vi}.json`)
+- Add matching keys in both `en.json` and `vi.json`:
+  - `review.tabs.{srs,drill}` and `review.drill.*`
+  - `interview.tabs.{bank,mock}`, `interview.kind.{concept,coding,scenario,system}`, `interview.tip`, and `interview.mock.*`
+  - `dashboard.drillWeak` and `dashboard.drillTopic`
+- Vietnamese prose MUST address the reader as `"bạn"` (never `"ta"`/`"chúng ta"`).
 
 ## Verification Commands
-1. Typecheck: `pnpm.cmd --filter web typecheck`
-2. Build: `pnpm.cmd --filter web build`
-3. Dose static check: verify 0 raw `#hex`/`oklch`, 0 `backdrop-blur`, 0 `transition-all`, 0 `font-semibold` across modified `.tsx` files.
-4. Browser E2E verification on served `apps/web/out`:
-   - Open `/lesson/p1-01-variables/`, toggle Bookmark, switch to `Notes` tab, write Markdown with a Python code block, verify `Saved`, switch to `Preview` and verify rendered Markdown + `Try it` button, reload page and verify persistence, navigate to `/learn/` and verify `Bookmarked` & `With notes` filters + indicators in both EN and VI with 0 console errors.
+1. `pnpm.cmd --filter web typecheck`
+2. `pnpm.cmd --filter web build` (ensure no dev server is running; verifies Next.js static export + ESLint/TS)
+3. i18n key parity check via Python one-liner comparing nested keys of `apps/web/messages/en.json` and `vi.json`.
+4. Dose Design System static check (`Select-String` for raw `#hex`/`oklch`, `backdrop-blur`, `transition-all` in modified `.tsx` files).
+5. Live browser UI verification via `browser` subagent on `/review/`, `/interview/`, and `/` (EN + VI toggle, completing a drill session and a mock interview session).

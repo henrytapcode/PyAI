@@ -1,9 +1,9 @@
 "use client";
 
-import { CheckCircle2, Layers, RotateCcw } from "lucide-react";
+import { CheckCircle2, Layers, RotateCcw, Target } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import reviewJson from "@/generated/review.json";
 import { Markdown, StaticCode } from "@/components/markdown";
 import { PageHeader } from "@/components/page-header";
@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WeakTopicDrill } from "@/components/weak-topic-drill";
 import { findLesson } from "@/lib/content";
 import { UntranslatedBadge, useLoc } from "@/lib/i18n";
 import { useProgress } from "@/lib/progress";
@@ -42,7 +44,41 @@ export default function ReviewPage() {
   const [queue, setQueue] = useState<string[]>(initialDue);
   const [pos, setPos] = useState(0);
   const [reviewed, setReviewed] = useState(0);
+  const [tab, setTab] = useState<"srs" | "drill">("srs");
+  const [drillTopic, setDrillTopic] = useState<string | null>(null);
   const deckSize = Object.keys(p.srs).length;
+
+  useEffect(() => {
+    const applySearch = (search: string) => {
+      const params = new URLSearchParams(search);
+      const mode = params.get("mode");
+      const topic = params.get("topic");
+      if (mode === "drill" || topic) {
+        setTab("drill");
+        if (topic) setDrillTopic(topic);
+      }
+    };
+    applySearch(window.location.search);
+    const onPopState = () => applySearch(window.location.search);
+    const onDeepLink = (e: Event) => {
+      const href = (e as CustomEvent<{ href?: string }>).detail?.href;
+      if (href) {
+        const url = new URL(href, window.location.origin);
+        const pathname = url.pathname.replace(/\/+$/, "") || "/";
+        const current = window.location.pathname.replace(/\/+$/, "") || "/";
+        if (pathname !== "/review" && pathname !== current) return;
+        applySearch(url.search);
+      } else {
+        applySearch(window.location.search);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    window.addEventListener("pyai:deeplink", onDeepLink);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("pyai:deeplink", onDeepLink);
+    };
+  }, []);
 
   const key = queue[pos];
   const entry = key ? resolve(key) : null;
@@ -74,41 +110,63 @@ export default function ReviewPage() {
         }
       />
 
-      {!entry ? (
-        <Card className="animate-rise">
-          <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:p-8">
-            <CheckCircle2 className="size-8 text-primary" aria-hidden="true" />
-            <div>
-              <h2 className="text-lg font-bold">{reviewed > 0 ? t("sessionDone") : t("due", { count: 0 })}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{reviewed > 0 ? t("reviewed", { count: reviewed }) : t("empty")}</p>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Button asChild>
-                <Link href="/learn/">{t("goToLessons")}</Link>
-              </Button>
-              {deckSize > 0 && (
-                <Button variant="outline" onClick={practice}>
-                  <RotateCcw aria-hidden="true" /> {t("practice")}
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="mb-4 flex items-center gap-3">
-            <span className="font-mono text-sm font-medium tabular-nums text-foreground">
-              {Math.min(pos + 1, queue.length)}/{queue.length}
-            </span>
-            <Progress value={pos / queue.length} className="flex-1" />
-          </div>
-          {entry.kind === "card" ? (
-            <FlashcardView key={`${key}-${pos}`} card={entry.item} cardKey={key} onGrade={onGrade} />
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "srs" | "drill")} className="space-y-5">
+        <TabsList>
+          <TabsTrigger value="srs">
+            <Layers aria-hidden="true" />
+            {t("tabs.srs")}
+          </TabsTrigger>
+          <TabsTrigger value="drill">
+            <Target aria-hidden="true" />
+            {t("tabs.drill")}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="srs">
+          {!entry ? (
+            <Card className="animate-rise">
+              <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:p-8">
+                <CheckCircle2 className="size-8 text-primary" aria-hidden="true" />
+                <div>
+                  <h2 className="text-lg font-bold">{reviewed > 0 ? t("sessionDone") : t("due", { count: 0 })}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{reviewed > 0 ? t("reviewed", { count: reviewed }) : t("empty")}</p>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <Button asChild>
+                    <Link href="/learn/">{t("goToLessons")}</Link>
+                  </Button>
+                  {deckSize > 0 && (
+                    <Button variant="outline" onClick={practice}>
+                      <RotateCcw aria-hidden="true" /> {t("practice")}
+                    </Button>
+                  )}
+                  <Button variant="soft" onClick={() => setTab("drill")}>
+                    <Target aria-hidden="true" /> {t("tabs.drill")}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ) : (
-            <QuestionReview key={`${key}-${pos}`} question={entry.item} cardKey={key} onGrade={onGrade} />
+            <>
+              <div className="mb-4 flex items-center gap-3">
+                <span className="font-mono text-sm font-medium tabular-nums text-foreground">
+                  {Math.min(pos + 1, queue.length)}/{queue.length}
+                </span>
+                <Progress value={pos / queue.length} className="flex-1" />
+              </div>
+              {entry.kind === "card" ? (
+                <FlashcardView key={`${key}-${pos}`} card={entry.item} cardKey={key} onGrade={onGrade} />
+              ) : (
+                <QuestionReview key={`${key}-${pos}`} question={entry.item} cardKey={key} onGrade={onGrade} />
+              )}
+            </>
           )}
-        </>
-      )}
+        </TabsContent>
+
+        <TabsContent value="drill">
+          <WeakTopicDrill questions={deck.questions} initialTopic={drillTopic} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
