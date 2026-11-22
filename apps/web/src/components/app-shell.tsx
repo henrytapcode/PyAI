@@ -74,7 +74,7 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
       </a>
 
       {/* Desktop sidebar: Dose theme uses --muted ground */}
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-muted px-3 py-4 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-muted pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] pr-3 pt-[max(1rem,env(safe-area-inset-top))] lg:flex">
         <Link href="/" className="mb-4 flex items-center gap-2.5 px-2" aria-label="PyAI Path">
           <Logo className="size-9" aria-hidden="true" />
           <span className="font-display text-xl font-bold leading-none tracking-tight">PyAI Path</span>
@@ -128,27 +128,29 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar: solid background */}
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background px-4 lg:hidden">
-          <Link href="/" className="hit flex items-center gap-2" aria-label="PyAI Path">
-            <Logo className="size-7" aria-hidden="true" />
-            <span className="font-display text-lg font-bold leading-none tracking-tight">PyAI Path</span>
-          </Link>
-          <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              aria-label={t("search")}
-              className="hit grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            >
-              <Search className="size-4" aria-hidden="true" />
-            </button>
-            <span className="flex items-center gap-1 font-mono text-sm font-medium tabular-nums">
-              <Flame className={cn("size-4", days > 0 ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
-              {days}
-            </span>
-            <LanguageSwitch />
-            <ThemeToggle />
+        {/* Mobile top bar: solid background with iOS safe-area insets */}
+        <header className="sticky top-0 z-30 border-b border-border bg-background pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] lg:hidden">
+          <div className="flex h-14 items-center gap-2">
+            <Link href="/" className="hit flex items-center gap-2" aria-label="PyAI Path">
+              <Logo className="size-7" aria-hidden="true" />
+              <span className="font-display text-lg font-bold leading-none tracking-tight">PyAI Path</span>
+            </Link>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                aria-label={t("search")}
+                className="hit grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                <Search className="size-4" aria-hidden="true" />
+              </button>
+              <span className="flex items-center gap-1 font-mono text-sm font-medium tabular-nums">
+                <Flame className={cn("size-4", days > 0 ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
+                {days}
+              </span>
+              <LanguageSwitch />
+              <ThemeToggle />
+            </div>
           </div>
         </header>
 
@@ -157,7 +159,7 @@ export function AppShell({ children, fullBleed = false }: { children: React.Reac
         </main>
 
         {/* Mobile bottom nav: solid background */}
-        <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] lg:hidden">
           {NAV.filter((n) => (MOBILE_MAIN as readonly string[]).includes(n.key)).map(({ href, key, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (

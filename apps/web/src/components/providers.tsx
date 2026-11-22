@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import en from "../../messages/en.json";
 import vi from "../../messages/vi.json";
+import { PwaRegister } from "@/components/pwa-register";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { VisualizerHost } from "@/components/visualizer";
 import { useAuth } from "@/lib/auth";
@@ -59,6 +60,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider delayDuration={300}>
           {hydrated && !needsOnboarding ? children : <Splash />}
           <VisualizerHost />
+          <PwaRegister />
         </TooltipProvider>
       </NextIntlClientProvider>
     </ThemeProvider>

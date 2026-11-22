@@ -600,5 +600,12 @@
       "exam": "Exams",
       "portfolio": "Portfolio"
     }
+  },
+  "pwa": {
+    "offlineTitle": "Offline mode",
+    "offlineBody": "Cached lessons, quizzes, flashcards, and progress stay available offline.",
+    "updateReady": "A newer version of PyAI Path is ready.",
+    "reload": "Reload",
+    "dismiss": "Dismiss"
   }
 }

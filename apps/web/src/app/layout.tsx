@@ -17,13 +17,30 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export const metadata: Metadata = {
   title: "PyAI Path · Python for AI Engineers",
   description: "Bilingual (VI/EN) Python learning path for AI engineers: lessons, in-browser Python, exercises with tests, quizzes, spaced repetition and mock exams.",
-  icons: { icon: "/favicon.svg" },
+  appleWebApp: {
+    capable: true,
+    title: "PyAI Path",
+    statusBarStyle: "default",
+  },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
+  icons: {
+    icon: [
+      { url: `${BASE}/favicon.svg`, type: "image/svg+xml" },
+      { url: `${BASE}/icons/icon-192.png`, sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: `${BASE}/icons/apple-touch-icon.png`, sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#faf7ef" },
     { media: "(prefers-color-scheme: dark)", color: "#040807" },

@@ -600,5 +600,12 @@
       "exam": "Kiểm tra",
       "portfolio": "Portfolio"
     }
+  },
+  "pwa": {
+    "offlineTitle": "Đang ngoại tuyến",
+    "offlineBody": "Các bài học, câu hỏi, flashcard đã lưu và tiến độ của bạn vẫn dùng được khi mất mạng.",
+    "updateReady": "Đã có phiên bản mới của PyAI Path.",
+    "reload": "Tải lại",
+    "dismiss": "Đóng"
   }
 }

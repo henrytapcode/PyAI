@@ -1,127 +1,126 @@
-# SPEC: Smart Weak-Topic Drill & Interactive Mock Interview
+# SPEC: iOS/iPadOS-Compatible PWA & Offline Mode
 
 ## Tier & Summary
-- **Tier:** TIER 2 (Standard — frontend-only feature inside `apps/web`, zero schema/storage/backend/curriculum changes; touches 8 files including 2 new components and EN/VI message parity).
-- **Summary:** Add two high-value practice modes using existing `review.json` (958 tagged questions) and `interview.json` (87 questions with `kind` and `tip`):
-  1. **Smart Weak-Topic Drill** as a tab inside `/review/` (plus 1-click deep links from Dashboard Weak Topics).
-  2. **Interactive Mock Interview** as a tab inside `/interview/` with setup filters, per-question timer, scratchpad notes, progressive tip reveal, model answer comparison, and 3-level self-rating.
+- **Tier:** TIER 2 (Standard — scoped to `apps/web`, zero schema/DB/auth/dependency changes; includes independent Argon diff review on completion).
+- **Summary:** Make PyAI Path installable as a standalone Home Screen web app on iPhone and iPad (Safari iOS/iPadOS) with proper Dose-themed PNG icons, `manifest.webmanifest` aligned to `NEXT_PUBLIC_BASE_PATH`, notch/Dynamic Island/Home Bar safe-area insets, and a zero-dependency Service Worker (`sw.js`) for offline reading, quizzes, flashcards, mock interviews, and cached Pyodide execution.
 
 ## Goal & Non-Goals
 - **Goals:**
-  - Let learners drill their weakest topics (derived from `questionStats` via `topicAccuracy`) or any chosen topic with 5/10/15 questions from `review.json`, updating `questionStats`, `srs` (adding missed questions), and `xp`.
-  - Deep-link from Dashboard weak topics directly into `/review/?mode=drill&topic=<topicId>` (and `/review/?mode=drill`).
-  - Let learners run timed, realistic mock interviews from `interview.json` with filters (`topic`, `level`, `kind`, `count`, `timer`), scratchpad notes, optional tip reveal, model answer reveal, 3-level self-assessment (`needs_work` | `partial` | `confident`), and end-of-session summary.
-  - Surface existing `kind` badge and `tip` callout on the Interview Question Bank as well.
-  - Follow Dose Design System (`apps/web/design.md`): no raw color literals, no `backdrop-blur`, no `transition-all`, tap targets >= 44px (`.hit`), full EN/VI parity (`"bạn"` in VI).
-- **Non-Goals (DO NOT touch):**
-  - Do NOT modify `ProgressData` persisted schema or `apps/web/src/lib/storage.ts`.
-  - Do NOT modify `tools/build_content.py`, `curriculum/`, `apps/web/src/lib/types.ts`, `tokens.css`, or `globals.css`.
-  - Do NOT add new top-level navigation routes or install npm packages.
-  - Do NOT add AI/network calls (app is 100% static/offline-first).
+  1. Generate opaque Dose-branded PNG icons (`apple-touch-icon.png` 180x180, `icon-192.png` 192x192, `icon-512.png` 512x512) matching `<Logo>` in `providers.tsx`.
+  2. Serve a static `manifest.webmanifest` via Next.js App Router `apps/web/src/app/manifest.ts` (`export const dynamic = "force-static"`) using `NEXT_PUBLIC_BASE_PATH` for `start_url`, `scope`, and icon paths.
+  3. Add iOS/iPadOS standalone metadata and `viewportFit: "cover"` in `apps/web/src/app/layout.tsx`.
+  4. Apply `env(safe-area-inset-*)` padding cleanly in `apps/web/src/components/app-shell.tsx` (mobile top bar, bottom nav, desktop/iPad sidebar) without breaking tap targets or Dose design tokens.
+  5. Add a zero-dependency Service Worker (`apps/web/public/sw.js`) and client registrar/status component (`apps/web/src/components/pwa-register.tsx`) that caches app shell, static assets, visited lessons, and Pyodide CDN assets, plus shows a minimal bilingual offline indicator and an update-reload banner when a new SW is waiting (essential on iOS standalone mode where there is no browser refresh bar).
+- **Non-Goals:**
+  - Do NOT install new npm packages (`next-pwa`, `serwist`, `workbox`, etc.).
+  - Do NOT modify `apps/web/next.config.ts`, `apps/web/src/lib/progress.ts`, `apps/web/src/lib/storage.ts`, or `curriculum/`.
+  - Do NOT add Android/desktop custom install prompt banners (iOS Safari does not fire `beforeinstallprompt`).
+  - Do NOT add push notifications or background sync.
 
 ## File Whitelist
-- `apps/web/src/lib/progress.ts` (add `recordDrill` and `setPracticed` actions only)
-- `apps/web/src/components/weak-topic-drill.tsx` (NEW)
-- `apps/web/src/components/mock-interview.tsx` (NEW)
-- `apps/web/src/app/(main)/review/page.tsx`
-- `apps/web/src/app/(main)/interview/page.tsx`
-- `apps/web/src/app/(main)/page.tsx`
-- `apps/web/messages/en.json`
-- `apps/web/messages/vi.json`
+- `apps/web/public/icons/apple-touch-icon.png` (new)
+- `apps/web/public/icons/icon-192.png` (new)
+- `apps/web/public/icons/icon-512.png` (new)
+- `apps/web/public/sw.js` (new)
+- `apps/web/src/app/manifest.ts` (new)
+- `apps/web/src/app/layout.tsx` (modify)
+- `apps/web/src/components/pwa-register.tsx` (new)
+- `apps/web/src/components/providers.tsx` (modify)
+- `apps/web/src/components/app-shell.tsx` (modify)
+- `apps/web/messages/en.json` (modify)
+- `apps/web/messages/vi.json` (modify)
 
 ## File Blacklist
-- `apps/web/src/lib/storage.ts`
-- `apps/web/src/lib/types.ts`
-- `apps/web/src/app/tokens.css`
-- `apps/web/src/app/globals.css`
-- `tools/**`
-- `curriculum/**`
-- `packages/**`
-- `package.json`, `pnpm-lock.yaml`, `pyproject.toml`, `uv.lock`
+- `apps/web/package.json`, `pnpm-lock.yaml`, `apps/web/next.config.ts`
+- `apps/web/src/lib/progress.ts`, `apps/web/src/lib/storage.ts`, `apps/web/src/lib/auth.ts`
+- `curriculum/**`, `tools/**`, `.github/**`
 
 ## Technical Design & Interface Contracts
 
-### 1. Store Actions (`apps/web/src/lib/progress.ts`)
-Add two additive actions to `Actions` (no changes to `ProgressData` or `initialProgress`):
-```ts
-recordDrill(answers: AnswerRecord[]): void;
-setPracticed(id: string, value: boolean): void;
-```
-- `recordDrill(answers)`:
-  - Calls existing `applyAnswers(s, answers)` to update `questionStats` and enqueue missed questions (`q:<id>`) into `srs`.
-  - Awards `XP.review * correctCount` via `gain(s, ...)` (if `correctCount > 0`, else no XP change).
-- `setPracticed(id, value)`:
-  - Sets `practiced: { ...s.practiced, [id]: value }` idempotently (used when learner self-rates `"confident"` in Mock Interview so it never accidentally un-marks an already practiced question).
+### 1. PNG Icons (`apps/web/public/icons/`)
+- Solid opaque background `#107c55` (Dose `--primary` `oklch(50% 0.13 160)` sRGB equivalent), inner frame `#0b5e40` (`--primary-ink`), crisp geometric white `#fbfdfb` `P` glyph + bottom-right square dot matching `Logo` in `apps/web/src/components/providers.tsx`.
+- Exact dimensions:
+  - `apple-touch-icon.png`: `180x180` (opaque, no rounded-corner transparency so iOS applies its native squircle mask cleanly).
+  - `icon-192.png`: `192x192`
+  - `icon-512.png`: `512x512`
 
-### 2. Smart Weak-Topic Drill (`apps/web/src/components/weak-topic-drill.tsx`)
+### 2. Static Web App Manifest (`apps/web/src/app/manifest.ts`)
 ```ts
-export interface WeakTopicDrillProps {
-  questions: Question[];
-  initialTopic?: string | null;
+import type { MetadataRoute } from "next";
+
+export const dynamic = "force-static";
+
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "PyAI Path · Python for AI Engineers",
+    short_name: "PyAI Path",
+    description:
+      "Bilingual (VI/EN) Python learning path for AI engineers: lessons, in-browser Python, exercises with tests, quizzes, spaced repetition and mock exams.",
+    start_url: `${BASE}/`,
+    scope: `${BASE}/`,
+    display: "standalone",
+    orientation: "any",
+    background_color: "#faf7ef",
+    theme_color: "#107c55",
+    icons: [
+      { src: `${BASE}/icons/icon-192.png`, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: `${BASE}/icons/icon-512.png`, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: `${BASE}/icons/icon-512.png`, sizes: "512x512", type: "image/png", purpose: "maskable" },
+    ],
+  };
 }
 ```
-- **Smart Question Selection (`buildDrillQueue`):**
-  - Pure helper function taking `(questions, progress, selectedTopic: string | "smart", count: 5 | 10 | 15)`.
-  - Filter pool:
-    - If `selectedTopic !== "smart"`: questions where `q.tags.includes(selectedTopic)`.
-    - If `selectedTopic === "smart"`: rank topics by `topicAccuracy(p)` ascending (weakest first). Take questions whose primary tag (`q.tags[0]`) is in weak topics (`rate < 0.7`) first; if fewer than `count`, top up from remaining lowest-accuracy topics, then unseen topics (shuffled within each priority bucket).
-  - Within a bucket, prioritize questions with higher `wrong` count or never attempted (`!p.questionStats[q.id]`), then shuffle ties.
-  - Slice to `Math.min(count, pool.length)`.
-- **States:**
-  - `setup`: Shows weak-topic accuracy cards (top weak topics with progress bars + 1-click select), topic filter chips (`Smart mix` + topics present in `questions` sorted with weakest first), length selector (`5`, `10`, `15`), and `Start drill` CTA (disabled if pool is empty).
-  - `active`: Progress bar (`pos + 1 / queue.length`), `QuestionView` (`showType={false}`), `SourceLine` with topic badge + lesson link, `Check` button -> reveals explanation + `Next` / `Finish` button. Records each answer into session results; on finish (or last question submit), calls `recordDrill(answers)` once.
-  - `summary`: Score (`correct/total`, `%`), XP earned, per-topic session breakdown, list of missed questions with lesson links, and actions: `Drill again` (same config) & `Change topic`.
-- **Edge Cases:**
-  - New learner (`questionStats` empty): `Smart mix` gracefully falls back to a balanced random sample across available topics with an explanatory hint.
-  - `initialTopic` passed from URL `?mode=drill&topic=X`: pre-selects topic `X` if valid and exists in `questions`.
 
-### 3. Interactive Mock Interview (`apps/web/src/components/mock-interview.tsx`)
-```ts
-export interface MockInterviewProps {
-  questions: InterviewQuestion[];
-}
-```
-- **Setup State:**
-  - Filters: `topic` (`"all"` | specific topic), `level` (`"all"` | `"junior"` | `"mid"`), `kind` (`"all"` | `"concept"` | `"coding"` | `"scenario"` | `"system"`), `count` (`3` | `5` | `8`), `timerSec` (`0` | `120` | `300`).
-  - Shows live matching pool count; disables Start if `0` matches.
-  - Prioritizes unpracticed questions first when building the session queue, then shuffles.
-- **Active State:**
-  - Header row: question index (`1/5`), progress bar, topic + level + kind badges, and countdown timer (`MM:SS` in `font-mono tabular-nums`) with Pause/Resume button (when `timerSec > 0`). When timer hits `0`, displays a non-blocking `Time's up` badge (never auto-skips).
-  - Prompt: `Markdown` question + optional `StaticCode` block.
-  - Progressive Tip: collapsible `Show tip` button revealing `qa.value.tip` (when present).
-  - Scratchpad: `<textarea>` for learner's outline/notes (ephemeral per question in session state).
-  - Reveal Model Answer: reveals `qa.value.answer` alongside the learner's notes, plus 3 self-rating buttons:
-    - `needs_work` ("Needs work" / "Cần ôn thêm")
-    - `partial` ("Partially" / "Tạm ổn")
-    - `confident` ("Confident" / "Tự tin") -> calls `setPracticed(q.id, true)`.
-  - Selecting a rating advances to next question (or summary on last question).
-- **Summary State:**
-  - Totals for `Confident`, `Partially`, `Needs work`, and total elapsed time.
-  - Expandable review list of `Needs work` / `Partially` questions showing model answer + tip.
-  - Actions: `Start new mock` (back to setup) and `Retry missed` (if any `needs_work` items exist).
+### 3. iOS Metadata & Viewport (`apps/web/src/app/layout.tsx`)
+- `const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";`
+- `metadata`:
+  - `appleWebApp: { capable: true, title: "PyAI Path", statusBarStyle: "default" }` (uses `"default"` so iOS status bar text stays legible in both Dose Light `#faf7ef` and Dose Dark `#040807`).
+  - `icons`:
+    - `icon`: `[{ url: `${BASE}/favicon.svg`, type: "image/svg+xml" }, { url: `${BASE}/icons/icon-192.png`, sizes: "192x192", type: "image/png" }]`
+    - `apple`: `[{ url: `${BASE}/icons/apple-touch-icon.png`, sizes: "180x180", type: "image/png" }]`
+- `viewport`:
+  - Add `viewportFit: "cover"` alongside existing `themeColor`.
 
-### 4. Page Integrations
-- **`apps/web/src/app/(main)/review/page.tsx`:**
-  - Wrap content in `Tabs` (`srs` | `drill`).
-  - Read `window.location.search` on mount (`?mode=drill&topic=...`) to activate `drill` tab and pass `initialTopic` to `<WeakTopicDrill />`.
-  - Keep existing SRS review logic completely intact inside the `srs` tab.
-- **`apps/web/src/app/(main)/interview/page.tsx`:**
-  - Wrap content in `Tabs` (`bank` | `mock`).
-  - Keep deep-link `?q=<id>` opening the `bank` tab and expanding that accordion item.
-  - In `bank` tab, also render `q.kind` badge (if present) and `qa.value.tip` callout (if present) inside the expanded panel.
-- **`apps/web/src/app/(main)/page.tsx` (Dashboard):**
-  - On each weak topic row in the Weak Topics card, make the topic row link (or add a compact icon/link) to `/review/?mode=drill&topic=${encodeURIComponent(w.topic)}`, and add a `Drill weak topics` button pointing to `/review/?mode=drill` when `data.accuracy.length > 0`.
+### 4. Safe Area Insets (`apps/web/src/components/app-shell.tsx`)
+- Mobile `<header>`: add `pt-[env(safe-area-inset-top)] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]` with an inner `flex h-14 w-full items-center gap-2` row (or `min-h-14` + safe-area top padding) so header height never collapses beneath the iPhone Dynamic Island / status bar.
+- Mobile bottom `<nav>`: keep `pb-[env(safe-area-inset-bottom)]` and add `pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]` for iPhone/iPad landscape.
+- Desktop/iPad `<aside>`: add `pl-[max(0.75rem,env(safe-area-inset-left))] pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]`.
+- Dose compliance: zero raw hex/oklch literals, zero `backdrop-blur`, zero `transition-all`, tap targets `>= 44px` (`.hit`).
 
-### 5. i18n Parity (`apps/web/messages/{en,vi}.json`)
-- Add matching keys in both `en.json` and `vi.json`:
-  - `review.tabs.{srs,drill}` and `review.drill.*`
-  - `interview.tabs.{bank,mock}`, `interview.kind.{concept,coding,scenario,system}`, `interview.tip`, and `interview.mock.*`
-  - `dashboard.drillWeak` and `dashboard.drillTopic`
-- Vietnamese prose MUST address the reader as `"bạn"` (never `"ta"`/`"chúng ta"`).
+### 5. Service Worker (`apps/web/public/sw.js`)
+- Constants:
+  - `SHELL_CACHE = "pyai-shell-v1"`
+  - `PYODIDE_CACHE = "pyai-pyodide-v0.29.5"`
+  - `PRECACHE_PATHS`: relative to `self.registration.scope`:
+    - `""`, `"learn/"`, `"review/"`, `"exams/"`, `"interview/"`, `"glossary/"`, `"playground/"`, `"portfolio/"`, `"settings/"`, `"manifest.webmanifest"`, `"favicon.svg"`, `"icons/apple-touch-icon.png"`, `"icons/icon-192.png"`, `"icons/icon-512.png"`, `"pyodide-worker.js"`, `"pyrunner/runner.py"`, `"pyrunner/tracer.py"`, `"pyrunner/llm.py"`
+- Lifecycle:
+  - `install`: open `SHELL_CACHE`, resolve each path via `new URL(p, self.registration.scope).href`, fetch & put with `Promise.allSettled` (never fails whole install if one optional asset misses). Do NOT auto-`skipWaiting()` silently on update so active sessions aren't broken; instead listen for `message` `{ type: "SKIP_WAITING" }` -> `self.skipWaiting()`. (On very first install when no active controller exists, SW activates automatically.)
+  - `activate`: delete any cache starting with `"pyai-shell-"` or `"pyai-pyodide-"` that does not match current cache names, then `self.clients.claim()`.
+- Fetch routing (only `request.method === "GET"` and `http:`/`https:`):
+  1. **Pyodide CDN (`url.origin === "https://cdn.jsdelivr.net"` && `url.pathname.startsWith("/pyodide/")`)**: Cache-first in `PYODIDE_CACHE` (caches `response.ok` or opaque `response.type === "opaque"`).
+  2. **Same-origin navigation (`request.mode === "navigate"` && `url.origin === self.location.origin`)**: Network-first -> on success update `SHELL_CACHE` (only if `response.ok`) -> on offline/failure return `caches.match(request, { ignoreSearch: true })` or fallback to `caches.match(self.registration.scope)`.
+  3. **Same-origin immutable Next chunks (`url.origin === self.location.origin` && `url.pathname.includes("/_next/static/")`)**: Cache-first in `SHELL_CACHE` -> fetch & cache on miss.
+  4. **Other same-origin static assets (JS/CSS/JSON/SVG/PNG/WOFF2/PY/HTML)**: Stale-While-Revalidate in `SHELL_CACHE`.
+  5. **Other cross-origin requests (e.g. Supabase/local runner/analytics)**: pass through untouched.
+
+### 6. Client Registration & iOS Standalone Update/Offline UI (`apps/web/src/components/pwa-register.tsx` + `providers.tsx` + i18n)
+- `PwaRegister` (`"use client"`), mounted inside `Providers` (inside `NextIntlClientProvider`):
+  - Tracks `offline` state via `navigator.onLine` + `window` `"online"` / `"offline"` events (initialized safely in `useEffect` to avoid SSR hydration mismatch).
+  - Registers `${BASE}/sw.js` with `{ scope: `${BASE}/` }` when `process.env.NODE_ENV === "production"` and `"serviceWorker" in navigator`.
+  - Listens for `reg.waiting` and `updatefound` -> `installing.state === "installed"` (when `navigator.serviceWorker.controller` already exists) to set `updateReady = true`.
+  - Clicking Reload posts `{ type: "SKIP_WAITING" }` to `waitingWorker`, and on `navigator.serviceWorker` `"controllerchange"` calls `window.location.reload()` (guarded by a `reloadingRef` boolean so it never loops).
+  - UI (rendered only when `offline` or `updateReady`):
+    - Fixed bottom-right (above mobile bottom nav via `bottom-[calc(4.5rem+env(safe-area-inset-bottom))] lg:bottom-4 right-4 z-40`), compact Dose card (`border border-border bg-card text-foreground shadow-[var(--shadow-lift)]`) with semantic colors (`bg-warning-soft text-warning-ink` pill for offline, primary button for reload, dismiss button with `.hit`).
+- i18n keys under `pwa` in both `en.json` and `vi.json`:
+  - `pwa.offlineTitle`, `pwa.offlineBody`, `pwa.updateReady`, `pwa.reload`, `pwa.dismiss`
+  - VI prose addresses the reader as `"bạn"`.
 
 ## Verification Commands
 1. `pnpm.cmd --filter web typecheck`
-2. `pnpm.cmd --filter web build` (ensure no dev server is running; verifies Next.js static export + ESLint/TS)
-3. i18n key parity check via Python one-liner comparing nested keys of `apps/web/messages/en.json` and `vi.json`.
-4. Dose Design System static check (`Select-String` for raw `#hex`/`oklch`, `backdrop-blur`, `transition-all` in modified `.tsx` files).
-5. Live browser UI verification via `browser` subagent on `/review/`, `/interview/`, and `/` (EN + VI toggle, completing a drill session and a mock interview session).
+2. `uv run python -c "import json; en=json.load(open('apps/web/messages/en.json',encoding='utf-8')); vi=json.load(open('apps/web/messages/vi.json',encoding='utf-8')); flat=lambda d,p='': {f'{p}.{k}' if p else k for k,v in d.items() if not isinstance(v,dict)} | set().union(*(flat(v,f'{p}.{k}' if p else k) for k,v in d.items() if isinstance(v,dict))); e,v=flat(en),flat(vi); assert e==v, (e-v, v-e); print('i18n parity OK:', len(e))"`
+3. Dose design check (no `#hex`/`oklch`/`backdrop-blur`/`transition-all` in `pwa-register.tsx` & `app-shell.tsx`).
+4. `pnpm.cmd --filter web build` (both default `""` and test `NEXT_PUBLIC_BASE_PATH=/PyAI` build output check for `manifest.webmanifest`, `sw.js`, `icons/*.png`, and `<link rel="apple-touch-icon">` in `out/index.html`).
+5. Live Chrome UI + Service Worker verification on static `out/` server (`http://127.0.0.1:3099`).
+6. Independent Argon (`gemini-4-argon-medium`) review of `git diff`.
