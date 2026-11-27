@@ -84,16 +84,16 @@ export function PwaRegister() {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] right-4 z-40 flex max-w-sm flex-col gap-2 lg:bottom-4"
+      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] right-4 z-40 flex max-w-[calc(100vw-2rem)] sm:max-w-sm flex-col gap-2 lg:bottom-4"
     >
       {showUpdate && (
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-foreground shadow-[var(--shadow-lift)]">
+        <div className="animate-rise flex items-center gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-foreground shadow-[var(--shadow-lift)]">
           <RefreshCw className="size-4 shrink-0 text-primary" aria-hidden="true" />
-          <span className="flex-1 font-medium">{t("updateReady")}</span>
+          <span className="flex-1 min-w-0 break-words font-medium">{t("updateReady")}</span>
           <button
             type="button"
             onClick={() => waitingWorker.postMessage({ type: "SKIP_WAITING" })}
-            className="hit rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="hit shrink-0 rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition-[transform,background-color] duration-[120ms] hover:bg-primary/90 active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             {t("reload")}
           </button>
@@ -101,7 +101,7 @@ export function PwaRegister() {
             type="button"
             onClick={() => setWaitingWorker(null)}
             aria-label={t("dismiss")}
-            className="hit grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="hit grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-[transform,background-color,color] duration-[120ms] hover:bg-accent hover:text-foreground active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             <X className="size-4" aria-hidden="true" />
           </button>
@@ -109,9 +109,9 @@ export function PwaRegister() {
       )}
 
       {showOffline && (
-        <div className="flex items-start gap-2.5 rounded-lg border border-border bg-warning-soft px-3.5 py-2.5 text-xs text-warning-ink shadow-[var(--shadow-lift)]">
+        <div className="animate-rise flex items-start gap-2.5 rounded-lg border border-border bg-warning-soft px-3.5 py-2.5 text-xs text-warning-ink shadow-[var(--shadow-lift)]">
           <WifiOff className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <div className="flex-1">
+          <div className="flex-1 min-w-0 break-words">
             <div className="font-bold">{t("offlineTitle")}</div>
             <p className="mt-0.5 leading-snug opacity-90">{t("offlineBody")}</p>
           </div>
@@ -119,7 +119,7 @@ export function PwaRegister() {
             type="button"
             onClick={() => setOfflineDismissed(true)}
             aria-label={t("dismiss")}
-            className="hit grid size-7 shrink-0 place-items-center rounded-md text-warning-ink transition-colors hover:bg-card/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="hit grid size-7 shrink-0 place-items-center rounded-md text-warning-ink transition-[transform,background-color] duration-[120ms] hover:bg-card/60 active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             <X className="size-4" aria-hidden="true" />
           </button>

@@ -11,8 +11,10 @@ const buttonVariants = cva(
         default: "press [--press-edge:var(--primary-ink)] border-[var(--press-edge)] bg-primary text-primary-foreground hover:opacity-95",
         secondary: "press bg-secondary text-secondary-foreground hover:bg-accent",
         outline: "press bg-card text-foreground hover:bg-muted",
-        ghost: "row-cursor text-foreground hover:bg-accent hover:text-primary",
-        soft: "border border-border bg-accent text-primary hover:bg-accent/80",
+        ghost:
+          "row-cursor text-foreground hover:bg-accent hover:text-primary transition-[transform,background-color,color] duration-[120ms] ease-[var(--ease-out)] active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100",
+        soft:
+          "border border-border bg-accent text-primary hover:bg-accent/80 transition-[transform,background-color] duration-[120ms] ease-[var(--ease-out)] active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100",
         success: "press [--press-edge:var(--primary-ink)] border-[var(--press-edge)] bg-success text-success-foreground hover:opacity-95",
         danger:
           "press [--press-edge:color-mix(in_oklch,var(--danger)_75%,var(--foreground))] border-[var(--press-edge)] bg-danger text-danger-foreground hover:opacity-95",

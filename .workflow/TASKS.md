@@ -1,8 +1,8 @@
-# TASKS: iOS/iPadOS-Compatible PWA & Offline Mode
+# TASKS: Selective UI & Motion Polish
 
-- [x] T1 [PARALLEL] (Files: apps/web/public/icons/apple-touch-icon.png, apps/web/public/icons/icon-192.png, apps/web/public/icons/icon-512.png): Generate opaque Dose-branded PNG icons (180x180, 192x192, 512x512) matching `<Logo>` in `providers.tsx` and verify dimensions & PNG headers.
-- [x] T2 [PARALLEL] (Files: apps/web/public/sw.js): Implement zero-dependency Service Worker with scope-relative precaching, network-first navigation with offline fallback, cache-first immutable Next static chunks & Pyodide CDN, SWR for other same-origin assets, and `SKIP_WAITING` update message handler.
-- [x] T3 [PARALLEL] (Files: apps/web/messages/en.json, apps/web/messages/vi.json): Add bilingual `pwa` keys (`offlineTitle`, `offlineBody`, `updateReady`, `reload`, `dismiss`) with `"bạn"` in VI prose and verify key parity.
-- [x] T4 [SERIAL] (Files: apps/web/src/app/manifest.ts, apps/web/src/app/layout.tsx): Add static `manifest.ts` using `NEXT_PUBLIC_BASE_PATH`, add iOS `appleWebApp` metadata, `apple-touch-icon` + PNG icon links, and `viewportFit: "cover"`.
-- [x] T5 [SERIAL] (Files: apps/web/src/components/pwa-register.tsx, apps/web/src/components/providers.tsx, apps/web/src/components/app-shell.tsx): Create `PwaRegister` (prod SW registration, offline indicator, update reload toast), mount in `Providers`, and add iOS/iPadOS `env(safe-area-inset-*)` insets in `AppShell`.
-- [x] T6 [SERIAL] (Files: .workflow/TASKS.md): Run typecheck, i18n parity, Dose lint check, `web build`, verify live SW + iOS meta tags in Chrome, then invoke Argon (`gemini-4-argon-medium`) to review `git diff`.
+- [x] **T1:** Update `apps/web/src/app/globals.css` (`overscroll-behavior: none`, `touch-action: manipulation`, `@media (pointer: coarse)` 16px input font-size, `@media (hover: hover) and (pointer: fine)` on `.row-cursor:hover`).
+- [x] **T2:** Update `apps/web/src/components/ui/button.tsx` (`active:scale-[0.98]` + `motion-reduce` on `ghost` and `soft`).
+- [x] **T3:** Update `apps/web/src/components/ui/dialog.tsx` (symmetric 150ms open/close fade+zoom, `motion-reduce:animate-none`, `.hit` on close button).
+- [x] **T4:** Update `apps/web/src/components/ui/tooltip.tsx` (`origin-[var(--radix-tooltip-content-transform-origin)]`, 150ms open/close, `motion-reduce:animate-none`, `TooltipProvider` `delayDuration`/`skipDelayDuration` defaults).
+- [x] **T5:** Update `apps/web/src/components/pwa-register.tsx` (`animate-rise`, `min-w-0` wrapping safety).
+- [x] **T6 (QA + Browser + Argon):** Run `typecheck`, Dose guard check, `build`, browser visual/console/375px check, and Argon `git diff` review.
